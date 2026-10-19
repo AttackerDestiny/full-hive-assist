@@ -1,4 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
+local SCRIPT_VERSION = "1.3.0"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -87,12 +88,16 @@ local Config = {DryRun=false, PollSeconds=3, Speed=65, NearDistance=16,
     HoneyReserve=0, RollDelay=0.3, StarEggHoney=100000000000,
     AtlasInitiallyStopped=false, StartupDelaySeconds=60}
 for k,v in pairs(env.FullHiveConfig or {}) do assert(Config[k] ~= nil, "Unknown config: "..k); Config[k]=v end
-if env.FullHiveRunning then warn("[Full Hive] Already running") return end
+if env.FullHiveRunning then
+    warn("[Full Hive] Already running v"..tostring(env.FullHiveVersion or "unversioned").."; stop the old instance before loading v"..SCRIPT_VERSION)
+    return
+end
 assert(not env.AutoGiftedStarRunning, "Stop the other hive assist before starting Full Hive")
 assert(not env.AutoHivePendingRequest and not env.FullHivePending, "A previous server request is pending")
 env.FullHiveRunning, env.FullHiveStop = true, false
+env.FullHiveVersion = SCRIPT_VERSION
 env.FullHivePreviousReport = env.FullHiveReport
-local Report = {Phase="starting", Actions=0, RoyalJellyUsed=0, DryRun=Config.DryRun,StartedAt=os.time()}
+local Report = {Version=SCRIPT_VERSION, Phase="starting", Actions=0, RoyalJellyUsed=0, DryRun=Config.DryRun,StartedAt=os.time()}
 env.FullHiveReport = Report
 local Players, RS = game:GetService("Players"), game:GetService("ReplicatedStorage")
 local player, Events, Cache, Types, EggTypes
@@ -182,11 +187,18 @@ local function hiveFloor()
     if p and p:IsA("BasePart") then return p end
     return assert(p and p:FindFirstChild("Platform"),"Hive platform unavailable")
 end
-local function root()
+-- A private error token distinguishes a lost character from an uncertain spend.
+local CHARACTER_UNAVAILABLE = {}
+local function characterRoot()
     local c=player.Character
     local h=c and c:FindFirstChildOfClass("Humanoid")
-    assert(h and h.Health>0,"Character unavailable")
-    return assert(c:FindFirstChild("HumanoidRootPart"),"Character root unavailable")
+    local r=c and c:FindFirstChild("HumanoidRootPart")
+    if h and h.Health>0 and r and r.Parent then return r end
+end
+local function root()
+    local r=characterRoot()
+    if not r then error(CHARACTER_UNAVAILABLE,0) end
+    return r
 end
 local function distance(part)
     local p=root().Position
@@ -327,13 +339,15 @@ local function move(part)
     local deadline=os.clock()+(target-r.Position).Magnitude/Config.Speed+15
     local ok,err=pcall(function()
         while (r.Position-target).Magnitude>4 do
-            checkStop(); assert(r.Parent and os.clock()<deadline,"Movement timed out")
+            checkStop()
+            if characterRoot()~=r then error(CHARACTER_UNAVAILABLE,0) end
+            assert(os.clock()<deadline,"Movement timed out")
             assertAtlasPaused()
             task.wait(0.1)
         end
     end)
     cleanup(); cleanupMove=nil
-    assert(ok,err)
+    if not ok then error(err,0) end
     near(part)
 end
 local function setSettings(desired)
@@ -410,13 +424,12 @@ end
 local function context(s,slots)
     local stage=Policy.stage({slots=slots,starUsed=starEggUses(s)})
     local jelly=s.Eggs.RoyalJelly or 0
-    if slots>=44 and jelly>=10000 then lateStarted=true; env.FullHiveLateStarted=true end
     local bought=s.Totals and s.Totals.Purchases and s.Totals.Purchases.Eggs or {}
     local usable=math.max(0,(s.Honey or 0)-Config.HoneyReserve)
     local used=s.Totals and s.Totals.EggUses and s.Totals.EggUses.Star or 0
-    local collectorFallback=stage=="mid" and Policy.collectorRecovery(slots,1,usable,
+    local collectorFallback=Policy.collectorRecovery(slots,1,usable,
         bought.RoyalJelly or 0,env.FullHiveCollectorFallback==true)
-    return {slots=slots,starUsed=used,jelly=jelly,lateStarted=lateStarted,nextFlexible=nextFlexible,
+    return {slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,lateStarted=lateStarted,nextFlexible=nextFlexible,
         collectorFallback=collectorFallback,
         canRefill30k=Config.AutoPurchase and usable>=Policy.jellyCost(bought.RoyalJelly or 0,30000)}
 end
@@ -436,7 +449,16 @@ local function plan(s)
         local invalid=rollTask.Version~=2 or rollTask.Owner~=player.UserId or rollTask.Hive~=(h and h.Name)
             or rollTask.Job~=game.JobId
         local done,why
-        if not invalid then done,why=Policy.rollTaskDone(rollTask,current,cells,Types,p) end
+        if not invalid and p.collectorFallback and current and Policy.isCollectorSection(current)
+            and not Policy.isRecoveryTask(rollTask) then
+            done,why=true,"collector-held-during-recovery"
+        elseif not invalid and p.collectorFallback and current and not Policy.isCollectorSection(current)
+            and Policy.rollTaskSafe(rollTask,current,cells,Types,p) then
+            -- The existing coordinate stays leased, but an older gifted task
+            -- must adopt recovery mode before its next request.
+            rollTask.Mode,rollTask.Reason=Policy.recoveryMode(ctx.honey)
+        end
+        if not invalid and not done then done,why=Policy.rollTaskDone(rollTask,current,cells,Types,p) end
         if invalid or done then
             Report.LastCompletedTarget={X=rollTask.x,Y=rollTask.y,Reason=invalid and "hive-or-stage-changed" or why}
             rollTask=nil; env.FullHiveRollTask=nil; Report.ActiveTarget=nil
@@ -445,7 +467,7 @@ local function plan(s)
             p.target=current
             p.reason=rollTask.Reason
             p.mode=rollTask.Mode
-            if rollTask.Reason=="collector-fallback" and slots==43 then
+            if Policy.isRecoveryTask(rollTask) and Policy.refill(slots)>100 then
                 p.collectorFallback=true; env.FullHiveCollectorFallback=true
             end
             Report.ActiveTarget={X=rollTask.x,Y=rollTask.y,Reason=rollTask.Reason,StartedType=rollTask.StartedType}
@@ -453,9 +475,49 @@ local function plan(s)
     end
     Report.CollectorFallback=p.collectorFallback
     Report.SafeNonCollector=#p.fallbackCandidates
+    Report.NormalRefillAmount=Policy.refill(slots)
+    Report.RefillAmount=Policy.refillFor(slots,p.collectorFallback)
     Report.RefillMode=p.collectorFallback and "fallback-100" or (slots==43 and "normal-2000" or "stage-refill")
+    local batch=env.FullHiveJellyBatch
+    -- The first legendary batch also satisfies the original 10k entry gate.
+    if slots>=44 and not p.collectorFallback and (not lateStarted
+        or (batch and batch.Entry and (batch.Remaining or 0)>0 and ctx.jelly>0)) then
+        Report.RefillAmount=math.max(10000,Report.RefillAmount)
+        Report.RefillMode="legendary-entry"
+    end
     p._cells=cells
     return p,cells,slots
+end
+local function jellyBatchReady(s)
+    local inventory=s.Eggs.RoyalJelly or 0
+    local target=Report.RefillAmount
+    local recovery=Report.CollectorFallback==true
+    local h=hive()
+    local batch=env.FullHiveJellyBatch
+    local valid=batch and batch.Version==1 and batch.Owner==player.UserId
+        and batch.Job==game.JobId and batch.Hive==(h and h.Name)
+        and batch.Amount==target and batch.Recovery==recovery
+        and inventory>0 and inventory<=(batch.Remaining or 0)
+    if not valid then
+        batch=nil; env.FullHiveJellyBatch=nil
+        -- Only this equality can open a new batch. In particular, an incidental
+        -- +1 gift after an exhausted batch cannot restart Until Gifted.
+        if inventory==target and inventory>0 then
+            batch={Version=1,Owner=player.UserId,Job=game.JobId,Hive=h and h.Name,
+                Amount=target,Remaining=inventory,Recovery=recovery,
+                Entry=Report.RefillMode=="legendary-entry",StartedAt=os.time()}
+            env.FullHiveJellyBatch=batch
+            if batch.Entry then lateStarted=true; env.FullHiveLateStarted=true end
+        end
+    end
+    if batch then batch.Remaining=inventory end
+    Report.JellyBatch=batch and {Amount=batch.Amount,Remaining=inventory,StartedAt=batch.StartedAt} or nil
+    return batch~=nil
+end
+local function jellyBatchSpent(remaining)
+    local batch=env.FullHiveJellyBatch
+    if batch then batch.Remaining=remaining end
+    if remaining==0 then env.FullHiveJellyBatch=nil; Report.JellyBatch=nil end
 end
 local function find(cells,cell)
     for _,c in ipairs(cells) do if c.x==cell.x and c.y==cell.y then return c end end
@@ -482,6 +544,7 @@ local function spend(cell,item,validate,expectedTask)
     local before=s.Eggs[item] or 0
     assert(before>0,"No "..item)
     if item=="RoyalJelly" then
+        if not jellyBatchReady(s) then return false end -- No request sent; refill/replan.
         assert(Report.RoyalJellyUsed<Config.MaxRoyalJellies,"Royal Jelly limit reached")
         local settings=s.Settings or {}
         assert((settings.RollToGifted==true)==(Report.RollMode=="gifted")
@@ -498,7 +561,10 @@ local function spend(cell,item,validate,expectedTask)
     assert(consumed>=1 and consumed<=before,"Unknown item consumption")
     if item~="RoyalJelly" then assert(consumed==1,"Unexpected item consumption") end
     Report.Actions=Report.Actions+1
-    if item=="RoyalJelly" then Report.RoyalJellyUsed=Report.RoyalJellyUsed+consumed end
+    if item=="RoyalJelly" then
+        Report.RoyalJellyUsed=Report.RoyalJellyUsed+consumed
+        jellyBatchSpent(remaining)
+    end
     local b=assert(comb["x"..cell.x] and comb["x"..cell.x]["y"..cell.y],"Result bee missing")
     Report.LastResult={X=cell.x,Y=cell.y,Type=b.Type,Gifted=table.find(b.Traits or {},"Gifted")~=nil,Item=item,Consumed=consumed}
     if expectedTask and rollTask==expectedTask then
@@ -524,10 +590,14 @@ local function shopFloor(name)
     if floor and floor:IsA("ObjectValue") then floor=floor.Value end
     return assert(floor,"Shop floor missing: "..name)
 end
-local function buy(item,amount,shop)
+local function buy(item,amount,shop,inventoryCeiling)
     assert(Config.AutoPurchase,"Purchasing disabled")
     acquire(); move(shopFloor(shop)); near(shopFloor(shop))
     local before=refresh().Eggs[item] or 0
+    if inventoryCeiling then
+        if before>=inventoryCeiling then return Cache:Get() end
+        while amount>inventoryCeiling-before do amount=amount/10 end
+    end
     assert(Report.Actions<Config.MaxActions,"Action limit reached")
     local accepted=invoke(Events.ItemPackageEvent,"Purchase",{Category="Eggs",Type=item,Amount=amount})
     assert(accepted,"Purchase rejected; no retry")
@@ -536,27 +606,37 @@ local function buy(item,amount,shop)
     Report.Actions=Report.Actions+1; Report.LastPurchase={Item=item,Amount=amount}
     return s
 end
-local function refill(entryTopup)
-    local s=refresh(); local _,slots=scan(s)
-    local fallback=env.FullHiveCollectorFallback == true and slots == 43
-    local target,pack=Policy.refillFor(slots,fallback)
-    -- A refill starts only at zero, and a partial completed refill is not topped up repeatedly.
-    if not entryTopup and (s.Eggs.RoyalJelly or 0)>0 then return true end
-    if entryTopup and (s.Eggs.RoyalJelly or 0)>=10000 then return true end
-    local inventoryGoal=(entryTopup and (s.Eggs.RoyalJelly or 0) or 0)+target
-    local bought=royalJellyPurchases(s)
-    if not Config.AutoPurchase or (s.Honey or 0)-Config.HoneyReserve<Policy.jellyCost(bought,target) then return false end
-    Report.RefillMode=fallback and "fallback-100" or (slots==43 and "normal-2000" or "stage-refill")
-    Report.Activity=fallback and "Buying one 100-jelly fallback pack" or "Refilling Royal Jelly"
-    for _=1,target/pack do
-        checkStop(); s=refresh()
-        if (s.Eggs.RoyalJelly or 0)>=inventoryGoal then break end
-        local cost=Policy.jellyCost(royalJellyPurchases(s),pack)
-        if s.Honey-Config.HoneyReserve<cost then break end
-        buy("RoyalJelly",pack,"JellyDispenser")
+local function refill()
+    local s=refresh(); local _,_,slots=plan(s)
+    if jellyBatchReady(s) then return true end
+    local target=Report.RefillAmount
+    local inventory=s.Eggs.RoyalJelly or 0
+    -- Never spend or overbuy excess inventory to force equality.
+    if inventory>target then return false end
+    local missing=target-inventory
+    if not Config.AutoPurchase or (s.Honey or 0)-Config.HoneyReserve
+        <Policy.jellyCost(royalJellyPurchases(s),missing) then return false end
+    local fallback=Report.CollectorFallback==true
+    local _,pack=Policy.refillFor(slots,fallback)
+    if Report.RefillMode=="legendary-entry" then pack=math.max(pack,10000) end
+    Report.Activity="Refilling Royal Jelly to "..target.." before starting a batch"
+    while true do
+        checkStop(); s=refresh(); plan(s)
+        if Report.RefillAmount~=target or (Report.CollectorFallback==true)~=fallback then return false end
+        inventory=s.Eggs.RoyalJelly or 0
+        if inventory>=target then break end
+        missing=target-inventory
+        -- Preserve the normal pack size; use supported smaller packs for an
+        -- incidental gift/partial refill so the inventory reaches the exact goal.
+        local amount=pack
+        while amount>missing do amount=amount/10 end
+        local cost=Policy.jellyCost(royalJellyPurchases(s),amount)
+        if s.Honey-Config.HoneyReserve<cost then return false end
+        buy("RoyalJelly",amount,"JellyDispenser",target)
     end
-    move(hiveFloor())
-    return (Cache:Get().Eggs.RoyalJelly or 0)>0
+    local ready=jellyBatchReady(s)
+    if ready then move(hiveFloor()) end
+    return ready
 end
 local function eventAction(s,cells,p)
     local function safe(c) return not p.keep[Policy.key(c)] and not p.protected[Policy.key(c)] end
@@ -656,7 +736,7 @@ local function giftedBasic(s,cells,p)
             return true
         end
     end
-    if jelly==0 and not refill() then return false end
+    if not (jellyBatchReady(s) or refill()) then return false end
     mode("off")
     local function locked(c)
         local r=Types[c.bee.Type].Rarity
@@ -666,7 +746,7 @@ local function giftedBasic(s,cells,p)
         spend(basicLock,"Basic",locked)
         basicLock.NeedsJelly=true
     else
-        spend(basicLock,"RoyalJelly",locked)
+        if spend(basicLock,"RoyalJelly",locked)==false then return false end
         basicLock.NeedsJelly=false
     end
     return true
@@ -695,6 +775,8 @@ local function useStarScript(s)
     env.FullHiveStarBudget=math.min(2-used,Config.MaxActions-Report.Actions)
     env.FullHiveMove=function() move(hiveFloor()) end
     env.FullHiveRefill=refill
+    env.FullHiveJellyReady=function(stats) plan(stats); return jellyBatchReady(stats) end
+    env.FullHiveJellySpent=jellyBatchSpent
     env.FullHiveNear=function() near(hiveFloor()) end
     env.FullHiveStarRunning=true
     local before=s.Eggs.Star or 0
@@ -706,6 +788,7 @@ local function useStarScript(s)
     end)
     env.FullHiveStarRunning=false
     env.FullHiveStarBudget,env.FullHiveMove,env.FullHiveRefill,env.FullHiveNear=nil,nil,nil,nil
+    env.FullHiveJellyReady,env.FullHiveJellySpent=nil,nil
     assert(ok,err); assert(not env.AutoGiftedStarError,env.AutoGiftedStarError)
     s=refresh(); assert((s.Eggs.Star or 0)<before,"Star Egg workflow made no progress")
     Report.Actions=Report.Actions+before-(s.Eggs.Star or 0)
@@ -747,7 +830,7 @@ local function run()
         Report.NextTarget=p.target and {X=p.target.x,Y=p.target.y,Type=p.target.bee.Type} or nil
         if Config.DryRun then Report.Phase="dry-run"; return end
         if p.complete then Report.Phase="endgame-complete"; Report.Activity="Final hive requirements reached"; return end
-        local fallbackReady=p.collectorFallback and slots==43
+        local fallbackReady=p.collectorFallback
         if #cells==0 or ((s.Eggs.RoyalJelly or 0)==0 and Report.Actions==0 and not env.FullHiveStarted and not fallbackReady) then
             waitFor("Waiting for at least one bee and one Royal Jelly"); s=refresh(); continue
         end
@@ -762,19 +845,14 @@ local function run()
             if giftedBasic(s,cells,p) then continue end
             if starReady(s,cells) then Report.Phase="star-eggs"; useStarScript(s); continue end
         end
-        if slots>=44 and not lateStarted then
-            if Config.AutoPurchase and refill(true) and (Cache:Get().Eggs.RoyalJelly or 0)>=10000 then continue end
-            waitFor("Waiting for 10,000 Royal Jelly to enter the legendary stage"); s=refresh(); continue
-        end
         if not p.target then waitFor("Targets held; waiting for Atlas, inventory, or Star Egg prerequisites"); s=refresh(); continue end
-        if (s.Eggs.RoyalJelly or 0)==0 and not refill() then
-            waitFor("Waiting for enough honey for the stage refill"); s=refresh(); continue
+        local item=p.stage=="early" and (s.Eggs.StarJelly or 0)>0 and "StarJelly" or "RoyalJelly"
+        if item=="RoyalJelly" and not (jellyBatchReady(s) or refill()) then
+            waitFor("Waiting for exactly "..Report.RefillAmount.." Royal Jelly to start a batch"); s=refresh(); continue
         end
         Report.Phase="rolling"; Report.Activity=p.reason
-        local item=p.stage=="early" and (s.Eggs.StarJelly or 0)>0 and "StarJelly" or "RoyalJelly"
         ensureRollTask(p)
-        local fallbackMode=p.collectorFallback or Report.CollectorFallback or p.reason=="collector-fallback"
-        mode(item=="StarJelly" and "off" or (fallbackMode and "off" or p.mode))
+        mode(item=="StarJelly" and "off" or p.mode)
         local taskCell=rollTask and {x=rollTask.x,y=rollTask.y} or p.target
         local expected=Policy.key(taskCell)
         local activeTask=rollTask
@@ -787,25 +865,93 @@ local function run()
     Report.Phase=env.FullHiveStop and "stopped" or "limit-reached"
 end
 -- A stop button affects both the main assist and the existing Star Egg handoff.
+local function runWithCharacterRecovery()
+    while true do
+        local ok,err=pcall(run)
+        if ok then return end
+        -- Never replay an uncertain request or an embedded Star Egg workflow.
+        if err~=CHARACTER_UNAVAILABLE or env.FullHivePending or env.AutoHivePendingRequest
+            or env.FullHiveStarRunning or env.AutoGiftedStarRunning then error(err,0) end
+        release()
+        assert(not env.FullHiveAtlasOwned,"Atlas release failed during character recovery")
+        Report.RespawnRecoveries=(Report.RespawnRecoveries or 0)+1
+        Report.Phase="waiting-character"; Report.Activity="Waiting for the character to respawn"
+        repeat checkStop(); task.wait(0.25) until characterRoot()
+        checkStop()
+        -- run() refreshes server stats and revalidates the existing coordinate
+        -- lease before another action. Counters and verified purchases survive.
+        Report.Phase="character-recovered"; Report.Activity="Character ready; refreshing hive data"
+    end
+end
 local function makeUI()
     local pg=waitForChild(player,"PlayerGui")
     local old=pg:FindFirstChild("FullHiveStatus"); if old then old:Destroy() end
     local parent=uiParent()
     old=parent:FindFirstChild("FullHiveStatus"); if old then old:Destroy() end
     local gui=Instance.new("ScreenGui"); gui.Name="FullHiveStatus"; gui.ResetOnSpawn=false; gui.DisplayOrder=10000; gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; gui.Parent=parent
-    local frame=Instance.new("Frame"); frame.Size=UDim2.fromOffset(310,145); frame.Position=UDim2.fromOffset(18,80)
-    frame.BackgroundColor3=Color3.fromRGB(24,28,38); frame.Parent=gui
-    Instance.new("UICorner",frame).CornerRadius=UDim.new(0,10)
-    local text=Instance.new("TextLabel"); text.BackgroundTransparency=1; text.Size=UDim2.new(1,-20,1,-48)
-    text.Position=UDim2.fromOffset(10,8); text.TextColor3=Color3.new(1,1,1); text.TextSize=14
-    text.TextWrapped=true; text.Font=Enum.Font.Gotham; text.TextXAlignment=Enum.TextXAlignment.Left; text.Parent=frame
-    local button=Instance.new("TextButton"); button.Size=UDim2.new(1,-20,0,28); button.Position=UDim2.new(0,10,1,-36)
-    button.Text="Stop assist"; button.BackgroundColor3=Color3.fromRGB(160,65,65); button.TextColor3=Color3.new(1,1,1); button.Parent=frame
+    local make=FeatherTheme.make
+    local frame=make("Frame","StatusPanel",gui,{Size=UDim2.fromOffset(350,270),Position=UDim2.fromOffset(18,80)})
+    FeatherTheme.panel(frame)
+    local statusScale=make("UIScale","ResponsiveScale",frame,{Scale=1})
+    local function fitStatus()
+        local camera=workspace.CurrentCamera
+        if camera then
+            local size=camera.ViewportSize
+            statusScale.Scale=math.max(0.2,math.min(1,(size.X-36)/350,(size.Y-124)/270))
+        end
+    end
+    fitStatus()
+    local camera=workspace.CurrentCamera
+    if camera then
+        local resize=camera:GetPropertyChangedSignal("ViewportSize"):Connect(fitStatus)
+        gui.AncestryChanged:Connect(function() if not gui.Parent then resize:Disconnect() end end)
+    end
+    FeatherTheme.brand(frame,UDim2.fromOffset(18,10),2)
+    make("TextLabel","Subtitle",frame,{Position=UDim2.fromOffset(18,43),Size=UDim2.fromOffset(180,16),
+        BackgroundTransparency=1,Text="ATLAS HIVE ASSIST",Font=Enum.Font.GothamMedium,TextSize=10,
+        TextColor3=Color3.fromRGB(143,171,210),TextXAlignment=Enum.TextXAlignment.Left})
+    local version=make("TextLabel","VersionBadge",frame,{Position=UDim2.new(1,-87,0,17),Size=UDim2.fromOffset(69,22),
+        BackgroundColor3=Color3.fromRGB(35,50,79),BorderSizePixel=0,Text="v"..SCRIPT_VERSION,Font=Enum.Font.GothamMedium,
+        TextSize=11,TextColor3=Color3.fromRGB(184,215,255)})
+    make("UICorner","Corner",version,{CornerRadius=UDim.new(1,0)})
+    make("Frame","Divider",frame,{Position=UDim2.fromOffset(18,66),Size=UDim2.new(1,-36,0,1),
+        BackgroundColor3=Color3.fromRGB(124,163,216),BackgroundTransparency=0.75,BorderSizePixel=0})
+    FeatherTheme.draggable(frame,64,10)
+    local phase=make("TextLabel","PhaseBadge",frame,{Position=UDim2.fromOffset(18,78),Size=UDim2.new(1,-36,0,22),
+        BackgroundColor3=Color3.fromRGB(34,54,85),BorderSizePixel=0,Text="STARTING",Font=Enum.Font.GothamBold,
+        TextSize=10,TextColor3=Color3.fromRGB(164,214,255),TextXAlignment=Enum.TextXAlignment.Left})
+    make("UICorner","Corner",phase,{CornerRadius=UDim.new(0,6)})
+    make("UIPadding","Inset",phase,{PaddingLeft=UDim.new(0,10)})
+    local text=make("TextLabel","Activity",frame,{Position=UDim2.fromOffset(18,108),Size=UDim2.new(1,-36,0,38),
+        BackgroundTransparency=1,Text="Preparing your hive...",TextColor3=Color3.fromRGB(230,239,253),TextSize=13,
+        TextWrapped=true,Font=Enum.Font.GothamMedium,TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top})
+    local metrics=make("Frame","Metrics",frame,{Position=UDim2.fromOffset(18,154),Size=UDim2.new(1,-36,0,32),BackgroundTransparency=1})
+    make("UIListLayout","Layout",metrics,{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder})
+    local function metric(name,order)
+        local item=make("TextLabel",name,metrics,{Size=UDim2.new(1/3,-16/3,1,0),LayoutOrder=order,
+            BackgroundColor3=Color3.fromRGB(33,47,76),BorderSizePixel=0,Font=Enum.Font.GothamMedium,TextSize=12,
+            TextColor3=Color3.fromRGB(201,223,251),Text="—"})
+        make("UICorner","Corner",item,{CornerRadius=UDim.new(0,8)})
+        return item
+    end
+    local slotsMetric,jellyMetric,refillMetric=metric("Slots",1),metric("Jelly",2),metric("Refill",3)
+    local progressText=make("TextLabel","Progress",frame,{Position=UDim2.fromOffset(18,190),Size=UDim2.new(1,-36,0,20),
+        BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=11,TextColor3=Color3.fromRGB(160,183,217),
+        TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd})
+    local viewButton=Instance.new("TextButton"); viewButton.Name="ViewHiveButton"
+    viewButton.Size=UDim2.new(0.5,-23,0,32); viewButton.Position=UDim2.new(0,18,1,-48)
+    viewButton.Text="View hive"; viewButton.Parent=frame; FeatherTheme.button(viewButton,true)
+    local button=Instance.new("TextButton"); button.Name="StopAssistButton"; button.Size=UDim2.new(0.5,-23,0,32); button.Position=UDim2.new(0.5,5,1,-48)
+    button.Text="Stop assist"; button.Parent=frame; FeatherTheme.button(button,false)
     local function stopAssist()
         env.FullHiveStop=true
         if env.FullHiveStarRunning then env.AutoGiftedStarStop=true end
     end
     button.Activated:Connect(stopAssist)
+    createHiveView(gui,frame,viewButton,function()
+        if not Cache or not Types then return nil end
+        return Cache:Get(),Types,Report.ActiveTarget
+    end)
     task.spawn(function()
         repeat
             local c=Report.Counts or {}
@@ -814,12 +960,18 @@ local function makeUI()
             local active=Report.ActiveTarget
             if active then
                 progress=string.format("Slot (%d,%d) • %s",active.X,active.Y,
-                    Report.CollectorFallback and "100-jelly collector recovery" or active.Reason)
+                    Report.CollectorFallback and (active.Reason=="gifted-collector-fallback" and "100-jelly gifted recovery" or "100-jelly collector recovery") or active.Reason)
             end
-            text.Text=string.format("Full Hive • %s • %s slots\n%s\n%s",Report.Stage or "inspect",tostring(Report.Slots or "?"),Report.Error or Report.CleanupError or Report.Activity or Report.Phase,progress)
+            phase.Text=string.upper((Report.Stage or "inspect").."  •  "..(Report.Phase or "starting"))
+            phase.TextColor3=Report.Error and Color3.fromRGB(255,176,192) or Color3.fromRGB(164,214,255)
+            text.Text=Report.Error or Report.CleanupError or Report.Activity or Report.Phase
+            progressText.Text=progress
+            slotsMetric.Text=tostring(Report.Slots or "?").." slots"
+            jellyMetric.Text=tostring(Report.RoyalJelly or 0).." jelly"
+            refillMetric.Text=tostring(Report.RefillAmount or "—").." / refill"
             task.wait(0.4)
         until not gui.Parent or not env.FullHiveRunning
-        if gui.Parent then text.Text=Report.Error or ("Full Hive • "..Report.Phase); button.Text="Finished" end
+        if gui.Parent then phase.Text=string.upper(Report.Phase or "finished"); text.Text=Report.Error or "Assist finished"; button.Text="Finished" end
     end)
 end
 local ok,err=xpcall(function()
@@ -827,7 +979,7 @@ local ok,err=xpcall(function()
     initializePlayer()
     makeUI()
     initializeModules()
-    run()
+    runWithCharacterRecovery()
 end,function(e) return tostring(e) end)
 release()
 if not ok then

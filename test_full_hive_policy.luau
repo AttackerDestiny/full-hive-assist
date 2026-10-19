@@ -180,7 +180,7 @@ return function(P,T)
         check(not q.collectorFallback and #q.fallbackCandidates==0,"Recovery exits when all safe sources are collectors")
         fallbackCtx.slots=42
         q=P.plan(base,T,fallbackCtx)
-        check(not q.collectorFallback,"Recovery cannot leak into another slot stage")
+        check(not q.collectorFallback,"No recovery at another stage when wrong slots are already repaired")
     end
     -- Exhaustive varied duplicate mixtures: the planner cannot target any kept slot,
     -- except the explicit normal flexible conversion path.

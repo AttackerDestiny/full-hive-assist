@@ -70,10 +70,153 @@ The Atlas gate was changed per the user's request to a fixed **60-second startup
 
 The in-game policy runner passed **696 checks** on the connected Potassium client. Syntax validation passed for both the generated bundle and embedded Star Egg source. These were read-only/policy checks; no new live hive spending was performed during this change.
 
+## October 19, 2026 — Arceus cloudphone smoke test and recurring monitor
+
+The Arceus X cloudphone is now connected through Roblox MCP. Atlas was loaded with the user's exact loader:
+
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Chris12089/atlasbss/main/script.lua"))()
+```
+
+The live client identified as **Arceus X**, and MCP verified Atlas's Stop Everything button with one callback and a readable state. The rebuilt assist was then executed. After its fixed 60-second startup delay, the live report showed:
+
+- `FullHiveRunning = true`.
+- Stage `mid`, 41 slots.
+- Phase `waiting`, activity `Waiting for enough honey for the stage refill`.
+- Atlas Stop Everything state `false` and `Report.AtlasPaused = false`, so Atlas resumed farming while the assist waits.
+- No `FullHivePending` request.
+
+The console's `SetCore` error predates the assist smoke test and is unrelated to FullHive; other console errors are asset/event fetch warnings from the cloudphone session. The native Android button activation fix was rebuilt before this run.
+
+The existing heartbeat was updated from hourly/paused to **every 30 minutes/active**. Each run checks the cloudphone and Roblox state, uses the Atlas loader when Atlas is absent, reads current game/decompiled data when failures occur, and delegates one read-only audit subagent for bug cycles. It must remain quiet when state is unchanged.
+
+## October 19, 2026 — authorized cloudphone reconnect
+
+The user authorized automatic crash/disconnect recovery: reopen **Noka FREE 6** and join the private server **Alt1**. Android package inspection verified `free.nokaF`, and the current foreground activity was `free.nokaF/com.roblox.client.ActivityNativeMain`. Roblox MCP still showed RileyCosmicguppydude connected, so no app restart or server change was performed.
+
+The existing active 30-minute heartbeat now includes this recovery path and exactly one audit subagent per run. On a confirmed crash/disconnect, it opens `free.nokaF`, selects the verified **Alt1** entry or a verified join link, then inspects fresh server-backed hive/inventory before resuming Atlas and the assist. It must not substitute another server, treat an MCP transport failure alone as a game crash, or replay an uncertain pre-crash spend. The Alt1 join itself has not yet been exercised; healthy farming was left undisturbed.
+
 ## October 19, 2026 — Atlas release cleanup revision
 
 The screenshot still showed the refill wait with Stop Everything checked. Three cleanup audits traced this to the callback-less Arceus fallback: the previous cleanup could trust a successful signal call without visibly dispatching the Atlas button, then continue waiting. Cleanup now resumes Atlas before restoring roll settings, uses native Android button activation for callback-less controls, persists Atlas ownership across waits, retries release when ownership remains, and displays cleanup errors in the status panel. The generated bundle was rebuilt at 112,452 characters and Arceus validation passed with 14 markers. No live client was connected for this revision.
 
+## October 19, 2026, 11:34 Asia/Saigon — healthy refill wait and update deployment rule
+
+Fresh server-backed inspection found RileyCosmicguppydude connected through Arceus X, with Noka FREE 6 (`free.nokaF`) in the foreground. Hive: 41 purchased and occupied slots, four Baby, four Music, Royal Jelly zero, honey 399,684,610. The assist was running and waiting for the current 600-jelly refill; its active roll task remained at `(4,8)` across the wait. `FullHivePending` and `AutoHivePendingRequest` were absent, `FullHiveStop` was false, and no `[Full Hive]` console errors were returned. Both the live Atlas callback and the report showed Stop Everything **false**. An independent subagent confirmed this is expected farming toward the refill budget, not an RNG or automation failure. The healthy runtime was left undisturbed.
+
+The user now requires the assist to be re-executed whenever it is updated. The active 30-minute automation records this: after an approved logic update, rebuild and validate, stop the old instance cleanly, wait for requests to resolve, run the updated bundle exactly once, and verify the new start/report/Atlas state. Approval for logic edits is still required under the user's earlier read-only instruction. The requested generalized recovery above 100 jelly, including the 20B gifted Bubble/Frosty variant, remains **pending, not implemented**.
+
+Current local bundle SHA-256 baseline: `c8862c93cba0cc52af66c883b75c65c331c811588c731ae9ec04610a7b8dc4cb`. No script logic or bundle was changed during this heartbeat; the hash alone is not independent proof of the running executor's source version.
+
+## October 19, 2026 — v1.0.0 deployed and verified on Arceus
+
+The user requested a visible version and reiterated that every update must be re-executed. Added `SCRIPT_VERSION = "1.0.0"`, `FullHiveVersion`, `FullHiveReport.Version`, a matching bundle header, and versioned normal/finished UI text. Hive policy was not changed; generalized recovery remains pending approval.
+
+The builder and validator passed with 112,741 characters and 18 compatibility markers. The full bundle and embedded Star Egg source compiled on the live Arceus client. Both pending-request flags were absent, so the old instance was stopped cleanly (`FullHiveRunning=false`) before executing the rebuilt bundle once. Old report start: `1792381272`; new start: `1792387070`.
+
+After the normal startup delay, MCP verified **Arceus X**, `FullHiveRunning=true`, executor version **1.0.0**, report version **1.0.0**, and actual UI text **Full Hive v1.0.0**. The same active slot `(4,8)` was retained. The assist was waiting for the stage refill at 41 slots, with the live Atlas callback **false**, no Error/CleanupError, and no unresolved pending requests. No `[Full Hive]` console errors were returned.
+
+Verified bundle SHA-256: `c4a59d1de98cb9b975d76d5345997f4656be61b58eb8fea77be1c45065c01bfa`. Deployment metadata is saved in `full_hive_deployment.json`. The recurring monitor now requires version bumps and live executor version verification after every approved update; local file edits alone are not deployment evidence.
+
+## October 19, 2026, 12:39 Asia/Saigon — v1.0.0 healthy; farming for refill
+
+The cloudphone and Arceus X client remained connected on Noka FREE 6 (`free.nokaF`). Fresh server stats showed 41 occupied slots, honey 107,234,925, zero Royal Jelly, one unused Star Egg, four Baby and four Music. The unchanged deployed **v1.0.0** instance (`StartedAt=1792387070`) had completed 12 actions and consumed 606 Royal Jelly; its last result was a normal Bubble from one Royal Jelly at `(4,8)`. The same fixed-target roll task remained active across the refill wait.
+
+Both executor/report version fields and deployment hash matched the local bundle. `FullHiveRunning=true`, `FullHiveStop=false`, both pending-request flags absent, no Error/CleanupError, and no `[Full Hive]` console errors. The actual Atlas callback and report both showed Stop Everything **false**. This is the existing 600-jelly refill budget wait, with farming resumed; no restart, code change, server change, or recovery intervention was needed. One independent read-only audit subagent reviewed the unchanged version/policy. The generalized recovery request remains approval-pending.
+
 ## October 18, 2026, 03:26 Asia/Saigon — paused by user
 
 The user's explicit instruction **“stop for now”** takes precedence over the saved heartbeat prompt. The preceding pause attempt had been interrupted before updating the automation. The hourly automation is now verified **PAUSED**. Client discovery shows only WaysToHeavenly; the assigned RileyCosmicguppydude account remains disconnected. No assist was started or restarted. Do not resume testing or the automation until the user explicitly asks.
+
+## October 19, 2026, 13:57 Asia/Saigon — automatic bug fix; v1.0.2 verified
+
+The user explicitly authorized automatic testing, bug fixes and improvements and prohibited subagents. This resumes the requested work and supersedes earlier routine-fix approval and audit-subagent instructions. No subagent was used. The existing active 30-minute monitor was updated to run without subagents, apply evidenced bug fixes, run regression checks and verify each redeployment. Pending generalized progression changes remain outside this character-recovery fix.
+
+The connected target was RileyCosmicguppydude on Arceus X, client `9421f296-0beb-4daf-976a-2fbddb794ffd`, Bee Swarm Simulator job `a546859c-cc8b-49db-aa3b-c8821a8e0bdd`. The chat did not expose Roblox tools directly, so `tools/call_roblox_mcp.mjs` connected through the installed MCP SDK to the already-running local core at `127.0.0.1:16384/mcp`. Live MCP tool schemas and `list-clients` were checked first. Atlas was already present and farming, so its loader did not need to be executed again.
+
+Observed defect: v1.0.0 had terminated with `:1725: Character unavailable` while moving to the hive. `FullHiveRunning=false`; neither pending-request flag was present; Atlas Stop Everything was false. The character had already respawned with 100 health, but the assist had no recovery path.
+
+Changes: character availability now raises a private recovery token before a request or during movement. Movement cleans up its tween, signal, constraints and collision changes before propagating the token. The supervisor resumes Atlas, waits for a living character/root, refreshes server stats and revalidates the retained coordinate lease. Verified purchases, action counts and Royal Jelly counts survive recovery. Other errors, unresolved requests and failures caught inside the embedded Star Egg workflow remain terminal.
+
+v1.0.1 was briefly deployed and completed one verified roll at `(4,8)`, consuming the 17 remaining Royal Jelly and returning Exhausted. All protected Event/Mythic bees remained present and roll settings were restored. Expanded movement tests then exposed that Luau `assert(false, table)` rejects the table error token. v1.0.2 replaces that propagation with `error(err,0)`. v1.0.1 was stopped cleanly with no pending request before executing v1.0.2 exactly once.
+
+Validation on the connected Arceus X executor:
+
+- Bundle and embedded Star Egg source compiled.
+- All **696 policy checks** and **46 character-recovery checks** passed (`allPassed=true`). Recovery checks include missing/dead/detached characters, interrupted movement, collision/constraint/tween/signal cleanup, preserved budgets/coordinate lease, stop handling and refusal to replay pending/uncertain requests. These recovery checks use isolated test doubles, without changing the live character or inventory.
+- `validate_arceus_bundle.ps1` passed: version 1.0.2, 114,087 characters, 21 markers. `git diff --check` passed.
+- After the fixed startup delay, both executor/report version fields and the actual UI showed **v1.0.2**; `StartedAt=1792392937` (previous instance `1792392792`; original failed instance `1792387070`).
+- `FullHiveRunning=true`, `FullHiveStop=false`, stage `mid`, 41 slots, active coordinate `(4,8)`, phase `waiting` for the stage refill. Fresh stats: honey **429,517,485**, zero Royal Jelly, one unused Star Egg. Atlas Stop Everything was **false**, ownership false, all roll settings false, no Error/CleanupError and no pending requests. The only `[Full Hive]` console warning remained the older v1.0.0 character failure.
+
+Verified bundle SHA-256: `68f20442b2abe2726d8811f6c865456220da343a69f75baa9ca00b6f7324a177`. Metadata was updated in `full_hive_deployment.json`. Source fixes are deployed, while a naturally occurring live respawn after this fix and later progression stages remain for the monitor to observe.
+
+## October 19, 2026, 14:11 Asia/Saigon — v1.1.0 generalized collector recovery
+
+The user explicitly requested the previously discussed generalized 100-jelly recovery, supplied the original hive specification, and reiterated that unmentioned bees are safe unless another written rule protects/reserves them. The original attachment was copied to `base_prompt.reference.txt`. The earlier user messages were read from **FullAssist**, confirming entry whenever the normal refill exceeds 100 and is unaffordable, persistence until repairs finish, and the 20B-honey gifted Bubble/Frosty variant. No subagent was used.
+
+Root cause: v1.0.2 restricted collector recovery to mid stage at exactly 43 slots. The connected 41-slot hive therefore waited for 600 jelly despite seven safe non-collector slots. v1.1.0 removes the slot/stage gate, uses 100-jelly purchases at zero inventory during recovery, adopts recovery mode on an existing wrong coordinate, and holds existing collectors while other wrong slots are repaired. Below 20B honey, all roll-to settings are off and each recovery hive request uses one Royal Jelly. At 20B+, recovery uses Until Gifted for gifted Bubble/Frosty, with normal collector outcomes remaining in the same lease until the objective/failsafe is met. Normal refill sizes return when repairs finish; existing inventory is used before the next purchase. Needed force bees, gifted failsafes and protected Event/Mythic bees remain reserved. Unlisted normal and gifted bees are eligible by default.
+
+Validation: **1,092 checks passed** on Arceus X: 696 existing policy, 46 character-recovery, and 350 new collector-recovery checks. The new checks cover refill stages 25–50, low-honey entry, persistence, restoration, the 20B threshold, Brave/Bumble and unlisted gifted types, permanent/force protection, active-coordinate migration and actual isolated runtime planning. Bundle and embedded Star Egg source compiled. Static validation passed with 115,598 characters and 24 markers; `git diff --check` passed.
+
+Deployment: v1.0.2 stopped cleanly with no pending request. v1.1.0 was executed once on RileyCosmicguppydude / Arceus X, client `9421f296-0beb-4daf-976a-2fbddb794ffd`, same server job. `StartedAt=1792393589` (14:06:29 Asia/Saigon); executor, report and status UI all confirmed **1.1.0** after the normal startup delay. Atlas remained loaded.
+
+Live full-cycle verification:
+
+- The 41-slot hive selected recovery with `NormalRefillAmount=600`, `RefillAmount=100`, and `LastPurchase={Item="RoyalJelly",Amount=100}`.
+- The existing `(4,8)` wrong-slot lease adopted `collector-fallback` and mode `off`. Repeated unrelated results stayed on that coordinate; verified recovery results consumed exactly one Royal Jelly, with all four roll-to settings false in fresh server stats.
+- Safe non-collector slots decreased **7 → 5 → 4 → 2 → 1 → 0** as collectors were obtained. Event bees and gifted failsafes remained intact.
+- A focused transition watcher observed the last recovery result, normal Frosty at `(5,8)`, at **143 Royal Jelly used**. `CollectorFallback=false`, `SafeNonCollector=0`, and `RefillAmount` changed **100 → 600**, matching the original stage refill. The policy/runtime regression checks separately verify restoration to 1,000 at its stage.
+- Normal gifted-stage work then resumed using existing jelly. Later normal-stage rolls left another safe wrong result, so recovery correctly re-entered. A subsequent live snapshot showed `collector-fallback`, mode `off`, consumption 1, all four roll-to settings false, no Error/CleanupError and no pending request. A prior 99-jelly result belonged to the resumed normal gifted phase, before recovery disabled the settings again; it was not a single-roll recovery request.
+
+The active 30-minute monitor was updated to record this behavior as implemented and retain the no-subagent instruction. Latest bundle SHA-256: `f97c4d9250fcfd3ccfc2d2cf60f7f10c5807adc0999407f2d939a6398c9afa8b`. The 20B+ branch has isolated regression coverage; the live account was below 20B, so that branch was not exercised with live inventory.
+
+## October 19, 2026, 14:18 Asia/Saigon — v1.1.1 recovery keep/failsafe coverage
+
+The user clarified that 100-jelly recovery must retain the script's existing keep logic, including gifted failsafes. Added direct tests for every listed gifted failsafe in both recovery modes; exact duplicate limits; needed normal Baby/Music/Shy; gifted Baby/Music replacing one normal copy; normal/gifted Event/Mythic outcomes; unlisted gifted outcomes remaining eligible; and early/mid/late crit/red placeholders. A kept result completes its leased coordinate and recovery continues on another safe slot.
+
+Gifted failsafe and force-quota tests already passed on v1.1.0. The added placeholder test reproduced a real gap: at 41 slots with Music short, the planner kept a newly rolled normal Commander, but the active recovery task did not recognize it as a completed keep and could terminate with a force-slot assertion. The same keep-completion branch is now available during mid/late recovery for useful Commander/Looker/Fire placeholders, preserving the existing rank/count checks. No failsafe target, duplicate cap or permanent-protection policy was broadened.
+
+All **1,286 checks passed** on the connected Arceus executor: 696 policy, 46 character-recovery and 544 collector-recovery checks. Both compiled sources and the static validator passed (115,682 characters, 24 markers); `git diff --check` passed. The keep outcomes are deterministic isolated tests against the actual planner; no rare live gifted outcome was forced.
+
+v1.1.0 was stopped cleanly, and **v1.1.1** was executed once. `StartedAt=1792394174` (14:16:14 Asia/Saigon), replacing `1792393589`. After the fixed startup delay, executor/report/UI all showed v1.1.1, running true, stop false, stage mid, 41 slots, recovery refill 100 / normal refill 600, and the same `(1,9)` lease. It was waiting for enough honey for the 100-jelly pack: fresh honey 57,962,490, zero Royal Jelly, one safe non-collector slot. Atlas Stop Everything was false and all four roll-to settings were false. No Error/CleanupError or new Full Hive console warning was observed. A routine RetrievePlayerStats request was briefly in flight; there was no pending item/purchase request. The assist remains farming toward its recovery refill.
+
+The monitor now explicitly preserves keep/failsafe behavior during recovery and records the 1,286-test total. No subagent was used. Bundle SHA-256: `123de19cf1b9a8850861858da9c60e22c99df9fc363cfb4098d0761762febb6c`.
+
+## October 19, 2026, 14:38 Asia/Saigon — Feather status UI and expanded hive viewer
+
+The user requested a View hive button and a larger hive tab resembling the supplied five-column icon grid. A subsequent instruction named the UI **Feather**, requested a feather sticker after the name and a more polished appearance, and explicitly placed View hive in the status UI. Both attached images were inspected. No subagent was used.
+
+Added `hive_view_ui.luau`, embedded by the builder, to display the cached hive in bottom-up coordinate order with the game's normal/gifted thumbnails, `bee.Lvl`, gifted stars, active-slot outline and tap-to-read details. Close returns to the status panel. The viewer polls the existing cache once per second while visible and sends no game remotes, purchases or hive requests. It does not pause Atlas. Actual BeeTypes metadata and BeeStats source were inspected to confirm thumbnail and level fields.
+
+Added `feather_theme.luau` for the shared navy/blue/violet gradient, rounded controls, subtle outlines and an icy native-UI feather sticker after the Feather title. The status panel now shows a separate version badge, phase/activity, slots/jelly/refill metrics, progress text, and View hive beside Stop assist. Both panels scale to the screen. The feather is drawn with GUI elements and needs no uploaded image, download or executor file API. The user's illustration inspired the palette; it is not a new Roblox image upload.
+
+Deployment sequence: v1.1.1 was stopped cleanly before a v1.2.0 viewer build (`StartedAt=1792395121`). After the user's styling update, v1.2.0 was stopped cleanly with pending reads resolved and v1.2.1 executed exactly once (`StartedAt=1792395361`, 14:36:01 Asia/Saigon). The active hive coordinate persisted. Atlas was left loaded; hive progression policy was not changed. An isolated preview GUI used for the initial viewer test was destroyed.
+
+Validation:
+
+- Bundle and embedded Star Egg source compiled; all **1,286** existing policy/recovery checks passed. Static validation passed at **130,427 characters**, version **1.2.1**, **28 markers**; `git diff --check` passed.
+- Live Arceus X confirmed Feather branding, version badge **v1.2.1**, the feather sticker, gradient, and both buttons in `StatusPanel`.
+- Opening View hive hid the compact status panel and showed the Feather hive tab. All **41 cards / 41 images** loaded, **13 gifted** markers matched the cache, and no unknown levels appeared.
+- Clicking `(5,4)` showed **Frosty • Lv 9 • (5,4)**. Close hid the overlay and restored the status panel with both controls. The final state leaves the status panel visible.
+- Status panel bounds were `(18,80)` / `350×270` on the current client. The expanded panel scaled to approximately `332×573` at `(458,12)` within its `1249×597` usable viewport.
+- Executor/report version **1.2.1** was running, stop false, mid stage, waiting in the existing recovery workflow. No new Full Hive console warning appeared; the console only retained the earlier v1.0.0 character error. UI interactions did not change the assist's run/stop state.
+
+The existing monitor now preserves the Feather branding, status-panel View hive control, theme modules and read-only viewer, and reads `StatusPanel.VersionBadge` when verifying the UI version. Bundle SHA-256: `3e677f69955b5d8c8171bf0d6cc6a146a7b149a14087a0ba5af0c0dc942aa9fa`.
+
+## 2026-10-19 14:53 +07 — v1.3.0 exact-refill batches and dragging
+
+- User requested that Royal Jelly auto rolling start only when inventory equals the current refill amount, following an incidental +1 Festive Gift triggering a roll. A batch is admitted at exact equality and can continue as it is consumed; zero clears admission immediately. Player/hive/job, refill amount and recovery mode scope the persisted batch. A changed refill, including recovery 100 -> normal 600/1000, requires fresh admission. Excess inventory waits without spending; partial inventory is topped up exactly only when the full missing cost is affordable. Supported smaller packs fill the remainder, and purchase movement rechecks the ceiling. Existing keep rules, coordinate leases, nearby movement, settings verification and uncertain-response stops remain.
+- Main Royal Jelly spending, Gifted Basic and embedded Star Egg rolling share admission and a final pre-remote guard. The original Star Egg file remains unchanged; integration hooks are injected by the builder. First legendary entry uses a displayed 10,000-or-higher target, keeps that admitted batch until exhaustion, then returns to normal stage refill amounts.
+- Both Feather panels are draggable from their headers by mouse/touch with bounds and cleanup. Existing isolated UI smoke passed 10 mouse/touch/scaling/bounds checks. Deployed status and hive panel callbacks passed 4 actual-instance movement/release checks; original panel positions were restored. Viewer still renders 41 loaded icons/levels, 13 gifted stars, no unknown levels; status View hive and Close remain active.
+- Compilation of main/embedded Star Egg and 33 compatibility markers passed. Connected checks: 696 policy + 46 character recovery + 544 collector recovery + 304 exact-batch tests = 1,590. A newly added test double initially omitted the planner's temporary table; correcting the double produced allPassed=true. Tests exercise the actual batch/refill/spend helpers and never invoke game remotes.
+- Maintenance-stopped v1.2.1 after both pending flags were clear; verified FullHiveRunning=false, then executed rebuilt v1.3.0 exactly once. New StartedAt=1792396194 (14:49:54 +07); fixed startup delay observed. Runtime/report/UI badge confirm v1.3.0 on Arceus X, RileyCosmicguppydude, same connected client and job.
+- Post-start live snapshot: 41 slots, normal refill600, collector recovery100, one remaining safe noncollector, zero RJ, about98M honey, no admitted batch, Actions=0/RoyalJellyUsed=0, activity 'Waiting for exactly 100 Royal Jelly to start a batch'. Atlas Stop Everything=false, settings all roll-to flags=false, no pending item requests/errors. This verifies the live wait state; gift rejection/exact-admission/continued use/restoration are covered in isolation. New purchase/roll proof will be recorded separately when the running account reaches the required funds. Older live refill/one-at-a-time proof in deployment metadata remains attributed to v1.1.0.
+- Bundle SHA-256: 5e0cf78d107db6659df86bc285f189ef349a3dfc505a195b279e88a75a25972c. Updated the existing quiet 30-minute monitor with the exact-batch rule, superseding old zero-only/no-top-up wording. No subagents used.
+
+### v1.3.0 subsequent live batch proof
+
+The account naturally reached the 100-jelly recovery cost. The assist bought exactly100, used4 RJ across the recovery batch, and kept normal Ninja at(2,8). Last request consumed1; all roll-to settings remain false. SafeNonCollector reached0 and the normal refill restored to600. With96 jelly left and about1.8M honey, the script cleared the recovery admission, sent no normal roll, and displayed 'Waiting for exactly 600 Royal Jelly to start a batch'. Actions=5 (one purchase plus four rolls), RoyalJellyUsed=4, collectorFallback=false, running=true, no pending requests/errors. Atlas Stop Everything=false. This directly confirms a full admitted batch, continued rolling below100, collector retention, and the new gate at recovery exit. Updated deployment metadata with this v1.3.0 proof.
+
+## 2026-10-19 — GitHub publishing requirement
+
+User explicitly requested that every script update/change be pushed to GitHub. Recorded this in AGENTS.md and the existing recurring monitor. The intended remote is origin=https://github.com/AttackerDestiny/full-hive-assist.git on main. Publishing includes the already-tested/deployed v1.3.0 source, bundle, UI modules, regression suites and related project documentation. No script behavior changed in this publishing step, so the healthy v1.3.0 client remains running. Local/remote main were aligned before committing; bundle static validation still passes33 markers. Future updates must verify the remote commit after pushing and must not force-push or overwrite unrelated work.

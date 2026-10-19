@@ -1,0 +1,262 @@
+first, this script is an assist auto hive script for another auto progression script called atlas
+what atlas can and cant do ?
+can:
+-auto farm
+-auto buy new gear
+-only can buy new hive slot and use basic egg on the new bought slot or current slot(25 by default) (25+ have to be buy)
+cant:
+-auto fix hive
+-auto roll for good bee
+
+what my script will assist ?
+-auto roll for good bee
+
+
+
+PERM RULES:
++ NEVER TREAT GIFTED/NORMAL EVENT BEE AS SAFE SLOT, OR AUTO ROLL ON GIFTED/NORMAL EVENT BEE
++ NEVER TREAT GIFTED/NORMAL MYTHIC BEE AS SAFE SLOT(except some exceptional in logic written), OR AUTO ROLL ON GIFTED/NORMAL MYTHIC BEE (except some exceptional in logic written)
++ NEVER FIRE REMOTE AT FAR DISTANT OR USE FIRE TOUCH
+
+
++failsafe list = keep if got lucky to got one while rolling for bubble/frosty
+ - failsafe list:
+   what to keep if got from roll or currently have in have (DO NOT reroll on those bee, safe slot yea)
+ 1 gifted basic bee
+ 1 gifted bumble bee
+ 1 gifted cool bee
+ 1 gifted looker bee
+ 1 gifted bomber bee
+ 1 gifted bubble bee (or can be any amount of normal/gifted bubble bee)
+ 1 gifted commander bee
+ 1 gifted bucko bee
+ 1 gifted frosty bee (or can be any amount of normal/gifted frosty bee)
+ 4 gifted baby bee (or 4 normal baby bee if unlucky and didnt have any gifted baby bee)
+ 1 gifted carpenter bee
+ 1 gifted demon bee
+ 1 gifted lion bee
+ 1 gifted diamond bee
+ 4 gifted music bee (or 4 normal music bee if unlucky and didnt have any gifted music bee)
+ 1 gifted ninja bee
+ 1 gifted shy bee
+remember this is just a fail safe list mean if u got it from roll then keep or currently have in hive then keep dont roll on those bee not a "aiming for" list|
+
++temp safe slot = can be roll under some condition
++force slot = do not roll(not aiming for)
++safe slot = good to roll on any condition 
++collector section
+ 4(force slot) bubble bee - can be any amount but if in hive have 5 bubble bee then theres will be 1 safe slot just like that add up whenever u got 1 more bubble bee
+ 4(force slot) frosty bee - can be any amount but if in hive have 5 frosty bee then theres will be 1 safe slot just like that add up whenever u got 1 more frosty bee
+ lion bee this bee have no force slot and it will always be safe slot(but still keep in hive if got lucky with auto roll)
+ 2(force slot) ninja bee - can be any amount but if in hive have 3 ninja bee then theres will be 1 safe slot just like that add up whenever u got 1 more ninja bee
+-> safe slot of collect section will be
+ - priority 1: lion bee(lion bee safe slot will always be the first safe slot being use if needed)
+ - priority 2: ninja bee(ninja bee safe slot will be the 2nd safe slot being use if lion bee safe slot is ran out)
+ - priority 3: bubble/frosty((bubble/frosty safe slot will be the 3rd safe slot being use if lion bee,ninja bee safe slot is ran out)
+ what case of safe slot will be use ?
+-> all: hatch event bee eggs, no enough slot to get 4 music, 4 baby, 3 shy bee, etc
+
++cap slot = max amount of bee can have in hive
++true force slot = the slot that will never be touch until end of progression
+
++crit section
+ looker priority 3
+ commander priority 2
+ music priority 1
+
++red section
+ fire bee priority 2
+ shy bee priority 1
+
++event bee buy priority(ticket,stinger)
+ - tabby = 1
+ - festive bee = 2
+ - cobalt bee = 3
+ - vicious = 4(this bee need 250 stinger so if cobalt bee is bought but atm didn't have enough stinger for vicious bee just skip to puppy and buy vicious bee later when got 250 stinger)
+ - puppy bee = 5
+
++event bee gifted priority
+ - tabby = 1
+ - vicious = 2(if dont have vicious when u got 2nd star treat then skip and feed other event bee instead)
+ - festive bee = 3
+ - cobalt bee = 4
+ - puppy bee = 5
+
++The first royal jelly the player buys will cost 250,000 honey. Each subsequent royal jelly will cost an additional 10,000 honey, eventually reaching a maximum of 1,000,000 honey per royal jelly.
+
+The formula for the price of one royal jelly is
+
+P(n) = {
+    250,000 + 10,000n    if 0 <= n < 75
+    1,000,000            if n >= 75
+}
+
+Where n is the amount of Royal Jelly already purchased.
+Royal jelly can be purchased in increments of 1, 10, 100, 1,000, 10,000, 100,000, 1,000,000, 10,000,000, or 100,000,000.
+
+
+
+
+
+
+early stage(25 slot -> 40 slot ,0 bee -> 40 bees) *roll 1 jelly each time no special setting like (until gifted,until mythic,etc...) in game setting until reach slot 35
+it will start assist when detected theres atleast 1 bee(any) in hive and 1 royal jelly in player inventory
+it will use star jelly first and if it give gifted bee in failsafe list then keep it and treats as a force slot
+it will roll every bee into "collector section" while roll for "collector section" if it got gifted bee in failsafe list then keep and move to another bee and continue, 4 music, 4 baby, 3 shy bee is 100% aiming for(but because those bee are legendary and its hard to get at early stage so theres will be cheaper version first)
+-> while roll for "collector section" if got "crit section" then keep by priority(must keep only 4) -> music bee
+for example if it got 4 looker it will keep in hive then if it got 1 commander it will replace 1 looker for 1 commander so thats 3 looker 1 commander(still 4 in total) just like that until it got music bee then replace 1 looker or commander for music so its it will 3 looker or command with 1 music just like that until it got 4 music in hive
+
+-> while roll for "collector section" if got "red section" then keep by priority(must keep only 3) -> shy bee
+for example if it got 3 fire it will keep in hive then if got 1 shy bee it will replace 1 fire for 1 shy bee so thats 2 fire and 1 shy bee in hive(still 3 in total) just like that until it got 3 shy bee in hive
+
+-> baby bee doesn't have its cheaper version so just keep it whenever got from roll "collector section" and only keep 4
+
+auto detect amount of ticket in player inventory then auto buy event bee and hatch it in the safe slot, then it will auto detect ticket and auto buy star treat or whenever a star treat appear in inventory player and feed the NORMAL event bee(only feed to normal event bee do not feed to gifted event bee)
+
+then when it filled 25 default slot with these setted bee it will wait for atlas to buy new hive slot and used basic egg in it then continue roll for "collector section", incase it filled all 25 default slot with "collector section" and other setted bee but it still not have 4 music, 4 baby, 3 shy bee then it will use the safe slot available to roll for those, until it reach 35 slot.
+-> if royal jelly ran out it will auto check current player honey and auto refill with royal jelly shop buy 100 jelly each refill
+when reached 35 slot each refill are now 200 jelly x2 100 jelly buy
+now it will use "until legendary bee" game setting if 4 baby 4 music 3 shy bee still not enough in hive then switch back to non game setting after got 4 baby,4 music 3 shy bee to fill new slot with collector section still until it reaches 40 slot.
+DO NOT REFILL IF ALR HAVE NEEDED AMOUNT OF JELLY
+
+
+mid stage(40 slot -> 44 slot, 40 bees -> 44 bees)
+at this stage it will now stop use star jelly and will be turn on "until gifted" game setting and slowly get those bee in failsafe list:
+ (aiming for)
+ 1 gifted bumble bee
+ 1 gifted cool bee
+ 1 gifted looker bee
+ 1 gifted bomber bee
+ 1 gifted bubble bee 
+ 1 gifted commander bee
+ 1 gifted bucko bee
+ 1 gifted frosty bee
+or just ignore if alr got 1 in hive for example u alr have 1 gifted cool bee in hive then skip gifted cool and go for another gifted bee in failsafe list,in this progress if it got lucky and got 
+ (non aiming for)
+ 1 gifted baby bee 
+ 1 gifted carpenter bee
+ 1 gifted demon bee
+ 1 gifted lion bee
+ 1 gifted diamond bee
+ 1 gifted music bee 
+ 1 gifted ninja bee
+ 1 gifted shy bee
+from roll then keeps it (this is not aiming for but just keep if got)
+after got all the "aiming for" bee in failsafe list then it will slowly replace bubble/frosty normal to bubble/frosty gifted
+the problem with "slowly replace bubble/frosty normal to bubble/frosty gifted" is normal bubble/frosty have 4 force slot each so first
+it will roll on bubble/frosty safe slot first(for ex if in hive got 8 bubble normal then theres 4 safe slot, just like that with frosty)
+and when all bubble/frosty normal safe slot are used and turn into bubble/frosty gifted then it will now turn bubble/frosty normal force slot into safe slot
+for example
+4 bubble = 4 force slot, when all safe slot of bubble normal is used and only 4 force slot left then it will turn 1 force slot of bubble normal into safe slot and start roll for bubble/frosty gifted, just like that for frosty
+
+but if it got frosty from the bubble normal safe slot then next force slot being switch will be frosty, and if it got bubble gifted from that frosty normal safe slot then next is bubble normal force slot being switch to safe slot, just like that until theres no more bubble/frosty normal in hive.
+
+when atlas bought new hive slot it will fill that new slot with frosty/bubble gifted now instead of frosty/bubble normal like before
+at 40 slot each refill is 600 jelly x6 100 jelly buy
+at 42 slot each refill is 1000 jelly x1 1000 jelly buy
+at 43 slot each refill is 2000 jelly x2 1000 jelly buy
+at 44 slot each refill is 4000 jelly x4 1000 jelly buy
+at this stage and any point when it detected player honey = 3b and it will caculate the jelly too for gifted basic bee
+ratio = 1 basic egg cost 10m honey with 1 jelly
+use 1 basic egg in safe slot first then use 1 jelly then use 1 basic egg then 1 jelly until got gifted basic egg (make sure once it chosed an slot for gifted basic it will always use that slot to roll for gifted basic bee and will never change slot even it got an forces slot bee from auto roll) if ran out of basic egg it will auto refill basic egg by buy 1 by 1 basic egg in basic egg shop make sure its 1 buy 1 not custom amount
+DO NOT REFILL IF ALR HAVE NEEDED AMOUNT OF JELLY
+
+
+
+late game stage (44 slot -> 45 slot, 44 bees -> 45 bees)
+at this stage it will start when detect atleast 10k royal jelly in player inventory, it will start getting 
+ 1 gifted baby bee 
+ 1 gifted carpenter bee
+ 1 gifted demon bee
+ 1 gifted lion bee
+ 1 gifted diamond bee
+ 1 gifted music bee 
+ 1 gifted ninja bee
+ 1 gifted shy bee
+which is alr in failsafe list but its legendary bee so it have to be there, must enable "until gifted" game setting for this.
+at solt 45 each refill are now 10k x1 10000 jelly buy
+DO NOT REFILL IF ALR HAVE NEEDED AMOUNT OF JELLY
+
+
+auto use star egg stage(when got all gifted legendary bee, and 100b player honey)
+theres alr auto use star egg in bss project folder
+
+
+
+
+after used 2 star egg stage(slot 46-47-48)
+enable "until gifted" game setting and start roll for 
+15(force slot), 17(cap slot) buoyant bee (any amount of it, keep whenever got)
+10(force slot), 14(cap slot) tadpole bee (any amount of it, keep whenever got)
+incase it got 15th tadpole check how much is jelly player have left and can they refill it(minimum 30k), if <30k >25k then treat 15th tadpole as safe slot, if ,<10k then treat it as temp safe slot
+each refill at slot 46 now is 100k x1 100000 jelly buy
+each refill at slot 47 now is 200k x2 100000 jelly buy
+each refill at slot 48 now is 400k x4 100000 jelly buy
+the hive ratio should be this atm
+
+ 1 gifted basic bee(true force slot)
+ 1 gifted bumble bee(true force slot)
+ 1 gifted cool bee(true force slot)
+ 1 gifted looker bee(true force slot)
+ x gifted bubble bee (x = unknown)(true force slot, true force slot of gifted bubble should be only 1)
+ 1 gifted commander bee(true force slot)
+ 1 gifted bucko bee(true force slot)
+ x gifted frosty bee (x = unknown)(not true force slot)
+ 4 gifted baby bee (can be 1 gifted baby and 3 normal baby bee, or if it got lucky from roll and got another gifted baby keep it and replace it with the normal one so its 2 gifted and 2 normal, just like that until it have 4 gifted baby in hive*its not aiming for just keep if got)
+  1 gifted diamond bee(true force slot)
+ 4 gifted music bee (can be 1 gifted music and 3 normal music bee, or if it got lucky from roll and got another gifted music keep it and replace it with the normal one so its 2 gifted and 2 normal, just like that until it have 4 gifted music in hive*its not aiming for just keep if got)(true force slot)
+ 1 gifted ninja bee(not true force slot)
+ 1 gifted shy bee(not true force slot)
+
+
+ end stage (slot 49-50)(will only start auto roll for this ratio when detected slot 50 is bought)
+this is ratio it should have at this stage
+ 1 gifted basic bee(true force slot)
+ 1 gifted bumble bee(true force slot)
+ 1 gifted cool bee(true force slot)
+ 1 gifted looker bee(true force slot)
+ 1 gifted bubble bee(true force slot)
+ 1 gifted commander bee(true force slot)
+ 1 gifted bucko bee(true force slot)
+ 4 gifted baby bee (can be 1 gifted baby and 3 normal baby bee, or if it got lucky from roll and got another gifted baby keep it and replace it with the normal one so its 2 gifted and 2 normal, just like that until it have 4 gifted baby in hive*its not aiming for just keep if got, tadpole is better version of gifted baby bee for blue so when got 1 gifted tad in hive then treat 1 gifted baby bee as safe slot just like that until theres no gifted baby bee in hive and got 4 gifted tadpole,the cap slot for tadpole is still 10)
+ 4 gifted diamond bee(true force slot)
+ 4 gifted music bee (can be 1 gifted music and 3 normal music bee, or if it got lucky from roll and got another gifted music keep it and replace it with the normal one so its 2 gifted and 2 normal, just like that until it have 4 gifted music in hive*its not aiming for just keep if got)(true force slot)
+ 1 gifted tadpole(can be any amount),9 normal tadpole(10 true force slot),(10 cap slot)
+ 1 gifted buoyant(can be any amount),16 normal buoyant(17 true force slot),(17 cap slot)
+ 1 gifted fuzzy bee(true force slot)
+ 1 gifted tabby bee(true force slot)
+ 1 gifted gummy bee(true force slot)
+ 1 gifted vicious bee(true force slot)
+ 1 gifted puppy bee(true force slot)
+ 1 gifted festive bee(true force slot)
+each refill is now 500k x5 100000 jelly buy
+
+
+
+The ways it will assist atlas it will auto turn on "stop everything" of atlas when condition is met and start do alignpos tween with noclip enable when tween to player hive for auto roll and to royal jelly shop when need refill, for basic egg when need for get gifted basic it will auto tween to basic egg shop
+
+
+
+
+
+
+
+
+
+check other project in bss project folder for more info
+check RandomStuff project folder "Turn On/Off Atlas Feature" chat for auto turn on "stop everything" of atlas, make sure to turn that feature off when assist done with its stuff
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

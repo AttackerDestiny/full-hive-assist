@@ -1,5 +1,11 @@
 # Full Hive Assist
 
+The in-game interface is **Feather**, with a feather sticker, navy/violet styling, live status and inventory badges, and **View hive** beside **Stop assist**. Both the status panel and expanded hive viewer adapt to the screen size. The feather is drawn with native Roblox UI elements, so no asset upload or executor file support is required.
+
+Click **View hive** in the status panel to open the larger live hive view. It shows bee icons in hive order, levels, gifted stars and the active roll slot. Tap a bee for its name/coordinate; **Close** returns to the status panel. The viewer reads the existing client cache and does not pause Atlas or send game requests.
+
+**v1.3.0:** Drag either panel by its header using a mouse or touch. A Royal Jelly batch starts only when inventory exactly equals the current refill amount. Once admitted, it continues as jelly is consumed; reaching zero or changing the refill/recovery mode requires a new exact refill. Incidental gifts cannot start a batch. If affordable, partial inventory is topped up only to the exact target using supported purchase amounts; excess inventory is held. Existing keep rules and request safeguards still apply.
+
 A Bee Swarm Simulator hive progression assist that coordinates with Atlas to manage hive rolls, gifted targets, event bees, and progression toward a 50-slot blue hive.
 
 **Main script:** [`auto_full_hive_assist.luau`](auto_full_hive_assist.luau). This generated bundle includes the progression policy and Star Egg workflow; it does not need local source files to run.
@@ -58,7 +64,13 @@ Gifted Basic, event bees, Star Treats, jelly refills, and Star Eggs have additio
 
 ## Compatibility and validation
 
-The bundle contains compatibility fallbacks for **Arceus X Android** and has been tested with **Potassium** on desktop. Arceus X Android execution remains unverified; static checks do not confirm device compatibility. Atlas must also support your executor.
+Version 1.1.0 enables 100-jelly collector recovery whenever the normal refill exceeds 100, is unaffordable, and safe non-collector slots remain. Below 20B honey it rolls one jelly at a time with every roll-to setting off; the earlier 20B+ gifted Bubble/Frosty variant is also included. After repairs, the normal stage refill resumes. Unlisted bee types are eligible unless protected or reserved by another rule.
+
+Version 1.1.1 verifies every gifted failsafe and force-result keep during recovery and retains useful crit/red placeholders in mid/late recovery. Kept results end the active coordinate so recovery can continue on another safe slot.
+
+Version 1.0.2 adds recovery from character loss before requests and during movement. It resumes Atlas while waiting for respawn and refreshes/revalidates the hive before continuing. Pending or uncertain requests still stop the assist. See `test_character_recovery.luau` and `tools/test_connected_client.ps1` for regression checks.
+
+The bundle contains compatibility fallbacks for **Arceus X Android** and has been tested with **Potassium** on desktop and the connected **Arceus X** cloudphone. Version 1.0.2 has compile, isolated regression, and live 41-slot startup coverage. Later progression paths still need live coverage. Atlas must also support your executor.
 
 Existing validation includes policy checks and selected live Potassium tests. Later progression paths have not all been exercised with live resources. See the [validation details](FULL_HIVE_README.md#validation-on-october-18-2026) and [test log](FULL_HIVE_TEST_LOG.md) for scope and observations.
 
@@ -80,6 +92,8 @@ Run the static bundle compatibility check with:
 | --- | --- |
 | [`full_hive_policy.luau`](full_hive_policy.luau) | Hive targets and progression decisions. |
 | [`full_hive_runtime.luau`](full_hive_runtime.luau) | Atlas coordination, movement, purchases, and status UI. |
+| [`hive_view_ui.luau`](hive_view_ui.luau) | Read-only expandable hive viewer, bundled by the builder. |
+| [`feather_theme.luau`](feather_theme.luau) | Shared Feather styling and feather sticker. |
 | [`auto_use_star_egg.luau`](auto_use_star_egg.luau) | Star Egg workflow embedded by the builder. |
 | [`build_full_hive.ps1`](build_full_hive.ps1) | Generates the standalone bundle atomically. |
 | [`test_full_hive_policy.luau`](test_full_hive_policy.luau) | Policy test function. |

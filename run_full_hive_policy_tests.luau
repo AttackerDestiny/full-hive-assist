@@ -22,6 +22,13 @@ function P.isCollectorSection(cell)
     local name = cell.bee.Type
     return name == "Bubble" or name == "Frosty" or name == "Lion" or name == "Ninja"
 end
+function P.isRecoveryTask(task)
+    return task and (task.Reason=="collector-fallback" or task.Reason=="gifted-collector-fallback")
+end
+function P.recoveryMode(honey)
+    if (honey or 0)>=20000000000 then return "gifted","gifted-collector-fallback" end
+    return "off","collector-fallback"
+end
 function P.giftedLimit(name, stage)
     if name == "Baby" or name == "Music" then return 4 end
     if name == "Diamond" and stage == "final" then return 4 end
@@ -58,6 +65,10 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     if gifted and limit and P.count(cells, name, true) > limit then return false end
     if (task.Reason == "collector-fallback" or task.Reason == "collector")
         and P.isCollectorSection(cell) then return true, "collector-result" end
+    if task.Reason=="gifted-collector-fallback" and gifted and (name=="Bubble" or name=="Frosty") then
+        return true,"gifted-collector-result"
+    end
+    if task.Reason=="gifted-collector-fallback" and not gifted and P.isCollectorSection(cell) then return false end
     if task.Reason == "convert-flexible" then
         if gifted and (name == "Bubble" or name == "Frosty") then return true, "gifted-collector-result" end
         if not gifted and (name == "Bubble" or name == "Frosty") then return false end
@@ -81,7 +92,8 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     if (not task.Goals or #task.Goals==0) and cap and (task.InitialTotal[name] or 0)<cap and P.count(cells,name)<=cap then
         return true, "force-quota-result"
     end
-    if not gifted and plan.stage=="early" and (name=="Looker" or name=="Commander" or name=="Fire") then
+    if not gifted and (plan.stage=="early" or (P.isRecoveryTask(task) and (plan.stage=="mid" or plan.stage=="late")))
+        and (name=="Looker" or name=="Commander" or name=="Fire") then
         local initial=task.InitialTotal
         local better=name=="Looker" and (initial.Music or 0)+(initial.Commander or 0)
             or name=="Commander" and (initial.Music or 0) or (initial.Shy or 0)
@@ -102,6 +114,7 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
     if P.gifted(cell) and (limit or name=="Bubble" or name=="Frosty") then return false end
     if task.Reason == "convert-flexible" and not P.gifted(cell)
         and (name == "Bubble" or name == "Frosty") then return true end
+    if task.Reason=="gifted-collector-fallback" and not P.gifted(cell) and P.isCollectorSection(cell) then return true end
     local normalCaps={Baby=4,Music=4,Shy=3,Bubble=4,Frosty=4,Ninja=2}
     if normalCaps[name] and not P.gifted(cell) and P.count(cells,name)>normalCaps[name] then return true end
     if not task.Rolled and task.InitialFingerprint==name..":"..tostring(P.gifted(cell)) then
@@ -137,15 +150,17 @@ function P.jellyCost(bought, amount)
         + 10000 * discounted * (discounted - 1) / 2 + (amount - discounted) * 1000000
 end
 function P.collectorRecovery(slots, safeNonCollector, honey, bought, active)
-    return slots==43 and safeNonCollector>0 and (active==true or honey<P.jellyCost(bought,2000))
+    local base=P.refill(slots)
+    return base>100 and safeNonCollector>0 and (active==true or honey<P.jellyCost(bought,base))
 end
 function P.refillFor(slots, collectorFallback)
-    if slots==43 and collectorFallback then return 100,100 end
+    if collectorFallback and P.refill(slots)>100 then return 100,100 end
     return P.refill(slots)
 end
 function P.plan(cells, types, ctx)
     local stage = P.stage(ctx)
-    local collectorFallback=stage=="mid" and ctx.slots==43 and ctx.collectorFallback==true
+    local collectorFallback=P.refill(ctx.slots)>100 and ctx.collectorFallback==true
+    local recoveryMode,recoveryReason=P.recoveryMode(ctx.honey)
     local post = stage == "blue" or stage == "final"
     local keep, needs, protected, temporary = {}, {}, {}, {}
     local function reserve(name, amount, giftedOnly)
@@ -327,9 +342,8 @@ function P.plan(cells, types, ctx)
         if types[n.name].Rarity ~= "Event" and n.name ~= "Basic" then royalNeeds = true end
     end
     if collectorFallback and #fallbackCandidates > 0 then
-        -- Low-honey slot-43 recovery: use the currently safe noncollector
-        -- slot until it becomes a collector or a newly obtained failsafe.
-        target, mode, reason = fallbackCandidates[1], "off", "collector-fallback"
+        -- Repair safe noncollectors before returning to the normal stage refill.
+        target, mode, reason = fallbackCandidates[1], recoveryMode, recoveryReason
     elseif #needs > 0 and royalNeeds then
         target, reason = candidates[1], "fixed-targets"
         local normalNeed = false
@@ -364,9 +378,10 @@ function P.plan(cells, types, ctx)
     end
     local waitingLate = stage == "late" and not ctx.lateStarted
     -- At 44+, the 10k entry condition gates legendary work, not early repairs.
-    if waitingLate and #needs == 0 and reason ~= "convert-flexible" then target = nil end
+    if waitingLate and #needs == 0 and reason ~= "convert-flexible" and not collectorFallback then target = nil end
     return {stage=stage, keep=keep, protected=protected, temporary=temporary, needs=needs, candidates=candidates,
         fallbackCandidates=fallbackCandidates, collectorFallback=collectorFallback and #fallbackCandidates>0,
+        recoveryGifted=recoveryMode=="gifted",
         target=target, mode=mode, reason=reason, babyGoal=babyGoal,
         complete=stage == "final" and #needs == 0 and not cleanupTarget}
 end
@@ -556,7 +571,7 @@ return function(P,T)
         check(not q.collectorFallback and #q.fallbackCandidates==0,"Recovery exits when all safe sources are collectors")
         fallbackCtx.slots=42
         q=P.plan(base,T,fallbackCtx)
-        check(not q.collectorFallback,"Recovery cannot leak into another slot stage")
+        check(not q.collectorFallback,"No recovery at another stage when wrong slots are already repaired")
     end
     -- Exhaustive varied duplicate mixtures: the planner cannot target any kept slot,
     -- except the explicit normal flexible conversion path.
