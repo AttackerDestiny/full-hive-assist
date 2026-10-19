@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.3.3"
+local SCRIPT_VERSION = "1.3.4"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -509,6 +509,8 @@ local function plan(s)
     Report.NormalRefillAmount=Policy.refill(slots)
     Report.RefillAmount=Policy.refillFor(slots,p.collectorFallback)
     Report.RefillMode=p.collectorFallback and "fallback-100" or (slots==43 and "normal-2000" or "stage-refill")
+    Report.StarJelly=s.Eggs.StarJelly or 0
+    Report.StarJellyMissing=Policy.starJellyMissing(cells)
     local batch=env.FullHiveJellyBatch
     -- The first legendary batch also satisfies the original 10k entry gate.
     if slots>=44 and not p.collectorFallback and (not lateStarted
@@ -569,6 +571,14 @@ local function spend(cell,item,validate,expectedTask)
         error("Target disappeared or became protected",0)
     end
     assert(Report.Actions<Config.MaxActions,"Action limit reached")
+    if item=="StarJelly" then
+        -- Inventory/the final missing failsafe may change during movement.
+        if Policy.rollItem(cells,s.Eggs)~="StarJelly" then return false end
+        local settings=s.Settings or {}
+        assert(not settings.RollToGifted and not settings.RollToLegendary
+            and not settings.RollToMythic and not settings.RollToMutation,
+            "Roll settings changed before Star Jelly spending")
+    end
     local before=s.Eggs[item] or 0
     assert(before>0,"No "..item)
     if item=="RoyalJelly" then
@@ -860,8 +870,10 @@ local function run()
         Report.NextTarget=p.target and {X=p.target.x,Y=p.target.y,Type=p.target.bee.Type} or nil
         if Config.DryRun then Report.Phase="dry-run"; return end
         if p.complete then Report.Phase="endgame-complete"; Report.Activity="Final hive requirements reached"; return end
+        local item=Policy.rollItem(cells,s.Eggs)
         local fallbackReady=p.collectorFallback
-        if #cells==0 or ((s.Eggs.RoyalJelly or 0)==0 and Report.Actions==0 and not env.FullHiveStarted and not fallbackReady) then
+        if #cells==0 or ((s.Eggs.RoyalJelly or 0)==0 and item~="StarJelly"
+            and Report.Actions==0 and not env.FullHiveStarted and not fallbackReady) then
             waitFor("Waiting for at least one bee and one Royal Jelly"); s=refresh(); continue
         end
         env.FullHiveStarted=true
@@ -876,7 +888,6 @@ local function run()
             if starReady(s,cells) then Report.Phase="star-eggs"; useStarScript(s); continue end
         end
         if not p.target then waitFor("Targets held; waiting for Atlas, inventory, or Star Egg prerequisites"); s=refresh(); continue end
-        local item=p.stage=="early" and (s.Eggs.StarJelly or 0)>0 and "StarJelly" or "RoyalJelly"
         if item=="RoyalJelly" and not (jellyBatchReady(s) or refill()) then
             waitFor("Waiting for at least "..Report.RefillAmount.." Royal Jelly to start a batch"); s=refresh(); continue
         end

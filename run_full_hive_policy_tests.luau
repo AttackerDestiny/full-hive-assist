@@ -17,6 +17,19 @@ function P.count(cells, name, giftedOnly)
     end
     return n
 end
+function P.starJellyMissing(cells)
+    local missing={}
+    -- These eight Rare/Epic failsafes are obtainable from Star Jelly.
+    -- Basic keeps its separate egg routine; legendary gifts are not required.
+    for _,name in ipairs(P.mid) do
+        if P.count(cells,name,true)==0 then missing[#missing+1]=name end
+    end
+    return missing
+end
+function P.rollItem(cells,eggs)
+    if (eggs.StarJelly or 0)>0 and #P.starJellyMissing(cells)>0 then return "StarJelly" end
+    return "RoyalJelly"
+end
 function P.isCollectorSection(cell)
     if not cell or not cell.bee then return false end
     local name = cell.bee.Type

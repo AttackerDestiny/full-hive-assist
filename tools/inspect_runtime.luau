@@ -10,7 +10,8 @@ for _,key in ipairs({"Version","StartedAt","Phase","Activity","Error","CleanupEr
     result.Report[key]=report[key]
 end
 local s=game:GetService("ReplicatedStorage").Events.RetrievePlayerStats:InvokeServer()
-result.Stats={Honey=s.Honey,RoyalJelly=s.Eggs.RoyalJelly,Star=s.Eggs.Star,Settings=s.Settings}
+result.Stats={Honey=s.Honey,RoyalJelly=s.Eggs.RoyalJelly,StarJelly=s.Eggs.StarJelly,Star=s.Eggs.Star,Settings=s.Settings}
+result.Report.StarJelly=report.StarJelly; result.Report.StarJellyMissing=report.StarJellyMissing
 local counts,slots={},0
 for _,col in pairs(s.Honeycomb or {}) do
     if type(col)=="table" then for _,bee in pairs(col) do

@@ -41,6 +41,9 @@ $required = @(
     'if not jellyBatchReady(s) then return false end'
     'env.FullHiveJellyReady(stats)'
     'env.FullHiveJellySpent(remaining)'
+    'function P.starJellyMissing(cells)'
+    'local item=Policy.rollItem(cells,s.Eggs)'
+    'Roll settings changed before Star Jelly spending'
 )
 foreach ($needle in $required) {
     if (-not $bundle.Contains($needle)) { throw "Compatibility marker missing: $needle" }

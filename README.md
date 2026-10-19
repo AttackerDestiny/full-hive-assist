@@ -6,6 +6,8 @@ Click **View hive** in the status panel to open the larger live hive view. It sh
 
 **v1.3.3:** Drag either panel by its header using a mouse or touch. A normal Royal Jelly task starts with **at least** the current refill amount. Its admitted jelly can finish that same task below the threshold, with keep rules and failsafes active. Completing the task closes admission: a new conversion must qualify again. Recovery repairs the wrong slots, then saves its leftovers and waits for the normal refill instead of using them to start gifted conversion. If a normal task genuinely exhausts its jelly, cheap recovery remains available to repair the unfinished slot. Partial refills buy only the missing amount. The script no longer tries to use every leftover jelly.
 
+**v1.3.4 Star Jelly:** At any stage, available Star Jelly is used first on eligible hive targets while any gifted Bumble, Cool, Looker, Bomber, Bubble, Commander, Bucko or Frosty is missing. Each request uses one Star Jelly with all roll-to settings off. Once all eight are present, unused Star Jelly is saved and only Royal Jelly is used. Gifted Basic keeps its separate Basic Egg routine, and gifted legendary bees do not prolong Star Jelly use. Royal Jelly still follows the v1.3.3 refill/keep rules.
+
 A Bee Swarm Simulator hive progression assist that coordinates with Atlas to manage hive rolls, gifted targets, event bees, and progression toward a 50-slot blue hive.
 
 **Main script:** [`auto_full_hive_assist.luau`](auto_full_hive_assist.luau). This generated bundle includes the progression policy and Star Egg workflow; it does not need local source files to run.
