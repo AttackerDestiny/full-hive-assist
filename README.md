@@ -4,7 +4,7 @@ The in-game interface is **Feather**, with a feather sticker, navy/violet stylin
 
 Click **View hive** in the status panel to open the larger live hive view. It shows bee icons in hive order, levels, gifted stars and the active roll slot. Tap a bee for its name/coordinate; **Close** returns to the status panel. The viewer reads the existing client cache and does not pause Atlas or send game requests.
 
-**v1.3.0:** Drag either panel by its header using a mouse or touch. A Royal Jelly batch starts only when inventory exactly equals the current refill amount. Once admitted, it continues as jelly is consumed; reaching zero or changing the refill/recovery mode requires a new exact refill. Incidental gifts cannot start a batch. If affordable, partial inventory is topped up only to the exact target using supported purchase amounts; excess inventory is held. Existing keep rules and request safeguards still apply.
+**v1.3.1:** Drag either panel by its header using a mouse or touch. A Royal Jelly batch starts when inventory is **at least** the current refill amount (for example, 2,299 qualifies for a 2,000 target). Once admitted, it continues as jelly is consumed; reaching zero or changing the refill/recovery mode requires a new full refill. Small incidental gifts below the threshold cannot start a batch. If affordable, partial inventory is topped up only to the target using supported purchase amounts; inventory above the target is used without another purchase. Existing keep rules and request safeguards still apply.
 
 A Bee Swarm Simulator hive progression assist that coordinates with Atlas to manage hive rolls, gifted targets, event bees, and progression toward a 50-slot blue hive.
 

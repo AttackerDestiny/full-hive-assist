@@ -37,7 +37,7 @@ $required = @(
     '"CloseHiveButton"',
     'local level=bee.Lvl or bee.Level or "?"'
     'function Theme.draggable(panel,headerHeight,z)'
-    'if inventory==target and inventory>0 then'
+    'if inventory>=target and inventory>0 then'
     'if not jellyBatchReady(s) then return false end'
     'env.FullHiveJellyReady(stats)'
     'env.FullHiveJellySpent(remaining)'

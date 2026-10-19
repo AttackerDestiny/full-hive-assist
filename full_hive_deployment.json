@@ -1,5 +1,5 @@
 {
-  "version": "1.3.0",
+  "version": "1.3.1",
   "account": "RileyCosmicguppydude",
   "jobId": "a546859c-cc8b-49db-aa3b-c8821a8e0bdd",
   "verification": {
@@ -13,7 +13,7 @@
     "initialWrongSlots": 7,
     "characterRecoveryChecks": 46,
     "royalJellyUsedAtInitialRecoveryExit": 143,
-    "versionInReport": "1.3.0",
+    "versionInReport": "1.3.1",
     "recoveryRefill": 100,
     "actualAtlasStopped": false,
     "versionVisibleInUI": true,
@@ -34,7 +34,7 @@
       "stopButtonInStatus": true,
       "unknownLevels": 0,
       "featherSticker": true,
-      "versionBadge": "v1.3.0",
+      "versionBadge": "v1.3.1",
       "cards": 41,
       "statusVisible": true,
       "viewButtonInStatus": true,
@@ -47,7 +47,7 @@
     },
     "batchChecks": 304,
     "totalRegressionChecks": 1590,
-    "exactRefillWaitObserved": true,
+    "exactRefillWaitObserved": false,
     "giftDoesNotTriggerRollInIsolation": true,
     "newBatchPurchaseLiveVerified": true,
     "batchRecoveryLive": {
@@ -62,15 +62,51 @@
       "royalJellyUsed": 4,
       "waitingForExactRefill": true,
       "version": "1.3.0"
-    }
+    },
+    "minimumRefillThresholdVerified": true
   },
-  "previousStartedAt": 1792395361,
-  "startedLocal": "2026-10-19T14:49:54+07:00",
-  "startedAt": 1792396194,
+  "previousStartedAt": 1792396194,
+  "startedLocal": "2026-10-19T16:14:34.0000000+07:00",
+  "startedAt": 1792401274,
   "executor": "Arceus X",
-  "change": "Exact-refill admission for every Royal Jelly batch, scoped across refill/recovery changes and cleared on exhaustion; affordable partial inventory topped up exactly; shared pre-remote guards for normal, Basic and embedded Star rolling; mouse/touch draggable Feather headers",
-  "sha256": "5e0cf78d107db6659df86bc285f189ef349a3dfc505a195b279e88a75a25972c",
-  "verifiedLocal": "2026-10-19T14:52:57.9577772+07:00",
+  "change": "User clarified Royal Jelly batch start threshold is inventory >= refill amount; excess inventory can roll without purchases. Verified gifted conversion on PC Potassium and startup/wait on Android Arceus X.",
+  "sha256": "d24f3709a405098f20d8fa47bb430e9134a4b8e58151e5a8d86f78f2f13d835d",
+  "verifiedLocal": "2026-10-19T16:16:27.4701809+07:00",
   "clientId": "9421f296-0beb-4daf-976a-2fbddb794ffd",
-  "bytes": 135847
+  "bytes": 135736,
+  "clients": [
+    {
+      "remainingAtProof": 719,
+      "normalBubbleAfter": 4,
+      "usedAtProof": 1580,
+      "giftedBubbleBefore": 3,
+      "clientId": "c4310fa7-2aae-42a2-929f-9e542924e8b0",
+      "batchAdmitted": true,
+      "normalBubbleBefore": 5,
+      "jobId": "b8d92897-b887-4191-8b8f-e6472a35e9c7",
+      "actionsAtProof": 8,
+      "initialJelly": 2299,
+      "normalFrostyBefore": 5,
+      "phaseAtProof": "rolling",
+      "normalFrostyAfter": 4,
+      "regressionChecks": 1590,
+      "version": "1.3.1",
+      "account": "Luneri427",
+      "giftedBubbleAfter": 4,
+      "refill": 2000,
+      "executor": "Potassium",
+      "startedAt": 1792401278
+    },
+    {
+      "regressionChecks": 1590,
+      "version": "1.3.1",
+      "account": "RileyCosmicguppydude",
+      "clientId": "9421f296-0beb-4daf-976a-2fbddb794ffd",
+      "executor": "Arceus X",
+      "phaseAtProof": "waiting",
+      "uiBadge": "v1.3.1",
+      "startedAt": 1792401274,
+      "jobId": "a546859c-cc8b-49db-aa3b-c8821a8e0bdd"
+    }
+  ]
 }

@@ -22,8 +22,8 @@ return function(runtime,Policy,Types)
     for _,target in ipairs({100,200,600,1000,2000,4000,10000,100000,200000,400000,500000}) do
         for _,inventory in ipairs({0,1,target-1,target,target+1}) do
             local env,_,s,ready=fixture(target,inventory)
-            check(ready(s)==(inventory==target),'Fresh batch needs exact '..target..', got '..inventory)
-            check((env.FullHiveJellyBatch~=nil)==(inventory==target),'Admission state matches equality')
+            check(ready(s)==(inventory>=target),'Fresh batch needs at least '..target..', got '..inventory)
+            check((env.FullHiveJellyBatch~=nil)==(inventory>=target),'Admission state matches refill threshold')
         end
         local env,report,s,ready,spent=fixture(target,target)
         check(ready(s),'Full inventory opens a batch')
@@ -66,7 +66,7 @@ return function(runtime,Policy,Types)
         s.Eggs.RoyalJelly=600
         check(refill() and #purchases==0,'Exact owned inventory works with AutoPurchase disabled')
         s.Eggs.RoyalJelly=601
-        check(not refill() and #purchases==0,'Excess inventory is held without purchases or rolls')
+        check(refill() and #purchases==0,'Excess inventory starts a batch without purchases')
     end
     -- Verify real planner behavior for the legendary entry batch and the later
     -- normal refill, including the 100-jelly recovery override.

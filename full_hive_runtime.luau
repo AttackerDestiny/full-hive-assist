@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.3.0"
+local SCRIPT_VERSION = "1.3.1"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -500,9 +500,9 @@ local function jellyBatchReady(s)
         and inventory>0 and inventory<=(batch.Remaining or 0)
     if not valid then
         batch=nil; env.FullHiveJellyBatch=nil
-        -- Only this equality can open a new batch. In particular, an incidental
+        -- Only a full refill amount or more can open a new batch. An incidental
         -- +1 gift after an exhausted batch cannot restart Until Gifted.
-        if inventory==target and inventory>0 then
+        if inventory>=target and inventory>0 then
             batch={Version=1,Owner=player.UserId,Job=game.JobId,Hive=h and h.Name,
                 Amount=target,Remaining=inventory,Recovery=recovery,
                 Entry=Report.RefillMode=="legendary-entry",StartedAt=os.time()}
@@ -611,8 +611,6 @@ local function refill()
     if jellyBatchReady(s) then return true end
     local target=Report.RefillAmount
     local inventory=s.Eggs.RoyalJelly or 0
-    -- Never spend or overbuy excess inventory to force equality.
-    if inventory>target then return false end
     local missing=target-inventory
     if not Config.AutoPurchase or (s.Honey or 0)-Config.HoneyReserve
         <Policy.jellyCost(royalJellyPurchases(s),missing) then return false end
@@ -848,7 +846,7 @@ local function run()
         if not p.target then waitFor("Targets held; waiting for Atlas, inventory, or Star Egg prerequisites"); s=refresh(); continue end
         local item=p.stage=="early" and (s.Eggs.StarJelly or 0)>0 and "StarJelly" or "RoyalJelly"
         if item=="RoyalJelly" and not (jellyBatchReady(s) or refill()) then
-            waitFor("Waiting for exactly "..Report.RefillAmount.." Royal Jelly to start a batch"); s=refresh(); continue
+            waitFor("Waiting for at least "..Report.RefillAmount.." Royal Jelly to start a batch"); s=refresh(); continue
         end
         Report.Phase="rolling"; Report.Activity=p.reason
         ensureRollTask(p)
