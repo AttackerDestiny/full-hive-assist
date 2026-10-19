@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.3.1"
+local SCRIPT_VERSION = "1.3.2"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -421,6 +421,13 @@ local function scan(s)
     local slots=25+((s.Totals and s.Totals.Purchases and s.Totals.Purchases.HiveSlots) or 0)
     return cells,math.max(slots,#cells)
 end
+local function activeJellyBatch(s)
+    local batch=env.FullHiveJellyBatch
+    local h=hive()
+    if batch and batch.Version==1 and batch.Owner==player.UserId
+        and batch.Job==game.JobId and batch.Hive==(h and h.Name)
+        and (s.Eggs.RoyalJelly or 0)>0 then return batch end
+end
 local function context(s,slots)
     local stage=Policy.stage({slots=slots,starUsed=starEggUses(s)})
     local jelly=s.Eggs.RoyalJelly or 0
@@ -429,6 +436,15 @@ local function context(s,slots)
     local used=s.Totals and s.Totals.EggUses and s.Totals.EggUses.Star or 0
     local collectorFallback=Policy.collectorRecovery(slots,1,usable,
         bought.RoyalJelly or 0,env.FullHiveCollectorFallback==true)
+    local batch=activeJellyBatch(s)
+    local normalRefill=Policy.refill(slots)
+    if slots>=44 and not lateStarted then normalRefill=math.max(10000,normalRefill) end
+    -- Honey for the NEXT refill must not downgrade a batch already admitted.
+    -- A newly available full normal amount also precedes recovery entry.
+    if (batch and not batch.Recovery)
+        or (env.FullHiveCollectorFallback~=true and jelly>=normalRefill) then
+        collectorFallback=false
+    end
     return {slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,lateStarted=lateStarted,nextFlexible=nextFlexible,
         collectorFallback=collectorFallback,
         canRefill30k=Config.AutoPurchase and usable>=Policy.jellyCost(bought.RoyalJelly or 0,30000)}
@@ -442,6 +458,12 @@ local function plan(s)
         p=Policy.plan(cells,Types,ctx)
     end
     if not Config.DryRun then env.FullHiveCollectorFallback=p.collectorFallback or nil end
+    local admitted=activeJellyBatch(s)
+    if admitted and not p.collectorFallback and not Config.DryRun then
+        -- Finishing recovery changes the next refill/mode, not admission for
+        -- the rest of this batch. Subsequent normal rolls cannot re-enter it.
+        admitted.Recovery=false
+    end
     if rollTask then
         local current
         for _,c in ipairs(cells) do if c.x==rollTask.x and c.y==rollTask.y then current=c; break end end
@@ -494,10 +516,7 @@ local function jellyBatchReady(s)
     local recovery=Report.CollectorFallback==true
     local h=hive()
     local batch=env.FullHiveJellyBatch
-    local valid=batch and batch.Version==1 and batch.Owner==player.UserId
-        and batch.Job==game.JobId and batch.Hive==(h and h.Name)
-        and batch.Amount==target and batch.Recovery==recovery
-        and inventory>0 and inventory<=(batch.Remaining or 0)
+    local valid=activeJellyBatch(s)~=nil
     if not valid then
         batch=nil; env.FullHiveJellyBatch=nil
         -- Only a full refill amount or more can open a new batch. An incidental

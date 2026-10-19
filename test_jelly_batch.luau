@@ -1,9 +1,10 @@
 -- Exercise the actual admission/refill helpers without game changes or remotes.
 return function(runtime,Policy,Types)
     local source=assert(runtime:match("(local function jellyBatchReady%(s%).-)\nlocal function find%(cells,cell%)"))
+    local active=assert(runtime:match("(local function activeJellyBatch%(s%).-)\nlocal function context"))
     local refillSource=assert(runtime:match("(local function refill%(%)%s.-)\nlocal function eventAction"))
     local factory=assert(loadstring('return function(env,Report,player,game,hive,Policy,Config,refresh,plan,buy,move,hiveFloor,checkStop,royalJellyPurchases)\nlocal lateStarted=false\n'..
-        source..'\n'..refillSource..'\nreturn jellyBatchReady,jellyBatchSpent,refill\nend'))()
+        active..'\n'..source..'\n'..refillSource..'\nreturn jellyBatchReady,jellyBatchSpent,refill\nend'))()
     local passed=0
     local function check(v,message) assert(v,message); passed+=1 end
     local function fixture(target,inventory)
@@ -35,9 +36,13 @@ return function(runtime,Policy,Types)
         check(not ready(s) and env.FullHiveJellyBatch==nil,'A gift after exhaustion cannot revive batch')
         s.Eggs.RoyalJelly=target; check(ready(s),'Next exact refill reopens batch')
         report.RefillAmount=target*2
-        check(not ready(s),'A changed refill invalidates the previous batch')
+        check(ready(s),'A changed refill preserves admitted jelly until exhaustion')
+        s.Eggs.RoyalJelly=target+5
+        check(ready(s),'Gifts received during an admitted batch remain usable')
+        spent(0); s.Eggs.RoyalJelly=1
+        check(not ready(s),'After exhausting a continued batch a small drop is blocked')
     end
-    for _,field in ipairs({'Owner','Hive','Job','Version','Recovery','Remaining'}) do
+    for _,field in ipairs({'Owner','Hive','Job','Version'}) do
         local env,_,s,ready=fixture(100,100); ready(s)
         s.Eggs.RoyalJelly=50
         env.FullHiveJellyBatch[field]=field=='Remaining' and 49 or 'changed'
@@ -47,7 +52,9 @@ return function(runtime,Policy,Types)
         local _,report,s,ready,spent=fixture(100,100); ready(s)
         spent(99); s.Eggs.RoyalJelly=99
         report.CollectorFallback=true
-        check(not ready(s),'Normal/recovery change invalidates same-sized batch')
+        check(ready(s),'Recovery/refill changes do not strand admitted jelly')
+        spent(0); s.Eggs.RoyalJelly=1
+        check(not ready(s),'Exhaustion still requires a new full batch')
     end
     for _,inventory in ipairs({0,1,57,599}) do
         local _,_,s,ready,_,refill,purchases=fixture(600,inventory)

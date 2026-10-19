@@ -181,5 +181,46 @@ return function(P,T,runtime)
     task=P.startRollTask(collector,cells,initial); task.Owner=7; task.Hive="TestHive"; task.Job="test"
     q,report,env=make(P,T,{FullHiveRollTask=task},stats(cells))
     check(env.FullHiveRollTask==nil and q.reason=="collector-fallback","Recovery holds an existing collector and selects a wrong slot")
+    -- The actual context/plan must prefer admitted normal jelly over the cost
+    -- of the next refill, including intermediate noncollector roll results.
+    for _,slotCount in ipairs({40,41,42,43,44,45,46,48,50}) do
+        for _,remaining in ipairs({1,99,P.refill(slotCount)-1,P.refill(slotCount)+1}) do
+            cells=fixture()
+            local target
+            for _,c in ipairs(cells) do if c.bee.Type=="Bubble" then target=c; break end end
+            local original=P.plan(cells,T,{slots=slotCount,starUsed=slotCount>=46 and 2 or 0,jelly=P.refill(slotCount),honey=1e15,lateStarted=true})
+            original.reason="convert-flexible"; original.mode="gifted"
+            task=P.startRollTask(target,cells,original); task.Owner=7; task.Hive="TestHive"; task.Job="test"; task.Rolled=true
+            target.bee={Type="Stubborn",Traits={}}
+            local snapshot=stats(cells,0); snapshot.Totals.Purchases.HiveSlots=slotCount-25
+            snapshot.Totals.EggUses.Star=slotCount>=46 and 2 or 0; snapshot.Eggs.RoyalJelly=remaining
+            local batch={Version=1,Owner=7,Hive="TestHive",Job="test",Amount=P.refill(slotCount),Remaining=remaining,Recovery=false}
+            local state={FullHiveRollTask=task,FullHiveJellyBatch=batch}
+            q,report,env=make(P,T,state,snapshot)
+            check(not q.collectorFallback and not env.FullHiveCollectorFallback,"Admitted normal batch prevents recovery at "..slotCount.." / "..remaining)
+            check(q.target.x==target.x and q.target.y==target.y and q.mode=="gifted" and q.reason=="convert-flexible","Intermediate result keeps original gifted task")
+            check(env.FullHiveRollTask==task and task.Reason=="convert-flexible","Recovery does not rewrite task lease")
+            check(env.FullHiveJellyBatch==batch and not batch.Recovery,"Normal admission survives replanning")
+        end
+    end
+    do
+        cells=fixture(); local snapshot=stats(cells,0); snapshot.Eggs.RoyalJelly=600
+        q,report=make(P,T,{},snapshot)
+        check(not q.collectorFallback and report.RefillAmount==600,"A full normal amount prevents recovery entry before admission")
+        snapshot.Eggs.RoyalJelly=1
+        q,report=make(P,T,{},snapshot)
+        check(q.collectorFallback and report.RefillAmount==100,"Unadmitted small drops do not disable genuine recovery")
+        snapshot.Eggs.RoyalJelly=99
+        local state={FullHiveJellyBatch={Version=1,Owner=7,Hive="TestHive",Job="test",Amount=100,Remaining=99,Recovery=true},FullHiveCollectorFallback=true}
+        q,report=make(P,T,state,snapshot)
+        check(q.collectorFallback and report.RefillAmount==100,"A genuine recovery batch keeps repair behavior")
+        for _,c in ipairs(cells) do if not P.isCollectorSection(c) and T[c.bee.Type].Rarity~="Event" and T[c.bee.Type].Rarity~="Mythic" then c.bee={Type="Bubble",Traits={}} end end
+        snapshot=stats(cells,0); snapshot.Eggs.RoyalJelly=45
+        q,report,env=make(P,T,state,snapshot)
+        check(not q.collectorFallback and report.RefillAmount==600 and not env.FullHiveJellyBatch.Recovery,"Recovery completion restores normal mode without discarding leftover jelly")
+        cells[1].bee={Type="Stubborn",Traits={}}; snapshot=stats(cells,0); snapshot.Eggs.RoyalJelly=44
+        q,report=make(P,T,state,snapshot)
+        check(not q.collectorFallback,"An intermediate normal result cannot restart completed recovery")
+    end
     return {passed=passed}
 end
