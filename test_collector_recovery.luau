@@ -149,7 +149,7 @@ return function(P,T,runtime)
     local source=assert(runtime:match("(local function scan%(s%).-)\nlocal function find%(cells,cell%)"))
     local make=assert(loadstring("return function(Policy,Types,env,s)\n"..
         'local Config={HoneyReserve=0,DryRun=false,AutoPurchase=true}; local Report={}; local lateStarted=false; local nextFlexible; local rollTask=env.FullHiveRollTask; local player={UserId=7}; local game={JobId="test"}; local function hive() return {Name="TestHive"} end; local function starEggUses(s) return s.Totals.EggUses.Star or 0 end\n'..
-        source.."\nlocal p=plan(s); return p,Report,env\nend"))()
+        source.."\nlocal p=plan(s); return p,Report,env,jellyBatchReady\nend"))()
     local function stats(cells,honey)
         local comb={}
         for _,c in ipairs(cells) do comb["x"..c.x]={["y"..c.y]=c.bee} end
@@ -217,10 +217,36 @@ return function(P,T,runtime)
         for _,c in ipairs(cells) do if not P.isCollectorSection(c) and T[c.bee.Type].Rarity~="Event" and T[c.bee.Type].Rarity~="Mythic" then c.bee={Type="Bubble",Traits={}} end end
         snapshot=stats(cells,0); snapshot.Eggs.RoyalJelly=45
         q,report,env=make(P,T,state,snapshot)
-        check(not q.collectorFallback and report.RefillAmount==600 and not env.FullHiveJellyBatch.Recovery,"Recovery completion restores normal mode without discarding leftover jelly")
+        check(not q.collectorFallback and report.RefillAmount==600 and env.FullHiveJellyBatch==nil,"Recovery completion closes admission and saves leftover inventory")
+        local _,_,_,ready=make(P,T,state,snapshot)
+        check(not ready(snapshot) and snapshot.Eggs.RoyalJelly==45,"A repaired hive cannot use45 leftovers to start a600 conversion")
         cells[1].bee={Type="Stubborn",Traits={}}; snapshot=stats(cells,0); snapshot.Eggs.RoyalJelly=44
         q,report=make(P,T,state,snapshot)
-        check(not q.collectorFallback,"An intermediate normal result cannot restart completed recovery")
+        check(q.collectorFallback,"A new wrong slot without a funded normal task can use genuine recovery")
+    end
+    for _,case in ipairs({{41,1},{41,200},{41,599},{43,200}}) do
+        local slotCount,left=case[1],case[2]
+        local base=P.refill(slotCount)
+        cells=fixture(); local target=cells[1]
+        local original=P.plan(cells,T,{slots=slotCount,starUsed=0,jelly=base,honey=1e15,lateStarted=true})
+        original.reason="convert-flexible"; original.mode="gifted"
+        task=P.startRollTask(target,cells,original)
+        task.Owner=7; task.Hive="TestHive"; task.Job="test"; task.Rolled=true
+        target.bee={Type="Rad",Traits={}}
+        local snapshot=stats(cells,0); snapshot.Eggs.RoyalJelly=left
+        snapshot.Totals.Purchases.HiveSlots=slotCount-25
+        local state={FullHiveRollTask=task}
+        if left>0 then state.FullHiveJellyBatch={Version=1,Owner=7,Hive="TestHive",Job="test",Amount=base,Remaining=left,Recovery=false} end
+        q,report,env=make(P,T,state,snapshot)
+        check(not q.collectorFallback and q.mode=="gifted" and q.reason=="convert-flexible","A funded normal task never downgrades at "..left)
+        check(report.RefillAmount==base and env.FullHiveRollTask==task,"Active normal batch retains its task/refill")
+        target.bee={Type="Bubble",Traits={"Gifted"}}
+        snapshot=stats(cells,0); snapshot.Eggs.RoyalJelly=left
+        snapshot.Totals.Purchases.HiveSlots=slotCount-25
+        local _,_,_,ready
+        q,report,env,ready=make(P,T,state,snapshot)
+        check(env.FullHiveRollTask==nil and env.FullHiveJellyBatch==nil,"A completed conversion closes its batch at "..left)
+        check(not ready(snapshot) and snapshot.Eggs.RoyalJelly==left,"The next conversion cannot spend a small remainder")
     end
     return {passed=passed}
 end

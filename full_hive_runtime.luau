@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.3.2"
+local SCRIPT_VERSION = "1.3.3"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -105,6 +105,10 @@ local leased, previousAtlas, previousSettings, cleanupMove = false, nil, nil, ni
 local lateStarted = env.FullHiveLateStarted == true
 local basicLock = env.FullHiveBasicLock
 local rollTask = env.FullHiveRollTask
+-- Drop an old, unowned continuation batch when upgrading from use-all mode.
+if env.FullHiveJellyBatch and not env.FullHiveJellyBatch.Recovery and not rollTask and not basicLock then
+    env.FullHiveJellyBatch=nil
+end
 local nextFlexible
 local stoppedByUser = false
 local function checkStop()
@@ -460,9 +464,11 @@ local function plan(s)
     if not Config.DryRun then env.FullHiveCollectorFallback=p.collectorFallback or nil end
     local admitted=activeJellyBatch(s)
     if admitted and not p.collectorFallback and not Config.DryRun then
-        -- Finishing recovery changes the next refill/mode, not admission for
-        -- the rest of this batch. Subsequent normal rolls cannot re-enter it.
-        admitted.Recovery=false
+        if admitted.Recovery then
+            -- The repair is finished. Save its remainder; a new normal
+            -- objective must qualify against the normal refill amount.
+            env.FullHiveJellyBatch=nil; Report.JellyBatch=nil
+        end
     end
     if rollTask then
         local current
@@ -483,6 +489,9 @@ local function plan(s)
         if not invalid and not done then done,why=Policy.rollTaskDone(rollTask,current,cells,Types,p) end
         if invalid or done then
             Report.LastCompletedTarget={X=rollTask.x,Y=rollTask.y,Reason=invalid and "hive-or-stage-changed" or why}
+            if invalid or not Policy.isRecoveryTask(rollTask) then
+                env.FullHiveJellyBatch=nil; Report.JellyBatch=nil
+            end
             rollTask=nil; env.FullHiveRollTask=nil; Report.ActiveTarget=nil
         else
             assert(Policy.rollTaskSafe(rollTask,current,cells,Types,p),"Active roll slot became a force slot; stopped before switching")
@@ -713,7 +722,10 @@ local function eventAction(s,cells,p)
     return false
 end
 local function giftedBasic(s,cells,p)
-    if Policy.count(cells,"Basic",true)>0 then basicLock=nil; env.FullHiveBasicLock=nil; return false end
+    if Policy.count(cells,"Basic",true)>0 then
+        if basicLock then env.FullHiveJellyBatch=nil; Report.JellyBatch=nil end
+        basicLock=nil; env.FullHiveBasicLock=nil; return false
+    end
     local _,slots=scan(s)
     if slots<40 or (not basicLock and (s.Honey or 0)<3000000000) then return false end
     if not basicLock then
@@ -809,6 +821,7 @@ local function useStarScript(s)
     assert(ok,err); assert(not env.AutoGiftedStarError,env.AutoGiftedStarError)
     s=refresh(); assert((s.Eggs.Star or 0)<before,"Star Egg workflow made no progress")
     Report.Actions=Report.Actions+before-(s.Eggs.Star or 0)
+    env.FullHiveJellyBatch=nil; Report.JellyBatch=nil
 end
 local function waitFor(reason)
     Report.Phase="waiting"; Report.Activity=reason
