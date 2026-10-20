@@ -82,6 +82,32 @@ Existing validation includes policy checks and selected live Potassium tests. La
 
 ## Development
 
+### Connected cloud phones
+
+The current development checkout is `C:\Users\Administrator\Documents\ChatGPT\Auto coding\upstream-full-hive-assist`. Publish updates to this repository's `main` branch. The earlier `full-hive-assist-standalone` repository is inactive.
+
+Use the cloud phone connector for **phone1**, Noka FREE 6 (`free.nokaF`), and the independent **phone2**, Roblox (`com.roblox.client`), with their explicit profiles. Verify the intended account and private server **Alt1** before resuming. The generated bundle is staged at `/sdcard/Arceus X/Workspace/FullHiveAssist/auto_full_hive_assist.luau` on both phones; pasting the entire bundle does not require executor file APIs.
+
+If Roblox tools are absent from the chat, the existing local MCP core can be reached with the repository helper:
+
+```powershell
+$env:ROBLOX_MCP_SERVER_ROOT = 'C:\Users\Administrator\Downloads\roblox-executor-mcp-main\roblox-executor-mcp'
+node ./tools/call_roblox_mcp.mjs list-clients
+node ./tools/call_roblox_mcp.mjs tools/list
+```
+
+Use the live schemas and pass an explicit freshly discovered `clientId`. Check account/place/executor, server-backed hive/inventory, pending requests, running version, and actual Atlas state before execution. A missing connection alone does not prove a crash. After a restart, reconcile state before resuming; never blindly replay an uncertain purchase or roll. Load Atlas only when absent, then execute the current bundle once and allow its built-in 60-second delay. Confirm `FullHiveReport.Version`, a fresh `StartedAt`, Feather's version badge, and healthy post-start behavior before reporting deployment. Routine monitoring runs every **10 minutes**, quietly while unchanged.
+
+Commit and push completed changes immediately without routine confirmation:
+
+```powershell
+git add --all
+git commit -m "Describe the completed change"
+git push origin main
+```
+
+Keep essential build/regression and safe deployment checks for script changes. Documentation-only updates do not require gameplay tests. See `FULL_HIVE_TEST_LOG.md` and `full_hive_deployment.json` for observations and validation limits.
+
 Edit the source modules, then rebuild the standalone script from PowerShell:
 
 ```powershell
