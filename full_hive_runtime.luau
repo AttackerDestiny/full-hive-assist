@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.3.4"
+local SCRIPT_VERSION = "1.3.5"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -438,13 +438,14 @@ local function context(s,slots)
     local bought=s.Totals and s.Totals.Purchases and s.Totals.Purchases.Eggs or {}
     local usable=math.max(0,(s.Honey or 0)-Config.HoneyReserve)
     local used=s.Totals and s.Totals.EggUses and s.Totals.EggUses.Star or 0
-    local collectorFallback=Policy.collectorRecovery(slots,1,usable,
-        bought.RoyalJelly or 0,env.FullHiveCollectorFallback==true)
-    local batch=activeJellyBatch(s)
     local normalRefill=Policy.refill(slots)
     if slots>=44 and not lateStarted then normalRefill=math.max(10000,normalRefill) end
+    local collectorFallback=Policy.collectorRecovery(slots,1,usable,
+        bought.RoyalJelly or 0,env.FullHiveCollectorFallback==true,jelly,normalRefill)
+    local batch=activeJellyBatch(s)
     -- Honey for the NEXT refill must not downgrade a batch already admitted.
-    -- A newly available full normal amount also precedes recovery entry.
+    -- A full normal amount or affordable remaining top-up precedes recovery.
+    -- Recheck the missing amount after each pack, not the cost of a new batch.
     if (batch and not batch.Recovery)
         or (env.FullHiveCollectorFallback~=true and jelly>=normalRefill) then
         collectorFallback=false

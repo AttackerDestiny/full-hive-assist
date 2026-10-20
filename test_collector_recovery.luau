@@ -248,5 +248,27 @@ return function(P,T,runtime)
         check(env.FullHiveRollTask==nil and env.FullHiveJellyBatch==nil,"A completed conversion closes its batch at "..left)
         check(not ready(snapshot) and snapshot.Eggs.RoyalJelly==left,"The next conversion cannot spend a small remainder")
     end
+    -- Partial purchases must not turn an affordable normal top-up into recovery.
+    -- Exercise the real runtime planner after each supported pack boundary.
+    for _,slotCount in ipairs({35,39,40,41,42,43,44,45,46,47,48,49,50}) do
+        local base=P.refill(slotCount)
+        local target=slotCount>=44 and math.max(10000,base) or base
+        for _,inventory in ipairs({1,math.floor(target/2),target-1}) do
+            cells=fixture()
+            local missingCost=P.jellyCost(75,target-inventory)
+            local snapshot=stats(cells,missingCost)
+            snapshot.Totals.Purchases.HiveSlots=slotCount-25
+            snapshot.Eggs.RoyalJelly=inventory
+            q,report,env=make(P,T,{},snapshot)
+            check(not q.collectorFallback and report.RefillAmount==target,"Affordable missing top-up retains normal refill at "..slotCount.." / "..inventory)
+            check(env.FullHiveJellyBatch==nil,"Partial top-up never admits a batch before reaching its threshold")
+            snapshot.Honey=missingCost-1
+            q,report=make(P,T,{},snapshot)
+            check(q.collectorFallback and report.RefillAmount==100,"Unaffordable missing top-up still permits genuine repair")
+            snapshot.Honey=missingCost
+            q,report=make(P,T,{FullHiveCollectorFallback=true},snapshot)
+            check(q.collectorFallback and report.RefillAmount==100,"Active repair persists despite an affordable normal top-up")
+        end
+    end
     return {passed=passed}
 end

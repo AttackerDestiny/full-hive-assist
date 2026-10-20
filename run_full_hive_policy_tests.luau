@@ -162,9 +162,10 @@ function P.jellyCost(bought, amount)
     return discounted * (250000 + 10000 * bought)
         + 10000 * discounted * (discounted - 1) / 2 + (amount - discounted) * 1000000
 end
-function P.collectorRecovery(slots, safeNonCollector, honey, bought, active)
+function P.collectorRecovery(slots, safeNonCollector, honey, bought, active, inventory, target)
     local base=P.refill(slots)
-    return base>100 and safeNonCollector>0 and (active==true or honey<P.jellyCost(bought,base))
+    local missing=math.max(0,(target or base)-(inventory or 0))
+    return base>100 and safeNonCollector>0 and (active==true or honey<P.jellyCost(bought,missing))
 end
 function P.refillFor(slots, collectorFallback)
     if collectorFallback and P.refill(slots)>100 then return 100,100 end
