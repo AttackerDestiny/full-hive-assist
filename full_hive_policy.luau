@@ -1,5 +1,6 @@
 -- Pure planner. No Roblox calls; every spending action must revalidate this plan.
 local P = {}
+P.slotCaps = {Ninja=4, Lion=2}
 P.mid = {"Bumble", "Cool", "Looker", "Bomber", "Bubble", "Commander", "Bucko", "Frosty"}
 P.legendary = {"Baby", "Carpenter", "Demon", "Lion", "Diamond", "Music", "Ninja", "Shy"}
 P.singles = {"Basic", "Bumble", "Cool", "Looker", "Bomber", "Bubble", "Commander", "Bucko", "Frosty", "Carpenter", "Demon", "Lion", "Diamond", "Ninja", "Shy"}
@@ -51,6 +52,11 @@ end
 function P.isRecoveryTask(task)
     return task and (task.Reason=="collector-fallback" or task.Reason=="gifted-collector-fallback")
 end
+function P.isUsableCollector(cell, cells)
+    if not P.isCollectorSection(cell) then return false end
+    local cap=P.slotCaps[cell.bee.Type]
+    return not cap or P.count(cells,cell.bee.Type)<=cap
+end
 function P.recoveryMode(honey)
     if (honey or 0)>=20000000000 then return "gifted","gifted-collector-fallback" end
     return "off","collector-fallback"
@@ -85,6 +91,11 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     if not task.Rolled then return false end
     local name = cell.bee.Type
     local gifted = P.gifted(cell)
+    -- A newly needed gifted failsafe may replace a normal copy; surplus
+    -- normals are then cleaned up. Never finish a roll on another excess copy.
+    local slotCap=P.slotCaps[name]
+    if slotCap and P.count(cells,name)>slotCap
+        and not (gifted and (task.InitialGifted[name] or 0)==0) then return false end
     local limit = P.giftedLimit(name, plan.stage)
     -- Do not let a new duplicate win a reservation merely because its
     -- coordinate sorts before the existing gifted copy.
@@ -136,6 +147,7 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
     if done then return false end
     local name = cell.bee.Type
     local limit = P.giftedLimit(name, plan.stage)
+    if P.slotCaps[name] and P.count(cells,name)>P.slotCaps[name] then return true end
     if P.gifted(cell) and limit and P.count(cells, name, true) > limit then return true end
     if P.gifted(cell) and (limit or name=="Bubble" or name=="Frosty") then return false end
     if task.Reason == "convert-flexible" and not P.gifted(cell)
@@ -323,6 +335,20 @@ function P.plan(cells, types, ctx)
             end
         end
     end
+    local excess = {}
+    for name,cap in pairs(P.slotCaps) do
+        local ranked={}
+        for _,c in ipairs(cells) do if c.bee and c.bee.Type==name then ranked[#ranked+1]=c end end
+        table.sort(ranked,function(a,b)
+            local ak,bk=keep[P.key(a)]==true,keep[P.key(b)]==true
+            if ak~=bk then return ak end
+            return P.key(a)<P.key(b)
+        end)
+        for i=cap+1,#ranked do
+            local c=ranked[i]
+            if not protected[P.key(c)] then keep[P.key(c)]=nil; excess[P.key(c)]=true end
+        end
+    end
     local candidates, conversion = {}, {}
     for _, c in ipairs(cells) do
         if c.bee and not keep[P.key(c)] then candidates[#candidates+1] = c end
@@ -336,6 +362,8 @@ function P.plan(cells, types, ctx)
         return 4
     end
     table.sort(candidates, function(a,b)
+        local ae,be=excess[P.key(a)]==true,excess[P.key(b)]==true
+        if ae~=be then return ae end
         if priority(a) ~= priority(b) then return priority(a) < priority(b) end
         return P.key(a) < P.key(b)
     end)
@@ -361,7 +389,7 @@ function P.plan(cells, types, ctx)
     end
     local fallbackCandidates = {}
     for _, c in ipairs(candidates) do
-        if not P.isCollectorSection(c) then fallbackCandidates[#fallbackCandidates + 1] = c end
+        if not P.isUsableCollector(c,cells) then fallbackCandidates[#fallbackCandidates + 1] = c end
     end
     local target, mode, reason = nil, "off", nil
     local royalNeeds = false
@@ -377,6 +405,8 @@ function P.plan(cells, types, ctx)
         for _, n in ipairs(needs) do if not n.gifted then normalNeed = true end end
         mode = normalNeed and (ctx.slots >= 35 and not post and "legendary" or "off") or "gifted"
         if post then mode = "gifted" end
+    elseif candidates[1] and excess[P.key(candidates[1])] then
+        target,mode,reason=candidates[1],stage=="early" and "off" or "gifted","slot-cap"
     elseif not post and stage ~= "early" and #conversion > 0 then
         -- Surplus normals first; once exhausted release one of the four force copies.
         table.sort(conversion, function(a,b)
@@ -399,13 +429,13 @@ function P.plan(cells, types, ctx)
     local cleanupTarget
     if stage == "final" then
         for _,c in ipairs(candidates) do
-            if c.bee.Type == "Baby" or c.bee.Type == "Tadpole" or c.bee.Type == "Buoyant" then cleanupTarget=c; break end
+            if excess[P.key(c)] or c.bee.Type == "Baby" or c.bee.Type == "Tadpole" or c.bee.Type == "Buoyant" then cleanupTarget=c; break end
         end
         if #needs == 0 and cleanupTarget then target, mode, reason=cleanupTarget,"gifted","final-surplus" end
     end
     local waitingLate = stage == "late" and not ctx.lateStarted
     -- At 44+, the 10k entry condition gates legendary work, not early repairs.
-    if waitingLate and #needs == 0 and reason ~= "convert-flexible" and not collectorFallback then target = nil end
+    if waitingLate and #needs == 0 and reason ~= "convert-flexible" and reason ~= "slot-cap" and not collectorFallback then target = nil end
     return {stage=stage, keep=keep, protected=protected, temporary=temporary, needs=needs, candidates=candidates,
         fallbackCandidates=fallbackCandidates, collectorFallback=collectorFallback and #fallbackCandidates>0,
         recoveryGifted=recoveryMode=="gifted",

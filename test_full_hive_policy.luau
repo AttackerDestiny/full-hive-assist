@@ -195,5 +195,42 @@ return function(P,T)
             check(not p.keep[P.key(p.target)] or p.reason=="convert-flexible","Fuzz targeted a force slot")
         end
     end
+    -- Species caps count normal and gifted copies together, at every stage.
+    for _,spec in ipairs({{"Ninja",4},{"Lion",2}}) do
+        local name,cap=spec[1],spec[2]
+        check(P.slotCaps[name]==cap,"Configured total cap for "..name)
+        for _,slots in ipairs({25,35,41,44,46,50}) do
+            local base=hive({{"Baby",4},{"Music",4},{"Shy",3},{"Bubble",4},{"Frosty",4},
+                {name,1,true},{name,cap,false},{"Tabby",1},{"Fuzzy",1}})
+            local q=P.plan(base,T,ctx(slots,2))
+            local kept=0
+            for _,c in ipairs(base) do if c.bee.Type==name and q.keep[P.key(c)] then kept+=1 end end
+            check(kept<=cap,"Reservations respect total cap at "..slots)
+            if slots<46 or (name=="Ninja" and slots<50) then
+                check(q.keep[P.key(base[#base-cap-2])],"Existing gifted failsafe retained at "..slots)
+            end
+            check(q.target and q.target.bee.Type==name and not P.gifted(q.target),"Surplus species selected before other conversion at "..slots)
+            local recovery=ctx(slots,2); recovery.collectorFallback=true; recovery.honey=1
+            local r=P.plan(base,T,recovery)
+            if slots>=35 then
+                check(r.collectorFallback and r.target.bee.Type==name,"Over-cap collector enters repair at "..slots)
+            end
+        end
+        for _,existing in ipairs({cap-1,cap}) do
+            local base=hive({{"Hasty",1},{name,existing,false}})
+            local target=base[1]
+            local task=P.startRollTask(target,base,{stage="mid",reason="collector-fallback",mode="off",needs={}})
+            task.Rolled=true; target.bee={Type=name,Traits={}}
+            local q=P.plan(base,T,{slots=41,starUsed=0,jelly=100,honey=1,collectorFallback=true})
+            check(P.rollTaskDone(task,target,base,T,q)==(existing<cap),"Recovery result respects "..name.." cap")
+            check(P.rollTaskSafe(task,target,base,T,q)==(existing>=cap),"Excess new result remains on active coordinate")
+        end
+        local base=hive({{"Hasty",1},{name,cap,false}})
+        local task=P.startRollTask(base[1],base,{stage="mid",reason="collector-fallback",mode="off",needs={}})
+        task.Rolled=true; base[1].bee={Type=name,Traits={"Gifted"}}
+        local q=P.plan(base,T,ctx(41))
+        check(P.rollTaskDone(task,base[1],base,T,q),"First gifted failsafe may replace a normal at cap")
+        check(q.target and q.target.bee.Type==name and not P.gifted(q.target),"Cap cleanup releases a normal after gifted upgrade")
+    end
     return {passed=checked}
 end

@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.3.7 species caps:** Keep at most **4 Ninja** and **2 Lion** bees, counting normal and gifted copies together. These are maximums, not new minimum targets. Surplus slots become eligible for replacement before optional Bubble/Frosty conversions and count as repair candidates when recovery is needed. Recovery does not finish on another over-cap copy. Existing gifted failsafes, stage targets, refill qualification, and saved-leftover rules still apply; cap cleanup runs as resources allow.
+
 **v1.3.6 Star Jelly upgrades:** In addition to missing gifted Rare/Epic failsafes, available Star Jelly can upgrade an eligible normal Bubble/Frosty selected by the existing planner. It can start without the Royal Jelly refill threshold, uses one Star Jelly per request with all roll-to flags off, and stays on that coordinate through intermediate results until the existing keep rules complete it. No new hive targets are introduced. While Star Jelly remains, this unfinished conversion does not become 100-jelly recovery. Once Star Jelly runs out, existing Royal Jelly qualification and repair rules apply. The Royal Jelly completion/save-leftovers rules remain unchanged.
 
 **v1.3.5 refill fix:** Recovery affordability uses only the Royal Jelly still missing from the normal target, including the initial legendary entry target. Buying the first pack of a larger refill no longer switches an affordable top-up into 100-jelly recovery. Active repair still persists until completed; normal admission and saved-leftover rules remain unchanged.

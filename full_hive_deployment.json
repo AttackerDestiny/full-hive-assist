@@ -1,5 +1,5 @@
 {
-  "version": "1.3.6",
+  "version": "1.3.7",
   "account": "RileyCosmicguppydude",
   "jobId": "0265ab74-c1e0-475f-8598-cefaf19dd9bc",
   "verification": {
@@ -82,14 +82,14 @@
     "liveStateCurrentlyVerified": false
   },
   "previousStartedAt": 1792471230,
-  "startedLocal": "2026-10-20T12:46:41+07:00",
+  "startedLocal": "2026-10-20T00:46:41-05:00",
   "startedAt": 1792475201,
   "executor": "Arceus X",
-  "change": "Use Star Jelly for eligible normal Bubble/Frosty upgrades in addition to missing Rare/Epic gifted failsafes, preserving same-coordinate objectives and existing keep rules.",
-  "sha256": "39c368753277499f824ee956f4a9de07a9cc81f44d614f91de54006d6f04ab5d",
-  "verifiedLocal": "2026-10-20T12:48:17.114003+07:00",
+  "change": "Cap Ninja at4 and Lion at2 total slots, including gifted copies; excess cleanup and recovery keep guard.",
+  "sha256": "61ccb751844232471f112884162a18ea1205ac550ee12b83462309746f894be5",
+  "verifiedLocal": "2026-10-20T00:48:17.114003-05:00",
   "clientId": "2e22d100-fadb-4465-802b-4a68ae1e8237",
-  "bytes": 139263,
+  "bytes": 142548,
   "clients": [
     {
       "account": "Luneri427",
@@ -116,7 +116,7 @@
       "serverNameVerifiedInRobloxUI": true,
       "royalJellyUsed": 6,
       "starJellyUpgradeLiveVerified": true,
-      "latestConnectionCheckLocal": "2026-10-20T14:37:13.652334+07:00",
+      "latestConnectionCheckLocal": "2026-10-20T02:37:13.652334-05:00",
       "latestConnectionState": "unreachable-current-runtime-unknown"
     },
     {
@@ -145,12 +145,12 @@
       "royalJellyUsed": 0,
       "privateServer": "Alt1",
       "serverNameVerifiedInRobloxUI": true,
-      "latestConnectionCheckLocal": "2026-10-20T14:37:13.652334+07:00",
+      "latestConnectionCheckLocal": "2026-10-20T02:37:13.652334-05:00",
       "latestConnectionState": "unreachable-current-runtime-unknown"
     }
   ],
   "lastReconnect": {
-    "verifiedLocal": "2026-10-20T12:48:17.114003+07:00",
+    "verifiedLocal": "2026-10-20T00:48:17.114003-05:00",
     "account": "RileyCosmicguppydude",
     "profile": "cloudphone",
     "package": "free.nokaF",
@@ -192,20 +192,17 @@
     "royalJellyUsed": 0
   },
   "lastMonitorRun": {
-    "trigger": "manual-user-request",
-    "verifiedUtc": "2026-10-20T07:48:11Z",
-    "sourceChanged": false,
-    "localBundleVersion": "1.3.6",
-    "connectedClients": 2,
-    "cloudphoneStatusAndScreenshotReachable": true,
     "liveInspectionCompleted": true,
-    "bothAccountsRejoinedVerifiedAlt1": true,
-    "bothAssistRuntimeAndUIVerified": true,
     "errors": false,
-    "monitorKeptActive": true
+    "sourceChanged": true,
+    "trigger": "user-cap-update",
+    "verifiedUtc": "2026-10-20T11:10:25Z",
+    "connectedClients": 2,
+    "bothAssistRuntimeAndUIVerified": true,
+    "localBundleVersion": "1.3.7"
   },
   "phone2Setup": {
-    "verifiedLocal": "2026-10-20T11:36:27.512788+07:00",
+    "verifiedLocal": "2026-10-19T23:36:27.512788-05:00",
     "profile": "phone2",
     "package": "com.roblox.client",
     "account": "Luneri427",
@@ -223,7 +220,7 @@
     "inventoryAfter": 13,
     "allEightPresent": true,
     "royalJellySelectedInPreviousVersion": "1.3.4",
-    "verifiedLocal": "2026-10-20T11:36:27.512788+07:00"
+    "verifiedLocal": "2026-10-19T23:36:27.512788-05:00"
   },
   "starJellyUpgradeLiveProof": {
     "version": "1.3.6",
@@ -251,12 +248,12 @@
     "normalRefillRestored": 2000,
     "atlasResumed": true,
     "giftedCollectorStopsWithUnusedStarJellyIsolatedVerified": true,
-    "verifiedLocal": "2026-10-20T11:43:09.362815+07:00"
+    "verifiedLocal": "2026-10-19T23:43:09.362815-05:00"
   },
   "previousMonitorRun": {
     "trigger": "automatic-heartbeat",
     "triggerUtc": "2026-10-20T07:34:32.043Z",
-    "attemptedLocal": "2026-10-20T14:37:13.652334+07:00",
+    "attemptedLocal": "2026-10-20T02:37:13.652334-05:00",
     "sourceChanged": false,
     "localBundleVersion": "1.3.6",
     "connectedClients": 0,
@@ -269,6 +266,75 @@
     "monitorKeptActive": true
   },
   "currentMonitorObservation": {
+    "verifiedUtc": "2026-10-20T11:10:25Z",
+    "version": "1.3.7",
+    "sourceRepository": "AttackerDestiny/full-hive-assist",
+    "slotCaps": {
+      "includesGifted": true,
+      "Lion": 2,
+      "Ninja": 4
+    },
+    "bundleSha256": "61ccb751844232471f112884162a18ea1205ac550ee12b83462309746f894be5",
+    "bundleBytes": 142548,
+    "phonePath": "/sdcard/Arceus X/Workspace/FullHiveAssist/auto_full_hive_assist.luau",
+    "regressionChecksPerClient": 2609,
+    "staticMarkers": 36,
+    "liveCapCleanupVerified": true,
+    "clients": [
+      {
+        "uiVersion": "v1.3.7",
+        "royalJelly": 139,
+        "errors": false,
+        "refill": 600,
+        "account": "RileyCosmicguppydude",
+        "phase": "waiting",
+        "slots": 41,
+        "running": true,
+        "clientId": "f2b4db66-9bfc-4deb-9f67-9d9144bae8a4",
+        "pendingRequests": false,
+        "atlasStopped": false,
+        "NinjaTotal": 4,
+        "phoneProfile": "phone1",
+        "LionTotal": 0,
+        "startedAt": 1792494433
+      },
+      {
+        "refill": 2000,
+        "uiVersion": "v1.3.7",
+        "startedAt": 1792494434,
+        "slots": 43,
+        "clientId": "c29938e3-3027-4d4d-9426-90b0bbaa1c8f",
+        "LionTotal": 2,
+        "NinjaTotal": 4,
+        "phoneProfile": "phone2",
+        "pendingRequests": false,
+        "GiftedNinja": 1,
+        "account": "Luneri427",
+        "running": true,
+        "errors": false,
+        "royalJelly": 888,
+        "royalJellyUsed": 54,
+        "atlasStopped": false,
+        "phase": "waiting"
+      }
+    ]
+  },
+  "lastHostConnectionAttempt": {
+    "attemptedLocal": "2026-10-20T04:22:50.365534-05:00",
+    "triggerUtc": "2026-10-20T09:21:03.967Z",
+    "localMcpConnectedClients": 0,
+    "phone1StatusReachable": false,
+    "phone2StatusReachable": false,
+    "tailscaleBackendState": "NoState",
+    "localTailscaleOnline": false,
+    "tailscaleCoordinationServerReachable": false,
+    "liveInspectionCompletedHere": false,
+    "gameCrashVerified": false,
+    "sourceChanged": false,
+    "recoveryAttempted": false,
+    "newerRemoteObservationsPreserved": true
+  },
+  "previousMonitorObservation": {
     "verifiedUtc": "2026-10-20T07:48:11Z",
     "version": "1.3.6",
     "scriptChanged": false,
@@ -315,20 +381,5 @@
         "atlasStopped": false
       }
     ]
-  },
-  "lastHostConnectionAttempt": {
-    "attemptedLocal": "2026-10-20T16:22:50.365534+07:00",
-    "triggerUtc": "2026-10-20T09:21:03.967Z",
-    "localMcpConnectedClients": 0,
-    "phone1StatusReachable": false,
-    "phone2StatusReachable": false,
-    "tailscaleBackendState": "NoState",
-    "localTailscaleOnline": false,
-    "tailscaleCoordinationServerReachable": false,
-    "liveInspectionCompletedHere": false,
-    "gameCrashVerified": false,
-    "sourceChanged": false,
-    "recoveryAttempted": false,
-    "newerRemoteObservationsPreserved": true
   }
 }

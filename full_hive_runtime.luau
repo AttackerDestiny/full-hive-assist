@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.3.6"
+local SCRIPT_VERSION = "1.3.7"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -479,10 +479,10 @@ local function plan(s)
         local invalid=rollTask.Version~=2 or rollTask.Owner~=player.UserId or rollTask.Hive~=(h and h.Name)
             or rollTask.Job~=game.JobId
         local done,why
-        if not invalid and p.collectorFallback and current and Policy.isCollectorSection(current)
+        if not invalid and p.collectorFallback and current and Policy.isUsableCollector(current,cells)
             and not Policy.isRecoveryTask(rollTask) then
             done,why=true,"collector-held-during-recovery"
-        elseif not invalid and p.collectorFallback and current and not Policy.isCollectorSection(current)
+        elseif not invalid and p.collectorFallback and current and not Policy.isUsableCollector(current,cells)
             and Policy.rollTaskSafe(rollTask,current,cells,Types,p) then
             -- The existing coordinate stays leased, but an older gifted task
             -- must adopt recovery mode before its next request.
