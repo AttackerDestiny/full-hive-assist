@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.3.5"
+local SCRIPT_VERSION = "1.3.6"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -447,6 +447,7 @@ local function context(s,slots)
     -- A full normal amount or affordable remaining top-up precedes recovery.
     -- Recheck the missing amount after each pack, not the cost of a new batch.
     if (batch and not batch.Recovery)
+        or ((s.Eggs.StarJelly or 0)>0 and Policy.starJellyUpgradeTask(rollTask))
         or (env.FullHiveCollectorFallback~=true and jelly>=normalRefill) then
         collectorFallback=false
     end
@@ -512,6 +513,7 @@ local function plan(s)
     Report.RefillMode=p.collectorFallback and "fallback-100" or (slots==43 and "normal-2000" or "stage-refill")
     Report.StarJelly=s.Eggs.StarJelly or 0
     Report.StarJellyMissing=Policy.starJellyMissing(cells)
+    Report.StarJellyUpgrade=Policy.starJellyUpgrade(p,rollTask)
     local batch=env.FullHiveJellyBatch
     -- The first legendary batch also satisfies the original 10k entry gate.
     if slots>=44 and not p.collectorFallback and (not lateStarted
@@ -573,8 +575,8 @@ local function spend(cell,item,validate,expectedTask)
     end
     assert(Report.Actions<Config.MaxActions,"Action limit reached")
     if item=="StarJelly" then
-        -- Inventory/the final missing failsafe may change during movement.
-        if Policy.rollItem(cells,s.Eggs)~="StarJelly" then return false end
+        -- Inventory, failsafes and the selected upgrade can change during movement.
+        if Policy.rollItem(cells,s.Eggs,p,rollTask)~="StarJelly" then return false end
         local settings=s.Settings or {}
         assert(not settings.RollToGifted and not settings.RollToLegendary
             and not settings.RollToMythic and not settings.RollToMutation,
@@ -871,7 +873,7 @@ local function run()
         Report.NextTarget=p.target and {X=p.target.x,Y=p.target.y,Type=p.target.bee.Type} or nil
         if Config.DryRun then Report.Phase="dry-run"; return end
         if p.complete then Report.Phase="endgame-complete"; Report.Activity="Final hive requirements reached"; return end
-        local item=Policy.rollItem(cells,s.Eggs)
+        local item=Policy.rollItem(cells,s.Eggs,p,rollTask)
         local fallbackReady=p.collectorFallback
         if #cells==0 or ((s.Eggs.RoyalJelly or 0)==0 and item~="StarJelly"
             and Report.Actions==0 and not env.FullHiveStarted and not fallbackReady) then

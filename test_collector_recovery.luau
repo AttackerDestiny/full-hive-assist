@@ -248,6 +248,26 @@ return function(P,T,runtime)
         check(env.FullHiveRollTask==nil and env.FullHiveJellyBatch==nil,"A completed conversion closes its batch at "..left)
         check(not ready(snapshot) and snapshot.Eggs.RoyalJelly==left,"The next conversion cannot spend a small remainder")
     end
+    -- A Star Jelly upgrade remains on its original task even with RJ0/honey0.
+    for _,name in ipairs({"Bubble","Frosty"}) do
+        for _,slotCount in ipairs({40,41,43,44,45}) do
+            cells=fixture(); local target=cells[1]
+            target.bee={Type=name,Traits={}}
+            local original={stage="mid",reason="convert-flexible",mode="gifted",needs={}}
+            task=P.startRollTask(target,cells,original)
+            task.Owner=7; task.Hive="TestHive"; task.Job="test"; task.Rolled=true
+            target.bee={Type="Hasty",Traits={"Gifted"}}
+            local snapshot=stats(cells,0); snapshot.Totals.Purchases.HiveSlots=slotCount-25
+            snapshot.Eggs.StarJelly=2
+            local state={FullHiveRollTask=task}
+            q,report=make(P,T,state,snapshot)
+            check(not q.collectorFallback and q.reason=="convert-flexible","Star Jelly prevents intermediate upgrade result from entering recovery")
+            check(q.target.x==target.x and q.target.y==target.y and report.StarJellyUpgrade,"Star Jelly upgrade keeps original coordinate")
+            snapshot.Eggs.StarJelly=0
+            q,report=make(P,T,state,snapshot)
+            check(q.collectorFallback,"Exhausted Star Jelly with no funded Royal Jelly permits existing repair")
+        end
+    end
     -- Partial purchases must not turn an affordable normal top-up into recovery.
     -- Exercise the real runtime planner after each supported pack boundary.
     for _,slotCount in ipairs({35,39,40,41,42,43,44,45,46,47,48,49,50}) do

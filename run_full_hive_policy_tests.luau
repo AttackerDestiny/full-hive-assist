@@ -26,8 +26,22 @@ function P.starJellyMissing(cells)
     end
     return missing
 end
-function P.rollItem(cells,eggs)
-    if (eggs.StarJelly or 0)>0 and #P.starJellyMissing(cells)>0 then return "StarJelly" end
+function P.starJellyUpgradeTask(task)
+    return task and task.Reason=="convert-flexible"
+        and (task.StartedType=="Bubble" or task.StartedType=="Frosty")
+end
+function P.starJellyUpgrade(plan,task)
+    if not plan or plan.reason~="convert-flexible" or not plan.target then return false end
+    local target=plan.target
+    if (plan.protected or {})[P.key(target)] then return false end
+    if P.starJellyUpgradeTask(task) and task.x==target.x and task.y==target.y then
+        return true -- Continue this objective through intermediate results.
+    end
+    return not P.gifted(target) and (target.bee.Type=="Bubble" or target.bee.Type=="Frosty")
+end
+function P.rollItem(cells,eggs,plan,task)
+    if (eggs.StarJelly or 0)>0 and (#P.starJellyMissing(cells)>0
+        or P.starJellyUpgrade(plan,task)) then return "StarJelly" end
     return "RoyalJelly"
 end
 function P.isCollectorSection(cell)

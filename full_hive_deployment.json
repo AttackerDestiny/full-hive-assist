@@ -1,5 +1,5 @@
 {
-  "version": "1.3.5",
+  "version": "1.3.6",
   "account": "RileyCosmicguppydude",
   "jobId": "0265ab74-c1e0-475f-8598-cefaf19dd9bc",
   "verification": {
@@ -13,7 +13,7 @@
     "initialWrongSlots": 7,
     "characterRecoveryChecks": 46,
     "royalJellyUsedAtInitialRecoveryExit": 143,
-    "versionInReport": "1.3.5",
+    "versionInReport": "1.3.6",
     "recoveryRefill": 100,
     "actualAtlasStopped": false,
     "versionVisibleInUI": true,
@@ -22,7 +22,7 @@
     "allRollToSettingsOffDuringRecovery": true,
     "purchasePack": 100,
     "phaseAtLatestSnapshot": "waiting",
-    "collectorRecoveryChecks": 866,
+    "collectorRecoveryChecks": 896,
     "pendingItemRequests": false,
     "keepRulesRegressionVerified": true,
     "refillRestorationVerifiedInVersion": "1.1.0",
@@ -34,7 +34,7 @@
       "stopButtonInStatus": true,
       "unknownLevels": 0,
       "featherSticker": true,
-      "versionBadge": "v1.3.5",
+      "versionBadge": "v1.3.6",
       "cards": 41,
       "statusVisible": true,
       "viewButtonInStatus": true,
@@ -46,7 +46,7 @@
       "deployedDragChecks": 4
     },
     "batchChecks": 325,
-    "totalRegressionChecks": 2449,
+    "totalRegressionChecks": 2552,
     "exactRefillWaitObserved": false,
     "giftDoesNotTriggerRollInIsolation": true,
     "newBatchPurchaseLiveVerified": true,
@@ -69,25 +69,26 @@
     "useAllJelly": false,
     "completionClosesAdmissionInIsolation": true,
     "normalConversion200Of2000BlockedInIsolation": true,
-    "recoveryCompletionLiveVerifiedInCurrentVersion": false,
+    "recoveryCompletionLiveVerifiedInCurrentVersion": true,
     "batchContinuationScope": "unfinished-normal-task-or-active-repair",
-    "starJellyChecks": 516,
+    "starJellyChecks": 589,
     "starJellyAfter40LiveVerified": true,
     "singleStarJellyConsumptionLiveVerified": true,
     "starJellyGoalStopIsolatedVerified": true,
     "starJellyGoalCompletionLiveVerified": false,
     "partialTopUpRecoveryRegressionVerified": true,
-    "partialTopUpFixNaturallyLiveVerified": false
+    "partialTopUpFixNaturallyLiveVerified": false,
+    "starJellyUpgradeLiveVerified": true
   },
-  "previousStartedAt": 1792469386,
-  "startedLocal": "2026-10-20T11:34:34+07:00",
-  "startedAt": 1792470874,
+  "previousStartedAt": 1792470874,
+  "startedLocal": "2026-10-20T11:40:30+07:00",
+  "startedAt": 1792471230,
   "executor": "Arceus X",
-  "change": "Price only missing normal Royal Jelly when deciding recovery; keep affordable multi-pack top-ups in normal mode. Add independent phone2/Luneri427 monitoring.",
-  "sha256": "c08d553a699b59adc01f5562afd08f8795e37aa3f4c0e40692e44e4be990f127",
-  "verifiedLocal": "2026-10-20T11:36:27.512788+07:00",
+  "change": "Use Star Jelly for eligible normal Bubble/Frosty upgrades in addition to missing Rare/Epic gifted failsafes, preserving same-coordinate objectives and existing keep rules.",
+  "sha256": "39c368753277499f824ee956f4a9de07a9cc81f44d614f91de54006d6f04ab5d",
+  "verifiedLocal": "2026-10-20T11:43:09.362815+07:00",
   "clientId": "29bac507-2eae-487d-a283-4bfed07d5156",
-  "bytes": 138377,
+  "bytes": 139263,
   "clients": [
     {
       "account": "Luneri427",
@@ -96,22 +97,24 @@
       "executor": "Arceus X",
       "clientId": "39ae3627-cec4-49ee-a3d3-239ffbc6b880",
       "jobId": "0265ab74-c1e0-475f-8598-cefaf19dd9bc",
-      "version": "1.3.5",
-      "startedAt": 1792470873,
+      "version": "1.3.6",
+      "startedAt": 1792471230,
       "connectedAtLatestObservation": true,
       "slots": 43,
-      "jelly": 65,
-      "starJellyRemaining": 13,
+      "jelly": 94,
+      "starJellyRemaining": 0,
       "allEightRareEpicFailsafesPresent": true,
       "normalRefill": 2000,
       "wrongSlots": 0,
       "phaseAtProof": "waiting",
       "atlasStopped": false,
       "pendingItemRequests": false,
-      "regressionChecks": 2449,
-      "uiBadge": "v1.3.5",
+      "regressionChecks": 2552,
+      "uiBadge": "v1.3.6",
       "privateServer": "Alt1",
-      "serverNameVerifiedInRobloxUI": true
+      "serverNameVerifiedInRobloxUI": true,
+      "royalJellyUsed": 6,
+      "starJellyUpgradeLiveVerified": true
     },
     {
       "account": "RileyCosmicguppydude",
@@ -120,8 +123,8 @@
       "executor": "Arceus X",
       "clientId": "29bac507-2eae-487d-a283-4bfed07d5156",
       "jobId": "0265ab74-c1e0-475f-8598-cefaf19dd9bc",
-      "version": "1.3.5",
-      "startedAt": 1792470874,
+      "version": "1.3.6",
+      "startedAt": 1792471230,
       "connectedAtLatestObservation": true,
       "slots": 41,
       "jelly": 88,
@@ -131,8 +134,8 @@
       "phaseAtProof": "waiting",
       "atlasStopped": false,
       "pendingItemRequests": false,
-      "regressionChecks": 2449,
-      "uiBadge": "v1.3.5"
+      "regressionChecks": 2552,
+      "uiBadge": "v1.3.6"
     }
   ],
   "lastReconnect": {
@@ -177,17 +180,18 @@
   },
   "lastMonitorRun": {
     "trigger": "human-authorized-phone2-onboarding",
-    "verifiedLocal": "2026-10-20T11:36:27.512788+07:00",
+    "verifiedLocal": "2026-10-20T11:43:09.362815+07:00",
     "accounts": [
       "RileyCosmicguppydude",
       "Luneri427"
     ],
     "sourceChanged": true,
-    "version": "1.3.5",
+    "version": "1.3.6",
     "pendingItemRequests": false,
     "errors": false,
     "bothAtlasResumed": true,
-    "partialTopUpFixNaturallyLiveVerified": false
+    "partialTopUpFixNaturallyLiveVerified": false,
+    "starJellyUpgradeLiveVerified": true
   },
   "phone2Setup": {
     "verifiedLocal": "2026-10-20T11:36:27.512788+07:00",
@@ -209,5 +213,33 @@
     "allEightPresent": true,
     "royalJellySelectedInPreviousVersion": "1.3.4",
     "verifiedLocal": "2026-10-20T11:36:27.512788+07:00"
+  },
+  "starJellyUpgradeLiveProof": {
+    "version": "1.3.6",
+    "account": "Luneri427",
+    "initialStarJelly": 13,
+    "remainingStarJelly": 0,
+    "requests": 13,
+    "coordinate": [
+      5,
+      1
+    ],
+    "startedType": "Frosty",
+    "allEightFailsafesPresentBefore": true,
+    "royalJellyBefore": 65,
+    "royalJellyAfterStarJelly": 65,
+    "allConsumedOne": true,
+    "allObservedRollModes": "off",
+    "sameCoordinateThroughIntermediateResults": true,
+    "noRecoveryUntilStarJellyExhausted": true,
+    "giftedCollectorObtainedFromStarJelly": false,
+    "exhaustedResult": "Gifted Rascal",
+    "repairResult": "Bubble",
+    "royalJellyUsedForRepair": 6,
+    "royalJellySavedAfterRepair": 94,
+    "normalRefillRestored": 2000,
+    "atlasResumed": true,
+    "giftedCollectorStopsWithUnusedStarJellyIsolatedVerified": true,
+    "verifiedLocal": "2026-10-20T11:43:09.362815+07:00"
   }
 }

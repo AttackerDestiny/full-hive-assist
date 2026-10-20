@@ -33,9 +33,9 @@ return function(P,T,runtime)
     check(P.rollItem({}, {})=="RoyalJelly","Missing inventory fields are handled")
     -- Run the actual last-moment spend guard and one-item accounting.
     local spending=assert(runtime:match('(local function spend%(cell,item,validate,expectedTask%).-)\nlocal function shopFloor'))
-    local make=assert(loadstring('return function(Policy,cells,settings)\n'..
-        'local Report={Actions=0,RoyalJellyUsed=0,RollMode="off"}; local Config={MaxActions=100,MaxRoyalJellies=1000,RollDelay=0}; local Events={ConstructHiveCellFromEgg={}}; local target=cells[#cells]; local calls=0; local stats={Eggs={StarJelly=2,RoyalJelly=0},Settings=settings}; local function checkStop() end; local function acquire() end; local function move() end; local function near() end; local function hiveFloor() end; local function refresh() return stats end; local function plan() return {protected={},temporary={}},cells end; local function find() return target end; local function jellyBatchReady() error("Star Jelly must not require Royal Jelly admission") end; local function jellyBatchSpent() error("Star Jelly must not consume Royal Jelly budget") end; local function invoke(_,x,y,item,amount,flag) assert(item=="StarJelly" and amount==1 and flag==false); calls+=1; return stats.Eggs.StarJelly-1,true,{["x"..x]={["y"..y]={Type="Bomber",Traits={"Gifted"}}}} end; local Cache={Set=function(_,key,value) if type(key)=="table" then stats.Eggs[key[2]]=value elseif key=="Honeycomb" then target.bee=value["x"..target.x]["y"..target.y] end end}; local task={wait=function() end}\n'..
-        spending..'\nreturn function() return spend(target,"StarJelly",function() return true end) end,function() return calls end,Report,stats\nend'))()
+    local make=assert(loadstring('return function(Policy,cells,settings,upgradeTask,results)\n'..
+        'local rollTask=upgradeTask; local env={}; local nextFlexible; local Report={Actions=0,RoyalJellyUsed=0,RollMode="off"}; local Config={MaxActions=100,MaxRoyalJellies=1000,RollDelay=0}; local Events={ConstructHiveCellFromEgg={}}; local target=cells[#cells]; local calls=0; local stats={Eggs={StarJelly=2,RoyalJelly=0},Settings=settings}; local function checkStop() end; local function acquire() end; local function move() end; local function near() end; local function hiveFloor() end; local function refresh() return stats end; local function plan() return {protected={},temporary={},keep={},stage="mid",target=target,reason=upgradeTask and "convert-flexible"},cells end; local function find() return target end; local function jellyBatchReady() error("Star Jelly must not require Royal Jelly admission") end; local function jellyBatchSpent() error("Star Jelly must not consume Royal Jelly budget") end; local function invoke(_,x,y,item,amount,flag) assert(item=="StarJelly" and amount==1 and flag==false); calls+=1; local result=table.remove(results or {},1) or {Type="Bomber",Traits={"Gifted"}}; return stats.Eggs.StarJelly-1,true,{["x"..x]={["y"..y]=result}} end; local Cache={Set=function(_,key,value) if type(key)=="table" then stats.Eggs[key[2]]=value elseif key=="Honeycomb" then target.bee=value["x"..target.x]["y"..target.y] end end}; local task={wait=function() end}\n'..
+        spending..'\nreturn function() return spend(target,"StarJelly",function(c,cs,p) return not upgradeTask or Policy.rollTaskSafe(upgradeTask,c,cs,{},p) end,upgradeTask) end,function() return calls end,Report,stats\nend'))()
     local cells=fixture("Bomber")
     cells[#cells+1]={x=9,y=1,bee={Type="Rascal",Traits={}}}
     local spend,calls,report,stats=make(P,cells,{})
@@ -48,6 +48,44 @@ return function(P,T,runtime)
         local spend,calls=make(P,cells,{[flag]=true})
         local ok=pcall(spend)
         check(not ok and calls()==0,"Changed "..flag.." prevents Star Jelly spending")
+    end
+    for _,name in ipairs({"Bubble","Frosty"}) do
+        for _,inventory in ipairs({0,1,1999,2000}) do
+            cells=fixture(); local target={x=9,y=1,bee={Type=name,Traits={}}}; cells[#cells+1]=target
+            local p={target=target,reason="convert-flexible",mode="gifted",needs={},protected={},keep={},stage="mid"}
+            local lease=P.startRollTask(target,cells,p)
+            check(P.rollItem(cells,{StarJelly=2,RoyalJelly=inventory},p)=="StarJelly","Normal "..name.." upgrade bypasses Royal Jelly threshold at "..inventory)
+            check(P.rollItem(cells,{StarJelly=0,RoyalJelly=inventory},p,lease)=="RoyalJelly","Exhausted Star Jelly returns to existing Royal Jelly gate")
+            target.bee={Type="Hasty",Traits={"Gifted"}}; lease.Rolled=true
+            check(P.rollItem(cells,{StarJelly=2},p,lease)=="StarJelly","Intermediate gifted Hasty keeps the same upgrade objective")
+            check(P.rollItem(cells,{StarJelly=2},p)=="RoyalJelly","An unowned intermediate result cannot create an upgrade")
+            local other={target={x=10,y=1,bee={Type="Hasty",Traits={}}},reason="convert-flexible"}
+            check(P.rollItem(cells,{StarJelly=2},other,lease)=="RoyalJelly","Upgrade cannot move to another coordinate")
+            p.protected[P.key(target)]=true
+            check(P.rollItem(cells,{StarJelly=2},p,lease)=="RoyalJelly","Protected target cannot use upgrade eligibility")
+        end
+        cells=fixture(); local target={x=9,y=1,bee={Type=name,Traits={}}}; cells[#cells+1]=target
+        local p={target=target,reason="convert-flexible",mode="gifted",needs={},protected={},keep={},stage="mid"}
+        local lease=P.startRollTask(target,cells,p)
+        local spend,calls,report,stats=make(P,cells,{},lease,{{Type="Hasty",Traits={"Gifted"}},{Type="Frosty",Traits={"Gifted"}}})
+        stats.Eggs.StarJelly=3
+        check(spend()~=false and calls()==1 and stats.Eggs.StarJelly==2,"Actual spend upgrades normal "..name.." with all failsafes already present and Royal Jelly0")
+        check(spend()~=false and calls()==2 and report.LastResult.Type=="Frosty","Actual spend continues the same slot after intermediate gifted Hasty")
+        check(report.RoyalJellyUsed==0 and report.LastResult.Consumed==1,"Upgrade uses one Star Jelly per request and no Royal Jelly")
+        check(spend()==false and calls()==2 and stats.Eggs.StarJelly==1,"Completed gifted collector stops and saves unused Star Jelly")
+        for _,flag in ipairs({"RollToGifted","RollToLegendary","RollToMythic","RollToMutation"}) do
+            cells=fixture(); target={x=9,y=1,bee={Type=name,Traits={}}}; cells[#cells+1]=target
+            p.target=target; lease=P.startRollTask(target,cells,p)
+            local spend,calls=make(P,cells,{[flag]=true},lease)
+            check(not pcall(spend) and calls()==0,"Upgrade refuses changed "..flag)
+        end
+    end
+    for _,name in ipairs({"Baby","Music","Lion","Ninja","Basic","Tabby","Buoyant"}) do
+        local target={x=9,y=1,bee={Type=name,Traits={}}}
+        check(P.rollItem(all,{StarJelly=50},{target=target,reason="convert-flexible"})=="RoyalJelly","New upgrade rule does not add "..name.." targets")
+    end
+    for _,name in ipairs({"Bubble","Frosty"}) do
+        check(P.rollItem(all,{StarJelly=50},{target={x=9,y=1,bee={Type=name,Traits={"Gifted"}}},reason="convert-flexible"})=="RoyalJelly","Already gifted "..name.." cannot start an upgrade")
     end
     return {passed=passed}
 end

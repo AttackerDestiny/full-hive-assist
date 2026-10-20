@@ -12,6 +12,7 @@ end
 local s=game:GetService("ReplicatedStorage").Events.RetrievePlayerStats:InvokeServer()
 result.Stats={Honey=s.Honey,RoyalJelly=s.Eggs.RoyalJelly,StarJelly=s.Eggs.StarJelly,Star=s.Eggs.Star,Settings=s.Settings}
 result.Report.StarJelly=report.StarJelly; result.Report.StarJellyMissing=report.StarJellyMissing
+result.Report.StarJellyUpgrade=report.StarJellyUpgrade
 local counts,slots={},0
 for _,col in pairs(s.Honeycomb or {}) do
     if type(col)=="table" then for _,bee in pairs(col) do

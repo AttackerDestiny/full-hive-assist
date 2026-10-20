@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.3.6 Star Jelly upgrades:** In addition to missing gifted Rare/Epic failsafes, available Star Jelly can upgrade an eligible normal Bubble/Frosty selected by the existing planner. It can start without the Royal Jelly refill threshold, uses one Star Jelly per request with all roll-to flags off, and stays on that coordinate through intermediate results until the existing keep rules complete it. No new hive targets are introduced. While Star Jelly remains, this unfinished conversion does not become 100-jelly recovery. Once Star Jelly runs out, existing Royal Jelly qualification and repair rules apply. The Royal Jelly completion/save-leftovers rules remain unchanged.
+
 **v1.3.5 refill fix:** Recovery affordability uses only the Royal Jelly still missing from the normal target, including the initial legendary entry target. Buying the first pack of a larger refill no longer switches an affordable top-up into 100-jelly recovery. Active repair still persists until completed; normal admission and saved-leftover rules remain unchanged.
 
 The in-game interface is **Feather**, with a feather sticker, navy/violet styling, live status and inventory badges, and **View hive** beside **Stop assist**. Both the status panel and expanded hive viewer adapt to the screen size. The feather is drawn with native Roblox UI elements, so no asset upload or executor file support is required.
