@@ -1,7 +1,7 @@
 {
   "version": "1.3.4",
   "account": "RileyCosmicguppydude",
-  "jobId": "a546859c-cc8b-49db-aa3b-c8821a8e0bdd",
+  "jobId": "0265ab74-c1e0-475f-8598-cefaf19dd9bc",
   "verification": {
     "compileEmbeddedStar": true,
     "compileMain": true,
@@ -77,14 +77,14 @@
     "starJellyGoalStopIsolatedVerified": true,
     "starJellyGoalCompletionLiveVerified": false
   },
-  "previousStartedAt": 1792424045,
-  "startedLocal": "2026-10-19T23:00:29.0000000+07:00",
-  "startedAt": 1792425629,
+  "previousStartedAt": 1792425629,
+  "startedLocal": "2026-10-20T11:09:46.0000000+07:00",
+  "startedAt": 1792469386,
   "executor": "Arceus X",
   "change": "Use available Star Jelly at any stage until all eight existing Rare/Epic gifted failsafes are present; Basic stays separate and gifted legendaries are excluded; last-moment goal/settings guard and one-item use, preserving Royal Jelly refill/save-leftover behavior.",
   "sha256": "00e93888d024ea103d5ce925c28022136dbba79942761b3a3f046a4593583461",
-  "verifiedLocal": "2026-10-19T23:02:49.2219354+07:00",
-  "clientId": "d0e542d9-1ffe-497c-855c-fd62276d893b",
+  "verifiedLocal": "2026-10-20T11:11:50.5716619+07:00",
+  "clientId": "29bac507-2eae-487d-a283-4bfed07d5156",
   "bytes": 138188,
   "clients": [
     {
@@ -110,26 +110,26 @@
     },
     {
       "atlasStopped": false,
-      "honey": 110186859,
+      "honey": 37288669,
       "uiBadge": "v1.3.4",
       "phaseAtProof": "waiting",
       "recoveryRefill": 100,
-      "startedAt": 1792425629,
+      "startedAt": 1792469386,
       "executor": "Arceus X",
       "normalRefill": 600,
-      "jelly": 66,
-      "actions": 6,
+      "jelly": 28,
+      "actions": 0,
       "version": "1.3.4",
-      "wrongSlots": 0,
+      "wrongSlots": 1,
       "account": "RileyCosmicguppydude",
       "regressionChecks": 2293,
-      "wrongBee": null,
-      "jobId": "a546859c-cc8b-49db-aa3b-c8821a8e0bdd",
-      "clientId": "d0e542d9-1ffe-497c-855c-fd62276d893b",
+      "wrongBee": "Hasty",
+      "jobId": "0265ab74-c1e0-475f-8598-cefaf19dd9bc",
+      "clientId": "29bac507-2eae-487d-a283-4bfed07d5156",
       "connectedAtLatestObservation": true,
       "starJellyRemaining": 0,
       "royalJellyUsed": 0,
-      "refillAtProof": 600
+      "refillAtProof": 100
     }
   ],
   "lastReconnect": {
@@ -171,5 +171,28 @@
     "royalJellyAfter": 66,
     "initialStarJelly": 6,
     "royalJellyUsed": 0
+  },
+  "lastMonitorRun": {
+    "triggerUtc": "2026-10-20T04:08:28.481Z",
+    "trigger": "automatic-heartbeat",
+    "clientId": "29bac507-2eae-487d-a283-4bfed07d5156",
+    "pendingItemRequest": false,
+    "schedulerProviderFixVerified": true,
+    "sourceChanged": false,
+    "phase": "waiting",
+    "starEggUses": 0,
+    "error": false,
+    "allEightRareEpicFailsafesPresent": true,
+    "verifiedLocal": "2026-10-20T11:11:50.5784248+07:00",
+    "scheduleMinutes": 1,
+    "starEggInventory": 2,
+    "targetThread": "01a152ec-28d8-70f0-a7e9-df74ada0c7a3",
+    "royalJelly": 28,
+    "account": "RileyCosmicguppydude",
+    "serverHopPerformed": false,
+    "atlasStopped": false,
+    "restoredAbsentAtlasAndAssist": true,
+    "jobId": "0265ab74-c1e0-475f-8598-cefaf19dd9bc",
+    "starJelly": 0
   }
 }
