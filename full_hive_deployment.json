@@ -381,5 +381,31 @@
         "atlasStopped": false
       }
     ]
+  },
+  "latestRileyReconnect": {
+    "basicEgg": 0,
+    "jobId": "d209f891-d9a3-418a-9818-950e52176af1",
+    "phase": "waiting",
+    "oldSpendReplayed": false,
+    "version": "1.3.7",
+    "verifiedUtc": "2026-10-20T14:41:51Z",
+    "privateServer": "Alt1",
+    "pendingRequests": false,
+    "healthyPhone2LeftRunning": true,
+    "serverNameVerifiedInUI": true,
+    "starJelly": 0,
+    "refill": 100,
+    "sourceChanged": false,
+    "royalJelly": 2,
+    "slots": 41,
+    "package": "free.nokaF",
+    "atlasStopped": false,
+    "startedAt": 1792507212,
+    "phoneProfile": "phone1",
+    "clientId": "29cc67dd-4878-428a-aba6-ecb86911cf70",
+    "normalRefill": 600,
+    "wrongBee": "Brave",
+    "errors": false,
+    "account": "RileyCosmicguppydude"
   }
 }
