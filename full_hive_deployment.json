@@ -315,5 +315,20 @@
         "atlasStopped": false
       }
     ]
+  },
+  "lastHostConnectionAttempt": {
+    "attemptedLocal": "2026-10-20T16:22:50.365534+07:00",
+    "triggerUtc": "2026-10-20T09:21:03.967Z",
+    "localMcpConnectedClients": 0,
+    "phone1StatusReachable": false,
+    "phone2StatusReachable": false,
+    "tailscaleBackendState": "NoState",
+    "localTailscaleOnline": false,
+    "tailscaleCoordinationServerReachable": false,
+    "liveInspectionCompletedHere": false,
+    "gameCrashVerified": false,
+    "sourceChanged": false,
+    "recoveryAttempted": false,
+    "newerRemoteObservationsPreserved": true
   }
 }
