@@ -407,5 +407,31 @@
     "wrongBee": "Brave",
     "errors": false,
     "account": "RileyCosmicguppydude"
+  },
+  "latestDisconnectRecovery": {
+    "verifiedUtc": "2026-10-20T16:25:00-05:00",
+    "riley": {
+      "account": "RileyCosmicguppydude",
+      "phoneProfile": "phone1",
+      "clientId": "cc034551-8792-40bc-8061-aaedd7141cf3",
+      "jobId": "1fe68220-9be0-4875-af59-673f64606f2d",
+      "startedAt": 1792527801,
+      "version": "1.3.7",
+      "slots": 41,
+      "royalJelly": 124,
+      "refill": 600,
+      "phase": "waiting",
+      "atlasStopped": false,
+      "pendingRequests": false,
+      "errors": false
+    },
+    "luneri": {
+      "account": "Luneri427",
+      "phoneProfile": "phone2",
+      "blocker": "Roblox Error267: file still saving on previous server",
+      "action": "wait before rejoin",
+      "freshStats": "unverified",
+      "lastKnownClient": "bc02b986-3094-453b-b3a2-3b31114cc9fc"
+    }
   }
 }
