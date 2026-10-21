@@ -10,7 +10,8 @@ return function(H)
             Reason=decision.reason or decision.action.reason,ReserveHoney=decision.reserveHoney,
             ReservedItems=decision.reservedItems,MissingItems=decision.missingItems,
             CostReservations=decision.costReservations,OptionalHiveAllowed=decision.optionalHiveAllowed,
-            Status=decision.status}
+            Status=decision.status,FundsRequired=decision.fundsRequired,
+            RequiredRJ=decision.requiredRJ,MissingRJ=decision.missingRJ,Honey=facts.honey}
         local craft=facts.craft
         report.Blender=craft and {Recipe=craft.item,Count=craft.count,ElapsedSeconds=craft.elapsedSeconds,
             TotalSeconds=craft.totalSeconds,RemainingSeconds=craft.remainingSeconds,Complete=craft.ready,
@@ -82,6 +83,9 @@ return function(H)
         else for _,pack in ipairs(c.packs[a.item] or {}) do if pack.amount==a.amount and pack.id==a.packId then entry=pack;break end end end
         assert(entry and entry.package,"Verified shop package unavailable")
         local package=entry.package
+        if package.Category=="Eggs" then
+            package=H.fixedShopPackage(package.Type,package.Amount,entry.shopName or entry.shop.Name)
+        end
         assert(H.Packages.CanPurchase(package,s)==true and H.Packages.CanGive(package,s)==true,
             "Package can no longer be purchased")
         local reqs=H.Packages.PurchaseRequirements(package,s)

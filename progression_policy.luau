@@ -134,6 +134,8 @@ function P.pack(item,deficit,packs)
             end
         elseif not pack.cost.Honey or pack.cost.Honey==0 or (pack.cost.Ticket or 0)~=0 then
             return nil,"invalid-jelly-dispenser-pack"
+        elseif not ({[1]=true,[10]=true,[100]=true,[1000]=true,[10000]=true,[100000]=true,[1000000]=true})[pack.amount] then
+            return nil,"invalid-jelly-dispenser-pack"
         end
         if pack.amount<=deficit then
             if not below or pack.amount>below.amount then below=pack end
@@ -149,6 +151,24 @@ function P.royalJellyCost(amount,pricing)
     if pricing.stepHoney==0 then return initial*amount end
     local rising=math.min(amount,math.max(0,math.ceil((pricing.maxHoney-initial)/pricing.stepHoney)))
     return initial*rising+pricing.stepHoney*rising*(rising-1)/2+(amount-rising)*pricing.maxHoney
+end
+function P.craftingJellyCost(amount,catalog)
+    if not integer(amount) then return nil,"invalid-crafting-jelly-deficit" end
+    if amount==0 then return 0 end
+    if catalog.royalJellyPricing~=nil then
+        local total=P.royalJellyCost(amount,catalog.royalJellyPricing)
+        return total,total==nil and "unknown-full-jelly-cost" or nil
+    end
+    local unit
+    for _,pack in ipairs((catalog.packs or {}).RoyalJelly or {}) do
+        local valid=P.pack("RoyalJelly",amount,{pack})
+        if not valid then return nil,"invalid-jelly-dispenser-pack" end
+        local quote=pack.cost.Honey/pack.amount
+        if not integer(quote) or quote==0 or unit and quote~=unit then return nil,"unknown-full-jelly-cost" end
+        unit=quote
+    end
+    if unit==nil then return nil,"unknown-full-jelly-cost" end
+    return amount*unit
 end
 -- Reserve all calculable purchase costs for the complete leaf deficit. Current
 -- RJ quotes alone cannot price later packs during the escalating-price phase.
@@ -411,8 +431,26 @@ local function plan(facts,catalog)
         local deficit=actionableMissing[item]
         if P.waitOnly[item] then continue end
         if item~="MagicBean" and (item=="RoyalJelly" or item=="Gumdrops") then
+            if item=="RoyalJelly" then
+                -- Admission is for the entire fresh remaining recipe deficit,
+                -- never merely the next pack. Fixed packs are sent only after
+                -- this gate and the deficit is repriced after every purchase.
+                base.optionalHiveAllowed=false
+                base.requiredRJ=materials.nextCraft and materials.nextCraft.ingredients.RoyalJelly or deficit
+                base.missingRJ=deficit
+                local fullCost,pricingError=P.craftingJellyCost(deficit,catalog)
+                if fullCost==nil then return wait(pricingError,base) end
+                base.fundsRequired=fullCost+base.reserveHoney
+                if facts.honey<base.fundsRequired then
+                    local pending=wait("saving-crafting-jelly",base)
+                    pending.action.parallelHive=false;pending.action.ParallelHive=false
+                    pending.action.fundsRequired=base.fundsRequired;pending.action.requiredRJ=base.requiredRJ;pending.action.missingRJ=deficit
+                    return pending
+                end
+            end
             local pack,packError=P.pack(item,deficit,(catalog.packs or {})[item])
             if not pack then return wait(packError,base) end
+            if item=="RoyalJelly" and pack.amount>deficit then return wait("no-exact-fixed-jelly-pack",base) end
             local allowed,packCondition=conditionState(pack.conditions,facts)
             if not allowed then return wait(packCondition or "pack-condition",base) end
             if item=="RoyalJelly" and catalog.royalJellyPricing then
@@ -420,7 +458,7 @@ local function plan(facts,catalog)
                 if quote==nil or quote~=pack.cost.Honey then return wait("inconsistent-jelly-price",base) end
             end
             local ok,reason=afford(pack.cost,facts.honey,read,base.reserveHoney,base.reservedItems)
-            if not ok then
+            if not ok and item~="RoyalJelly" then
                 -- Fund the current recipe with supported smaller packs when a
                 -- larger fixed pack is unaffordable; never form a custom pack.
                 local best
@@ -438,10 +476,10 @@ local function plan(facts,catalog)
             end
             if ok then
                 base.action={kind="purchase-pack",item=item,amount=pack.amount,packId=pack.id,cost=copy(pack.cost)}
-                if not fundingRecipeJelly then parallelAction(base.action) end
+                if item~="RoyalJelly" then parallelAction(base.action) end
                 return base
             end
-            if item=="RoyalJelly" and fundingRecipeJelly and reason=="waiting-currency:Honey" then
+            if item=="RoyalJelly" and reason=="waiting-currency:Honey" then
                 local pending=wait("saving-crafting-jelly",base)
                 pending.action.parallelHive=false;pending.action.ParallelHive=false
                 return pending
@@ -503,7 +541,8 @@ function P.describe(result,facts)
             deficit=actual and math.max(0,required-actual-queued) or nil}
     end
     return {phase=phase,label=label,reason=reason,targetGear=result.gear,reserveHoney=result.reserveHoney or 0,
-        parallelHive=action.parallelHive==true,materials=rows,nextCraft=result.nextCraft}
+        parallelHive=action.parallelHive==true,materials=rows,nextCraft=result.nextCraft,
+        fundsRequired=result.fundsRequired,requiredRJ=result.requiredRJ,missingRJ=result.missingRJ}
 end
 function P.plan(facts,catalog)
     local result=plan(facts,catalog)

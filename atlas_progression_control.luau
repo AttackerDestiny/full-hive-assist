@@ -2,6 +2,10 @@
 -- Detached tab frames are discovered from the tab button callbacks because
 -- Atlas parents only its currently visible tab into CoreGui.
 return function(H)
+    local clock=H.Clock or os.clock
+    local cached
+    local counters={Discoveries=0,CacheHits=0}
+    if H.Stats then H.Stats.Controls=counters end
     local disabled={
         ["Auto Progression"]=true,["Auto Use Materials"]=true,["Auto Oil"]=true,
         ["Auto Stingers"]=true,["Auto Star Saw"]=true,["Use Coconut To Convert"]=true,
@@ -15,13 +19,30 @@ return function(H)
         local ok,u=pcall(H.upvalues,callback)
         return ok and type(u)=="table" and u or nil
     end
-    local function controls()
+    local function cachedAlive()
+        if not cached or clock()-cached.At>=2 then return false end
+        if not cached.Window.Parent or cached.Window.Name~="Window"
+            or cached.Label.Text~="Stop Everything"
+            or not cached.Label:IsDescendantOf(cached.Window)
+            or cached.Window:FindFirstChild("TabButtons")~=cached.TabRoot
+            or cached.TabRoot:FindFirstChild("ScrollingFrame")~=cached.TabButtons then return false end
+        for _,row in ipairs(cached.Rows) do
+            -- Hidden Atlas tabs intentionally have no parent; the label/button
+            -- pair still belongs to that detached tab and must remain intact.
+            if row.Label.Parent~=row.Button or not row.Button.Parent
+                or row.Label.Text~=row.Name or not row.Button:IsA("TextButton")
+                or type(row.Cell[1])~="boolean" then return false end
+        end
+        return true
+    end
+    local function discover()
+        counters.Discoveries+=1
         local label=H.core:QueryDescendants('TextLabel[Text = "Stop Everything"]')[1]
         local window=label
         while window and window.Name~="Window" do window=window.Parent end
         if not window then return nil,"Atlas window is unavailable" end
-        local tabButtons=window:FindFirstChild("TabButtons")
-        tabButtons=tabButtons and tabButtons:FindFirstChild("ScrollingFrame")
+        local tabRoot=window:FindFirstChild("TabButtons")
+        local tabButtons=tabRoot and tabRoot:FindFirstChild("ScrollingFrame")
         if not tabButtons then return nil,"Atlas tab controls are unavailable" end
         local tabs,seen={},{}
         for _,button in ipairs(tabButtons:GetChildren()) do
@@ -44,7 +65,7 @@ return function(H)
                     for _,connection in ipairs(H.connections(button.MouseButton1Click)) do
                         for _,v in pairs(values(connection.Function) or {}) do
                             if type(v)=="table" and type(v[1])=="boolean" then
-                                found={Name=text.Text,Button=button,Cell=v,Callback=connection.Function}
+                                found={Name=text.Text,Label=text,Button=button,Cell=v,Callback=connection.Function}
                                 break
                             end
                         end
@@ -58,7 +79,16 @@ return function(H)
         local progression=false
         for _,row in ipairs(rows) do if row.Name=="Auto Progression" then progression=true end end
         if not progression then return nil,"Atlas Auto Progression control is unavailable" end
+        cached={Window=window,Label=label,TabRoot=tabRoot,TabButtons=tabButtons,Rows=rows,At=clock()}
         return rows
+    end
+    local function controls()
+        if cached then
+            local ok,alive=pcall(cachedAlive)
+            if ok and alive then counters.CacheHits+=1;return cached.Rows end
+            cached=nil
+        end
+        return discover()
     end
     return function(apply)
         local rows,reason=controls()

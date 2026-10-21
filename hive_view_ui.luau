@@ -63,6 +63,7 @@ return function(gui,statusFrame,viewButton,snapshot)
         button.Activated:Connect(function() selected=key; detail.Text=card.description or "" end)
         return card
     end
+    local lastFingerprint
     local function render()
         local stats,types,active=snapshot()
         if type(stats)~="table" or type(types)~="table" then summary.Text="Waiting for hive data..."; return end
@@ -80,6 +81,14 @@ return function(gui,statusFrame,viewButton,snapshot)
                 end
             end
         end
+        local fingerprint={tostring(stats.UnlockedCells),tostring(active and active.X),tostring(active and active.Y)}
+        for _,cell in ipairs(cells) do
+            fingerprint[#fingerprint+1]=cell.x..":"..cell.y..":"..cell.bee.Type..":"..tostring(cell.bee.Lvl or cell.bee.Level)..":"..table.concat(cell.bee.Traits or {},",")
+        end
+        table.sort(fingerprint)
+        fingerprint=table.concat(fingerprint,"|")
+        if lastFingerprint==fingerprint then return end
+        lastFingerprint=fingerprint
         local width,height=maxX*47-3,maxY*47-3
         grid.Size=UDim2.fromOffset(width,height)
         scroll.CanvasSize=UDim2.fromOffset(0,height+12)
@@ -121,7 +130,7 @@ return function(gui,statusFrame,viewButton,snapshot)
     end
     viewButton.Activated:Connect(function()
         overlay.Visible=true; statusFrame.Visible=false
-        fit(); refreshView()
+        lastFingerprint=nil;fit(); refreshView()
     end)
     close.Activated:Connect(function() overlay.Visible=false; statusFrame.Visible=true end)
     task.spawn(function()

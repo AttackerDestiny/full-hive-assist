@@ -1,4 +1,8 @@
-# Feather auto progression v1.6.2
+# Feather auto progression v1.6.3
+
+Crafting Royal Jelly is funded as a complete remaining deficit before the first purchase. At the capped price,2,500 missing jelly requires2.5B honey (plus the safety reserve), then two1,000 packs and five100 packs. Existing jelly reduces the missing amount; each verified pack updates the remaining quote. No custom purchase amount is submitted: the main and progression paths validate actual shop options immediately before the request.
+
+Performance: physical shop discovery is reused for five seconds, ownership is memoized only within one snapshot build, and already-owned gear skips unused cost generation. Atlas GUI references are cached while switch states stay fresh. Unchanged status text is not reassigned, hidden status work is skipped, and the open hive viewer avoids rewriting cards when its data is unchanged. These optimizations reduce assist work; they do not guarantee a fixed game FPS.
 
 While the next recipe is waiting only for its Royal Jelly, the script protects its partial jelly and saves for that recipe first. The status calls this **Saving honey for crafting jelly**, not saving the gear price. Once the order is queued, normal hive rolling resumes during its timer. Unrelated resource waits remain parallel.
 

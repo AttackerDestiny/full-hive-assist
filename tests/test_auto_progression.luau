@@ -221,8 +221,9 @@ return function(P)
         c.packs={RoyalJelly={{amount=1,cost={Honey=1}},{amount=10,cost={Honey=10}},{amount=100,cost={Honey=100}}}}
         local r=P.plan(f,c)
         check(r.nextCraft.item=="BlueExtract" and r.nextCraft.missingInputs.RoyalJelly==10,"Funding demand belongs to next recipe, not every future recipe")
-        check(r.action.kind=="purchase-pack" and r.action.amount==1 and not r.optionalHiveAllowed,"Affordable supported small pack protects next recipe funding without waiting for future 110 jelly")
-        check(r.status.phase=="materials" and r.status.label=="Buying crafting supplies","Purchase status names material action and phase")
+        check(r.action.reason=="saving-crafting-jelly" and r.fundsRequired==10 and not r.optionalHiveAllowed,"Current recipe must be fully funded before any supported pack purchase")
+        f.honey=10;r=P.plan(f,c)
+        check(r.action.kind=="purchase-pack" and r.action.amount==10 and r.status.phase=="materials" and r.status.label=="Buying crafting supplies","Fully funded current recipe selects its largest fixed pack")
         f.honey=0;r=P.plan(f,c)
         check(r.action.reason=="saving-crafting-jelly" and not r.action.parallelHive and not r.optionalHiveAllowed,"Current recipe jelly currency wait protects accumulated craft inventory")
         c.packs.RoyalJelly[1].conditions={"unknown-condition"};f.honey=1
@@ -246,7 +247,46 @@ return function(P)
             "Once the current recipe is queued its timed wait releases auto-hive")
         f.craft=false;f.inventory.Blueberry=0
         r=P.plan(f,c)
-        check(r.optionalHiveAllowed and r.action.parallelHive,"Missing non-jelly ingredients retain ordinary parallel material waiting")
+        check(not r.optionalHiveAllowed and r.action.reason=="saving-crafting-jelly","An attempted recipe-jelly purchase still requires full funding with other ingredients missing")
+    end
+    do
+        local f=facts();f.inventory.Blueberry=12500;f.honey=2499999999
+        local c=catalog("Clippers",5000000000,{BlueExtract=250})
+        local function quote(purchased)
+            c.royalJellyPricing={purchased=purchased,baseHoney=250000,stepHoney=10000,maxHoney=1000000}
+            c.packs={RoyalJelly={}}
+            for _,n in ipairs({1,10,100,1000}) do c.packs.RoyalJelly[#c.packs.RoyalJelly+1]={id=tostring(n),amount=n,cost={Honey=P.royalJellyCost(n,c.royalJellyPricing)}} end
+        end
+        quote(75)
+        local r=P.plan(f,c)
+        check(r.action.kind=="wait" and r.action.reason=="saving-crafting-jelly" and r.action.fundsRequired==2500000000
+            and r.action.requiredRJ==2500 and r.action.missingRJ==2500,"2500 RJ requires 2.5B and one honey short sends no pack")
+        f.honey=2500000000
+        local trace={1000,1000,100,100,100,100,100}
+        for _,expected in ipairs(trace) do
+            r=P.plan(f,c)
+            check(r.action.kind=="purchase-pack" and r.action.amount==expected,"Full recipe batch uses two 1000 and five 100 fixed packs")
+            f.inventory.RoyalJelly=(f.inventory.RoyalJelly or 0)+r.action.amount
+            f.honey-=r.action.cost.Honey
+        end
+        r=P.plan(f,c)
+        check(f.inventory.RoyalJelly==2500 and f.honey==0 and r.action.kind=="craft","Exact fixed pack trace ends with funded craft")
+        f.inventory.RoyalJelly=1000;f.honeyReserve=7;f.honey=1500000006
+        r=P.plan(f,c)
+        check(r.action.kind=="wait" and r.fundsRequired==1500000007 and r.missingRJ==1500,"Existing jelly reduces full deficit and honey reserve remains untouched")
+        f.honey+=1
+        check(P.plan(f,c).action.amount==1000,"Exact reserve-plus-deficit boundary admits largest fixed pack")
+        f.inventory.RoyalJelly=2250;f.honeyReserve=0;f.honey=250000000
+        r=P.plan(f,c)
+        check(r.fundsRequired==250000000 and r.action.amount==100,"250 missing RJ costs 250M rather than 2.5B")
+        f.inventory.RoyalJelly=2490;f.honey=2949999;quote(0)
+        r=P.plan(f,c)
+        check(r.action.kind=="wait" and r.fundsRequired==2950000,"Escalating initial prices fund all ten units before first pack")
+        f.honey=2950000
+        check(P.plan(f,c).action.amount==10,"Escalating full-deficit boundary admits verified pack")
+        f.inventory.RoyalJelly=2495;f.honey=2850000;quote(5)
+        r=P.plan(f,c)
+        check(r.fundsRequired==1600000 and r.action.amount==1,"Partially purchased early batch reprices only remaining units with fresh purchased counter")
     end
     do
         -- Read-only observed Diamond Mask inventory, represented as inert

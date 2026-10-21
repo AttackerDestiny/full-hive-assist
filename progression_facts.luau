@@ -75,7 +75,13 @@ return function(deps)
         if type(category)~="string" or type(id)~="string" or not integer(amount) or amount<1 then return nil end
         return {Category=category,Type=id,Amount=amount}
     end
+    local shopCache,shopCacheAt,shopRoot
+    local clock=deps.Clock or os.clock
     local function catalogShops()
+        if shopCache and shopRoot==deps.Shops and clock()-shopCacheAt<5 then
+            if deps.Performance then deps.Performance.ShopIndexHits=(deps.Performance.ShopIndexHits or 0)+1 end
+            return shopCache.index,shopCache.shops
+        end
         local index,shops={},{}
         for _,shop in ipairs(children(deps.Shops)) do
             local name=shop.Name
@@ -89,11 +95,17 @@ return function(deps)
                 end
             end
         end
+        shopCache={index=index,shops=shops};shopCacheAt=clock();shopRoot=deps.Shops
+        if deps.Performance then deps.Performance.ShopIndexBuilds=(deps.Performance.ShopIndexBuilds or 0)+1 end
         return index,shops
     end
+    local ownershipMemo={}
     local function knownOwnership(pack,s)
+        local key=pack.Category..":"..pack.Type..":"..tostring(pack.Amount)
+        local memo=ownershipMemo[key]
+        if memo~=nil then return memo end
         local result,ok=call(deps.Packages,"PlayerHas",pack,s)
-        if ok and type(result)=="boolean" then return result end
+        if ok and type(result)=="boolean" then ownershipMemo[key]=result;return result end
         return nil
     end
     local function requirements(pack,s,facts,id)
@@ -143,6 +155,9 @@ return function(deps)
         {"Looker Guard","Red Guard","Elite Red Guard","Riley Guard","Crimson Guard"},
     }
     return function(s)
+        -- Ownership/funds/requirements are fresh per snapshot; only immutable
+        -- physical shop discovery and repeated reads within this build reuse data.
+        ownershipMemo={}
         local facts={honey=finite(s.Honey) and s.Honey>=0 and math.floor(s.Honey) or nil,
             honeyReserve=finite(deps.HoneyReserve or 0) and math.ceil(deps.HoneyReserve or 0) or nil,inventory={},conditions={},ownedGear={},
             redeemedCodes={},inventoryKnown=type(s.Eggs)=="table",codesKnown=type(s.Codes)=="table",craft=nil}
@@ -191,7 +206,7 @@ return function(deps)
                 local owned=knownOwnership(entry.package,s)
                 if facts.ownedGear[id]==true then owned=true end
                 facts.ownedGear[id]=owned
-                catalog.gear[id]=descriptor(entry,s,facts,id,"Honey")
+                if not owned then catalog.gear[id]=descriptor(entry,s,facts,id,"Honey") end
             end
         end end
         local ownedCollectorRank,ownedSprinklerRank=0,0

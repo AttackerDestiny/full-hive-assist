@@ -820,6 +820,11 @@
       "bundle": "releases/v1.6.1/auto_full_hive_assist.luau",
       "sha256": "83561365e9a823524c08c626b04c62074cfa8989c405c876bc70b78d86d1aed1",
       "purpose": "First verified Drenchers purchase and231BlueExtract queue; superseded by1.6.2 crafting-jelly protection"
+    },
+    "1.6.3": {
+      "bundle": "releases/v1.6.3/auto_full_hive_assist.luau",
+      "sha256": "e69b21e22055b1349524eeb2e05ff9a8ca282743dda3210800336d2397ebca17",
+      "purpose": "Published validated update; not executed on stopped sessions"
     }
   },
   "latestVersionScopedCheck": {
@@ -1026,11 +1031,14 @@
     "validationLimit": "Natural gear purchase/craft paths are partially observed; current Blender queues are intentionally waiting and no ticket toggle was enabled"
   },
   "currentRelease": {
-    "version": "1.6.2",
+    "version": "1.6.3",
     "bundle": "auto_full_hive_assist.luau",
-    "sha256": "673bb6b913c2877c56ca1b444b92c97a1058d0e7e9fbb3f76ab7ee24830744fa",
-    "bytes": 237576,
-    "releasePath": "releases/v1.6.2/auto_full_hive_assist.luau"
+    "sha256": "e69b21e22055b1349524eeb2e05ff9a8ca282743dda3210800336d2397ebca17",
+    "bytes": 245389,
+    "releasePath": "releases/v1.6.3/auto_full_hive_assist.luau",
+    "deployed": false,
+    "liveRuntimeVersion": "1.6.2",
+    "liveState": "stopped; resume requires human instruction"
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -1064,8 +1072,8 @@
         "jobId": "1fe68220-9be0-4875-af59-673f64606f2d",
         "startedAt": 1792603618,
         "version": "1.6.2",
-        "running": true,
-        "stop": false,
+        "running": false,
+        "stop": true,
         "error": false,
         "pendingMutation": false,
         "uncertainReceipt": false,
@@ -1076,7 +1084,9 @@
         "craftingJellyProtected": true,
         "diamondDrenchersOwned": true,
         "equippedSprinkler": "Diamond Drenchers",
-        "royalJellyAtRead": 109
+        "royalJellyAtRead": 109,
+        "latestObservedPhase": "stopped",
+        "latestStateNote": "Observed after human performance/funding request; left stopped"
       },
       {
         "account": "Luneri427",
@@ -1086,8 +1096,8 @@
         "jobId": "1fe68220-9be0-4875-af59-673f64606f2d",
         "startedAt": 1792603618,
         "version": "1.6.2",
-        "running": true,
-        "stop": false,
+        "running": false,
+        "stop": true,
         "error": false,
         "pendingMutation": false,
         "uncertainReceipt": false,
@@ -1103,7 +1113,9 @@
         "blenderCount": 231,
         "blenderTotalSeconds": 69300,
         "blenderRemainingSecondsAtRead": 68885.46,
-        "ticketToggle": "OFF"
+        "ticketToggle": "OFF",
+        "latestObservedPhase": "stopped",
+        "latestStateNote": "Observed after human performance/funding request; left stopped"
       }
     ],
     "naturalProof": [
@@ -1116,5 +1128,54 @@
     "agentsUsed": 2,
     "noUncertainFlagsCleared": true,
     "manualItemRemotes": false
+  },
+  "previousPublishedRelease": {
+    "version": "1.6.2",
+    "bundle": "auto_full_hive_assist.luau",
+    "sha256": "673bb6b913c2877c56ca1b444b92c97a1058d0e7e9fbb3f76ab7ee24830744fa",
+    "bytes": 237576,
+    "releasePath": "releases/v1.6.2/auto_full_hive_assist.luau"
+  },
+  "latestCraftFundingPerformance": {
+    "version": "1.6.3",
+    "verifiedUtc": "2026-10-21T17:46:40.300894+00:00",
+    "sha256": "e69b21e22055b1349524eeb2e05ff9a8ca282743dda3210800336d2397ebca17",
+    "bytes": 245389,
+    "checksPerExecutor": 3306,
+    "checksLocal": 3306,
+    "mainCompiled": true,
+    "embeddedCompiled": true,
+    "staticMarkers": 41,
+    "deployed": false,
+    "mainExecuted": false,
+    "stoppedInstancesPreserved": true,
+    "shopPurchaseAmounts": "verified fixed options only; no custom purchases",
+    "funding": "entire remaining current recipe RJ deficit plus safety reserve, repriced after each verified pack",
+    "factsBenchmark": {
+      "samplesEach": 8,
+      "RileyCosmicguppydude": {
+        "beforeMeanMs": 3.3733985001163,
+        "afterMeanMs": 1.8412284989608,
+        "shopIndexBuilds": 1,
+        "shopIndexHits": 7
+      },
+      "Luneri427": {
+        "beforeMeanMs": 5.1387999556027,
+        "afterMeanMs": 3.4891222603619,
+        "shopIndexBuilds": 1,
+        "shopIndexHits": 7
+      }
+    },
+    "atlasReadOnlyBenchmark": {
+      "samples": 8,
+      "discoveries": 1,
+      "cacheHits": 7,
+      "initialMs": 4.7151079925243,
+      "subsequentRangeMs": [
+        0.10149998706765,
+        0.16566799604334
+      ]
+    },
+    "limits": "Read-only data/control timings are not FPS measurements; no speedup, purchase or main script execution during validation. Historical rejected transport fixtures excluded."
   }
 }

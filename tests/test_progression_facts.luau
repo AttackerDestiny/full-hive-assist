@@ -147,5 +147,23 @@ return function(factory,Policy)
         s.Codes.wax="ambiguous"
         check(not factory(deps)(s).codesKnown,"Malformed code record cannot be treated as unredeemed")
     end
+    do
+        local deps,s=fixture();local now=0;local perf={}
+        deps.Clock=function() return now end;deps.Performance=perf
+        local build=factory(deps)
+        local _,first=build(s)
+        s.owns.Clippers=true
+        local original=deps.Packages.GetCost
+        deps.Packages.GetCost=function(pack,stats)
+            if pack.Type=="Basic" then return {Category="Honey",Amount=125} end
+            return original(pack,stats)
+        end
+        local second,catalog=build(s)
+        check(perf.ShopIndexBuilds==1 and perf.ShopIndexHits==1,"Repeated facts reuse physical shop discovery")
+        check(second.ownedGear.Clippers==true,"Ownership remains fresh while the shop index is cached")
+        check(first.basicEgg.cost.Honey==100 and catalog.basicEgg.cost.Honey==125,"Costs remain fresh while physical discovery is cached")
+        now=6;build(s)
+        check(perf.ShopIndexBuilds==2,"Physical shop discovery expires and rebuilds")
+    end
     return {passed=passed}
 end

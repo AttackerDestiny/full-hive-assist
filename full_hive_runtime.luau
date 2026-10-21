@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.6.2"
+local SCRIPT_VERSION = "1.6.3"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -107,6 +107,7 @@ env.FullHiveReport = Report
 local Players, RS = game:GetService("Players"), game:GetService("ReplicatedStorage")
 local player, Events, Cache, Types, EggTypes
 local progression,atlasFarmOnly
+local fixedShopPackage
 local Packages, Recipes, Reqs, Accessories, CellTools, OsTime
 local leased, previousAtlas, previousSettings, cleanupMove = false, nil, nil, nil
 local lateStarted = env.FullHiveLateStarted == true
@@ -244,8 +245,16 @@ local function distance(part)
     return (localPos-closest).Magnitude
 end
 local function near(part) assert(distance(part)<=Config.NearDistance,"Too far from "..part:GetFullName()) end
+local atlasPauseControl
 local function atlasToggle()
     local coreGui = game:GetService("CoreGui")
+    local cached=atlasPauseControl
+    if cached and cached.Button.Parent and cached.Label.Parent==cached.Button
+        and cached.Label.Text=="Stop Everything" and cached.Button:IsDescendantOf(coreGui)
+        and type(cached.State[1])=="boolean" then
+        return cached.Button,cached.State,cached.Callback
+    end
+    atlasPauseControl=nil
     local upvalueReader = (type(debug) == "table" and debug.getupvalues) or getupvalues
     local fallbackButton
     local callbacksPending=false
@@ -269,7 +278,10 @@ local function atlasToggle()
                             for _,value in pairs(u) do
                                 if type(value)=="table" and type(value[1])=="boolean" then state=value; break end
                             end
-                            if state then return b,state,c.Function end
+                            if state then
+                                atlasPauseControl={Button=b,Label=label,State=state,Callback=c.Function}
+                                return b,state,c.Function
+                            end
                         end
                     end
                 end end
@@ -653,6 +665,7 @@ local function initializeProgression()
         Policy=ProgressionPolicy,Funds=ProgressionFunds,env=env,Report=Report,Config=Config,Events=Events,
         Packages=Packages,Recipes=Recipes,Reqs=Reqs,buildFacts=buildFacts,nectarSeconds=nectarSeconds,OsTime=OsTime,
         checkStop=checkStop,refresh=refresh,invoke=invoke,move=move,near=near,release=release,
+        fixedShopPackage=function(...) return fixedShopPackage(...) end,
         assertAtlasPaused=assertAtlasPaused,
         scan=scan,hiveFloor=hiveFloor,toyPart=progressionToyPart,jellyBatchSpent=jellyBatchSpent,
         Types=Types,
@@ -746,6 +759,22 @@ local function shopFloor(name)
     if floor and floor:IsA("ObjectValue") then floor=floor.Value end
     return assert(floor,"Shop floor missing: "..name)
 end
+fixedShopPackage=function(item,amount,shopName)
+    assert(type(amount)=="number" and amount>0 and amount%1==0,"Invalid fixed pack amount")
+    local shops=workspace:FindFirstChild("Shops")
+    local shop=shops and shops:FindFirstChild(shopName)
+    local options=shop and shop:FindFirstChild("Items")
+    for _,option in ipairs(options and options:GetChildren() or {}) do
+        local category=option:FindFirstChild("ItemCategory")
+        local kind=option:FindFirstChild("ItemType")
+        local count=option:FindFirstChild("ItemAmount")
+        if category and category.Value=="Eggs" and kind and kind.Value==item
+            and (count and count.Value or 1)==amount then
+            return {Category=category.Value,Type=kind.Value,Amount=amount}
+        end
+    end
+    error("No verified fixed shop option: "..item.." x"..amount,0)
+end
 local function buy(item,amount,shop,inventoryCeiling)
     assert(Config.AutoPurchase,"Purchasing disabled")
     acquire(); move(shopFloor(shop)); near(shopFloor(shop))
@@ -768,7 +797,8 @@ local function buy(item,amount,shop,inventoryCeiling)
         if type(cost)~="number" or (s.Eggs.Ticket or 0)<cost*amount then return false end
     end
     assert(Report.Actions<Config.MaxActions,"Action limit reached")
-    local accepted=invoke(Events.ItemPackageEvent,"Purchase",{Category="Eggs",Type=item,Amount=amount})
+    local fixedPackage=fixedShopPackage(item,amount,shop)
+    local accepted=invoke(Events.ItemPackageEvent,"Purchase",fixedPackage)
     assert(accepted,"Purchase rejected; no retry")
     s=refresh()
     assert((s.Eggs[item] or 0)-before==amount,"Purchase inventory uncertain; no retry")
@@ -1211,8 +1241,12 @@ local function makeUI()
         if not Cache or not Types then return nil end
         return Cache:Get(),Types,Report.ActiveTarget
     end)
+    local function setText(label,value)
+        if label.Text~=value then label.Text=value end
+    end
     task.spawn(function()
         repeat
+            if frame.Visible then
             local c=Report.Counts or {}
             local progress=Report.Stage=="early" and string.format("Baby %d/4 | Music %d/4 | Shy %d/3",c.Baby or 0,c.Music or 0,c.Shy or 0)
                 or string.format("Actions %d | Jelly used %d",Report.Actions,Report.RoyalJellyUsed)
@@ -1221,10 +1255,10 @@ local function makeUI()
                 progress=string.format("Slot (%d,%d) | %s",active.X,active.Y,
                     Report.CollectorFallback and (active.Reason=="gifted-collector-fallback" and "100-jelly gifted recovery" or "100-jelly collector recovery") or active.Reason)
             end
-            phase.Text=string.upper((Report.Stage or "inspect").."  |  "..(Report.Phase or "starting"))
+            setText(phase,string.upper((Report.Stage or "inspect").."  |  "..(Report.Phase or "starting")))
             phase.TextColor3=Report.Error and Color3.fromRGB(255,176,192) or Color3.fromRGB(164,214,255)
-            text.Text=Report.Error or Report.CleanupError or Report.Activity or Report.Phase
-            progressText.Text=progress
+            setText(text,Report.Error or Report.CleanupError or Report.Activity or Report.Phase)
+            setText(progressText,progress)
             local pg=Report.Progression or {}
             local status=pg.Status or {}
             local title=pg.Gear and ("Target: "..pg.Gear) or "Gear route complete"
@@ -1240,17 +1274,26 @@ local function makeUI()
                 end
             end
             if #counts>0 then lines[#lines+1]=table.concat(counts,", ") end
+            if pg.FundsRequired and pg.MissingRJ then
+                local function money(n)
+                    if n>=1000000000 then return string.format("%.2fB",n/1000000000) end
+                    if n>=1000000 then return string.format("%.1fM",n/1000000) end
+                    return tostring(math.floor(n))
+                end
+                lines[#lines+1]="Need "..pg.MissingRJ.." jelly | Honey "..money(pg.Honey or 0).."/"..money(pg.FundsRequired)
+            end
             local blender=Report.Blender
             if blender and blender.Recipe then
                 lines[#lines+1]="Blender: "..blender.Recipe.." x"..tostring(blender.Count).." | "
                     ..(blender.Complete and "ready to collect" or math.ceil(blender.RemainingSeconds or 0).."s left")
             end
-            progressionText.Text=table.concat(lines,"\n")
-            blenderTicketButton.Text="Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF")
-            slotsMetric.Text=tostring(Report.Slots or "?").." slots"
-            jellyMetric.Text=tostring(Report.RoyalJelly or 0).." jelly"
-            refillMetric.Text=tostring(Report.RefillAmount or "-").." / refill"
-            task.wait(0.4)
+            setText(progressionText,table.concat(lines,"\n"))
+            setText(blenderTicketButton,"Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF"))
+            setText(slotsMetric,tostring(Report.Slots or "?").." slots")
+            setText(jellyMetric,tostring(Report.RoyalJelly or 0).." jelly")
+            setText(refillMetric,tostring(Report.RefillAmount or "-").." / refill")
+            end
+            task.wait(0.75)
         until not gui.Parent or not env.FullHiveRunning
         if gui.Parent then phase.Text=string.upper(Report.Phase or "finished"); text.Text=Report.Error or "Assist finished"; button.Text="Finished" end
     end)
