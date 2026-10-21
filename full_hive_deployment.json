@@ -814,48 +814,49 @@
     }
   },
   "latestVersionScopedCheck": {
-    "observedUtc": "2026-10-21T07:28:20.848368+00:00",
+    "observedUtc": "2026-10-21T07:59:05.721721+00:00",
     "sameClientsAndJobVerified": true,
     "noDeploymentPerformed": true,
+    "noRegressionRepeat": true,
     "riley": {
       "account": "RileyCosmicguppydude",
       "version": "1.5.0",
       "startedAt": 1792561453,
       "occupied": 41,
-      "royalJelly": 0,
-      "honey": 22741062,
-      "refill": 100,
+      "royalJelly": 73,
+      "honey": 138933381,
+      "refill": 600,
       "normalRefill": 600,
       "phase": "waiting",
-      "safeNonCollector": 1,
-      "activeCoordinate": {
-        "X": 2,
-        "Y": 2
-      },
-      "currentActiveBee": "normal Honey",
+      "safeNonCollector": 0,
+      "activeCoordinate": null,
+      "lastResult": "normal Bubble at(2,2)",
       "retainedUnlistedGifted": [
         "Riley",
         "Hasty",
         "Rad"
       ],
-      "royalJellyUsed": 1474,
+      "royalJellyUsed": 1511,
       "atlasStopped": false,
-      "upgradeRequiresNewHumanInstruction": true
+      "upgradeAuthorizationStillPending": true
     },
     "luneri": {
       "account": "Luneri427",
       "version": "1.5.1",
       "startedAt": 1792565007,
       "occupied": 43,
-      "royalJelly": 102,
+      "royalJelly": 95,
+      "honey": 73521486,
       "normalRefill": 2000,
       "phase": "waiting",
-      "royalJellyUsed": 7,
+      "royalJellyUsed": 2012,
+      "lastResult": "normal Frosty at(5,8)",
       "hastyPresent": false,
-      "atlasStopped": false,
-      "pendingObserved": "RetrievePlayerStats read only; no uncertain mutation shown"
+      "safeNonCollector": 0,
+      "atlasStopped": false
     },
-    "errorsReported": false
+    "errorsReported": false,
+    "pendingItemOrUncertainRequests": false
   },
   "rileyUpgradeAuthorizationRequest": {
     "version": "1.5.1",
@@ -864,11 +865,13 @@
     "reason": "New gifted Hasty/Rad retained by legacy1.5.0, while saved task explicitly prohibits upgrading Riley without a new human instruction",
     "candidateAlreadyTestedChecks": 2976,
     "candidateSha256": "59bbe1d45778e8722d9fabe8929bc4698f398220e7c4c1e0504ab627bdf25409",
-    "activeRollMustBePreserved": {
+    "previousObservedRollAtRequest": {
       "X": 2,
       "Y": 2,
       "Reason": "collector-fallback",
       "StartedType": "Frosty"
-    }
+    },
+    "latestObservedActiveRoll": null,
+    "freshReconciliationRequiredBeforeAnyUpgrade": true
   }
 }
