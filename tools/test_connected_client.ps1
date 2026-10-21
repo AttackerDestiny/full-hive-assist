@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)][string]$ClientId,[string]$BundlePath)
+param([Parameter(Mandatory=$true)][string]$ClientId,[string]$BundlePath,[switch]$CheckFinalBabyQuota)
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
 if (-not $BundlePath) { $BundlePath=Join-Path $project 'auto_full_hive_assist.luau' }
@@ -12,6 +12,7 @@ $runtime=$bundle.Substring($runtimeAt)
 $versionMatch=[regex]::Match($runtime,'local SCRIPT_VERSION = "(\d+\.\d+\.\d+)"')
 if (-not $versionMatch.Success) { throw 'Cannot locate bundle version' }
 $hasFailsafeCorrection=([version]$versionMatch.Groups[1].Value -ge [version]'1.5.1')
+$checkFinalBaby=$CheckFinalBabyQuota -or ([version]$versionMatch.Groups[1].Value -ge [version]'1.5.2')
 $policyTests = Get-Content -LiteralPath (Join-Path $project 'test_full_hive_policy.luau') -Raw
 $recoveryTests = Get-Content -LiteralPath (Join-Path $project 'test_character_recovery.luau') -Raw
 $collectorTests = Get-Content -LiteralPath (Join-Path $project 'test_collector_recovery.luau') -Raw
@@ -22,6 +23,7 @@ $starProgressTests = Get-Content -LiteralPath (Join-Path $project 'tests/test_st
 $finalOccupancyTests = Get-Content -LiteralPath (Join-Path $project 'tests/test_final_occupancy_offline.luau') -Raw
 $connectedReviewTests = Get-Content -LiteralPath (Join-Path $project 'tests/test_connected_review_offline.luau') -Raw
 $failsafeOnlyTests = Get-Content -LiteralPath (Join-Path $project 'tests/test_failsafe_only_recovery.luau') -Raw
+$finalBabyTests = Get-Content -LiteralPath (Join-Path $project 'tests/test_final_baby_quota.luau') -Raw
 $code = 'local bundle=[======['+$bundle+']======]; local runtime=[======['+$runtime+']======]; local policy=[======['+$policy+']======]; local tests=[======['+$policyTests+']======]; local recoveryTests=[======['+$recoveryTests+']======]; '
 $code += 'local collectorTests=[======['+$collectorTests+']======]; '
 $code += 'local batchTests=[======['+$batchTests+']======]; '
@@ -32,6 +34,7 @@ $code += 'local finalOccupancyTests=[======['+$finalOccupancyTests+']======]; '
 $code += 'local connectedReviewTests=[======['+$connectedReviewTests+']======]; '
 $code += 'local failsafeOnlyTests=[======['+$failsafeOnlyTests+']======]; '
 $code += 'local hasFailsafeCorrection='+$hasFailsafeCorrection.ToString().ToLowerInvariant()+'; '
+$code += 'local finalBabyTests=[======['+$finalBabyTests+']======];local checkFinalBaby='+$checkFinalBaby.ToString().ToLowerInvariant()+'; '
 $code += @'
 local main,mainError=loadstring(bundle)
 local embedded=assert(bundle:match("local StarEggSource = %[%=%=%=%=%[(.-)%]%=%=%=%=%]"))
@@ -51,12 +54,14 @@ local finalOccupancyOK,finalOccupancyResult=pcall(assert(loadstring(finalOccupan
 local connectedReviewOK,connectedReviewResult=pcall(assert(loadstring(connectedReviewTests))(),p,types,embedded)
 local failsafeOnlyOK,failsafeOnlyResult=true,{notApplicable=true}
 if hasFailsafeCorrection then failsafeOnlyOK,failsafeOnlyResult=pcall(assert(loadstring(failsafeOnlyTests))(),p,types,runtime) end
+local finalBabyOK,finalBabyResult=true,{notApplicable=true}
+if checkFinalBaby then finalBabyOK,finalBabyResult=pcall(assert(loadstring(finalBabyTests))(),p,types) end
 return {allPassed=main~=nil and star~=nil and policyOK and recoveryOK and collectorOK and batchOK and starJellyOK
-    and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK,
+    and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK and finalBabyOK,
     main=main~=nil,mainError=mainError,embeddedStar=star~=nil,starError=starError,
     policy={ok=policyOK,result=policyResult},recovery={ok=recoveryOK,result=recoveryResult},collector={ok=collectorOK,result=collectorResult},batch={ok=batchOK,result=batchResult},starJelly={ok=starJellyOK,result=starJellyResult},
     starPreflight={ok=starPreflightOK,result=starPreflightResult},starProgress={ok=starProgressOK,result=starProgressResult},
-    finalOccupancy={ok=finalOccupancyOK,result=finalOccupancyResult},connectedReview={ok=connectedReviewOK,result=connectedReviewResult},failsafeOnly={ok=failsafeOnlyOK,result=failsafeOnlyResult}}
+    finalOccupancy={ok=finalOccupancyOK,result=finalOccupancyResult},connectedReview={ok=connectedReviewOK,result=connectedReviewResult},failsafeOnly={ok=failsafeOnlyOK,result=failsafeOnlyResult},finalBaby={ok=finalBabyOK,result=finalBabyResult}}
 '@
 $argsPath = Join-Path ([IO.Path]::GetTempPath()) ('bss-tests-'+[guid]::NewGuid().ToString()+'.json')
 try {

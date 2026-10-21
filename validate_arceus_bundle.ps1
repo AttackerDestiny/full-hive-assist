@@ -1,5 +1,7 @@
+param([string]$BundlePath)
 $ErrorActionPreference = 'Stop'
-$bundlePath = Join-Path $PSScriptRoot 'auto_full_hive_assist.luau'
+if (-not $BundlePath) { $BundlePath=Join-Path $PSScriptRoot 'auto_full_hive_assist.luau' }
+$bundlePath=$BundlePath
 $bundle = Get-Content -LiteralPath $bundlePath -Raw
 if ($bundle.Length -lt 50000) { throw "Bundle is truncated: $($bundle.Length) characters" }
 if (-not $bundle.StartsWith('-- Full Hive Assist for Atlas / Arceus X Android')) { throw 'Bundle header is missing' }

@@ -1,0 +1,23 @@
+{
+  "version": "1.5.2",
+  "createdUtc": "2026-10-21T09:42:42.216200+00:00",
+  "status": "candidate-not-deployed",
+  "baseVersion": "1.5.1",
+  "baseBundleSha256": "59bbe1d45778e8722d9fabe8929bc4698f398220e7c4c1e0504ab627bdf25409",
+  "bundle": {
+    "bytes": 156226,
+    "sha256": "72fcd1d67cf21da06fd25a75822f0ccaf48351fe7ef4b21b56342ab2dc65366d"
+  },
+  "connectedChecksPerExecutor": 3036,
+  "newFinalBabyChecks": 60,
+  "baselineV151Diagnostic": "Expected failure: Zero Baby quota must not finish on a gifted Baby",
+  "allCandidateChecksPassed": true,
+  "mainCompiled": true,
+  "embeddedCompiled": true,
+  "staticMarkers": 41,
+  "candidateWorkflowExecuted": false,
+  "naturalFinalStageVerified": false,
+  "authorizedBundlesUnchanged": true,
+  "builderSourceOverridesRequireExplicitOutput": true,
+  "scope": "Apply current final Baby quota consistently in completion, safety, and stale-goal handling; preserve useful upgrades and Music/nonfinal rules"
+}
