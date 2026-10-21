@@ -1,0 +1,4 @@
+# Generated release artifacts must retain their recorded SHA-256 bytes.
+/auto_full_hive_assist.luau -text whitespace=cr-at-eol
+/releases/v1.5.0/auto_full_hive_assist.luau -text whitespace=cr-at-eol
+/candidates/v1.5.2/auto_full_hive_assist.luau -text whitespace=cr-at-eol

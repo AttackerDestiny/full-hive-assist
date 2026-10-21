@@ -932,5 +932,43 @@
     "manualTrigger": false,
     "reexecuted": false,
     "coverage": "Natural normal gifted-collector completion and admission closure with saved leftovers; individual top-ups/intermediate requests not fully observed"
+  },
+  "bundlePublishingIntegrity": {
+    "verifiedUtc": "2026-10-21T10:32:23.238955+00:00",
+    "cause": "core.autocrlf=true with generated artifact text attributes unspecified normalized committed bytes",
+    "fix": "Three anchored -text attributes preserve exact generated bundle bytes; per-path cr-at-eol whitespace handling",
+    "artifacts": [
+      {
+        "path": "auto_full_hive_assist.luau",
+        "beforeCommittedSha256": "cbc245994c8dd8b422ab2571bf8e98b3617d6d683c64136ab484b03962ae0286",
+        "preservedSha256": "59bbe1d45778e8722d9fabe8929bc4698f398220e7c4c1e0504ab627bdf25409",
+        "preservedBytes": 157423,
+        "workingFileChanged": false,
+        "normalizedSourceChanged": false
+      },
+      {
+        "path": "releases/v1.5.0/auto_full_hive_assist.luau",
+        "beforeCommittedSha256": "0058aa3196730ca67168ca2fa5b2602488c50644b8f58ee756094b363a7821a2",
+        "preservedSha256": "69f80c4336a6397772ac6caa0dfe313d5f478ee6f7a8685fa14fd80e419b98dc",
+        "preservedBytes": 157178,
+        "workingFileChanged": false,
+        "normalizedSourceChanged": false
+      },
+      {
+        "path": "candidates/v1.5.2/auto_full_hive_assist.luau",
+        "beforeCommittedSha256": "ba7ba303b64ac663f3d6579ff9886e78b7dc7cbe624170029395636d797550e1",
+        "preservedSha256": "72fcd1d67cf21da06fd25a75822f0ccaf48351fe7ef4b21b56342ab2dc65366d",
+        "preservedBytes": 156226,
+        "workingFileChanged": false,
+        "normalizedSourceChanged": false
+      }
+    ],
+    "indexMatchesDeploymentHashes": true,
+    "freshCheckoutMatchesDeploymentHashes": true,
+    "freshCheckoutEnvironment": "Temporary git checkout-index with existing core.autocrlf=true",
+    "runtimeVersionsChanged": false,
+    "runtimeRestarted": false,
+    "candidateDeployed": false,
+    "repositoryWideRenormalization": false
   }
 }
