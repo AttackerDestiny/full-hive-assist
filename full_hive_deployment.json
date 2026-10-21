@@ -538,16 +538,22 @@
     "atlasStoppedObserved": false
   },
   "mainLoader": {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "path": "loader.luau",
     "publishedUrl": "https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/loader.luau",
     "bundleUrl": "https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/auto_full_hive_assist.luau",
     "createdUtc": "2026-10-21T05:32:55.954509+00:00",
-    "bytes": 1517,
-    "sha256": "86869f535c5b2428f992444b4f1e804e65d9b0c484fc2f8e15ee0eecd1a5ca99",
+    "bytes": 2660,
+    "sha256": "fbd979b3d56c9a99918d7c9b8c9da8ac42e69e6e457d92ed202dcd67949ef261",
     "validation": "static-compilation-only",
     "executed": false,
     "deployedToClients": false,
-    "mainBundleVersionUnchanged": "1.5.0"
+    "mainBundleVersionUnchanged": "1.5.0",
+    "updatedUtc": "2026-10-21T05:36:14.704039+00:00",
+    "repositoryPrivate": true,
+    "anonymousRawDownloadAccessible": false,
+    "privateDownloadMode": "GitHub contents API with runtime FullHiveGitHubToken; contents-read access",
+    "authenticatedBundleDownloadVerified": true,
+    "userCredentialEmbedded": false
   }
 }

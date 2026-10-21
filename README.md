@@ -37,15 +37,25 @@ A Bee Swarm Simulator hive progression assist that coordinates with Atlas to man
 ## Quick start
 
 1. Join Bee Swarm Simulator and load Atlas.
-2. Run the loader below, or copy the entire [`auto_full_hive_assist.luau`](auto_full_hive_assist.luau) bundle into your executor.
+2. Use [`loader.luau`](loader.luau) as described below, or copy the entire [`auto_full_hive_assist.luau`](auto_full_hive_assist.luau) bundle into your executor.
 3. Allow the **60-second startup delay** before the assist loads game modules and begins working. Atlas and the assist can be placed together in auto-execute.
 4. Follow the on-screen status panel. Use its **Stop** button to stop the assist.
+
+**The repository is currently private.** In your executor, set `env.FullHiveGitHubToken` to a GitHub token with read access to this repository's contents, then paste/run [`loader.luau`](loader.luau). Set the token only in your local executor environment; never put a real token in the loader source or commit it. An executor HTTP request function is required for authenticated loading.
+
+```lua
+local env = (type(getgenv) == "function" and getgenv()) or _G
+env.FullHiveGitHubToken = "YOUR_CONTENTS_READ_TOKEN"
+-- Paste loader.luau below this prelude.
+```
+
+If the repository is later made public, the token-free entry point is:
 
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/loader.luau"))()
 ```
 
-[`loader.luau`](loader.luau) downloads the current main-branch bundle, preserves your `FullHiveConfig`, and leaves an already-running assist alone. It reports download/compile errors and blocks startup with pending or unresolved hive requests. Atlas is loaded separately. The bundle supplies its own 60-second startup delay. The published loader has been statically compiled only; it has not been executed in Roblox.
+The loader downloads the current main-branch bundle, preserves your `FullHiveConfig`, and leaves an already-running assist alone. It reports download/compile errors and blocks startup with pending or unresolved hive requests. Atlas is loaded separately. The bundle supplies its own 60-second startup delay. The loader has been statically compiled only; it has not been executed in Roblox. Repository visibility was not changed.
 
 The default configuration runs continuously and can spend honey, tickets, stingers, eggs, Star Treats, Star Jelly, and Royal Jelly. The assist pauses Atlas while working and restores roll settings during cleanup.
 

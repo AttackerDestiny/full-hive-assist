@@ -46,6 +46,8 @@ The first numbered release is **v1.0.0**. The status panel, `getgenv().FullHiveV
 
 Run Atlas first, then use `loader.luau` to fetch the current main-branch bundle or execute the entire `auto_full_hive_assist.luau` file in **Arceus X Android**. The loader preserves configuration and guards against duplicate or unresolved hive activity. The bundle contains its policy and Star Egg script, so no local-file support is needed. The loader has not been executed on a live client.
 
+The repository is private: copy the loader into the executor after assigning a contents-read token to `env.FullHiveGitHubToken`. The loader uses authenticated GitHub API retrieval in that case. Never commit the token. Anonymous raw GitHub links return404 until the repository is public; this task did not change its visibility. See the main README for the local token prelude.
+
 The assist now waits a fixed **60 seconds** after auto-execution before loading hive modules or requesting player stats. You can auto-execute both scripts together; the assist remains in `startup-delay` during that minute.
 
 The bundle was rebuilt after the previous interrupted build left a three-byte `mak` file. The current generated file starts with `-- Full Hive Assist for Atlas / Arceus X Android / Potassium` and is written atomically by `build_full_hive.ps1`; the builder rejects truncated output below 50,000 characters.
