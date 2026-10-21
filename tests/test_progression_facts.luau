@@ -21,7 +21,8 @@ return function(factory,Policy)
         local packages={}
         function packages.PlayerHas(pack,s) return s.owns[pack.Type]==true end
         function packages.GetCost(pack,s)
-            if pack.Type=="Blue ClayPlanter" and s.Totals.Purchases.Eggs[pack.Type] then return nil end
+            if (pack.Type=="Blue ClayPlanter" or pack.Type=="PesticidePlanter")
+                and s.Totals.Purchases.Eggs[pack.Type] then return nil end
             if pack.Category=="HiveSlot" then return {Category="Honey",Amount=3000000} end
             if pack.Type=="Diamond" then return {Category="Eggs",Type="Ticket",Amount=400} end
             if pack.Type=="Gumdrops" then return {Category="Eggs",Type="Ticket",Amount=pack.Amount/3} end
@@ -33,6 +34,7 @@ return function(factory,Policy)
         local top={item("Clippers","Collectors"),item("Porcelain Dipper","Collectors"),item("Bubble Wand","Collectors"),
             item("Jar","Accessories"),item("Porcelain Port-O-Hive","Accessories"),item("Basic Boots","Accessories"),
             item("Beekeeper's Boots","Accessories"),item("Blue ClayPlanter","Eggs"),item("Red ClayPlanter","Eggs"),
+            item("CandyPlanter","Eggs"),item("TackyPlanter","Eggs"),item("PesticidePlanter","Eggs"),
             node("Hive Slot","Part",{val("ItemCategory","HiveSlot")})}
         for _,id in ipairs({"Brave Guard","Blue Guard","Elite Blue Guard","Bucko Guard","Cobalt Guard",
             "Looker Guard","Red Guard","Elite Red Guard","Riley Guard","Crimson Guard",
@@ -102,6 +104,35 @@ return function(factory,Policy)
         check(f.ownedGear.Jar and f.ownedGear["Basic Boots"],"Same accessory slot chain prevents retrograde gear")
         check(f.ownedGear["Blue Clay Planter"] and f.ownedGear["Red Clay Planter"]==false,"Permanent planted planter ownership uses ledger without skipping distinct planter")
         check(c.gear["Blue Clay Planter"]==nil,"Owned one-time planter may legitimately have no remaining purchase cost")
+    end
+    do
+        local deps,s=fixture()
+        local planterId
+        for _,stage in ipairs(Policy.stages) do for _,id in ipairs(stage.gear) do
+            if id=="PesticidePlanter" or id=="Pesticide Planter" then planterId=id end
+        end end
+        check(planterId~=nil,"Ordered policy includes the Pesticide planter")
+        local build=factory(deps)
+        local facts,catalog=build(s)
+        check(facts.ownedGear[planterId]==false,"Missing Pesticide remains distinct from previous planters")
+        check(catalog.gear[planterId] and catalog.gear[planterId].package.Type=="PesticidePlanter",
+            "Pesticide display identity resolves to its canonical shop package")
+        s.Totals.Purchases.Eggs.PesticidePlanter=1
+        facts,catalog=build(s)
+        check(facts.ownedGear[planterId]==true and catalog.gear[planterId]==nil,
+            "Pesticide ledger proves ownership while inventory is empty and price is unavailable")
+        check(facts.ownedGear["Candy Planter"]==false and facts.ownedGear.TackyPlanter==false,
+            "Pesticide purchase cannot hide missing Candy or Tacky ownership")
+        s.Totals.Purchases.Eggs.PesticidePlanter=0
+        s.Totals.Purchases.Eggs.CandyPlanter=1
+        s.Totals.Purchases.Eggs["Red ClayPlanter"]=1
+        s.Totals.Purchases.Eggs.TackyPlanter=1
+        facts=build(s)
+        check(facts.ownedGear["Candy Planter"] and facts.ownedGear["Red Clay Planter"]
+            and facts.ownedGear.TackyPlanter and facts.ownedGear["Blue Clay Planter"]==false,
+            "Backfill ownership reads each permanent planter's own ledger")
+        s.Totals.Purchases.Eggs.PesticidePlanter="1"
+        check(build(s).ownedGear[planterId]==false,"Malformed Pesticide ledger cannot imply ownership")
     end
     do
         local deps,s,cells=fixture()

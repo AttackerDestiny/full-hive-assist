@@ -31,10 +31,36 @@ return function(P)
     for stageIndex,stage in ipairs(P.stages) do
         for _,name in ipairs(stage.gear) do
             local f=facts();ownedThrough(f,name);f.occupied=50;f.capacity=50
+            -- Isolate normal route order; 36+ catch-up has its own cases below.
+            for _,planter in ipairs(P.planterCatchup) do f.ownedGear[planter]=true end
+            f.ownedGear[name]=false
             local r=P.plan(f,catalog(name,100,{}))
             check(r.gear==name and r.stage==stageIndex and r.action.kind=="buy-gear","Exact ordered next gear: "..name)
             check(not r.optionalHiveAllowed and r.reserveHoney==100,"Gear reserves honey before optional hive spending")
         end
+    end
+    do
+        local f=facts();f.capacity=35;f.occupied=35
+        check(P.nextGear(f).id=="Clippers","35-slot account retains the original route before catch-up threshold")
+        f.capacity=36;f.occupied=25
+        for _,expected in ipairs({"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}) do
+            local next=P.nextGear(f)
+            check(next.id==expected and next.catchup and next.gate==0,"36-slot catch-up follows the latest planter priority without requiring 36 occupied bees")
+            local r=P.plan(f,catalog(expected,100,{}))
+            check(r.gear==expected and r.planterCatchup and r.action.kind=="buy-gear","Missing earlier ordinary gear cannot block planter catch-up")
+            f.ownedGear[expected]=true
+        end
+        check(P.nextGear(f).id=="Clippers","Completed catch-up returns to the original next unowned gear once")
+        for _,capacity in ipairs({37,50}) do
+            f=facts();f.capacity=capacity;f.occupied=25
+            for _,name in ipairs({"Candy Planter","Red Clay Planter","Blue Clay Planter"}) do f.ownedGear[name]=true end
+            check(P.nextGear(f).id=="TackyPlanter","Prefarmed 37/50-slot account skips already-owned planters and aims for Tacky")
+        end
+        f=facts();f.capacity=36;f.ownedGearKnown=false
+        check(P.nextGear(f)==nil,"Unknown catch-up ownership cannot be treated as missing or skipped")
+        local route=P.stages[6].gear
+        local at=table.find(route,"Petal Belt")
+        check(route[at+1]=="Pesticide Planter" and route[at+2]=="Coconut Canister","Pesticide Planter follows Petal Belt before Coconut Canister")
     end
     do
         local f=facts()
@@ -49,6 +75,7 @@ return function(P)
         local name
         for _,stage in ipairs(P.stages) do if stage.gate==gate then name=stage.gear[1];break end end
         local f=facts();ownedThrough(f,name);f.occupied=gate-1;f.capacity=math.max(25,gate)
+        if gate>=36 then for _,planter in ipairs(P.planterCatchup) do f.ownedGear[planter]=true end end
         f.inventory.Basic=1;f.emptyCell={verified=true,x=5,y=5}
         local r=P.plan(f,catalog(name,100,{}))
         check(r.action.kind=="hatch-basic","Occupied gate cannot be satisfied by capacity alone")

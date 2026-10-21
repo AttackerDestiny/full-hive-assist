@@ -1031,14 +1031,14 @@
     "validationLimit": "Natural gear purchase/craft paths are partially observed; current Blender queues are intentionally waiting and no ticket toggle was enabled"
   },
   "currentRelease": {
-    "version": "1.6.3",
+    "version": "1.6.4",
     "bundle": "auto_full_hive_assist.luau",
-    "sha256": "e69b21e22055b1349524eeb2e05ff9a8ca282743dda3210800336d2397ebca17",
-    "bytes": 245389,
-    "releasePath": "releases/v1.6.3/auto_full_hive_assist.luau",
+    "sha256": "6282589d6994172090b19d7f1fb5d99ac19b193d765501df5c7f09cbc8ee7ab8",
+    "bytes": 246539,
+    "releasePath": "releases/v1.6.4/auto_full_hive_assist.luau",
     "deployed": true,
-    "liveRuntimeVersion": "1.6.3",
-    "liveState": "running on RileyCosmicguppydude and Luneri427 after explicit authorized resume and Atlas reload"
+    "liveRuntimeVersion": "1.6.4",
+    "liveState": "running and post-start verified on RileyCosmicguppydude and Luneri427"
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -1130,11 +1130,14 @@
     "manualItemRemotes": false
   },
   "previousPublishedRelease": {
-    "version": "1.6.2",
+    "version": "1.6.3",
     "bundle": "auto_full_hive_assist.luau",
-    "sha256": "673bb6b913c2877c56ca1b444b92c97a1058d0e7e9fbb3f76ab7ee24830744fa",
-    "bytes": 237576,
-    "releasePath": "releases/v1.6.2/auto_full_hive_assist.luau"
+    "sha256": "e69b21e22055b1349524eeb2e05ff9a8ca282743dda3210800336d2397ebca17",
+    "bytes": 245389,
+    "releasePath": "releases/v1.6.3/auto_full_hive_assist.luau",
+    "deployed": true,
+    "liveRuntimeVersion": "1.6.3",
+    "liveState": "running on RileyCosmicguppydude and Luneri427 after explicit authorized resume and Atlas reload"
   },
   "latestCraftFundingPerformance": {
     "version": "1.6.3",
@@ -1251,5 +1254,118 @@
       }
     ],
     "limits": "Startup, UI, full-crafting-budget wait, existing Blender queue preservation and Atlas resume verified. No purchase/roll/speedup was forced or observed in this startup window."
+  },
+  "latestPlanterPriorityUpdate": {
+    "version": "1.6.4",
+    "verifiedUtc": "2026-10-21T18:22:00.386591+00:00",
+    "sha256": "6282589d6994172090b19d7f1fb5d99ac19b193d765501df5c7f09cbc8ee7ab8",
+    "bytes": 246539,
+    "checksPerExecutor": 3329,
+    "checksLocal": 3329,
+    "suites": {
+      "policy": 753,
+      "character": 91,
+      "collector": 896,
+      "batch": 325,
+      "starJelly": 589,
+      "starPreflight": 220,
+      "starProgress": 17,
+      "finalOccupancy": 10,
+      "connectedReview": 82,
+      "failsafeOnlyRecovery": 38,
+      "finalBabyQuota": 60,
+      "progression": 187,
+      "progressionFacts": 44,
+      "funds": 17
+    },
+    "staticMarkers": 41,
+    "mainCompiled": true,
+    "embeddedCompiled": true,
+    "pesticidePosition": "after Petal Belt; before Coconut Canister",
+    "catchup": {
+      "capacityAtLeast": 36,
+      "order": [
+        "Candy Planter",
+        "Red Clay Planter",
+        "Blue Clay Planter",
+        "TackyPlanter"
+      ],
+      "skipsOwned": true,
+      "permanentLedger": true
+    },
+    "liveGameDefinition": {
+      "internalId": "PesticidePlanter",
+      "displayName": "Pesticide Planter",
+      "purchaseLimit": 1,
+      "shop": "DapperPlanterShop",
+      "fixedAmount": 1,
+      "honey": 750000000,
+      "ingredients": {
+        "MagicBean": 25,
+        "Neonberry": 25,
+        "Glue": 15,
+        "CausticWax": 3,
+        "HardWax": 10
+      }
+    },
+    "accounts": [
+      {
+        "account": "RileyCosmicguppydude",
+        "clientId": "8726d366-5f56-423e-9eac-50f711a54974",
+        "startedAt": 1792606759,
+        "version": "1.6.4",
+        "running": true,
+        "stop": false,
+        "phase": "waiting",
+        "catchupPlantersAlreadyOwned": true,
+        "pesticideOwned": false,
+        "uiVersion": "v1.6.4",
+        "atlasStopped": false,
+        "reportedErrors": false,
+        "pendingMutation": false,
+        "uncertainReceipt": false,
+        "planterCatchup": false,
+        "gearTarget": "Diamond Mask",
+        "actionsSinceStart": 0,
+        "activity": "saving-crafting-jelly",
+        "royalJelly": 176,
+        "missingCraftingRoyalJelly": 1944,
+        "honeyAtRead": 1137195153,
+        "fullCraftingHoneyRequired": 1944000000
+      },
+      {
+        "account": "Luneri427",
+        "clientId": "9bdbb50e-85f1-4e65-a08f-eb94730ea906",
+        "startedAt": 1792606761,
+        "version": "1.6.4",
+        "running": true,
+        "stop": false,
+        "phase": "waiting",
+        "catchupPlantersAlreadyOwned": true,
+        "pesticideOwned": false,
+        "uiVersion": "v1.6.4",
+        "atlasStopped": false,
+        "reportedErrors": false,
+        "pendingMutation": false,
+        "uncertainReceipt": false,
+        "planterCatchup": false,
+        "gearTarget": "Diamond Mask",
+        "actionsSinceStart": 0,
+        "activity": "blender-busy; hive allowed",
+        "royalJelly": 321,
+        "blueExtractOwned": 19,
+        "blueExtractQueued": 231,
+        "blenderRecipe": "BlueExtract",
+        "blenderCount": 231,
+        "ticketSpeedupEnabled": false,
+        "pendingReadOnly": "RetrievePlayerStats transient"
+      }
+    ],
+    "maintenanceStopObserved": true,
+    "executeCountPerAccount": 1,
+    "pendingOrUncertainFlagsCleared": false,
+    "existingBlenderQueuePreserved": true,
+    "limits": "Catch-up choices and new Pesticide route have isolated fixture coverage. Both actual accounts already own four catch-up planters and have not reached Pesticide; no forced planter purchase.",
+    "postStartupVerified": true
   }
 }

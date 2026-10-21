@@ -3,7 +3,8 @@
 return function(deps)
     local Policy=assert(deps.Policy,"Progression policy required")
     local aliases={CandyPlanter="CandyPlanter",["Candy Planter"]="CandyPlanter",
-        ["Blue Clay Planter"]="Blue ClayPlanter",["Red Clay Planter"]="Red ClayPlanter"}
+        ["Blue Clay Planter"]="Blue ClayPlanter",["Red Clay Planter"]="Red ClayPlanter",
+        ["Pesticide Planter"]="PesticidePlanter"}
     for name,id in pairs(deps.ItemAliases or {}) do aliases[name]=id end
     local function integer(n) return type(n)=="number" and n>=0 and n<math.huge and n%1==0 end
     local function finite(n) return type(n)=="number" and n==n and n>-math.huge and n<math.huge end
@@ -198,7 +199,8 @@ return function(deps)
         for _,stage in ipairs(Policy.stages) do for _,id in ipairs(stage.gear) do
             local internal=aliases[id] or id
             local entry=(index[internal] or {})[1]
-            local permanent=id=="Candy Planter" or id=="Blue Clay Planter" or id=="Red Clay Planter" or id=="TackyPlanter"
+            local permanent=internal=="CandyPlanter" or internal=="Blue ClayPlanter"
+                or internal=="Red ClayPlanter" or internal=="TackyPlanter" or internal=="PesticidePlanter"
             local bought=permanent and type(purchases)=="table" and purchases[internal]
             if integer(bought) and bought>=1 then facts.ownedGear[id]=true end
             if entry then

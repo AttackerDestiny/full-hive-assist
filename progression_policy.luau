@@ -12,8 +12,12 @@ P.stages = {
     {gate=35, gear={"Porcelain Port-O-Hive", "Bubble Mask"}},
     {gate=36, gear={"Silver Soakers", "Cobalt Guard"}},
     {gate=0, gear={"Golden Gushers", "TackyPlanter", "Crimson Guard", "Diamond Drenchers", "Diamond Mask",
-        "Petal Belt", "Coconut Canister", "The Supreme Saturator"}},
+        "Petal Belt", "Pesticide Planter", "Coconut Canister", "The Supreme Saturator"}},
 }
+-- Latest human priority for existing 36+-slot accounts. The original route
+-- stays intact below that capacity; this catch-up intentionally puts Red
+-- before Blue in the order given by the newer instruction.
+P.planterCatchup={"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}
 P.bannedCraft = {Gumdrops=true, MoonCharm=true, StarJelly=true}
 P.waitOnly = {MoonCharm=true, StarJelly=true, MagicBean=true}
 P.recipeOrder = {"BlueExtract", "RedExtract", "Enzymes", "Oil", "Glue", "TropicalDrink", "Glitter",
@@ -91,6 +95,19 @@ local function parallelAction(action)
     return action
 end
 function P.nextGear(facts)
+    if integer(facts.capacity) and facts.capacity>=36 then
+        for _,gear in ipairs(P.planterCatchup) do
+            local owned=flag(facts.ownedGear,gear,facts.ownedGearKnown)
+            if owned==nil then return nil,"unknown-ownership:"..gear end
+            if not owned then
+                local stageIndex
+                for i,stage in ipairs(P.stages) do for _,name in ipairs(stage.gear) do
+                    if name==gear then stageIndex=i;break end
+                end;if stageIndex then break end end
+                return {id=gear,stage=stageIndex,gate=0,catchup=true}
+            end
+        end
+    end
     for stageIndex,stage in ipairs(P.stages) do
         for _,gear in ipairs(stage.gear) do
             local owned=flag(facts.ownedGear,gear,facts.ownedGearKnown)
@@ -365,6 +382,7 @@ local function plan(facts,catalog)
         base.action={kind="hive",reason="ordered-gear-complete"}; return base
     end
     base.gear=nextGear.id; base.stage=nextGear.stage; base.requiredHive=nextGear.gate
+    base.planterCatchup=nextGear.catchup==true
     -- The ordered list explicitly waits for these hive gates BEFORE the next
     -- gear stage. Its future gear price must not block buying the gate itself.
     if facts.occupied<nextGear.gate or facts.capacity<nextGear.gate then

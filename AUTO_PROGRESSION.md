@@ -1,4 +1,6 @@
-# Feather auto progression v1.6.3
+# Feather auto progression v1.6.4
+
+For accounts starting with36+ unlocked slots, the next target first checks missing **Candy → Red Clay → Blue Clay → Tacky Planters**, regardless of skipped earlier equipment. Each planter is checked independently against its permanent purchase record; a deployed planter with inventory0 still counts as owned. Once all four are owned, the normal route resumes. Below36 slots the original stage order is preserved.
 
 Crafting Royal Jelly is funded as a complete remaining deficit before the first purchase. At the capped price,2,500 missing jelly requires2.5B honey (plus the safety reserve), then two1,000 packs and five100 packs. Existing jelly reduces the missing amount; each verified pack updates the remaining quote. No custom purchase amount is submitted: the main and progression paths validate actual shop options immediately before the request.
 
@@ -19,9 +21,11 @@ The coordinator owns gear purchasing, material preparation and hive spending. At
 | 34 | Porcelain Dipper |
 | 35 | Porcelain Port-O-Hive → Bubble Mask |
 | 36 | Silver Soakers → Cobalt Guard |
-| Following that group | Golden Gushers → Tacky Planter → Crimson Guard → Diamond Drenchers → Diamond Mask → Petal Belt → Coconut Canister → The Supreme Saturator |
+| Following that group | Golden Gushers → Tacky Planter → Crimson Guard → Diamond Drenchers → Diamond Mask → Petal Belt → Pesticide Planter → Coconut Canister → The Supreme Saturator |
 
 Previously acquired stronger equipment satisfies earlier upgrades in the same verified slot. For example Cobalt Guard satisfies Brave Guard, while Crimson Guard satisfies Looker Guard. These are different shoulders. One-time planter ownership comes from the purchase ledger even while the planter inventory is zero.
+
+Pesticide Planter uses the game's verified `PesticidePlanter` option in Dapper's planter shop, Amount1/PurchaseLimit1. When inspected, its cost was750M honey,25Magic Beans,25Neonberries,15Glue,3Caustic Wax and10Hard Wax. The script reads current costs and recipe requirements rather than embedding this price into spending decisions.
 
 The eight requested codes are checked case-insensitively against the server's redeemed-code array before any redemption. All eight were already redeemed on both observed accounts.
 

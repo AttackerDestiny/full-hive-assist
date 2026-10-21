@@ -10,7 +10,7 @@ return function(H)
             Reason=decision.reason or decision.action.reason,ReserveHoney=decision.reserveHoney,
             ReservedItems=decision.reservedItems,MissingItems=decision.missingItems,
             CostReservations=decision.costReservations,OptionalHiveAllowed=decision.optionalHiveAllowed,
-            Status=decision.status,FundsRequired=decision.fundsRequired,
+            Status=decision.status,PlanterCatchup=decision.planterCatchup,FundsRequired=decision.fundsRequired,
             RequiredRJ=decision.requiredRJ,MissingRJ=decision.missingRJ,Honey=facts.honey}
         local craft=facts.craft
         report.Blender=craft and {Recipe=craft.item,Count=craft.count,ElapsedSeconds=craft.elapsedSeconds,

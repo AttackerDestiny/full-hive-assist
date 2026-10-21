@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- v1.6.4 priority update: Golden Gushers → Tacky Planter → Crimson Guard → Diamond Drenchers → Diamond Mask → Petal Belt → Pesticide Planter → Coconut Canister → The Supreme Saturator. Pesticide's internal shop ID is PesticidePlanter and its one-time purchase ledger proves ownership even when deployed/inventory0. At36+ unlocked hive slots, prioritize missing Candy → Red Clay → Blue Clay → Tacky Planters before ordinary route items; skip independently owned planters and return to the ordinary route after all four are owned. Accounts below36 retain the original route.
+
 - v1.6.3 human requirement: buy crafting Royal Jelly only when the entire remaining current-recipe deficit plus safety reserve is affordable. Reprice the remaining deficit after each verified pack. Never buy custom amounts; every purchase must match a real shop option. Example:2,500 missing capped-price jelly costs2.5B and uses two1,000 packs plus five100 packs;250 missing costs250M. Partial crafting jelly stays protected until the order queues.
 - Performance changes may cache physical shop discovery and valid UI references, but must read ownership, costs, balances, prerequisites, Atlas switch state and request flags fresh. Keep user-stopped scripts stopped; passive connected diagnostics do not authorize resuming an intentional stop.
 

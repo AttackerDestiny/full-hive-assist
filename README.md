@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.6.4:** Adds Pesticide Planter after Petal Belt and before Coconut Canister. Accounts with36+ unlocked hive slots first catch up on missing Candy, Red Clay, Blue Clay and Tacky Planters, using permanent purchase records to skip already-owned/deployed planters.
+
 **v1.6.3:** Waits for the full missing crafting-jelly budget before buying any pack, then uses only verified fixed shop options. Reduces repeated metadata/UI discovery, skips unchanged status/viewer updates, and keeps balances and action guards fresh. Validated by3,306 isolated checks per executor; current stopped sessions are preserved until resumed.
 
 **v1.6.2 current:** Counts an affordable gear purchase once, separates material preparation from saving the gear price, and protects jelly being accumulated for the next craft until that craft is queued. Feather displays owned/queued/required material counts. This includes v1.6.1's rotated-pad movement correction. Hive rolling continues during Blender timers; each purchase/craft still requires Atlas paused and a verified nearby destination.
