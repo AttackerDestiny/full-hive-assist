@@ -35,6 +35,27 @@ return function(P,T,runtime)
     check(P.rollTaskDone(lease,leased[1],leased,T,q) and not P.rollTaskSafe(lease,leased[1],leased,T,q),"First gifted type completes active task safely")
     local after=P.plan(cells,T,{slots=46,starUsed=2,preserveUniqueGifted=true})
     check(not after.keep["1,1"],"Post-Star-Egg stage can follow its existing recipe")
+    local starter=P.plan({},T,{slots=25,starUsed=0,enforceGrowth=true,eggs={Basic=2}})
+    check(starter.growth.Action=="hatch-owned-basic","Planner and runtime share owned-egg growth advisory")
+    -- First-copy retention must never replace legitimate duplicate quantities.
+    for _,name in ipairs({"Baby","Music","Bubble","Frosty","Fire"}) do
+        for _,reason in ipairs({"collector-fallback","convert-flexible","fixed-targets"}) do
+            local group={cell("Hasty",false,1),cell(name,true,2),cell("Honey",false,3)}
+            local task=P.startRollTask(group[1],group,{stage="mid",reason=reason,mode="off",needs={}})
+            task.Rolled=true;group[1].bee={Type=name,Traits={"Gifted"}}
+            local plan=P.plan(group,T,{slots=41,starUsed=0,preserveUniqueGifted=true})
+            check(P.rollTaskDone(task,group[1],group,T,plan),"Diversity preserves valid second gifted "..name.." / "..reason)
+            check(not P.rollTaskSafe(task,group[1],group,T,plan),"Accepted gifted group result cannot be rerolled")
+        end
+    end
+    for _,name in ipairs({"Baby","Music"}) do
+        local group={cell("Hasty",false,1)}
+        for i=2,5 do group[i]=cell(name,true,i) end
+        local task=P.startRollTask(group[1],group,{stage="mid",reason="collector-fallback",mode="off",needs={}})
+        task.Rolled=true;group[1].bee={Type=name,Traits={"Gifted"}}
+        local plan=P.plan(group,T,{slots=41,starUsed=0,preserveUniqueGifted=true})
+        check(not P.rollTaskDone(task,group[1],group,T,plan) and P.rollTaskSafe(task,group[1],group,T,plan),"Diversity still rejects fifth gifted "..name)
+    end
     local lock={x=1,y=1,BasicBatchPurchased=6}
     for _,name in ipairs({"Cool","Commander","Baby","Music","Basic","Tabby","Fuzzy"}) do
         local c=cell(name,true,1)

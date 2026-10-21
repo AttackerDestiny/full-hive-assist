@@ -456,6 +456,24 @@
     "pendingRequests": false
   },
   "offlineCandidate": {
+    "version": "1.4.1",
+    "createdUtc": "2026-10-21T03:08:27.1235701Z",
+    "validation": "isolated-local-fixtures-only",
+    "liveTested": false,
+    "deployed": false,
+    "phoneFilesModified": false,
+    "existingLiveScriptsModified": false,
+    "checks": 2923,
+    "staticMarkers": 36,
+    "bytes": 147422,
+    "sha256": "fd75b1d4d5647c29f814069d01845509afd54293595ac8feff63cb9c5682cadd",
+    "luauCliVersion": "0.743",
+    "researchAgents": 3,
+    "scope": "auto-hive-only",
+    "acquisition": "advisory; empty hatching and capacity purchases still use Atlas/manual actions",
+    "change": "Preserve legitimate gifted duplicate quotas; unify growth advisory inventory"
+  },
+  "previousOfflineCandidate": {
     "version": "1.4.0",
     "createdUtc": "2026-10-21T02:57:50Z",
     "validation": "isolated-local-fixtures-only",

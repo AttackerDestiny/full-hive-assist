@@ -45,6 +45,10 @@ The update reports that conflict and refuses to label an over-capacity fixture c
 
 ## Offline validation and remaining work
 
+The three-agent follow-up found and corrected a v1.4.0 interaction: the generic duplicate-gifted check could reject allowed additional Baby/Music/Bubble/Frosty or reserved Fire results. v1.4.1 applies the existing species limits and accepted group results before the diversity rule. It still rejects surplus single-copy types and fifth gifted Baby/Music copies. Planner growth now receives egg inventory directly, so its advisory agrees with the runtime report. The updated suite passes 2,923 isolated checks, including 33 new quota/advisory cases. This version has not been run on a client.
+
+Receipt coverage is specific: `FullHiveUncertain` currently wraps the main runtime's `invoke`/`spend`/`buy` path. The direct Vicious toy claim and embedded Star Egg workflow still use their earlier timeout/pending mechanisms; they have not been migrated to the new receipt lifecycle. Do not interpret the new receipt field as complete coverage of those separate paths. A future offline update needs targeted success/failure/timeout fixtures before changing them.
+
 The official [Luau CLI release](https://github.com/luau-lang/luau/releases/tag/0.743) ran all five existing isolated suites plus the new progression/safety suite against a fixed rarity fixture and minimal local value shims. These tests have no game, network, or connected-client API. The generated main bundle and embedded Star Egg code compile; the existing 36-marker compatibility check passes. Offline success does not establish executor compatibility or natural live results.
 
 Deferred work is explicit: verified empty-cell hatching and slot acquisition, safe online reconciliation of mutation receipts, configuration-aware final composition resolution, and readiness signals supplied by a future inspected interface. No real test or deployment is authorized by this document.

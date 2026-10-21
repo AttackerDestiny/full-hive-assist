@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.4.0"
+local SCRIPT_VERSION = "1.4.1"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -463,7 +463,7 @@ local function context(s,slots)
         collectorFallback=false
     end
     return {slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,lateStarted=lateStarted,nextFlexible=nextFlexible,
-        collectorFallback=collectorFallback,preserveUniqueGifted=Config.PreserveUniqueGifted,enforceGrowth=true,
+        collectorFallback=collectorFallback,preserveUniqueGifted=Config.PreserveUniqueGifted,enforceGrowth=true,eggs=s.Eggs,
         canRefill30k=Config.AutoPurchase and usable>=Policy.jellyCost(bought.RoyalJelly or 0,30000)}
 end
 local function plan(s)
@@ -885,7 +885,7 @@ local function run()
         if not hive() then waitFor("Waiting for Atlas to claim a hive"); s=refresh(); continue end
         local p,cells,slots=plan(s)
         Report.Stage,Report.Slots,Report.Bees,Report.Needs=p.stage,slots,#cells,p.needs
-        Report.Growth=Policy.growth(cells,slots,s.Eggs)
+        Report.Growth=p.growth
         Report.CapacityStatus=p.capacityStatus
         Report.RoyalJelly,Report.Honey=s.Eggs.RoyalJelly or 0,s.Honey
         Report.Counts={Baby=Policy.count(cells,"Baby"),Music=Policy.count(cells,"Music"),Shy=Policy.count(cells,"Shy"),

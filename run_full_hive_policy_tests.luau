@@ -122,11 +122,6 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     if not task.Rolled then return false end
     local name = cell.bee.Type
     local gifted = P.gifted(cell)
-    if gifted and plan.preserveUniqueGifted then
-        local first=(task.InitialGifted[name] or 0)==0
-        if P.count(cells,name,true)>1 then return false end
-        if first then return true,"gifted-diversity-result" end
-    end
     -- A newly needed gifted failsafe may replace a normal copy; surplus
     -- normals are then cleaned up. Never finish a roll on another excess copy.
     local slotCap=P.slotCaps[name]
@@ -153,6 +148,20 @@ function P.rollTaskDone(task, cell, cells, types, plan)
         end
     end
     if gifted then
+        -- Diversity adds first-copy keeps without replacing existing gifted
+        -- quotas or flexible collector outcomes above.
+        if plan.preserveUniqueGifted then
+            if (task.InitialGifted[name] or 0)==0 then return true,"gifted-diversity-result" end
+            local retained=0
+            for _,c in ipairs(cells) do
+                if c.bee and c.bee.Type==name and P.gifted(c) and plan.keep[P.key(c)] then retained+=1 end
+            end
+            -- A reserved multi-bee group (for example Fire placeholders) may
+            -- accept another gifted copy; one-copy diversity alone cannot.
+            if retained>1 and P.count(cells,name,true)<=retained and plan.keep[P.key(cell)] then
+                return true,"gifted-group-result"
+            end
+        end
         if not task.Goals or #task.Goals==0 then
             if name=="Bubble" or name=="Frosty" then return true, "gifted-collector-result" end
         end
@@ -479,7 +488,7 @@ function P.plan(cells, types, ctx)
     local waitingLate = stage == "late" and not ctx.lateStarted
     -- At 44+, the 10k entry condition gates legendary work, not early repairs.
     if waitingLate and #needs == 0 and reason ~= "convert-flexible" and reason ~= "slot-cap" and not collectorFallback then target = nil end
-    local growth=P.growth(cells,ctx.slots)
+    local growth=P.growth(cells,ctx.slots,ctx.eggs)
     if ctx.enforceGrowth and not growth.CanReroll then target=nil; reason="hive-growth" end
     local capacityStatus=P.capacityStatus(cells,keep,needs,ctx.slots)
     return {stage=stage, keep=keep, protected=protected, temporary=temporary, needs=needs, candidates=candidates,

@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.4.1 — offline correction, not deployed.** Gifted diversity now defers to existing multi-copy quotas and flexible collector keeps, including reserved Fire placeholders. Planner and runtime also share the same owned-egg growth advisory. The local suite passes **2,923 isolated checks**; running scripts and phone files remain untouched.
+
 **v1.4.0 — offline research build, not deployed.** Adds separate occupied/capacity growth reporting for 0–24 bees, first-gifted retention during pre-Star-Egg progression, final-composition capacity diagnostics, Basic-slot keep revalidation, fresh finite-budget checks, and persistent uncertain-mutation receipts. Existing live scripts were left untouched. See [research, sources, and limitations](HIVE_PROGRESSION_RESEARCH.md).
 
 Zero-to-fifty acquisition is not yet autonomous: Atlas/manual actions still hatch empty cells and buy hive slots. The assist now reports the next growth step and waits before rerolling a partially filled starter hive. `FullHiveReport.Growth` and `CapacityStatus` expose these decisions. `FullHiveConfig.PreserveUniqueGifted` defaults to `true` for pre-Star-Egg stages from 35 slots; set it before execution to choose a different retention policy.
