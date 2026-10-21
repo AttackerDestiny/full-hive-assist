@@ -1,5 +1,9 @@
 # Full Hive Assist
 
+**v1.6.2 current:** Counts an affordable gear purchase once, separates material preparation from saving the gear price, and protects jelly being accumulated for the next craft until that craft is queued. Feather displays owned/queued/required material counts. This includes v1.6.1's rotated-pad movement correction. Hive rolling continues during Blender timers; each purchase/craft still requires Atlas paused and a verified nearby destination.
+
+**v1.6.1:** Gear purchase admission counts the gear price once and preserves only the configured safety reserve during that purchase. Material preparation funds the next recipe before unrelated ticket goals, tracks queued output separately, and shows actual material counts. Movement approaches the world top surface of rotated hive/Blender pads. See [AUTO_PROGRESSION.md](AUTO_PROGRESSION.md) for coordination rules and validation limits.
+
 **v1.6.0 auto progression:** The tested bundle coordinates Atlas farming with ordered gear, exact material crafting, verified hive growth, and the existing auto-hive goals. Purchased gear is recognized from the server purchase ledger and skipped. Feather shows the gear target, current action, Blender recipe/count, remaining wait, and a Blender ticket-speedup toggle that is **off by default**. Blender output is collected only after the live recipe timer and fresh output/state checks pass. v1.6.0 passed 3,233 isolated checks per connected executor and is running on RileyCosmicguppydude and Luneri427. See [AUTO_PROGRESSION.md](AUTO_PROGRESSION.md).
 
 

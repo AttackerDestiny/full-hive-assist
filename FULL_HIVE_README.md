@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.6.2 current:** Fixes Riley's doubled gear-price admission, Luneri's next-recipe funding order and rotated-pad movement. Material status distinguishes owned output from queued Blender output; partial jelly for the next recipe is protected until that order starts. Natural connected verification confirms Riley owns/equips Diamond Drenchers and Luneri is crafting231 Blue Extract from19 owned. Both run v1.6.2 after3,287 isolated checks per executor.
+
 **v1.6.0:** Auto progression buys the ordered gear route, reserves gear resources before optional hive spending, crafts exact missing materials, and exposes gear/Blender status in Feather. Blender ticket speedup is an explicit toggle and starts off. Collection requires the verified recipe timer and output receipt. The bundle passed 3,233 isolated checks per connected executor and was started once on each account.
 
 

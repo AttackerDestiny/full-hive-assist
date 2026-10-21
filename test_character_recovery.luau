@@ -71,7 +71,7 @@ return function(runtime)
         "local Config={Speed=65}; local cleanupMove; local function acquire() end; local function checkStop() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance() return 20 end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","success"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","success","rotated-pad"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -92,6 +92,9 @@ return function(runtime)
         local services={
             RunService={Stepped=signal("stepped")},
             TweenService={Create=function(_,_,_,goal)
+                if failure=="rotated-pad" then
+                    check(math.abs(goal.Position.Y-3.16)<0.0001,"Rotated pad approaches world surface rather than local tall axis")
+                end
                 if failure=="setup-error" then error("Fake tween setup failed",0) end
                 return {Cancel=function() cancelled=true end,Play=function()
                     check(not obstacle.CanCollide and not noncollidable.CanCollide,
@@ -107,7 +110,7 @@ return function(runtime)
                     if failure=="replacement" then player.Character=character(100,true)
                     elseif failure=="detached" then r.Parent=nil
                     elseif failure=="play-error" then error("Fake tween play failed",0)
-                    elseif failure=="success" then r.Position=goal.Position
+                    elseif failure=="success" or failure=="rotated-pad" then r.Position=goal.Position
                     else c.FindFirstChildOfClass=function() return {Health=0} end end
                 end}
             end},
@@ -118,9 +121,12 @@ return function(runtime)
         local fakeInstance={new=function() return {Destroy=function() destroyed+=1 end} end}
         local move,token,pendingCleanup=movementFactory(player,fakeGame,fakeWorkspace,fakeInstance,
             function(container) return container==fences and {} or {obstacle,noncollidable} end,{})
-        local part={Name="Test",Position=Vector3.new(20,0,0),Size=Vector3.new(4,1,4),IsA=function() return true end}
+        local rotated=failure=="rotated-pad"
+        local part={Name="Test",Position=Vector3.new(20,0,0),Size=rotated and Vector3.new(0.32,22,22) or Vector3.new(4,1,4),
+            CFrame={RightVector=Vector3.new(0,rotated and -1 or 0,0),UpVector=Vector3.new(0,rotated and 0 or 1,0),LookVector=Vector3.new(0,0,-1)},
+            GetFullName=function() return "Verified.Test.Pad" end,IsA=function() return true end}
         local ok,err=pcall(move,part)
-        if failure=="success" then check(ok,"Successful movement completes")
+        if failure=="success" or failure=="rotated-pad" then check(ok,"Successful movement completes")
         elseif failure=="play-error" or failure=="setup-error" then
             check(not ok and err=="Fake tween "..(failure=="play-error" and "play" or "setup").." failed",
                 "Movement preserves tween failure on "..failure)

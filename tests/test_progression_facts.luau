@@ -43,7 +43,7 @@ return function(factory,Policy)
             shop("JellyDispenser",{item("RoyalJelly","Eggs",1),item("RoyalJelly","Eggs",10)}),
             shop("GumdropDispenser",{item("Gumdrops","Eggs",3),item("Gumdrops","Eggs",30),item("Gumdrops","Eggs",300)}),
             shop("TicketShop",{item("Diamond","Eggs")})})
-        local defs={Oil={Time=300,Ingredients={{Category="Eggs",Type="SunflowerSeed",Amount=50},{Category="Eggs",Type="RoyalJelly",Amount=10}},Requirements={}}}
+        local defs={Oil={Time=300,AutoCompletePerTicket=1,Ingredients={{Category="Eggs",Type="SunflowerSeed",Amount=50},{Category="Eggs",Type="RoyalJelly",Amount=10}},Requirements={}}}
         local cells=node("Cells","Folder",{})
         local deps={Policy=Policy,Packages=packages,Recipes={Get=function(id) return defs[id] end},
             Reqs={Check=function() return true end},Accessories={Get=function(id)
@@ -125,9 +125,21 @@ return function(factory,Policy)
         check(not f.craft.ready,"Unfinished craft waits rather than claiming early")
         s.BlenderState.StartTime=0;s.PlaytimeAtLoad=nil
         check(factory(deps)(s).craft and factory(deps)(s).craft.unknown,"Unknown craft clock fails closed")
+        s.BlenderState={Recipe="Oil",Count="unknown"}
+        check(factory(deps)(s).craft.unknown,"Malformed nonempty Blender state never becomes idle or absent")
         deps.Reqs.Check=function() return false end
         local _,c=factory(deps)(s)
         check(c.recipes.Oil==false,"Unmet recipe badge requirements disable crafting")
+    end
+    do
+        local deps,s,_,defs=fixture();s.BlenderState={Recipe="Oil",Count=15,StartTime=0}
+        defs.Oil.AutoCompletePerTicket=10;s.PlaytimeAtLoad=1400
+        local f=factory(deps)(s)
+        check(f.craft.completedUnits==5 and f.craft.autoCompletePerTicket==10,"Speedup uses verified recipe units per ticket")
+        check(f.craft.remainingUnits==15,"Partial ten-unit ticket block does not underquote two remaining tickets")
+        s.PlaytimeAtLoad=2900
+        f=factory(deps)(s)
+        check(f.craft.completedUnits==10 and f.craft.remainingUnits==5,"Fully elapsed ticket block reduces remaining speedup charge")
     end
     do
         local deps,s=fixture();deps.Uncertain=function() return {Item="RoyalJelly"} end

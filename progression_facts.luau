@@ -275,6 +275,7 @@ return function(deps)
         local blender=s.BlenderState
         if blender==nil or blender==false then facts.craft=false
         elseif type(blender)=="table" then
+            facts.craft={unknown=true}
             local craftUnknown=true
             if type(blender.Recipe)=="string" and integer(blender.Count) and blender.Count>0
             and finite(blender.StartTime) then
@@ -287,9 +288,16 @@ return function(deps)
             end
             if ok and type(recipe)=="table" and finite(recipe.Time) and recipe.Time>0 and elapsed then
                 local total=blender.Count*recipe.Time
+                local completed=math.floor(math.clamp(elapsed/total,0,1)*blender.Count)
+                local perTicket=recipe.AutoCompletePerTicket
+                local remainingUnits
+                if integer(perTicket) and perTicket>0 then
+                    remainingUnits=math.max(0,blender.Count-math.floor(completed/perTicket)*perTicket)
+                end
                 facts.craft={item=blender.Recipe,count=blender.Count,ready=elapsed>=total,
                     elapsedSeconds=math.max(0,elapsed),totalSeconds=total,
-                    remainingSeconds=math.max(0,total-elapsed),remainingUnits=math.max(0,blender.Count-math.floor(elapsed/recipe.Time)),
+                    remainingSeconds=math.max(0,total-elapsed),completedUnits=completed,
+                    remainingUnits=remainingUnits,autoCompletePerTicket=perTicket,
                     tickets=type(s.Eggs)=="table" and s.Eggs.Ticket or nil,
                     speedupEnabled=(type(deps.UseBlenderTickets)=="function" and deps.UseBlenderTickets() or deps.UseBlenderTickets)==true,
                     output=blender.Recipe}
@@ -297,6 +305,7 @@ return function(deps)
             end
             if craftUnknown then facts.craft={unknown=true} end
             end
+        else facts.craft={unknown=true}
         end
         local ok,h=pcall(deps.Hive or function() return nil end)
         if ok and h then

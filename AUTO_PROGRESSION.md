@@ -1,4 +1,8 @@
-# Feather auto progression v1.6.0
+# Feather auto progression v1.6.2
+
+While the next recipe is waiting only for its Royal Jelly, the script protects its partial jelly and saves for that recipe first. The status calls this **Saving honey for crafting jelly**, not saving the gear price. Once the order is queued, normal hive rolling resumes during its timer. Unrelated resource waits remain parallel.
+
+v1.6.1 fixes the final gear-purchase funds guard requiring twice the price, prioritizes the next recipe over unrelated future ticket needs, and separates owned/queued/missing materials in Feather. Rotated pads use their world height for AlignPosition movement. A changed balance defers an unissued purchase and releases Atlas.
 
 The coordinator owns gear purchasing, material preparation and hive spending. Atlas supplies farming. The user's October 21 expansion and standing instruction authorize tested updates on both accounts; older account-specific version pins are historical.
 

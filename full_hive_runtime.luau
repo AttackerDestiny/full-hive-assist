@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.6.0"
+local SCRIPT_VERSION = "1.6.2"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -353,11 +353,18 @@ local function move(part)
     Report.Activity="Moving to "..part.Name
     if distance(part)<=5 then return end
     local r=root()
-    local target=part.Position+Vector3.new(0,part.Size.Y/2+3,0)
+    -- Hive and Blender pads are rotated: local Size.Y is not their world height.
+    local cf,size=part.CFrame,part.Size
+    local height=math.abs(cf.RightVector.Y)*size.X/2+math.abs(cf.UpVector.Y)*size.Y/2
+        +math.abs(cf.LookVector.Y)*size.Z/2
+    local target=part.Position+Vector3.new(0,height+3,0)
+    Report.Movement={Destination=part:GetFullName(),Target=tostring(target),StartedAt=os.time(),
+        Distance=(target-r.Position).Magnitude,Arrived=false}
     local attachment=Instance.new("Attachment"); attachment.Name="FullHiveAttachment"; attachment.Parent=r
     local align=Instance.new("AlignPosition")
     align.Name="FullHiveAlign"; align.Mode=Enum.PositionAlignmentMode.OneAttachment
     align.Attachment0=attachment; align.MaxForce=1000000; align.MaxVelocity=Config.Speed
+    align.ApplyAtCenterOfMass=true
     align.Responsiveness=45; align.Position=r.Position; align.Parent=r
     local collision={}
     local movingCharacter=r.Parent
@@ -390,6 +397,8 @@ local function move(part)
         connections[#connections+1]=game:GetService("RunService").Stepped:Connect(function()
             if not r.Parent then return end
             for p in pairs(collision) do if p.Parent then p.CanCollide=false end end
+            local humanoid=movingCharacter:FindFirstChildOfClass("Humanoid")
+            if humanoid and type(humanoid.Move)=="function" then humanoid:Move(Vector3.zero,false) end
         end)
         tween=game:GetService("TweenService"):Create(align,TweenInfo.new(math.max(0.2,(target-r.Position).Magnitude/Config.Speed),Enum.EasingStyle.Linear),{Position=target})
         local deadline=os.clock()+(target-r.Position).Magnitude/Config.Speed+15
@@ -397,6 +406,7 @@ local function move(part)
         while (r.Position-target).Magnitude>4 do
             checkStop()
             if characterRoot()~=r then error(CHARACTER_UNAVAILABLE,0) end
+            Report.Movement.Distance=(target-r.Position).Magnitude
             assert(os.clock()<deadline,"Movement timed out")
             assertAtlasPaused()
             task.wait(0.1)
@@ -405,6 +415,8 @@ local function move(part)
     cleanup(); cleanupMove=nil
     if not ok then error(err,0) end
     near(part)
+    Report.Movement.Arrived=true
+    Report.Movement.Distance=(target-r.Position).Magnitude
 end
 local function setSettings(desired)
     acquire(); move(hiveFloor()); near(hiveFloor())
@@ -638,9 +650,10 @@ local function initializeProgression()
         return facts,catalog
     end
     progression=createProgression({
-        Policy=ProgressionPolicy,env=env,Report=Report,Config=Config,Events=Events,
+        Policy=ProgressionPolicy,Funds=ProgressionFunds,env=env,Report=Report,Config=Config,Events=Events,
         Packages=Packages,Recipes=Recipes,Reqs=Reqs,buildFacts=buildFacts,nectarSeconds=nectarSeconds,OsTime=OsTime,
         checkStop=checkStop,refresh=refresh,invoke=invoke,move=move,near=near,release=release,
+        assertAtlasPaused=assertAtlasPaused,
         scan=scan,hiveFloor=hiveFloor,toyPart=progressionToyPart,jellyBatchSpent=jellyBatchSpent,
         Types=Types,
     })
@@ -1126,14 +1139,14 @@ local function makeUI()
     old=parent:FindFirstChild("FullHiveStatus"); if old then old:Destroy() end
     local gui=Instance.new("ScreenGui"); gui.Name="FullHiveStatus"; gui.ResetOnSpawn=false; gui.DisplayOrder=10000; gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; gui.Parent=parent
     local make=FeatherTheme.make
-    local frame=make("Frame","StatusPanel",gui,{Size=UDim2.fromOffset(350,300),Position=UDim2.fromOffset(18,80)})
+    local frame=make("Frame","StatusPanel",gui,{Size=UDim2.fromOffset(350,350),Position=UDim2.fromOffset(18,80)})
     FeatherTheme.panel(frame)
     local statusScale=make("UIScale","ResponsiveScale",frame,{Scale=1})
     local function fitStatus()
         local camera=workspace.CurrentCamera
         if camera then
             local size=camera.ViewportSize
-            statusScale.Scale=math.max(0.2,math.min(1,(size.X-36)/350,(size.Y-124)/300))
+            statusScale.Scale=math.max(0.2,math.min(1,(size.X-36)/350,(size.Y-124)/350))
         end
     end
     fitStatus()
@@ -1166,7 +1179,7 @@ local function makeUI()
     local function metric(name,order)
         local item=make("TextLabel",name,metrics,{Size=UDim2.new(1/3,-16/3,1,0),LayoutOrder=order,
             BackgroundColor3=Color3.fromRGB(33,47,76),BorderSizePixel=0,Font=Enum.Font.GothamMedium,TextSize=12,
-            TextColor3=Color3.fromRGB(201,223,251),Text="â€”"})
+            TextColor3=Color3.fromRGB(201,223,251),Text="-"})
         make("UICorner","Corner",item,{CornerRadius=UDim.new(0,8)})
         return item
     end
@@ -1174,11 +1187,11 @@ local function makeUI()
     local progressText=make("TextLabel","Progress",frame,{Position=UDim2.fromOffset(18,190),Size=UDim2.new(1,-36,0,20),
         BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=11,TextColor3=Color3.fromRGB(160,183,217),
         TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd})
-    local progressionText=make("TextLabel","Progression",frame,{Position=UDim2.fromOffset(18,214),Size=UDim2.new(1,-36,0,20),
-        BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=10,TextColor3=Color3.fromRGB(146,179,221),
-        TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd})
+    local progressionText=make("TextLabel","Progression",frame,{Position=UDim2.fromOffset(18,214),Size=UDim2.new(1,-36,0,58),
+        BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=11,TextColor3=Color3.fromRGB(146,179,221),
+        TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top,TextWrapped=true})
     local blenderTicketButton=Instance.new("TextButton"); blenderTicketButton.Name="BlenderTicketToggle"
-    blenderTicketButton.Size=UDim2.fromOffset(150,18); blenderTicketButton.Position=UDim2.fromOffset(18,234)
+    blenderTicketButton.Size=UDim2.fromOffset(150,18); blenderTicketButton.Position=UDim2.fromOffset(18,278)
     blenderTicketButton.Text="Blender tickets: OFF"; blenderTicketButton.Parent=frame; FeatherTheme.button(blenderTicketButton,false)
     blenderTicketButton.Activated:Connect(function()
         Config.UseBlenderTickets=not Config.UseBlenderTickets
@@ -1201,32 +1214,42 @@ local function makeUI()
     task.spawn(function()
         repeat
             local c=Report.Counts or {}
-            local progress=Report.Stage=="early" and string.format("Baby %d/4 â€¢ Music %d/4 â€¢ Shy %d/3",c.Baby or 0,c.Music or 0,c.Shy or 0)
-                or string.format("Actions %d â€¢ Jelly used %d",Report.Actions,Report.RoyalJellyUsed)
+            local progress=Report.Stage=="early" and string.format("Baby %d/4 | Music %d/4 | Shy %d/3",c.Baby or 0,c.Music or 0,c.Shy or 0)
+                or string.format("Actions %d | Jelly used %d",Report.Actions,Report.RoyalJellyUsed)
             local active=Report.ActiveTarget
             if active then
-                progress=string.format("Slot (%d,%d) â€¢ %s",active.X,active.Y,
+                progress=string.format("Slot (%d,%d) | %s",active.X,active.Y,
                     Report.CollectorFallback and (active.Reason=="gifted-collector-fallback" and "100-jelly gifted recovery" or "100-jelly collector recovery") or active.Reason)
             end
-            phase.Text=string.upper((Report.Stage or "inspect").."  â€¢  "..(Report.Phase or "starting"))
+            phase.Text=string.upper((Report.Stage or "inspect").."  |  "..(Report.Phase or "starting"))
             phase.TextColor3=Report.Error and Color3.fromRGB(255,176,192) or Color3.fromRGB(164,214,255)
             text.Text=Report.Error or Report.CleanupError or Report.Activity or Report.Phase
             progressText.Text=progress
             local pg=Report.Progression or {}
-            local target=pg.Gear and ("Gear: "..pg.Gear) or "Gear: complete"
-            local action=pg.Action and (" • "..pg.Action) or ""
-            local blender=Report.Blender
-            if blender then
-                local state=blender.Complete and "ready to collect" or (tostring(math.ceil(blender.RemainingSeconds or 0)).."s left")
-                local tickets=(blender.SpeedupEnabled and (" • tickets "..tostring(blender.SpeedupTickets or 0).." (enabled)") or " • ticket speedup off")
-                progressionText.Text=target.." • Blender "..tostring(blender.Recipe).." x"..tostring(blender.Count).." ("..state..")"..tickets
-            else
-                progressionText.Text=target..action
+            local status=pg.Status or {}
+            local title=pg.Gear and ("Target: "..pg.Gear) or "Gear route complete"
+            local lines={title}
+            lines[#lines+1]=status.label or pg.Reason or pg.Action or "Inspecting gear"
+            local counts={}
+            local names={BlueExtract="Blue Extract",RedExtract="Red Extract",ComfortingVial="Comforting Vial"}
+            for _,row in ipairs(status.materials or {}) do
+                if (row.actual or 0)<row.required then
+                    local count=(names[row.item] or row.item).." "..tostring(row.actual or 0).."/"..row.required
+                    if (row.queued or 0)>0 then count=count.." (+"..row.queued.." crafting)" end
+                    counts[#counts+1]=count
+                end
             end
+            if #counts>0 then lines[#lines+1]=table.concat(counts,", ") end
+            local blender=Report.Blender
+            if blender and blender.Recipe then
+                lines[#lines+1]="Blender: "..blender.Recipe.." x"..tostring(blender.Count).." | "
+                    ..(blender.Complete and "ready to collect" or math.ceil(blender.RemainingSeconds or 0).."s left")
+            end
+            progressionText.Text=table.concat(lines,"\n")
             blenderTicketButton.Text="Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF")
             slotsMetric.Text=tostring(Report.Slots or "?").." slots"
             jellyMetric.Text=tostring(Report.RoyalJelly or 0).." jelly"
-            refillMetric.Text=tostring(Report.RefillAmount or "â€”").." / refill"
+            refillMetric.Text=tostring(Report.RefillAmount or "-").." / refill"
             task.wait(0.4)
         until not gui.Parent or not env.FullHiveRunning
         if gui.Parent then phase.Text=string.upper(Report.Phase or "finished"); text.Text=Report.Error or "Assist finished"; button.Text="Finished" end

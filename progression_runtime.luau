@@ -9,12 +9,14 @@ return function(H)
         report.Progression={Gear=decision.gear,Stage=decision.stage,Action=decision.action.kind,
             Reason=decision.reason or decision.action.reason,ReserveHoney=decision.reserveHoney,
             ReservedItems=decision.reservedItems,MissingItems=decision.missingItems,
-            CostReservations=decision.costReservations,OptionalHiveAllowed=decision.optionalHiveAllowed}
+            CostReservations=decision.costReservations,OptionalHiveAllowed=decision.optionalHiveAllowed,
+            Status=decision.status}
         local craft=facts.craft
         report.Blender=craft and {Recipe=craft.item,Count=craft.count,ElapsedSeconds=craft.elapsedSeconds,
             TotalSeconds=craft.totalSeconds,RemainingSeconds=craft.remainingSeconds,Complete=craft.ready,
             Output=craft.output,Tickets=craft.tickets,SpeedupEnabled=craft.speedupEnabled,
-            SpeedupTickets=craft.speedupEnabled and math.ceil((craft.remainingUnits or 0)/1) or 0} or nil
+            SpeedupTickets=craft.remainingUnits and craft.autoCompletePerTicket
+                and math.ceil(craft.remainingUnits/craft.autoCompletePerTicket) or 0} or nil
         return decision,facts,catalog
     end
     function R.allowsHive(s)
@@ -23,7 +25,7 @@ return function(H)
         return d.optionalHiveAllowed==true
     end
     local function same(a,b)
-        for _,k in ipairs({"kind","gear","item","amount","code","x","y","sourceId","packId"}) do
+        for _,k in ipairs({"kind","gear","item","amount","code","x","y","sourceId","packId","tickets"}) do
             if a[k]~=b[k] then return false end
         end
         return true
@@ -38,7 +40,7 @@ return function(H)
         if a.kind=="purchase-material" then return c.purchases[a.item].part end
         if a.kind=="buy-hive-slot" then return c.hiveSlot.part end
         if a.kind=="buy-basic-egg" then return c.basicEgg.part end
-        if a.kind=="craft" or a.kind=="collect-craft" then return H.toyPart("Blender") end
+        if a.kind=="craft" or a.kind=="collect-craft" or a.kind=="speedup-blender" then return H.toyPart("Blender") end
         if a.kind=="acquire-material" then return (c.sources[a.item] or {}).part end
         return H.hiveFloor()
     end
@@ -71,16 +73,7 @@ return function(H)
         until os.clock()>=deadline
         error("Progression outcome uncertain; receipt retained; no retry",0)
     end
-    local function costsFit(s,cost,reserve)
-        if type(cost)~="table" then return false end
-        local list=cost[1] and cost or {cost}
-        for _,v in ipairs(list) do
-            local have=v.Category=="Honey" and ((s.Honey or 0)-(reserve or 0)) or (s.Eggs[v.Type] or 0)
-            if type(v.Amount)~="number" or v.Amount<0 or have<v.Amount then return false end
-        end
-        return true
-    end
-    local function purchase(a,c,s)
+    local function purchase(a,c,s,decision)
         local entry
         if a.kind=="buy-gear" then entry=c.gear[a.gear]
         elseif a.kind=="buy-hive-slot" then entry=c.hiveSlot
@@ -93,8 +86,8 @@ return function(H)
             "Package can no longer be purchased")
         local reqs=H.Packages.PurchaseRequirements(package,s)
         assert(not reqs or H.Reqs.Check(s,reqs),"Purchase requirements changed")
-        local reserve=(report.Progression and report.Progression.ReserveHoney) or H.Config.HoneyReserve
-        assert(costsFit(s,H.Packages.GetCost(package,s),reserve),"Fresh progression funds changed")
+        local funded,why=H.Funds.check(a,decision,H.Packages.GetCost(package,s),s,H.Config.HoneyReserve)
+        if not funded then return false,why end
         local beforeAmount=package.Category=="Eggs" and (s.Eggs[package.Type] or 0) or nil
         local beforeSlots=s.UnlockedCells
         local beforePurchased=((s.Totals or {}).Purchases or {}).HiveSlots or 0
@@ -207,11 +200,12 @@ return function(H)
         H.move(part);H.near(part)
         s=H.refresh()
         local fresh,f,c=replan(s)
-        if not same(action,fresh.action) then return true,"Progression decision changed during travel" end
+        if not same(action,fresh.action) then H.release();return true,"Progression decision changed during travel" end
         local freshPart=destination(fresh.action,c)
-        if freshPart~=part then return true,"Progression destination changed during travel" end
+        if freshPart~=part then H.release();return true,"Progression destination changed during travel" end
         assert(report.Actions<H.Config.MaxActions,"Action limit reached")
         H.near(freshPart)
+        H.assertAtlasPaused()
         report.Phase="progression";report.Activity=action.kind..": "..tostring(fresh.gear or action.item or action.code or "hive growth")
         if action.kind=="redeem-code" then
             if codeHas(s,action.code) then return true end
@@ -233,7 +227,10 @@ return function(H)
                 return (after.Eggs[action.item] or 0)==beforeVial+1
                     and left and duration-left>=43199
             end,{Name="NectarCondenser",Kind="acquire-material",Item=action.item,Amount=1,Started=os.clock()})
-        else purchase(action,c,s) end
+        else
+            local purchased,why=purchase(action,c,s,fresh)
+            if purchased==false then H.release();return true,why end
+        end
         H.release()
         return true
     end

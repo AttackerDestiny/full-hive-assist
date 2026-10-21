@@ -675,21 +675,20 @@
   },
   "testingAutomation": {
     "id": "full-hive-assist-monitor",
-    "status": "ACTIVE",
+    "status": "PAUSED",
     "cadenceMinutes": 30,
     "accounts": [
       "RileyCosmicguppydude",
       "Luneri427"
     ],
     "healthyInstanceRestartPolicy": "leave running",
-    "laterVersionLiveDeploymentAuthorized": false,
+    "laterVersionLiveDeploymentAuthorized": true,
     "authorizedVersionByAccount": {
-      "RileyCosmicguppydude": "1.5.0",
-      "Luneri427": "1.5.1"
+      "RileyCosmicguppydude": "latest tested update",
+      "Luneri427": "latest tested update"
     },
-    "candidateVersionsNotLiveDeployed": [
-      "1.5.2+"
-    ]
+    "candidateVersionsNotLiveDeployed": [],
+    "authorization": "Human: always upgrade when a new version or update/change happens; preserve healthy unchanged instances"
   },
   "latestNaturalV150Result": {
     "verifiedUtc": "2026-10-21T06:03:40.652899+00:00",
@@ -811,6 +810,16 @@
       "bundle": "releases/v1.5.0/auto_full_hive_assist.luau",
       "sha256": "69f80c4336a6397772ac6caa0dfe313d5f478ee6f7a8685fa14fd80e419b98dc",
       "purpose": "Preserve exact Riley-authorized bundle after Luneri correction"
+    },
+    "1.6.0": {
+      "bundle": "releases/v1.6.0/auto_full_hive_assist.luau",
+      "sha256": "f73e183aeb814aa3089117da0bd1167aa7153868c82913d813192038c6a23580",
+      "purpose": "Preserve prior v1.6.0 exact published bundle"
+    },
+    "1.6.1": {
+      "bundle": "releases/v1.6.1/auto_full_hive_assist.luau",
+      "sha256": "83561365e9a823524c08c626b04c62074cfa8989c405c876bc70b78d86d1aed1",
+      "purpose": "First verified Drenchers purchase and231BlueExtract queue; superseded by1.6.2 crafting-jelly protection"
     }
   },
   "latestVersionScopedCheck": {
@@ -853,7 +862,7 @@
   "rileyUpgradeAuthorizationRequest": {
     "version": "1.5.1",
     "requestedUtc": "2026-10-21T07:28:20.848368+00:00",
-    "status": "pending-human-answer",
+    "status": "approved-standing-upgrades-both-accounts",
     "reason": "New gifted Hasty/Rad retained by legacy1.5.0, while saved task explicitly prohibits upgrading Riley without a new human instruction",
     "candidateAlreadyTestedChecks": 2976,
     "candidateSha256": "59bbe1d45778e8722d9fabe8929bc4698f398220e7c4c1e0504ab627bdf25409",
@@ -864,7 +873,8 @@
       "StartedType": "Frosty"
     },
     "latestObservedActiveRoll": null,
-    "freshReconciliationRequiredBeforeAnyUpgrade": true
+    "freshReconciliationRequiredBeforeAnyUpgrade": true,
+    "answer": "always upgrade when new version or new updated/changed is happend in the script"
   },
   "candidates": {
     "1.5.2": {
@@ -1014,5 +1024,97 @@
     "scope": "parallel material progression, exact gear honey reservation after materials, Atlas lease, status/task reporting, opt-in Blender ticket speedup",
     "ticketSpeedup": "UseBlenderTickets and Feather BlenderTicketToggle default false; no ticket speedup observed",
     "validationLimit": "Natural gear purchase/craft paths are partially observed; current Blender queues are intentionally waiting and no ticket toggle was enabled"
+  },
+  "currentRelease": {
+    "version": "1.6.2",
+    "bundle": "auto_full_hive_assist.luau",
+    "sha256": "673bb6b913c2877c56ca1b444b92c97a1058d0e7e9fbb3f76ab7ee24830744fa",
+    "bytes": 237576,
+    "releasePath": "releases/v1.6.2/auto_full_hive_assist.luau"
+  },
+  "latestAutoProgressionFixes": {
+    "version": "1.6.2",
+    "verifiedUtc": "2026-10-21T17:29:53.154750+00:00",
+    "sha256": "673bb6b913c2877c56ca1b444b92c97a1058d0e7e9fbb3f76ab7ee24830744fa",
+    "bytes": 237576,
+    "checksPerExecutor": 3287,
+    "suites": {
+      "policy": 753,
+      "character": 91,
+      "collector": 896,
+      "batch": 325,
+      "starJelly": 589,
+      "starPreflight": 220,
+      "starProgress": 17,
+      "finalOccupancy": 10,
+      "connectedReview": 82,
+      "failsafeOnlyRecovery": 38,
+      "finalBabyQuota": 60,
+      "progression": 156,
+      "progressionFacts": 33,
+      "funds": 17
+    },
+    "staticMarkers": 41,
+    "accounts": [
+      {
+        "account": "RileyCosmicguppydude",
+        "clientId": "ce939894-c003-43c3-bdc7-2a90bd08328b",
+        "executor": "Arceus X",
+        "placeId": 1537690962,
+        "jobId": "1fe68220-9be0-4875-af59-673f64606f2d",
+        "startedAt": 1792603618,
+        "version": "1.6.2",
+        "running": true,
+        "stop": false,
+        "error": false,
+        "pendingMutation": false,
+        "uncertainReceipt": false,
+        "atlasStopped": false,
+        "gearTarget": "Diamond Mask",
+        "phase": "materials",
+        "reason": "saving-crafting-jelly",
+        "craftingJellyProtected": true,
+        "diamondDrenchersOwned": true,
+        "equippedSprinkler": "Diamond Drenchers",
+        "royalJellyAtRead": 109
+      },
+      {
+        "account": "Luneri427",
+        "clientId": "e5c85afe-ac5a-4f64-8aa7-d744a5d1e047",
+        "executor": "Arceus X",
+        "placeId": 1537690962,
+        "jobId": "1fe68220-9be0-4875-af59-673f64606f2d",
+        "startedAt": 1792603618,
+        "version": "1.6.2",
+        "running": true,
+        "stop": false,
+        "error": false,
+        "pendingMutation": false,
+        "uncertainReceipt": false,
+        "atlasStopped": false,
+        "gearTarget": "Diamond Mask",
+        "phase": "materials",
+        "reason": "blender-busy",
+        "optionalHiveAllowed": true,
+        "blueExtractOwned": 19,
+        "blueExtractQueued": 231,
+        "blueExtractRequired": 250,
+        "blenderRecipe": "BlueExtract",
+        "blenderCount": 231,
+        "blenderTotalSeconds": 69300,
+        "blenderRemainingSecondsAtRead": 68885.46,
+        "ticketToggle": "OFF"
+      }
+    ],
+    "naturalProof": [
+      "Riley purchased and equipped Diamond Drenchers using the corrected single-price guard",
+      "Luneri funded the current Blue Extract recipe before Diamond Egg tickets and started exactly231 outputs",
+      "Rotated-pad movement arrived at Blender and hive; Atlas resumed after actions",
+      "Final Riley protects partial recipe jelly while saving crafting funds; final Luneri preserves active queue and allows hive while timer runs"
+    ],
+    "limits": "Blender timer completion and optional ticket speedup were not forced. New funds cases are pure values; rejected historical transport fixtures remain excluded.",
+    "agentsUsed": 2,
+    "noUncertainFlagsCleared": true,
+    "manualItemRemotes": false
   }
 }

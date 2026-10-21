@@ -141,7 +141,7 @@ return function(P)
         local f=facts();f.honey=5;f.inventory.Blueberry=50
         local c=catalog("Clippers",100,{BlueExtract=1});c.packs={RoyalJelly={{id="ten",amount=10,cost={Honey=10}}}}
         local r=P.plan(f,c)
-        check(r.action.kind=="wait" and r.action.parallelHive==true and r.reserveHoney==0,"Material jelly wait remains parallel and does not reserve gear honey")
+        check(r.action.kind=="wait" and r.action.reason=="saving-crafting-jelly" and not r.optionalHiveAllowed and r.reserveHoney==0,"Current recipe jelly funding blocks hive without reserving gear honey")
         f.honey=10;r=P.plan(f,c)
         check(r.action.kind=="purchase-pack" and r.action.amount==10,"Fixed jelly pack is affordable above full gear reserve")
         c.packs.RoyalJelly[1].conditions={"unknown-pack-unlock"}
@@ -201,6 +201,78 @@ return function(P)
         for _,stage in ipairs(P.stages) do for _,name in ipairs(stage.gear) do f.ownedGear[name]=true end end
         local r=P.plan(f,{})
         check(r.action.kind=="hive" and r.optionalHiveAllowed,"Existing hive scheduler resumes after ordered gear completion")
+    end
+    do
+        local f=facts();f.inventory.BlueExtract=19;f.craft={item="BlueExtract",count=231,ready=false}
+        local r=P.plan(f,catalog("Clippers",5000000000,{BlueExtract=250,Oil=150}))
+        check(r.action.reason=="blender-busy" and r.materialPhase and r.optionalHiveAllowed,"Queued gear output remains material phase before honey saving")
+        check(r.queuedItems.BlueExtract==231 and not r.materialDemand.Blueberry,"Queued output does not demand its already-consumed ingredients again")
+        check(r.status.materials[1].actual==19 and r.status.materials[1].queued==231 and r.status.materials[1].deficit==0,"Status separates actual 19 from queued 231")
+        check(r.reserveHoney==0 and r.status.phase=="materials","Timed material phase does not reserve the 5B gear price")
+        f.craft.ready=true
+        check(P.plan(f,catalog("Clippers",5000000000,{BlueExtract=250,Oil=150})).action.kind=="collect-craft","Ready output collects before remaining gear materials")
+        f.craft=false;f.inventory.BlueExtract=250;f.inventory.Oil=150;f.honey=1
+        r=P.plan(f,catalog("Clippers",5000000000,{BlueExtract=250,Oil=150}))
+        check(r.action.reason=="saving-gear-honey" and not r.optionalHiveAllowed and r.reserveHoney==5000000000,"Only actual completed material inventory starts gear saving")
+    end
+    do
+        local f=facts();f.inventory.Blueberry=50;f.inventory.SunflowerSeed=500;f.honey=5
+        local c=catalog("Clippers",100,{BlueExtract=1,Oil=10})
+        c.packs={RoyalJelly={{amount=1,cost={Honey=1}},{amount=10,cost={Honey=10}},{amount=100,cost={Honey=100}}}}
+        local r=P.plan(f,c)
+        check(r.nextCraft.item=="BlueExtract" and r.nextCraft.missingInputs.RoyalJelly==10,"Funding demand belongs to next recipe, not every future recipe")
+        check(r.action.kind=="purchase-pack" and r.action.amount==1 and not r.optionalHiveAllowed,"Affordable supported small pack protects next recipe funding without waiting for future 110 jelly")
+        check(r.status.phase=="materials" and r.status.label=="Buying crafting supplies","Purchase status names material action and phase")
+        f.honey=0;r=P.plan(f,c)
+        check(r.action.reason=="saving-crafting-jelly" and not r.action.parallelHive and not r.optionalHiveAllowed,"Current recipe jelly currency wait protects accumulated craft inventory")
+        c.packs.RoyalJelly[1].conditions={"unknown-condition"};f.honey=1
+        r=P.plan(f,c)
+        check(r.action.kind=="wait" and not r.optionalHiveAllowed,"Current recipe jelly remains protected during requirement waits")
+    end
+    do
+        local f=facts();f.inventory.Blueberry=10600;f.inventory.RoyalJelly=1100;f.honey=0
+        local c=catalog("Clippers",5000000000,{BlueExtract=212})
+        c.packs={RoyalJelly={{amount=1,cost={Honey=1000000}},{amount=10,cost={Honey=10000000}},
+            {amount=100,cost={Honey=100000000}},{amount=1000,cost={Honey=1000000000}}}}
+        local r=P.plan(f,c)
+        check(r.action.reason=="saving-crafting-jelly" and not r.optionalHiveAllowed and r.action.parallelHive==false,
+            "Partial 1100 of 2120 crafting jelly is protected from auto-hive while saving funds")
+        check(r.materialPhase and r.reserveHoney==0 and r.craftingJellyDeficit==1020
+            and r.status.phase=="materials" and r.status.label=="Saving honey for crafting jelly",
+            "Craft jelly funding is a materials phase rather than saving the 5B gear cost")
+        f.craft={item="BlueExtract",count=212,ready=false};f.inventory.RoyalJelly=0
+        r=P.plan(f,c)
+        check(r.action.reason=="blender-busy" and r.optionalHiveAllowed and r.action.parallelHive,
+            "Once the current recipe is queued its timed wait releases auto-hive")
+        f.craft=false;f.inventory.Blueberry=0
+        r=P.plan(f,c)
+        check(r.optionalHiveAllowed and r.action.parallelHive,"Missing non-jelly ingredients retain ordinary parallel material waiting")
+    end
+    do
+        -- Read-only observed Diamond Mask inventory, represented as inert
+        -- fixture data. It must fund Blue Extract before missing Diamond eggs.
+        local f=facts();f.honey=1999000000;f.inventory.BlueExtract=19;f.inventory.Oil=148
+        f.inventory.RoyalJelly=2007;f.inventory.Blueberry=11550;f.inventory.SunflowerSeed=100
+        f.inventory.Glitter=100;f.inventory.Diamond=3;f.inventory.Ticket=145;f.inventory.ComfortingVial=1
+        local c=catalog("Clippers",5000000000,{BlueExtract=250,Oil=150,Glitter=100,Diamond=5,ComfortingVial=1})
+        c.purchases={Diamond={amount=1,cost={Ticket=400}}}
+        c.packs={RoyalJelly={{amount=1,cost={Honey=1000000}},{amount=10,cost={Honey=10000000}},
+            {amount=100,cost={Honey=100000000}},{amount=1000,cost={Honey=1000000000}}}}
+        c.royalJellyPricing={purchased=75,baseHoney=250000,stepHoney=10000,maxHoney=1000000}
+        local r=P.plan(f,c)
+        check(r.nextCraft.item=="BlueExtract" and r.nextCraft.amount==231 and r.nextCraft.missingInputs.RoyalJelly==303,"Observed partial supplies price only the current 231-extract recipe deficit")
+        check(r.action.kind=="purchase-pack" and r.action.item=="RoyalJelly" and r.action.amount==100,"Current recipe funding precedes waiting on Diamond tickets")
+        check(r.reserveHoney==0 and r.status.phase=="materials" and r.status.materials[1].actual==19,"19 of 250 extracts is a material phase, never 5B honey saving")
+        f.craft={item="BlueExtract",count=231,ready=true};c.packs.RoyalJelly=nil
+        r=P.plan(f,c)
+        check(r.action.kind=="collect-craft" and r.queuedItems.BlueExtract==231,"Unknown future recipe pack quotes cannot hide ready collection")
+    end
+    do
+        local f=facts();f.inventory.Oil=1;f.inventory.Enzymes=1;f.inventory.Coconut=10
+        f.craft={item="Oil",count=1,ready=false}
+        local m=assert(P.materials({TropicalDrink=1},f,{}))
+        check(m.queuedItems.Oil==1 and not m.missingItems.SunflowerSeed,"Queued nested Oil satisfies only its own future parent demand")
+        check(m.nextCraft.item=="Enzymes" and m.crafts[#m.crafts].item=="TropicalDrink" and not m.crafts[#m.crafts].ready,"Queued nested output is not consumable before collection")
     end
     return {passed=passed}
 end

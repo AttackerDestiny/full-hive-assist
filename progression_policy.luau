@@ -82,6 +82,7 @@ end
 local function wait(reason,base)
     local result=copy(base); result.action={kind="wait",reason=reason}; result.reason=reason
     result.optionalHiveAllowed=base.optionalHiveAllowed==true
+    if result.optionalHiveAllowed then result.action.parallelHive=true;result.action.ParallelHive=true end
     return result
 end
 local function parallelAction(action)
@@ -191,6 +192,11 @@ function P.materials(requirements,facts,catalog)
     end
     local read,err=inventoryReader(facts); if not read then return nil,err end
     local available,reserved,demand,missing,crafts={},{},{},{},{}
+    local queued,queuedAllocated={},{}
+    if type(facts.craft)=="table" and type(facts.craft.item)=="string" and integer(facts.craft.count)
+        and facts.craft.count>0 and type(facts.craft.ready)=="boolean" then
+        queued[facts.craft.item]=facts.craft.count
+    end
     local function resolve(item,quantity,stack)
         if type(item)~="string" or not integer(quantity) then return nil,"invalid-material-demand" end
         if quantity==0 then return true end
@@ -201,6 +207,13 @@ function P.materials(requirements,facts,catalog)
         end
         local held=math.min(quantity,available[item]); available[item]-=held; add(reserved,item,held)
         local deficit=quantity-held; if deficit==0 then return true end
+        local queuedHeld=math.min(deficit,queued[item] or 0)
+        if queuedHeld>0 then
+            queued[item]-=queuedHeld;add(queuedAllocated,item,queuedHeld);deficit-=queuedHeld
+            -- Queued output satisfies future demand, but is never treated as
+            -- an immediately consumable input or permission to buy gear.
+            if deficit==0 then return false end
+        end
         if stack[item] then return nil,"cyclic-recipe:"..item end
         local recipe=(catalog.recipes or {})[item]
         if recipe==nil and catalog.useSuppliedRecipes~=false then recipe=P.recipes[item] end
@@ -217,22 +230,31 @@ function P.materials(requirements,facts,catalog)
         end
         stack[item]=true
         local ready=true
+        local missingInputs,inputs={},{}
         for _,ingredient in ipairs(orderedKeys(recipe.ingredients,recipe.order)) do
             local unit=recipe.ingredients[ingredient]
             if not integer(unit) or unit==0 then return nil,"invalid-recipe-ingredient:"..item end
+            local required=unit*batches
+            local heldInput=available[ingredient]
+            if heldInput==nil then heldInput=read(ingredient) end
+            if heldInput==nil then return nil,"unknown-inventory:"..ingredient end
+            inputs[ingredient]=required
+            if heldInput<required then missingInputs[ingredient]=required-heldInput end
             local got,why=resolve(ingredient,unit*batches,stack)
             if got==nil then return nil,why end
             if not got then ready=false end
         end
         stack[item]=nil
-        crafts[#crafts+1]={kind="craft",item=item,amount=deficit,batches=batches,ready=ready}
+        crafts[#crafts+1]={kind="craft",item=item,amount=deficit,batches=batches,ready=ready,
+            ingredients=inputs,missingInputs=missingInputs}
         return false
     end
     for _,item in ipairs(orderedKeys(requirements,catalog.materialOrder)) do
         local ok,why=resolve(item,requirements[item],{})
         if ok==nil then return nil,why end
     end
-    return {reservedItems=reserved,materialDemand=demand,missingItems=missing,crafts=crafts}
+    return {reservedItems=reserved,materialDemand=demand,missingItems=missing,crafts=crafts,
+        queuedItems=queuedAllocated,nextCraft=crafts[1]}
 end
 -- Growth is allowed only at a required gate; outside a gate the host retains
 -- its established auto-hive scheduling and can request this advisory separately.
@@ -277,7 +299,7 @@ function P.growth(facts,catalog,target,reserveHoney,reservedItems)
     if not ok then return {kind="wait",reason=reason} end
     return {kind="buy-hive-slot",amount=1,cost=copy(slot.cost),nextCapacity=facts.capacity+1}
 end
-function P.plan(facts,catalog)
+local function plan(facts,catalog)
     local base={optionalHiveAllowed=false,reserveHoney=0,reservedItems={},materialDemand={},missingItems={},costReservations={}}
     if type(facts)~="table" or type(catalog)~="table" then return wait("unknown-progression-facts",base) end
     for _,key in ipairs({"gear","recipes","packs","purchases","sources"}) do
@@ -304,11 +326,11 @@ function P.plan(facts,catalog)
         if not craft.ready and craft.speedupEnabled==true then
             if not integer(craft.remainingUnits) or craft.remainingUnits<1 then return wait("unknown-blender-speedup",base) end
             local tickets=craft.tickets
-            local perTicket=catalog.blenderSpeedUp and catalog.blenderSpeedUp.perTicket or 1
+            local perTicket=craft.autoCompletePerTicket or (catalog.blenderSpeedUp and catalog.blenderSpeedUp.perTicket) or 1
             if not integer(tickets) or not integer(perTicket) or perTicket<1 then return wait("unknown-blender-tickets",base) end
             local needed=math.ceil(craft.remainingUnits/perTicket)
-            if tickets<needed then return wait("waiting-tickets-for-blender",base) end
-            craftAction=parallelAction({kind="speedup-blender",item=craft.item,amount=craft.remainingUnits,tickets=needed})
+            if tickets<needed then craftAction=parallelAction({kind="wait",reason="waiting-tickets-for-blender"})
+            else craftAction=parallelAction({kind="speedup-blender",item=craft.item,amount=craft.remainingUnits,tickets=needed}) end
         elseif not craft.ready then
             craftAction=parallelAction({kind="wait",reason="blender-busy"})
         end
@@ -340,14 +362,19 @@ function P.plan(facts,catalog)
     local materials,materialError=P.materials(gear.items,facts,catalog)
     if not materials then return wait(materialError,base) end
     base.reservedItems=materials.reservedItems; base.materialDemand=materials.materialDemand; base.missingItems=materials.missingItems
+    base.queuedItems=materials.queuedItems
+    base.nextCraft=materials.nextCraft
+    base.gearItems=copy(gear.items)
     local costs,costError,complete=P.materialCosts(materials.missingItems,catalog)
-    if not costs then return wait(costError,base) end
-    base.costReservations=costs;base.costReservationsComplete=complete
+    -- Whole-gear cost estimates are diagnostics. An unknown future quote must
+    -- never hide a ready collection or the next recipe's actionable deficit.
+    base.costReservations=costs or {};base.costReservationsComplete=complete==true
+    base.costReservationReason=costError
     if craftAction then
         if craftAction.parallelHive then base.optionalHiveAllowed=true;base.materialPhase=true end
         base.action=craftAction; return base
     end
-    local materialPhase=(next(materials.missingItems)~=nil or #materials.crafts>0)
+    local materialPhase=(next(materials.missingItems)~=nil or #materials.crafts>0 or next(materials.queuedItems)~=nil)
     if materialPhase then
         base.optionalHiveAllowed=true
         base.materialPhase=true
@@ -364,22 +391,61 @@ function P.plan(facts,catalog)
         end
     end
     local firstMissing
-    for _,item in ipairs(orderedKeys(materials.missingItems,catalog.materialOrder)) do
+    local actionableMissing=materials.nextCraft and materials.nextCraft.missingInputs or materials.missingItems
+    local fundingRecipeJelly=materials.nextCraft~=nil and facts.craft==false
+        and (actionableMissing.RoyalJelly or 0)>0
+    if fundingRecipeJelly then
+        for ingredient,amount in pairs(actionableMissing) do
+            if ingredient~="RoyalJelly" and amount>0 then fundingRecipeJelly=false;break end
+        end
+    end
+    if fundingRecipeJelly then
+        -- The next recipe has every non-jelly input. Protect its accumulated
+        -- jelly while funding the remaining deficit, until that craft queues.
+        base.optionalHiveAllowed=false
+        base.craftingJellyRequired=materials.nextCraft.ingredients.RoyalJelly
+        base.craftingJellyDeficit=actionableMissing.RoyalJelly
+    end
+    for _,item in ipairs(orderedKeys(actionableMissing,catalog.materialOrder)) do
         firstMissing=firstMissing or item
-        local deficit=materials.missingItems[item]
+        local deficit=actionableMissing[item]
         if P.waitOnly[item] then continue end
         if item~="MagicBean" and (item=="RoyalJelly" or item=="Gumdrops") then
             local pack,packError=P.pack(item,deficit,(catalog.packs or {})[item])
             if not pack then return wait(packError,base) end
             local allowed,packCondition=conditionState(pack.conditions,facts)
             if not allowed then return wait(packCondition or "pack-condition",base) end
-            if item=="RoyalJelly" and not complete then return wait("unknown-full-jelly-cost",base) end
             if item=="RoyalJelly" and catalog.royalJellyPricing then
                 local quote=P.royalJellyCost(pack.amount,catalog.royalJellyPricing)
                 if quote==nil or quote~=pack.cost.Honey then return wait("inconsistent-jelly-price",base) end
             end
             local ok,reason=afford(pack.cost,facts.honey,read,base.reserveHoney,base.reservedItems)
-            if ok then base.action=parallelAction({kind="purchase-pack",item=item,amount=pack.amount,packId=pack.id,cost=copy(pack.cost)}); return base end
+            if not ok then
+                -- Fund the current recipe with supported smaller packs when a
+                -- larger fixed pack is unaffordable; never form a custom pack.
+                local best
+                for _,candidate in ipairs((catalog.packs or {})[item] or {}) do
+                    local valid=P.pack(item,deficit,{candidate})
+                    local permitted=valid and conditionState(candidate.conditions,facts)
+                    if permitted and candidate.amount<=deficit and afford(candidate.cost,facts.honey,read,base.reserveHoney,base.reservedItems)
+                        and (not best or candidate.amount>best.amount) then best=candidate end
+                end
+                if best then pack=best;ok=true end
+            end
+            if ok and item=="RoyalJelly" and catalog.royalJellyPricing then
+                local quote=P.royalJellyCost(pack.amount,catalog.royalJellyPricing)
+                if quote==nil or quote~=pack.cost.Honey then return wait("inconsistent-jelly-price",base) end
+            end
+            if ok then
+                base.action={kind="purchase-pack",item=item,amount=pack.amount,packId=pack.id,cost=copy(pack.cost)}
+                if not fundingRecipeJelly then parallelAction(base.action) end
+                return base
+            end
+            if item=="RoyalJelly" and fundingRecipeJelly and reason=="waiting-currency:Honey" then
+                local pending=wait("saving-crafting-jelly",base)
+                pending.action.parallelHive=false;pending.action.ParallelHive=false
+                return pending
+            end
             local pending=wait(reason,base);pending.action.parallelHive=true;pending.action.ParallelHive=true;return pending
         end
         -- Prefer a specifically verified available token/condenser source over
@@ -412,5 +478,36 @@ function P.plan(facts,catalog)
     if facts.honey<base.reserveHoney then return wait("saving-gear-honey",base) end
     base.action={kind="buy-gear",gear=nextGear.id,honey=gear.honey,items=copy(gear.items)}
     return base
+end
+-- Product-facing status uses separate actual and queued output counts. It does
+-- not call a queued Blender result inventory or label missing materials as a
+-- honey-saving phase.
+function P.describe(result,facts)
+    local action=result.action or {kind="wait",reason="unknown-action"}
+    local phase=result.materialPhase and "materials" or action.kind=="buy-gear" and "gear-ready"
+        or action.reason=="saving-gear-honey" and "saving-gear-honey" or action.kind
+    local labels={['buy-gear']='Buying gear',craft='Crafting materials',['collect-craft']='Collecting materials',
+        ['purchase-pack']='Buying crafting supplies',['purchase-material']='Buying gear materials',
+        ['speedup-blender']='Completing Blender order',['redeem-code']='Redeeming code',hive='Hive progression'}
+    local reason=action.reason or result.reason
+    local label=labels[action.kind] or (reason=="blender-busy" and "Blender running; hive continues")
+        or (reason=="saving-crafting-jelly" and "Saving honey for crafting jelly")
+        or (phase=="saving-gear-honey" and "Saving honey for gear") or "Waiting for materials or requirements"
+    local rows={}
+    for _,item in ipairs(orderedKeys(result.gearItems or {})) do
+        local required=result.gearItems[item]
+        local actual=type(facts.inventory)=="table" and facts.inventory[item] or nil
+        if actual==nil and facts.inventoryKnown then actual=0 end
+        local queued=(result.queuedItems or {})[item] or 0
+        rows[#rows+1]={item=item,required=required,actual=actual,queued=queued,
+            deficit=actual and math.max(0,required-actual-queued) or nil}
+    end
+    return {phase=phase,label=label,reason=reason,targetGear=result.gear,reserveHoney=result.reserveHoney or 0,
+        parallelHive=action.parallelHive==true,materials=rows,nextCraft=result.nextCraft}
+end
+function P.plan(facts,catalog)
+    local result=plan(facts,catalog)
+    result.status=P.describe(result,type(facts)=="table" and facts or {})
+    return result
 end
 return P

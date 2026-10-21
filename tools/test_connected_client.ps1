@@ -13,6 +13,7 @@ $versionMatch=[regex]::Match($runtime,'local SCRIPT_VERSION = "(\d+\.\d+\.\d+)"'
 if (-not $versionMatch.Success) { throw 'Cannot locate bundle version' }
 $hasFailsafeCorrection=([version]$versionMatch.Groups[1].Value -ge [version]'1.5.1')
 $checkFinalBaby=$CheckFinalBabyQuota -or ([version]$versionMatch.Groups[1].Value -ge [version]'1.5.2')
+$hasFunds=([version]$versionMatch.Groups[1].Value -ge [version]'1.6.1')
 $hasProgression=([version]$versionMatch.Groups[1].Value -ge [version]'1.6.0')
 $policyTests = Get-Content -LiteralPath (Join-Path $project 'test_full_hive_policy.luau') -Raw
 $recoveryTests = Get-Content -LiteralPath (Join-Path $project 'test_character_recovery.luau') -Raw
@@ -45,6 +46,13 @@ if ($hasProgression) {
     $code += 'local progressionPolicy=[======['+$progressionPolicy+']======];local progressionFacts=[======['+$progressionFacts+']======];'
     $code += 'local progressionTests=[======['+$progressionTests+']======];local progressionFactsTests=[======['+$progressionFactsTests+']======];'
 }
+if ($hasFunds) {
+    $funds=[regex]::Match($bundle,'local ProgressionFunds = \(function\(\)\n(.*?)\nend\)\(\)\nlocal createAtlasProgressionControl',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
+    if (-not $funds) { throw 'Cannot locate bundled purchase funds guard' }
+    $fundsTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_progression_funds.luau') -Raw
+    $code+='local funds=[======['+$funds+']======];local fundsTests=[======['+$fundsTests+']======];'
+}
+$code+='local hasFunds='+$hasFunds.ToString().ToLowerInvariant()+'; '
 $code += 'local hasProgression='+$hasProgression.ToString().ToLowerInvariant()+'; '
 $code += @'
 local main,mainError=loadstring(bundle)
@@ -73,13 +81,15 @@ if hasProgression then
     progressionOK,progressionResult=pcall(assert(loadstring(progressionTests))(),pp)
     progressionFactsOK,progressionFactsResult=pcall(assert(loadstring(progressionFactsTests))(),assert(loadstring(progressionFacts))(),pp)
 end
+local fundsOK,fundsResult=true,{notApplicable=true}
+if hasFunds then fundsOK,fundsResult=pcall(assert(loadstring(fundsTests))(),assert(loadstring(funds))()) end
 return {allPassed=main~=nil and star~=nil and policyOK and recoveryOK and collectorOK and batchOK and starJellyOK
-    and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK and finalBabyOK and progressionOK and progressionFactsOK,
+    and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK and finalBabyOK and progressionOK and progressionFactsOK and fundsOK,
     main=main~=nil,mainError=mainError,embeddedStar=star~=nil,starError=starError,
     policy={ok=policyOK,result=policyResult},recovery={ok=recoveryOK,result=recoveryResult},collector={ok=collectorOK,result=collectorResult},batch={ok=batchOK,result=batchResult},starJelly={ok=starJellyOK,result=starJellyResult},
     starPreflight={ok=starPreflightOK,result=starPreflightResult},starProgress={ok=starProgressOK,result=starProgressResult},
     finalOccupancy={ok=finalOccupancyOK,result=finalOccupancyResult},connectedReview={ok=connectedReviewOK,result=connectedReviewResult},failsafeOnly={ok=failsafeOnlyOK,result=failsafeOnlyResult},finalBaby={ok=finalBabyOK,result=finalBabyResult},
-    progression={ok=progressionOK,result=progressionResult},progressionFacts={ok=progressionFactsOK,result=progressionFactsResult}}
+    progression={ok=progressionOK,result=progressionResult},progressionFacts={ok=progressionFactsOK,result=progressionFactsResult},funds={ok=fundsOK,result=fundsResult}}
 '@
 $argsPath = Join-Path ([IO.Path]::GetTempPath()) ('bss-tests-'+[guid]::NewGuid().ToString()+'.json')
 try {
