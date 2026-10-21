@@ -814,7 +814,7 @@
     }
   },
   "latestVersionScopedCheck": {
-    "observedUtc": "2026-10-21T07:59:05.721721+00:00",
+    "observedUtc": "2026-10-21T10:03:14.458597+00:00",
     "sameClientsAndJobVerified": true,
     "noDeploymentPerformed": true,
     "noRegressionRepeat": true,
@@ -823,20 +823,12 @@
       "version": "1.5.0",
       "startedAt": 1792561453,
       "occupied": 41,
-      "royalJelly": 73,
-      "honey": 138933381,
-      "refill": 600,
+      "royalJelly": 110,
+      "honey": 135871114,
       "normalRefill": 600,
       "phase": "waiting",
+      "royalJellyUsed": 2722,
       "safeNonCollector": 0,
-      "activeCoordinate": null,
-      "lastResult": "normal Bubble at(2,2)",
-      "retainedUnlistedGifted": [
-        "Riley",
-        "Hasty",
-        "Rad"
-      ],
-      "royalJellyUsed": 1511,
       "atlasStopped": false,
       "upgradeAuthorizationStillPending": true
     },
@@ -845,13 +837,13 @@
       "version": "1.5.1",
       "startedAt": 1792565007,
       "occupied": 43,
-      "royalJelly": 95,
-      "honey": 73521486,
+      "royalJelly": 1038,
+      "honey": 232338304,
       "normalRefill": 2000,
       "phase": "waiting",
-      "royalJellyUsed": 2012,
-      "lastResult": "normal Frosty at(5,8)",
-      "hastyPresent": false,
+      "royalJellyUsed": 2978,
+      "giftedFrosty": 3,
+      "normalFrosty": 0,
       "safeNonCollector": 0,
       "atlasStopped": false
     },
@@ -910,5 +902,35 @@
     "currentAccountStagesAffected": false,
     "remedyCandidate": "1.5.2",
     "remedyDeployed": false
+  },
+  "latestNaturalGiftedCollectorV151": {
+    "verifiedUtc": "2026-10-21T10:03:14.458597+00:00",
+    "account": "Luneri427",
+    "version": "1.5.1",
+    "startedAt": 1792565007,
+    "occupied": 43,
+    "result": "Gifted Frosty",
+    "coordinate": {
+      "X": 5,
+      "Y": 8
+    },
+    "lastRequestConsumed": 133,
+    "cumulativeRoyalJellyUsed": 2978,
+    "giftedFrostyBefore": 2,
+    "giftedFrostyAfter": 3,
+    "normalFrostyAfter": 0,
+    "royalJellySaved": 1038,
+    "normalRefill": 2000,
+    "phase": "waiting",
+    "recovery": false,
+    "safeNonCollector": 0,
+    "rollTaskPresent": false,
+    "jellyBatchPresent": false,
+    "atlasStopped": false,
+    "pendingOrUncertain": false,
+    "reportedErrors": false,
+    "manualTrigger": false,
+    "reexecuted": false,
+    "coverage": "Natural normal gifted-collector completion and admission closure with saved leftovers; individual top-ups/intermediate requests not fully observed"
   }
 }
