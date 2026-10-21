@@ -37,9 +37,15 @@ A Bee Swarm Simulator hive progression assist that coordinates with Atlas to man
 ## Quick start
 
 1. Join Bee Swarm Simulator and load Atlas.
-2. Open [`auto_full_hive_assist.luau`](auto_full_hive_assist.luau), copy the entire file, and execute it in your executor.
+2. Run the loader below, or copy the entire [`auto_full_hive_assist.luau`](auto_full_hive_assist.luau) bundle into your executor.
 3. Allow the **60-second startup delay** before the assist loads game modules and begins working. Atlas and the assist can be placed together in auto-execute.
 4. Follow the on-screen status panel. Use its **Stop** button to stop the assist.
+
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/loader.luau"))()
+```
+
+[`loader.luau`](loader.luau) downloads the current main-branch bundle, preserves your `FullHiveConfig`, and leaves an already-running assist alone. It reports download/compile errors and blocks startup with pending or unresolved hive requests. Atlas is loaded separately. The bundle supplies its own 60-second startup delay. The published loader has been statically compiled only; it has not been executed in Roblox.
 
 The default configuration runs continuously and can spend honey, tickets, stingers, eggs, Star Treats, Star Jelly, and Royal Jelly. The assist pauses Atlas while working and restores roll settings during cleanup.
 

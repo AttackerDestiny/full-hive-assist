@@ -44,7 +44,7 @@ Regression checks for the connected client can be run with `./tools/test_connect
 
 The first numbered release is **v1.0.0**. The status panel, `getgenv().FullHiveVersion`, and `getgenv().FullHiveReport.Version` show the running version. Rebuilding a file does not replace an already running instance: after each approved update, stop the old assist cleanly, wait for pending requests to resolve, execute the rebuilt bundle once, and verify its version and new `StartedAt`. The 30-minute monitor follows this deployment rule.
 
-Run Atlas first, then execute the entire `auto_full_hive_assist.luau` file in **Arceus X Android**. The same bundle remains compatible with Potassium for desktop testing. It contains its policy and the existing Star Egg script, so no local-file support or additional loader is needed.
+Run Atlas first, then use `loader.luau` to fetch the current main-branch bundle or execute the entire `auto_full_hive_assist.luau` file in **Arceus X Android**. The loader preserves configuration and guards against duplicate or unresolved hive activity. The bundle contains its policy and Star Egg script, so no local-file support is needed. The loader has not been executed on a live client.
 
 The assist now waits a fixed **60 seconds** after auto-execution before loading hive modules or requesting player stats. You can auto-execute both scripts together; the assist remains in `startup-delay` during that minute.
 
