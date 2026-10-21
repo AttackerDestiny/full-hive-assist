@@ -17,6 +17,13 @@ function P.count(cells, name, giftedOnly)
     end
     return n
 end
+function P.keptGiftedCount(cells,plan,name)
+    local count=0
+    for _,c in ipairs(cells) do
+        if c.bee and c.bee.Type==name and P.gifted(c) and plan.keep[P.key(c)] then count+=1 end
+    end
+    return count
+end
 function P.snapshot(stats,types)
     assert(type(stats.Honeycomb)=="table", "Hive snapshot unavailable")
     local purchases=stats.Totals and stats.Totals.Purchases
@@ -178,19 +185,16 @@ function P.rollTaskDone(task, cell, cells, types, plan)
         end
     end
     if gifted then
-        -- Diversity adds first-copy keeps without replacing existing gifted
-        -- quotas or flexible collector outcomes above.
-        if plan.preserveUniqueGifted then
-            if (task.InitialGifted[name] or 0)==0 then return true,"gifted-diversity-result" end
-            local retained=0
-            for _,c in ipairs(cells) do
-                if c.bee and c.bee.Type==name and P.gifted(c) and plan.keep[P.key(c)] then retained+=1 end
-            end
-            -- A reserved multi-bee group (for example Fire placeholders) may
-            -- accept another gifted copy; one-copy diversity alone cannot.
-            if retained>1 and P.count(cells,name,true)<=retained and plan.keep[P.key(cell)] then
-                return true,"gifted-group-result"
-            end
+        -- Only an explicit Star Egg preparation plan may add all-type keeps.
+        if plan.starPrepare and plan.keep[P.key(cell)] and (task.InitialGifted[name] or 0)==0 then
+            return true,"star-preparation-result"
+        end
+        -- Gifted Fire can fill the existing red placeholder group. It is not
+        -- an all-type gifted failsafe; a full Shy/Fire group still rejects it.
+        if name=="Fire" and plan.keep[P.key(cell)]
+            and P.count(cells,name,true)>(task.InitialGifted[name] or 0)
+            and P.count(cells,name,true)<=P.keptGiftedCount(cells,plan,name) then
+            return true,"placeholder-upgrade"
         end
         if not task.Goals or #task.Goals==0 then
             if name=="Bubble" or name=="Frosty" then return true, "gifted-collector-result" end
@@ -222,7 +226,8 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
     if done then return false end
     local name = cell.bee.Type
     local limit = P.giftedLimit(name, plan.stage)
-    if P.gifted(cell) and plan.preserveUniqueGifted and P.count(cells,name,true)>1 then return true end
+    if P.gifted(cell) and plan.starPrepare and P.count(cells,name,true)>1 then return true end
+    if P.gifted(cell) and name=="Fire" and P.count(cells,name,true)>P.keptGiftedCount(cells,plan,name) then return true end
     if P.slotCaps[name] and P.count(cells,name)>P.slotCaps[name] then return true end
     if P.gifted(cell) and limit and P.count(cells, name, true) > limit then return true end
     if P.gifted(cell) and (limit or name=="Bubble" or name=="Frosty") then return false end
@@ -318,12 +323,8 @@ function P.plan(cells, types, ctx)
         end
     end
     for _, name in ipairs(post and P.trueSingles or P.singles) do reserve(name, 1, true) end
-    -- Preserve current-hive diversity for the existing Star Egg preparation.
-    -- This is opt-in at policy level and enabled by the runtime configuration.
-    local preserveUniqueGifted=ctx.preserveUniqueGifted and ctx.slots>=35 and not post and (ctx.starUsed or 0)<2
-    if preserveUniqueGifted then
-        for _,c in ipairs(cells) do if c.bee and P.gifted(c) then reserve(c.bee.Type,1,true) end end
-    end
+    -- Ordinary keeps are the configured failsafes/forces only. Historical
+    -- preserveUniqueGifted overrides never promote unlisted gifted species.
     local uniqueGifted = {}
     for k,v in pairs(keep) do uniqueGifted[k] = v end
     local babyGoal = stage == "final" and math.max(0, 4 - P.count(cells, "Tadpole", true)) or 4
@@ -384,6 +385,9 @@ function P.plan(cells, types, ctx)
                 if info.Rarity ~= "Event" and info.Rarity ~= "Mythic" and name ~= "Basic" then
                     reserve(name, 1, true); need(name, 1, true)
                 end
+            end
+            for _,c in ipairs(cells) do
+                if c.bee and P.gifted(c) and keep[P.key(c)] then uniqueGifted[P.key(c)]=true end
             end
         end
     else
@@ -522,7 +526,7 @@ function P.plan(cells, types, ctx)
     if ctx.enforceGrowth and not growth.CanReroll then target=nil; reason="hive-growth" end
     local capacityStatus=P.capacityStatus(cells,keep,needs,ctx.slots)
     return {stage=stage, keep=keep, protected=protected, temporary=temporary, needs=needs, candidates=candidates,
-        growth=growth,capacityStatus=capacityStatus,preserveUniqueGifted=preserveUniqueGifted,
+        growth=growth,capacityStatus=capacityStatus,starPrepare=ctx.starPrepare==true and not post,
         fallbackCandidates=fallbackCandidates, collectorFallback=collectorFallback and #fallbackCandidates>0,
         recoveryGifted=recoveryMode=="gifted",
         target=target, mode=mode, reason=reason, babyGoal=babyGoal,

@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.5.1 configured-keep correction:** Gifted Hasty and other unlisted gifted types are ordinary collector-recovery candidates. v1.5.1 was tested and deployed only on Luneri427 after 2,976 connected checks; Riley remains on v1.5.0. The corrected Luneri path entered 100-jelly recovery, rerolled gifted Hasty and saved the remaining jelly after normal Frosty was accepted. No later candidate is live-authorized.
+
 **v1.5.0 connected research build:** Read-only MCP inspection now informs the local auto-hive improvements. See [the fresh zero-to-fifty review](CONNECTED_HIVE_REVIEW.md). No new assist was executed/deployed or game state intentionally changed. Existing running v1.3.7 instances were left alone; source compilation is not live behavior verification.
 
 **v1.4.4 offline correction:** Standalone Star Egg rebuild readiness uses a valid recorded hatch count, never quest rewards minus current inventory. Two recorded hatches are required alongside the existing quest/inventory conditions. This source-only correction has not been fixture-tested or deployed.

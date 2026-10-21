@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.5.0"
+local SCRIPT_VERSION = "1.5.1"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -86,8 +86,11 @@ end
 local Config = {DryRun=false, PollSeconds=3, Speed=65, NearDistance=16,
     MaxActions=math.huge, MaxRoyalJellies=math.huge, AutoPurchase=true,
     HoneyReserve=0, RollDelay=0.3, StarEggHoney=100000000000,
-    AtlasInitiallyStopped=false, StartupDelaySeconds=60, PreserveUniqueGifted=true}
+    AtlasInitiallyStopped=false, StartupDelaySeconds=60, PreserveUniqueGifted=false}
 for k,v in pairs(env.FullHiveConfig or {}) do assert(Config[k] ~= nil, "Unknown config: "..k); Config[k]=v end
+-- Retain the old option for config compatibility; ordinary keeps must still
+-- follow the user's failsafe/force lists even if an old override was true.
+Config.PreserveUniqueGifted=false
 if env.FullHiveRunning then
     warn("[Full Hive] Already running v"..tostring(env.FullHiveVersion or "unversioned").."; stop the old instance before loading v"..SCRIPT_VERSION)
     return
@@ -454,7 +457,7 @@ local function context(s,slots)
         collectorFallback=false
     end
     return {slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,lateStarted=lateStarted,nextFlexible=nextFlexible,
-        collectorFallback=collectorFallback,preserveUniqueGifted=Config.PreserveUniqueGifted,enforceGrowth=true,eggs=s.Eggs,
+        collectorFallback=collectorFallback,enforceGrowth=true,eggs=s.Eggs,
         canRefill30k=Config.AutoPurchase and usable>=Policy.jellyCost(bought.RoyalJelly or 0,30000)}
 end
 local function plan(s)
