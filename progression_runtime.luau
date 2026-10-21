@@ -226,10 +226,11 @@ return function(H)
             assert(source and source.kind=="nectar-vial","Unverified material claim interface")
             local duration=H.nectarSeconds(source.nectar)
             assert(duration and duration>=43200,"Nectar duration changed")
+            local beforeVial=s.Eggs[action.item] or 0
             env.FullHiveLastNectarCondenserAt=H.OsTime()
             event(H.Events.NectarCondenser,{source.nectar},function(after)
                 local left=H.nectarSeconds(source.nectar)
-                return (after.Eggs[action.item] or 0)==(s.Eggs[action.item] or 0)+1
+                return (after.Eggs[action.item] or 0)==beforeVial+1
                     and left and duration-left>=43199
             end,{Name="NectarCondenser",Kind="acquire-material",Item=action.item,Amount=1,Started=os.clock()})
         else purchase(action,c,s) end
