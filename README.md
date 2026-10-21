@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.4.4 — offline Star Egg readiness correction, not deployed.** The standalone/embedded Star workflow now requires two valid recorded hatches before its post-egg rebuild. Completed quests and empty inventory no longer imply that eggs were hatched. Existing quest and empty-inventory gates remain; the main stage gate already used recorded hatches. The builder checks that both readiness source copies match. Validation is compilation and static review only; no fixtures or live scripts were executed.
+
 **v1.4.3 — offline completion correction, not deployed.** A qualifying recipe in 50 unlocked slots could previously finish with only 48 occupied bees. Completion now requires 50 occupied bees as well as the existing composition checks. Empty final slots produce a fill-cells advisory; targets and protected bees are unchanged. This correction has static validation only: automatic approval review blocked pure fixture execution, so no fixture pass is claimed.
 
 **v1.4.2 — offline Star Egg safeguards, not deployed.** The embedded workflow now requires all metadata-listed gifted Basic/Common, Rare, Epic and Legendary species in the current hive, replacing its incomplete 12-species list. It rechecks coverage and all roll-to settings before each egg. The host egg budget now initializes correctly, and the builder rejects missing or duplicate integration hooks. **973 selected pure offline checks** pass, with main/embedded compilation and 36 static markers. The full suite was not rerun; live scripts remain untouched.

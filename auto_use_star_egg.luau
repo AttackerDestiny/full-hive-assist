@@ -423,10 +423,13 @@ function Progress.read(stats)
     local mother, panda = done("Seven To Seven"), done("Royal Rumble")
     local earned = (mother and 1 or 0) + (panda and 1 or 0)
     local inventory = stats.Eggs and stats.Eggs.Star or 0
-    local recorded = stats.Totals and stats.Totals.EggUses and stats.Totals.EggUses.Star or 0
+    local recorded = stats.Totals and stats.Totals.EggUses and stats.Totals.EggUses.Star
+    local recordedKnown = type(recorded) == "number" and recorded >= 0
+        and recorded < math.huge and recorded % 1 == 0
+    local used = recordedKnown and recorded or 0
     return {known=true, mother=mother, panda=panda, earned=earned, inventory=inventory,
-        used=math.max(recorded, math.max(0, earned-inventory)),
-        ready=mother and panda and inventory==0}
+        used=used, recordedKnown=recordedKnown,
+        ready=mother and panda and inventory==0 and recordedKnown and used>=2}
 end
 return Progress
 
@@ -1057,7 +1060,9 @@ local questProgress = StarProgress.read(stats)
 assert(questProgress.known, "Quest completion data unavailable; stopping")
 local eggBudget = math.min(Config.MaxStarEggs, stats.Eggs.Star or 0)
 Report.QuestEggsEarned = questProgress.earned
-Report.QuestEggsUsed = questProgress.used
+Report.QuestEggsUsed = questProgress.used -- Compatibility alias: total recorded uses, not egg provenance.
+Report.StarEggUsesRecorded = questProgress.used
+Report.StarEggUsesKnown = questProgress.recordedKnown
 Report.EggBudget = eggBudget
 Report.NextStarTarget = Policy.choose(cells, function(cell)
     return Policy.starSafe(cell, cells, Types, required)
@@ -1106,7 +1111,7 @@ local progress = StarProgress.read(Cache:Get())
 Report.StarProgress = progress
 if not progress.ready then
     Report.Phase = "waiting-for-star-quests"
-    Report.Activity = "Post-egg rebuild deferred: claim Seven To Seven and Royal Rumble rewards and use the available eggs first"
+    Report.Activity = "Post-egg rebuild deferred: complete both Star Egg quests, use the available eggs, and verify two recorded hatches"
     return
 end
 Policy.postEgg = true

@@ -456,6 +456,32 @@
     "pendingRequests": false
   },
   "offlineCandidate": {
+    "version": "1.4.4",
+    "createdUtc": "2026-10-21T04:37:31.452324+00:00",
+    "validation": "static-review-and-compilation-only",
+    "checks": 0,
+    "regressionFixturesExecuted": false,
+    "compiledFiles": 6,
+    "staticMarkers": 36,
+    "fixtureExecutionBlocker": "Previous automatic approval review rejected fixture execution: blocked by policy. No fixture execution or alternate retry attempted in this run.",
+    "liveTested": false,
+    "deployed": false,
+    "phoneFilesModified": false,
+    "existingLiveScriptsModified": false,
+    "bytes": 149183,
+    "sha256": "4f5e712500d7275a322d8b93d8a1ffbc40f03312ed0c811283adb85c917243e5",
+    "luauCliVersion": "0.743",
+    "researchAgents": 3,
+    "scope": "auto-hive-only",
+    "change": "Require valid recorded Star Egg hatches for standalone/embedded rebuild readiness; enforce source-copy parity during build",
+    "deferred": [
+      "Embedded Star Egg/direct Vicious durable receipts",
+      "Star Egg all-gifted-Mythics outcome guard and graceful host deferral",
+      "Standalone remaining-lifetime egg budget",
+      "Malformed duplicate-coordinate input validation"
+    ]
+  },
+  "previousOfflineCandidate": {
     "version": "1.4.3",
     "createdUtc": "2026-10-21T04:06:33.147586+00:00",
     "validation": "static-review-and-compilation-only",
@@ -481,29 +507,5 @@
       "Recorded-only readiness in standalone StarProgress",
       "Malformed duplicate-coordinate input validation"
     ]
-  },
-  "previousOfflineCandidate": {
-    "version": "1.4.2",
-    "createdUtc": "2026-10-21T03:43:07.738537+00:00",
-    "validation": "selected-pure-local-fixtures-and-static-compilation-only",
-    "liveTested": false,
-    "deployed": false,
-    "phoneFilesModified": false,
-    "existingLiveScriptsModified": false,
-    "checks": 973,
-    "suiteChecks": {
-      "purePolicy": 753,
-      "starPrerequisiteAndConfiguration": 220
-    },
-    "fullSuiteRerun": false,
-    "staticMarkers": 36,
-    "bytes": 148541,
-    "sha256": "76308510149eb4ef2ef1625a5f22cb3c60575c678b3132653b1c783fc531eb3b",
-    "luauCliVersion": "0.743",
-    "researchAgents": 3,
-    "scope": "auto-hive-only",
-    "acquisition": "advisory; empty hatching and capacity purchases still use Atlas/manual actions",
-    "change": "Full current-hive Star Egg prerequisites, per-egg settings guard, initialized host budget, checked builder hooks",
-    "deferred": "Embedded Star Egg and Vicious claim durable receipts; extracted-transport fixture rejected before execution"
   }
 }

@@ -9,6 +9,12 @@ try {
     if (-not $versionMatch.Success) { throw 'Runtime SCRIPT_VERSION must use major.minor.patch' }
     $version = $versionMatch.Groups[1].Value
     $star = Get-Content -LiteralPath auto_use_star_egg.luau -Raw
+    # The standalone helper and its inlined copy must share readiness semantics.
+    $progress = (Get-Content -LiteralPath star_progress.luau -Raw).Replace("`r`n", "`n").Trim()
+    $inlineProgress = [regex]::Matches($star.Replace("`r`n", "`n"), 'local StarProgress = \(function\(\)\n(.*?)\nend\)\(\)', [Text.RegularExpressions.RegexOptions]::Singleline)
+    if ($inlineProgress.Count -ne 1 -or $inlineProgress[0].Groups[1].Value.Trim() -cne $progress) {
+        throw 'Embedded StarProgress must match star_progress.luau before building'
+    }
     # Apply host integration only when every reviewed hook has exactly one match.
     function Replace-StarHook([string]$Source, [string]$Needle, [string]$Replacement) {
         $hookCount = [regex]::Matches($Source, [regex]::Escape($Needle)).Count
