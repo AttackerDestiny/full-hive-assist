@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.4.2 — offline Star Egg safeguards, not deployed.** The embedded workflow now requires all metadata-listed gifted Basic/Common, Rare, Epic and Legendary species in the current hive, replacing its incomplete 12-species list. It rechecks coverage and all roll-to settings before each egg. The host egg budget now initializes correctly, and the builder rejects missing or duplicate integration hooks. **973 selected pure offline checks** pass, with main/embedded compilation and 36 static markers. The full suite was not rerun; live scripts remain untouched.
+
 **v1.4.1 — offline correction, not deployed.** Gifted diversity now defers to existing multi-copy quotas and flexible collector keeps, including reserved Fire placeholders. Planner and runtime also share the same owned-egg growth advisory. The local suite passes **2,923 isolated checks**; running scripts and phone files remain untouched.
 
 **v1.4.0 — offline research build, not deployed.** Adds separate occupied/capacity growth reporting for 0–24 bees, first-gifted retention during pre-Star-Egg progression, final-composition capacity diagnostics, Basic-slot keep revalidation, fresh finite-budget checks, and persistent uncertain-mutation receipts. Existing live scripts were left untouched. See [research, sources, and limitations](HIVE_PROGRESSION_RESEARCH.md).
@@ -70,6 +72,7 @@ env.FullHiveStop = true
 
 | Hive slots | Main objectives |
 | --- | --- |
+| 0–24 occupied | Report owned-egg/empty-cell growth needs; wait for Atlas/manual hatching before rerolling. |
 | 25–39 | Maintain collectors, build Baby/Music/Shy counts, and collect gifted failsafes. |
 | 40–43 | Pursue gifted rare/epic targets and convert Bubble/Frosty collectors. |
 | 44+ | Enter gifted legendary progression after observing at least 10,000 Royal Jelly. |

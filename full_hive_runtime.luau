@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.4.1"
+local SCRIPT_VERSION = "1.4.2"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -834,7 +834,7 @@ end
 local function useStarScript(s)
     acquire(); move(hiveFloor())
     local used=starEggUses(s)
-    -- Existing Star Egg workflow is embedded unchanged, with integration hooks at build time.
+    -- Shared Star Egg workflow is embedded with reviewed host integration hooks.
     env.FullHiveStarBudget=math.min(2-used,Config.MaxActions-Report.Actions)
     env.FullHiveMove=function() move(hiveFloor()) end
     env.FullHiveRefill=refill

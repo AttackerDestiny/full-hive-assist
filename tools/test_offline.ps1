@@ -1,4 +1,8 @@
-param([string]$LuauPath = $env:LUAU_PATH)
+param(
+    [string]$LuauPath = $env:LUAU_PATH,
+    [ValidateSet('test_full_hive_policy.luau','test_character_recovery.luau','test_collector_recovery.luau','test_jelly_batch.luau','test_star_jelly.luau','tests/test_progression_offline.luau','tests/test_star_preflight_offline.luau')]
+    [string[]]$Suites = @('test_full_hive_policy.luau','test_character_recovery.luau','test_collector_recovery.luau','test_jelly_batch.luau','test_star_jelly.luau','tests/test_progression_offline.luau','tests/test_star_preflight_offline.luau')
+)
 $ErrorActionPreference='Stop'
 if (-not $LuauPath) {
     $candidate=Get-Command luau -ErrorAction SilentlyContinue
@@ -19,10 +23,10 @@ try {
     $code+='local T=compile('+(Literal 'tests/offline_bee_types.luau')+')()'+"`n"
     $code+='local runtime='+(Literal 'full_hive_runtime.luau')+"`n"
     $code+='local bundle='+(Literal 'auto_full_hive_assist.luau')+"`n"
-    $code+='compile(bundle); compile(assert(bundle:match("local StarEggSource = %[%=%=%=%=%[(.-)%]%=%=%=%=%]")))'+"`n"
+    $code+='local starSource=assert(bundle:match("local StarEggSource = %[%=%=%=%=%[(.-)%]%=%=%=%=%]")); compile(bundle); compile(starSource)'+"`n"
     $code+='local total=0'+"`n"
-    foreach ($suite in @('test_full_hive_policy.luau','test_character_recovery.luau','test_collector_recovery.luau','test_jelly_batch.luau','test_star_jelly.luau','tests/test_progression_offline.luau')) {
-        $args=if ($suite -eq 'test_character_recovery.luau') {'runtime'} elseif ($suite -eq 'test_jelly_batch.luau') {'runtime,P,T'} else {'P,T,runtime'}
+    foreach ($suite in $Suites) {
+        $args=if ($suite -eq 'test_character_recovery.luau') {'runtime'} elseif ($suite -eq 'test_jelly_batch.luau') {'runtime,P,T'} elseif ($suite -eq 'tests/test_star_preflight_offline.luau') {'starSource,T'} else {'P,T,runtime'}
         $code+='do local test=compile('+(Literal $suite)+')();local result=test('+$args+'); total+=result.passed;print("'+$suite+'",result.passed) end'+"`n"
     }
     $code+='print("OFFLINE PASS",total)'+"`n"
