@@ -1,5 +1,9 @@
 # Auto-hive progression review from zero to fifty bees
 
+**Latest authorization:** the human has now requested v1.5.0 testing every 30 minutes on both intended accounts. This supersedes the earlier read-only-only and one-time-Riley-only limits below. Nine connected isolated suites passed 2,938 checks on each Arceus executor; the supported runner compiles the main/embedded workflows without calling them during those fixtures. Existing transport fixtures previously blocked by automatic approval review remain excluded. Actual deployment and natural live behavior must still be recorded separately in FULL_HIVE_TEST_LOG.md and full_hive_deployment.json.
+
+Both intended accounts now run exact v1.5.0: Riley retained StartedAt `1792561453`; Luneri was cleanly stopped at an idle boundary and executed once with new StartedAt `1792562394`. Both runtime/report/Feather badges, startup/waiting states, absence of pending/errors and Atlas resume were verified. Riley naturally retained its first gifted Riley at `(4,3)` after 163 total Royal Jelly used, then waited for a new 600-jelly qualification with 439 saved. The counters/final state verify retention and completion/save-leftovers; the intervening individual purchases and roll sequence were not all observed. No Star Egg/Basic workflow or forced RNG outcome was used as a real test.
+
 **Subsequent one-time authorization, October 21:** After this read-only review, the human explicitly requested executing the exact v1.5.0 bundle on RileyCosmicguppydude. One execution was verified with StartedAt `1792561453`, runtime/report/UI v1.5.0, normal startup delay and healthy waiting state. No Royal Jelly/item/purchase action occurred in the observed startup window. This is limited live startup evidence, not validation of every changed workflow; Luneri427 stayed untouched and the recurring research restriction remains read-only.
 
 ## Scope and evidence

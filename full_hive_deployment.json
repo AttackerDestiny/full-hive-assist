@@ -458,17 +458,17 @@
   "offlineCandidate": {
     "version": "1.5.0",
     "createdUtc": "2026-10-21T05:02:04.877966+00:00",
-    "validation": "connected-read-only-research-and-static-compilation",
-    "checks": 0,
+    "validation": "connected-isolated-regressions-and-limited-live-behavior",
+    "checks": 2938,
     "compiledFiles": 12,
     "staticMarkers": 41,
-    "regressionFixturesExecuted": false,
+    "regressionFixturesExecuted": true,
     "connectedResearchPerformed": true,
     "newCodeLiveVerified": false,
-    "liveTested": false,
+    "liveTested": true,
     "deployed": true,
     "assistExecuted": false,
-    "existingLiveScriptsModified": false,
+    "existingLiveScriptsModified": true,
     "phoneFilesModified": false,
     "bytes": 157178,
     "sha256": "69f80c4336a6397772ac6caa0dfe313d5f478ee6f7a8685fa14fd80e419b98dc",
@@ -486,7 +486,7 @@
       "Correct connected rarity fixture and explicit capacity wait"
     ],
     "acquisition": "Advisory; no new empty-cell or capacity-purchase remote introduced",
-    "fixtureExecutionBlocker": "Earlier automatic approval review rejected fixture execution with blocked by policy; no alternate retry used",
+    "fixtureExecutionBlocker": "Historical rejected transport fixture remains excluded; current supported nine-suite workflow was authorized and passed",
     "deferred": [
       "Embedded Star Egg/direct Vicious durable receipt migration",
       "Autonomous zero-bee/slot acquisition and acknowledged reconnect-safe spending"
@@ -502,11 +502,16 @@
       }
     },
     "deployedToAccounts": [
-      "RileyCosmicguppydude"
+      "RileyCosmicguppydude",
+      "Luneri427"
     ],
     "liveStartupVerified": true,
-    "liveVerificationScope": "Riley one-time startup and waiting state only",
-    "otherWorkflowLiveVerified": false
+    "liveVerificationScope": "Both startup/waiting; Riley first unique gifted Riley retention and saved-leftover completion; other workflows remain unobserved",
+    "otherWorkflowLiveVerified": false,
+    "connectedRegressionAccounts": [
+      "RileyCosmicguppydude",
+      "Luneri427"
+    ]
   },
   "previousOfflineCandidate": {
     "version": "1.4.4",
@@ -615,5 +620,108 @@
     "errors": false,
     "cleanupErrors": false,
     "verificationScope": "Startup, UI and normal funded-admission wait only; no claim of changed spending paths being tested"
+  },
+  "latestConnectedRegression": {
+    "version": "1.5.0",
+    "verifiedUtc": "2026-10-21T06:00:43.239873+00:00",
+    "checksPerExecutor": 2938,
+    "suites": {
+      "policy": 753,
+      "character": 46,
+      "collector": 896,
+      "batch": 325,
+      "starJelly": 589,
+      "starPreflight": 220,
+      "starProgress": 17,
+      "finalOccupancy": 10,
+      "connectedReview": 82
+    },
+    "mainCompiled": true,
+    "embeddedCompiled": true,
+    "allPassed": true,
+    "accounts": [
+      "RileyCosmicguppydude",
+      "Luneri427"
+    ],
+    "scope": "Isolated fixtures through connected executors, not forced live spending",
+    "previouslyBlockedTransportFixtureExcluded": true,
+    "testOnlyFix": "makeSpend uses an explicit local env table to prevent executor-global lookup"
+  },
+  "latestLuneriV150Execution": {
+    "account": "Luneri427",
+    "clientId": "e5c85afe-ac5a-4f64-8aa7-d744a5d1e047",
+    "jobId": "1fe68220-9be0-4875-af59-673f64606f2d",
+    "version": "1.5.0",
+    "startedAt": 1792562394,
+    "oldVersion": "1.3.7",
+    "oldStartedAt": 1792545521,
+    "executeCount": 1,
+    "maintenanceStopVerified": true,
+    "startupDelayObserved": true,
+    "postStartupVerified": true,
+    "pendingOrUncertainFlagsCleared": false,
+    "leftoversSeeded": false,
+    "basicLockBefore": false,
+    "rollTaskBefore": false,
+    "admissionBefore": false,
+    "royalJellyBefore": 87,
+    "starJellyBefore": 0,
+    "starEggsBefore": 1,
+    "basicEggsBefore": 0,
+    "occupiedBefore": 43,
+    "bundleSha256": "69f80c4336a6397772ac6caa0dfe313d5f478ee6f7a8685fa14fd80e419b98dc",
+    "verifiedUtc": "2026-10-21T06:03:40.652899+00:00",
+    "running": true,
+    "stop": false,
+    "reportVersion": "1.5.0",
+    "uiVersion": "v1.5.0",
+    "phase": "waiting",
+    "royalJelly": 87,
+    "starJelly": 0,
+    "starEggs": 1,
+    "occupied": 43,
+    "refill": 2000,
+    "normalRefill": 2000,
+    "collectorFallback": false,
+    "safeNonCollector": 0,
+    "atlasStopped": false,
+    "pendingRequests": false,
+    "uncertainReceipt": false,
+    "errors": false,
+    "cleanupErrors": false,
+    "actionsObserved": 0,
+    "royalJellyUsedObserved": 0
+  },
+  "testingAutomation": {
+    "id": "full-hive-assist-monitor",
+    "status": "ACTIVE",
+    "cadenceMinutes": 30,
+    "authorizedVersion": "1.5.0",
+    "accounts": [
+      "RileyCosmicguppydude",
+      "Luneri427"
+    ],
+    "healthyInstanceRestartPolicy": "leave running",
+    "laterVersionLiveDeploymentAuthorized": false
+  },
+  "latestNaturalV150Result": {
+    "verifiedUtc": "2026-10-21T06:03:40.652899+00:00",
+    "account": "RileyCosmicguppydude",
+    "version": "1.5.0",
+    "startedAt": 1792561453,
+    "result": "Gifted Riley",
+    "coordinate": {
+      "X": 4,
+      "Y": 3
+    },
+    "royalJellyConsumed": 163,
+    "royalJellySaved": 439,
+    "newTaskThreshold": 600,
+    "phase": "waiting",
+    "rollTaskPresent": false,
+    "jellyBatchPresent": false,
+    "pendingOrUncertain": false,
+    "atlasStopped": false,
+    "coverage": "First unique gifted retention and completion/save-leftovers observed naturally; individual top-up/admission/intermediate roll sequence not fully captured"
   }
 }
