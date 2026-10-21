@@ -812,5 +812,63 @@
       "sha256": "69f80c4336a6397772ac6caa0dfe313d5f478ee6f7a8685fa14fd80e419b98dc",
       "purpose": "Preserve exact Riley-authorized bundle after Luneri correction"
     }
+  },
+  "latestVersionScopedCheck": {
+    "observedUtc": "2026-10-21T07:28:20.848368+00:00",
+    "sameClientsAndJobVerified": true,
+    "noDeploymentPerformed": true,
+    "riley": {
+      "account": "RileyCosmicguppydude",
+      "version": "1.5.0",
+      "startedAt": 1792561453,
+      "occupied": 41,
+      "royalJelly": 0,
+      "honey": 22741062,
+      "refill": 100,
+      "normalRefill": 600,
+      "phase": "waiting",
+      "safeNonCollector": 1,
+      "activeCoordinate": {
+        "X": 2,
+        "Y": 2
+      },
+      "currentActiveBee": "normal Honey",
+      "retainedUnlistedGifted": [
+        "Riley",
+        "Hasty",
+        "Rad"
+      ],
+      "royalJellyUsed": 1474,
+      "atlasStopped": false,
+      "upgradeRequiresNewHumanInstruction": true
+    },
+    "luneri": {
+      "account": "Luneri427",
+      "version": "1.5.1",
+      "startedAt": 1792565007,
+      "occupied": 43,
+      "royalJelly": 102,
+      "normalRefill": 2000,
+      "phase": "waiting",
+      "royalJellyUsed": 7,
+      "hastyPresent": false,
+      "atlasStopped": false,
+      "pendingObserved": "RetrievePlayerStats read only; no uncertain mutation shown"
+    },
+    "errorsReported": false
+  },
+  "rileyUpgradeAuthorizationRequest": {
+    "version": "1.5.1",
+    "requestedUtc": "2026-10-21T07:28:20.848368+00:00",
+    "status": "pending-human-answer",
+    "reason": "New gifted Hasty/Rad retained by legacy1.5.0, while saved task explicitly prohibits upgrading Riley without a new human instruction",
+    "candidateAlreadyTestedChecks": 2976,
+    "candidateSha256": "59bbe1d45778e8722d9fabe8929bc4698f398220e7c4c1e0504ab627bdf25409",
+    "activeRollMustBePreserved": {
+      "X": 2,
+      "Y": 2,
+      "Reason": "collector-fallback",
+      "StartedType": "Frosty"
+    }
   }
 }
