@@ -677,7 +677,6 @@
     "id": "full-hive-assist-monitor",
     "status": "ACTIVE",
     "cadenceMinutes": 30,
-    "authorizedVersion": "1.5.0",
     "accounts": [
       "RileyCosmicguppydude",
       "Luneri427"
@@ -806,5 +805,12 @@
       "batchAfter": false
     },
     "scope": "Human explicitly authorized this correction for Luneri; Riley remained v1.5.0 and was not restarted"
+  },
+  "archivedVersions": {
+    "1.5.0": {
+      "bundle": "releases/v1.5.0/auto_full_hive_assist.luau",
+      "sha256": "69f80c4336a6397772ac6caa0dfe313d5f478ee6f7a8685fa14fd80e419b98dc",
+      "purpose": "Preserve exact Riley-authorized bundle after Luneri correction"
+    }
   }
 }

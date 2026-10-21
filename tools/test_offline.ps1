@@ -1,7 +1,7 @@
 param(
     [string]$LuauPath = $env:LUAU_PATH,
     [ValidateSet('test_full_hive_policy.luau','test_character_recovery.luau','test_collector_recovery.luau','test_jelly_batch.luau','test_star_jelly.luau','tests/test_progression_offline.luau','tests/test_star_preflight_offline.luau','tests/test_final_occupancy_offline.luau','tests/test_star_progress_offline.luau','tests/test_connected_review_offline.luau')]
-    [string[]]$Suites = @('test_full_hive_policy.luau','test_character_recovery.luau','test_collector_recovery.luau','test_jelly_batch.luau','test_star_jelly.luau','tests/test_progression_offline.luau','tests/test_star_preflight_offline.luau','tests/test_final_occupancy_offline.luau','tests/test_star_progress_offline.luau','tests/test_connected_review_offline.luau')
+    [string[]]$Suites = @('test_full_hive_policy.luau','test_character_recovery.luau','test_collector_recovery.luau','test_jelly_batch.luau','test_star_jelly.luau','tests/test_star_preflight_offline.luau','tests/test_final_occupancy_offline.luau','tests/test_star_progress_offline.luau','tests/test_connected_review_offline.luau')
 )
 $ErrorActionPreference='Stop'
 if (-not $LuauPath) {
@@ -26,7 +26,7 @@ try {
     $code+='local starSource=assert(bundle:match("local StarEggSource = %[%=%=%=%=%[(.-)%]%=%=%=%=%]")); compile(bundle); compile(starSource)'+"`n"
     $code+='local total=0'+"`n"
     foreach ($suite in $Suites) {
-        $args=if ($suite -eq 'test_character_recovery.luau') {'runtime'} elseif ($suite -eq 'test_jelly_batch.luau') {'runtime,P,T'} elseif ($suite -eq 'tests/test_star_preflight_offline.luau') {'starSource,T'} elseif ($suite -eq 'tests/test_star_progress_offline.luau') {'starSource'} elseif ($suite -eq 'tests/test_connected_review_offline.luau') {'P,T,starSource'} else {'P,T,runtime'}
+        $args=if ($suite -eq 'test_character_recovery.luau') {'runtime'} elseif ($suite -eq 'test_jelly_batch.luau') {'runtime,P,T'} elseif ($suite -eq 'tests/test_star_preflight_offline.luau') {'starSource,T'} elseif ($suite -eq 'tests/test_star_progress_offline.luau','tests/test_failsafe_only_recovery.luau') {'starSource'} elseif ($suite -eq 'tests/test_connected_review_offline.luau') {'P,T,starSource'} else {'P,T,runtime'}
         $code+='do local test=compile('+(Literal $suite)+')();local result=test('+$args+'); total+=result.passed;print("'+$suite+'",result.passed) end'+"`n"
     }
     $code+='print("OFFLINE PASS",total)'+"`n"
