@@ -456,6 +456,33 @@
     "pendingRequests": false
   },
   "offlineCandidate": {
+    "version": "1.4.3",
+    "createdUtc": "2026-10-21T04:06:33.147586+00:00",
+    "validation": "static-review-and-compilation-only",
+    "checks": 0,
+    "regressionFixturesExecuted": false,
+    "compiledFiles": 7,
+    "staticMarkers": 36,
+    "fixtureExecutionBlocker": "Automatic approval review rejected a pure-table fixture command before execution: blocked by policy. No alternate execution attempted.",
+    "liveTested": false,
+    "deployed": false,
+    "phoneFilesModified": false,
+    "existingLiveScriptsModified": false,
+    "bytes": 148819,
+    "sha256": "18da7733420a4f5486cae45796985efac6217877667032fa745c50c2c38f9d05",
+    "luauCliVersion": "0.743",
+    "researchAgents": 3,
+    "scope": "auto-hive-only",
+    "change": "Require 50 occupied bees for completion; explain empty final hive cells without changing composition",
+    "acquisition": "advisory; empty hatching and capacity purchases still use Atlas/manual actions",
+    "deferred": [
+      "Embedded Star Egg/direct Vicious durable receipts",
+      "Star Egg all-gifted-Mythics outcome guard",
+      "Recorded-only readiness in standalone StarProgress",
+      "Malformed duplicate-coordinate input validation"
+    ]
+  },
+  "previousOfflineCandidate": {
     "version": "1.4.2",
     "createdUtc": "2026-10-21T03:43:07.738537+00:00",
     "validation": "selected-pure-local-fixtures-and-static-compilation-only",
@@ -478,23 +505,5 @@
     "acquisition": "advisory; empty hatching and capacity purchases still use Atlas/manual actions",
     "change": "Full current-hive Star Egg prerequisites, per-egg settings guard, initialized host budget, checked builder hooks",
     "deferred": "Embedded Star Egg and Vicious claim durable receipts; extracted-transport fixture rejected before execution"
-  },
-  "previousOfflineCandidate": {
-    "version": "1.4.1",
-    "createdUtc": "2026-10-21T03:08:27.1235701Z",
-    "validation": "isolated-local-fixtures-only",
-    "liveTested": false,
-    "deployed": false,
-    "phoneFilesModified": false,
-    "existingLiveScriptsModified": false,
-    "checks": 2923,
-    "staticMarkers": 36,
-    "bytes": 147422,
-    "sha256": "fd75b1d4d5647c29f814069d01845509afd54293595ac8feff63cb9c5682cadd",
-    "luauCliVersion": "0.743",
-    "researchAgents": 3,
-    "scope": "auto-hive-only",
-    "acquisition": "advisory; empty hatching and capacity purchases still use Atlas/manual actions",
-    "change": "Preserve legitimate gifted duplicate quotas; unify growth advisory inventory"
   }
 }

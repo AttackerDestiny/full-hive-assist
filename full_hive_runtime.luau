@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.4.2"
+local SCRIPT_VERSION = "1.4.3"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -917,7 +917,12 @@ local function run()
             if giftedBasic(s,cells,p) then continue end
             if starReady(s,cells) then Report.Phase="star-eggs"; useStarScript(s); continue end
         end
-        if not p.target then waitFor("Targets held; waiting for Atlas, inventory, or Star Egg prerequisites"); s=refresh(); continue end
+        if not p.target then
+            local reason=p.stage=="final" and p.growth.Empty>0
+                and ("Waiting to fill "..p.growth.Empty.." empty hive cells (Atlas or manual hatching)")
+                or "Targets held; waiting for Atlas, inventory, or Star Egg prerequisites"
+            waitFor(reason); s=refresh(); continue
+        end
         if item=="RoyalJelly" and not (jellyBatchReady(s) or refill()) then
             waitFor("Waiting for at least "..Report.RefillAmount.." Royal Jelly to start a batch"); s=refresh(); continue
         end

@@ -1,7 +1,7 @@
 param(
     [string]$LuauPath = $env:LUAU_PATH,
-    [ValidateSet('test_full_hive_policy.luau','test_character_recovery.luau','test_collector_recovery.luau','test_jelly_batch.luau','test_star_jelly.luau','tests/test_progression_offline.luau','tests/test_star_preflight_offline.luau')]
-    [string[]]$Suites = @('test_full_hive_policy.luau','test_character_recovery.luau','test_collector_recovery.luau','test_jelly_batch.luau','test_star_jelly.luau','tests/test_progression_offline.luau','tests/test_star_preflight_offline.luau')
+    [ValidateSet('test_full_hive_policy.luau','test_character_recovery.luau','test_collector_recovery.luau','test_jelly_batch.luau','test_star_jelly.luau','tests/test_progression_offline.luau','tests/test_star_preflight_offline.luau','tests/test_final_occupancy_offline.luau')]
+    [string[]]$Suites = @('test_full_hive_policy.luau','test_character_recovery.luau','test_collector_recovery.luau','test_jelly_batch.luau','test_star_jelly.luau','tests/test_progression_offline.luau','tests/test_star_preflight_offline.luau','tests/test_final_occupancy_offline.luau')
 )
 $ErrorActionPreference='Stop'
 if (-not $LuauPath) {

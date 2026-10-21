@@ -495,6 +495,7 @@ function P.plan(cells, types, ctx)
         fallbackCandidates=fallbackCandidates, collectorFallback=collectorFallback and #fallbackCandidates>0,
         recoveryGifted=recoveryMode=="gifted",
         target=target, mode=mode, reason=reason, babyGoal=babyGoal,
-        complete=stage == "final" and #needs == 0 and not cleanupTarget and not capacityStatus.Conflict}
+        complete=stage == "final" and ctx.slots == 50 and growth.Occupied == 50
+            and #needs == 0 and not cleanupTarget and not capacityStatus.Conflict}
 end
 return P

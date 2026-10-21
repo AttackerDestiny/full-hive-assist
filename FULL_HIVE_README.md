@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.4.3 offline correction:** Completion requires 50 occupied bees, not just 50 unlocked cells and satisfied composition targets. Empty final cells remain an Atlas/manual hatching advisory. This version is statically reviewed only; fixture execution was rejected by automatic approval review. No real tests or deployment were performed.
+
 **v1.4.0 offline build:** The current research task prohibits live testing or deployment. See [the zero-to-fifty hive review](HIVE_PROGRESSION_RESEARCH.md) for new growth/diversity/capacity diagnostics, mutation safeguards, evidence, and acquisition limitations. Historical live instructions and observations below are not authorization to run this new build on a connected client.
 
 **v1.3.7 user caps:** Ninja has a maximum of 4 total hive slots and Lion a maximum of 2, including normal and gifted copies. A cap does not add a minimum quota. The planner prioritizes surplus slots before optional flexible conversion, and excess copies remain eligible during collector recovery instead of being retained as collector outcomes. Existing unique gifted failsafes may replace a normal copy; subsequent cleanup releases the normal surplus. Permanent protection, later stage goals, same-coordinate objectives, refill thresholds, and completion/save-leftovers rules are preserved. Existing excess bees are replaced only through the regular resource-qualified workflow.
