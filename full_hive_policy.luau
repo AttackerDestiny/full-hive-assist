@@ -129,7 +129,8 @@ function P.recoveryMode(honey)
     if (honey or 0)>=20000000000 then return "gifted","gifted-collector-fallback" end
     return "off","collector-fallback"
 end
-function P.giftedLimit(name, stage)
+function P.giftedLimit(name, stage, babyGoal)
+    if name=="Baby" and stage=="final" and babyGoal~=nil then return math.min(4,babyGoal) end
     if name == "Baby" or name == "Music" then return 4 end
     if name == "Diamond" and stage == "final" then return 4 end
     return P.exactGifted[name] and 1 or nil
@@ -164,10 +165,13 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     local slotCap=P.slotCaps[name]
     if slotCap and P.count(cells,name)>slotCap
         and not (gifted and (task.InitialGifted[name] or 0)==0) then return false end
-    local limit = P.giftedLimit(name, plan.stage)
+    local limit = P.giftedLimit(name, plan.stage, plan.babyGoal)
     -- Do not let a new duplicate win a reservation merely because its
     -- coordinate sorts before the existing gifted copy.
     if gifted and limit and P.count(cells, name, true) > limit then return false end
+    -- Apply the fresh final quota before goals captured by an older task.
+    if name=="Baby" and plan.stage=="final" and not gifted
+        and P.count(cells,name)>(plan.babyGoal or 4) then return false end
     if (task.Reason == "collector-fallback" or task.Reason == "collector")
         and P.isCollectorSection(cell) then return true, "collector-result" end
     if task.Reason=="gifted-collector-fallback" and gifted and (name=="Bubble" or name=="Frosty") then
@@ -203,7 +207,7 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     end
     -- A needed normal force bee is useful; a fifth Baby or a surplus normal
     -- collector never steals an old force slot just by sorting first.
-    local normalCaps={Baby=4,Music=4,Shy=3,Bubble=4,Frosty=4,Ninja=2}
+    local normalCaps={Baby=plan.stage=="final" and (plan.babyGoal or 4) or 4,Music=4,Shy=3,Bubble=4,Frosty=4,Ninja=2}
     local cap=normalCaps[name]
     if (not task.Goals or #task.Goals==0) and cap and (task.InitialTotal[name] or 0)<cap and P.count(cells,name)<=cap then
         return true, "force-quota-result"
@@ -225,7 +229,7 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
     local done = P.rollTaskDone(task, cell, cells, types, plan)
     if done then return false end
     local name = cell.bee.Type
-    local limit = P.giftedLimit(name, plan.stage)
+    local limit = P.giftedLimit(name, plan.stage, plan.babyGoal)
     if P.gifted(cell) and plan.starPrepare and P.count(cells,name,true)>1 then return true end
     if P.gifted(cell) and name=="Fire" and P.count(cells,name,true)>P.keptGiftedCount(cells,plan,name) then return true end
     if P.slotCaps[name] and P.count(cells,name)>P.slotCaps[name] then return true end
@@ -234,7 +238,7 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
     if task.Reason == "convert-flexible" and not P.gifted(cell)
         and (name == "Bubble" or name == "Frosty") then return true end
     if task.Reason=="gifted-collector-fallback" and not P.gifted(cell) and P.isCollectorSection(cell) then return true end
-    local normalCaps={Baby=4,Music=4,Shy=3,Bubble=4,Frosty=4,Ninja=2}
+    local normalCaps={Baby=plan.stage=="final" and (plan.babyGoal or 4) or 4,Music=4,Shy=3,Bubble=4,Frosty=4,Ninja=2}
     if normalCaps[name] and not P.gifted(cell) and P.count(cells,name)>normalCaps[name] then return true end
     if not task.Rolled and task.InitialFingerprint==name..":"..tostring(P.gifted(cell)) then
         -- The planner selected this slot, including an explicitly released

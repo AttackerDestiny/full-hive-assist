@@ -1,0 +1,153 @@
+{
+  "observedClient": "Luneri427/e5c85afe-ac5a-4f64-8aa7-d744a5d1e047",
+  "placeId": 1537690962,
+  "jobId": "1fe68220-9be0-4875-af59-673f64606f2d",
+  "readOnly": true,
+  "blender": {
+    "remote": "ReplicatedStorage.Events.BlenderCommand",
+    "class": "RemoteFunction",
+    "placeOrderArgs": [
+      "PlaceOrder",
+      {
+        "Recipe": "recipe ID",
+        "Count": "positive integer exact deficit"
+      }
+    ],
+    "collectArgs": [
+      "StopOrder"
+    ],
+    "collectOnlyWhen": "PlaytimeAtLoad + OfflineProgressTime + OsTime() - LoadTime - BlenderState.StartTime >= BlenderState.Count * recipe.Time",
+    "state": "stats.BlenderState {Recipe, Count, StartTime}",
+    "receiptPlace": "Fresh matching BlenderState and ingredient consumption; never replace an existing order",
+    "receiptCollect": "Fresh BlenderState absent plus output inventory increased by order.Count; otherwise retain unresolved receipt",
+    "forbid": [
+      "SpeedUpOrder",
+      "premature StopOrder",
+      "replace existing queue"
+    ],
+    "target": "Workspace.Toys.Blender.Platform",
+    "source": [
+      "blendergui_requests.txt",
+      "blendergui_action.txt",
+      "metadata_crafting_read.txt"
+    ]
+  },
+  "nectar": {
+    "remote": "ReplicatedStorage.Events.NectarCondenser",
+    "class": "RemoteEvent",
+    "args": [
+      "Comforting"
+    ],
+    "costSeconds": 43200,
+    "cooldownSeconds": 5,
+    "requiredBees": 35,
+    "vialCap": 10,
+    "target": "Workspace.Toys.Nectar Condenser.Platform",
+    "receipt": "Fresh ComfortingVial +1; nectar duration decrease by43200 where authoritative state available. Send once and reconcile, never blind retry",
+    "source": [
+      "nectarcondenser_action.txt",
+      "pack_cost_fields.txt"
+    ]
+  },
+  "codes": {
+    "remote": "ReplicatedStorage.Events.PromoCodeEvent",
+    "class": "RemoteEvent",
+    "args": [
+      "code string"
+    ],
+    "history": "stats.Codes array; compare lowercase",
+    "receipt": "lowercase code appears in refreshed stats.Codes",
+    "observedAllRequestedRedeemed": true,
+    "physicalTerminal": "None; normal code redemption is GUI-only",
+    "source": [
+      "promocodes.txt",
+      "metadata_crafting_read.txt"
+    ]
+  },
+  "hiveSlot": {
+    "remote": "ReplicatedStorage.Events.ItemPackageEvent",
+    "class": "RemoteFunction",
+    "args": [
+      "Purchase",
+      {
+        "Category": "HiveSlot",
+        "Amount": 1
+      }
+    ],
+    "priceAPI": "ItemPackages.HiveSlot.GetCost(package, stats)",
+    "receipt": "accepted true; UnlockedCells +1; Totals.Purchases.HiveSlots +1; verified cost",
+    "nextObservedCost": 9296140310,
+    "source": [
+      "hiveslot.txt",
+      "hiveslot_effect.txt",
+      "pack_cost_fields.txt"
+    ]
+  },
+  "hatch": {
+    "remote": "ReplicatedStorage.Events.ConstructHiveCellFromEgg",
+    "class": "RemoteFunction",
+    "args": [
+      "x",
+      "y",
+      "Basic",
+      1,
+      false
+    ],
+    "preflight": "Owned hive; cell exists, CellLocked=false, CellType=Empty; fresh Honeycomb coordinate absent; y=1 or CellTools:HasActiveNeighbor(cell)",
+    "receipt": "Basic -1; accepted; target now known bee; occupancy +1; all existing protected bees unchanged",
+    "target": "Owned hive floor through existing movement",
+    "source": [
+      "celltools.txt",
+      "hatch_empty_rules.txt",
+      "hatch_action.txt"
+    ]
+  },
+  "gumdrops": {
+    "remote": "ReplicatedStorage.Events.ItemPackageEvent",
+    "args": "Purchase, {Category=Eggs, Type=Gumdrops, Amount=3|30|300}",
+    "ticketCosts": {
+      "3": 1,
+      "30": 10,
+      "300": 100
+    },
+    "target": "Workspace.Shops.GumdropDispenser.Floor.Value",
+    "targetActual": "Workspace.Decorations.Misc.GumdropMachine.round peace",
+    "source": [
+      "ownership_and_packs.txt",
+      "egg_package_getcost.txt"
+    ]
+  },
+  "diamondToken": {
+    "state": "Unavailable in observed client",
+    "evidence": "TreasureCollectibles and Camera.Collectibles empty; no Diamond icon Decal found; no Diamond TreasureID metadata accessible",
+    "knownIcon": "rbxassetid://1471850677",
+    "claimedLedger": "stats.Treasures array of IDs",
+    "restriction": "Do not guess location, TreasureID or collect remote. Approach a later verified live token using existing tween; no firetouch",
+    "receipt": "Diamond +1 and verified treasure ledger addition",
+    "fallback": "TicketShop Diamond Egg Amount1 costs400tickets",
+    "source": [
+      "diamond_camera_read.txt",
+      "treasure_claim_state.txt",
+      "riley_diamond_token_read.txt"
+    ],
+    "rileyState": "Unavailable: independently verified RileyCosmicguppydude, same place/job/Arceus, TreasureCollectibles and Camera.Collectibles both empty, Diamond inventory4; no token or TreasureID guessed"
+  },
+  "planters": {
+    "blueId": "Blue ClayPlanter",
+    "redId": "Red ClayPlanter",
+    "permanentOwned": "Totals.Purchases.Eggs[internalId] >= PurchaseLimit(1), even if inventory0 while planted",
+    "observedBlueOwned": true,
+    "observedRedOwned": true,
+    "observedCandyOwned": false,
+    "observedTackyOwned": false,
+    "source": [
+      "planter_defs_read.txt",
+      "ownership_and_packs.txt"
+    ]
+  },
+  "unknowns": [
+    "Blender server StopOrder implementation unavailable; GUI does not inspect a return. Require fresh queue/output receipts",
+    "Diamond token TreasureID and location unavailable, not guessed",
+    "Condenser duration source is BuffTile client timer; authoritative server nectar state still needs verification"
+  ]
+}

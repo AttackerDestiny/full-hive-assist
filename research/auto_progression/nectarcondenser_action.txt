@@ -1,0 +1,97 @@
+[client=e5c85afe-ac5a-4f64-8aa7-d744a5d1e047 place=Bee Swarm Simulator job=1fe68220-9be0-4875-af59-673f64606f2d]
+-- Lines 120-214 of 214
+				if not v_u_2 then
+					return
+				end
+				v_u_1.UpdateButtonVisuals()
+			end
+		end)
+	end
+end
+function v_u_1.UpdateButtonVisuals()
+	-- upvalues: (ref) v_u_3
+	if v_u_3 then
+		if require(game.ReplicatedStorage.ClientStatCache):Get() then
+			local v27 = require(game.ReplicatedStorage.TimeString)
+			require(game.ReplicatedStorage.NectarTypes).GetTypes()
+			for v28, v29 in pairs(v_u_3) do
+				v29.Visible = true
+				local v30 = v28 .. " Nectar"
+				local v31 = require(game.ReplicatedStorage.Gui.TileDisplay.BuffTile).GetBuffTile(v30)
+				local v32
+				if v31 then
+					local v33 = require(game.ReplicatedStorage.OsTime)()
+					v32 = v31.TimerStart + v31.TimerDur - v33
+				else
+					v32 = 0
+				end
+				local v34 = v27(v32, true)
+				v29.TextTime.Text = v34
+				if v32 < 43200 then
+					v29.Shade.Visible = true
+					v29.Selectable = false
+					if v32 < 1 then
+						v29.TextTime.Text = "Empty"
+					end
+				else
+					v29.Shade.Visible = false
+					v29.Selectable = true
+				end
+			end
+		end
+	else
+		return
+	end
+end
+function v_u_1.CloseGui()
+	-- upvalues: (ref) v_u_2, (ref) v_u_3
+	if v_u_2 then
+		v_u_2:Destroy()
+		v_u_2 = nil
+		v_u_3 = nil
+		local v35 = require(game.ReplicatedStorage.CameraTools)
+		v35.EnablePlayerMovement()
+		v35.DisableBlur("NectarCondenser")
+		require(game.ReplicatedStorage.Gui.GamepadUtil).EnableYMenuSelect()
+	end
+end
+function v_u_1.ToggleGui()
+	-- upvalues: (ref) v_u_2, (copy) v_u_1
+	if v_u_2 then
+		v_u_1.CloseGui()
+	else
+		v_u_1.OpenGui()
+	end
+end
+function v_u_1.CondenseNectarType(p36)
+	-- upvalues: (copy) v_u_1
+	local v37 = require(game.ReplicatedStorage.ClientStatCache):Get()
+	if v37 then
+		if require(game.ReplicatedStorage.NectarTypes).GetType(p36) then
+			local v38 = p36 .. " Nectar"
+			local v39 = require(game.ReplicatedStorage.Gui.TileDisplay.BuffTile).GetBuffTile(v38)
+			local v40
+			if v39 then
+				local v41 = require(game.ReplicatedStorage.OsTime)()
+				v40 = v39.TimerStart + v39.TimerDur - v41
+			else
+				v40 = 0
+			end
+			if v40 < 43200 then
+				return
+			else
+				v37.MiscInfo.LastNectarCondenserType = p36
+				v_u_1.SetModelToNectarType(p36, true)
+				if require(game.ReplicatedStorage.Gui.QuestionBox).Ask("Convert 12 hours of " .. v38 .. " into a " .. p36 .. " Vial?", true) then
+					require(game.ReplicatedStorage.Events).ClientCall("NectarCondenser", p36)
+					v_u_1.CloseGui()
+				end
+			end
+		else
+			return
+		end
+	else
+		return
+	end
+end
+return v_u_1

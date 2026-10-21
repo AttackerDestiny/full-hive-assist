@@ -1,0 +1,148 @@
+[client=e5c85afe-ac5a-4f64-8aa7-d744a5d1e047 place=Bee Swarm Simulator job=1fe68220-9be0-4875-af59-673f64606f2d]
+-- Lines 115-260 of 501
+		else
+			v32.SelectedObject = nil
+		end
+	end
+end
+function v_u_1.FocusRecipe(p33)
+	-- upvalues: (copy) v_u_9, (ref) v_u_6, (ref) v_u_8, (ref) v_u_7, (ref) v_u_3, (ref) v_u_2, (copy) v_u_23
+	local v34 = 1 + (p33 - 1) % #v_u_9
+	if v34 == v_u_6 then
+		return
+	end
+	v_u_6 = v34
+	local v35 = require(game.ReplicatedStorage.BlenderRecipes)
+	local v36 = v_u_9[v34]
+	v_u_8 = v35.Get(v36)
+	local v37 = require(game.ReplicatedStorage.ClientStatCache):Get()
+	local v38 = require(game.ReplicatedStorage.ItemPackages)
+	v_u_7 = true
+	for _, v39 in ipairs(v_u_8.Ingredients) do
+		if not v38.PlayerHas(v39, v37) then
+			v_u_7 = false
+			break
+		end
+	end
+	local v40 = require(game.ReplicatedStorage.EggTypes).Get(v36)
+	v_u_3.Description.Text = v40.Description
+	v_u_3.RecipeName.Text = "- " .. v40.DisplayName .. " -"
+	v_u_3.Item.Image = v40.ProportionateIcon
+	local v41 = v_u_2.Box.SelectBox.SelectButton
+	v41.Text = "Make " .. v40.DisplayName
+	if v_u_7 then
+		v41.BackgroundTransparency = 0
+		v41.TextTransparency = 0
+		v41.AutoButtonColor = true
+	else
+		v41.BackgroundTransparency = 0.5
+		v41.TextTransparency = 0.5
+		v41.AutoButtonColor = false
+	end
+	v_u_2.Box.PageNumber.Text = v34 .. " / " .. #v_u_9
+	v_u_23()
+end
+function v_u_1.SetSelectedQuantity(p42)
+	-- upvalues: (ref) v_u_8, (ref) v_u_10, (ref) v_u_5, (ref) v_u_11, (copy) v_u_23
+	if not v_u_8 then
+		return
+	end
+	v_u_10 = p42
+	if p42 <= 1 then
+		v_u_5.MinusButton.BackgroundTransparency = 0.5
+		v_u_5.MinusButton.TextTransparency = 0.5
+	else
+		v_u_5.MinusButton.BackgroundTransparency = 0
+		v_u_5.MinusButton.TextTransparency = 0
+	end
+	local v43 = require(game.ReplicatedStorage.ClientStatCache):Get()
+	local v44 = require(game.ReplicatedStorage.ItemPackages)
+	v_u_11 = true
+	for _, v45 in ipairs(v_u_8.Ingredients) do
+		local v46 = {}
+		for v47, v48 in pairs(v45) do
+			v46[v47] = v48
+		end
+		local v49 = v46.Amount * (p42 + 1) + 0.5
+		v46.Amount = math.floor(v49)
+		v46.Alert = true
+		if not v44.PlayerHas(v46, v43) then
+			v_u_11 = false
+			break
+		end
+	end
+	if v_u_11 then
+		v_u_5.PlusButton.BackgroundTransparency = 0
+		v_u_5.PlusButton.TextTransparency = 0
+	else
+		v_u_5.PlusButton.BackgroundTransparency = 0.5
+		v_u_5.PlusButton.TextTransparency = 0.5
+	end
+	v_u_5.QuantityLabel.Text = p42
+	v_u_23()
+end
+function v_u_1.OpenQuantitySelect()
+	-- upvalues: (copy) v_u_9, (ref) v_u_6, (copy) v_u_1, (ref) v_u_5
+	local v50 = v_u_9[v_u_6]
+	require(game.ReplicatedStorage.BlenderRecipes).Get(v50)
+	v_u_1.SetSelectedQuantity(1)
+	v_u_5.Visible = true
+end
+function v_u_1.CloseQuantitySelect()
+	-- upvalues: (ref) v_u_5, (copy) v_u_1
+	v_u_5.Visible = false
+	v_u_1.SetSelectedQuantity(1)
+end
+function v_u_1.UpdateProgressInfo()
+	-- upvalues: (ref) v_u_8, (copy) v_u_9, (ref) v_u_6, (ref) v_u_4, (ref) v_u_12
+	if v_u_8 then
+		local v_u_51 = require(game.ReplicatedStorage.ClientStatCache)
+		local v_u_52 = v_u_51:Get("BlenderState")
+		if v_u_52 then
+			local v53 = v_u_9[v_u_6]
+			local v54 = require(game.ReplicatedStorage.EggTypes).Get(v53)
+			v_u_4.ActionLabel.Text = "Crafting " .. v54.DisplayName .. "..."
+			v_u_4.Item.Image = v54.Icon
+			local v_u_55 = v_u_12 + 1
+			v_u_12 = v_u_55
+			local v_u_56 = v_u_8
+			task.spawn(function()
+				-- upvalues: (ref) v_u_12, (copy) v_u_55, (copy) v_u_51, (copy) v_u_52, (copy) v_u_56, (ref) v_u_8, (ref) v_u_4
+				task.wait()
+				while v_u_12 == v_u_55 do
+					local v57 = v_u_51:Get("PlaytimeAtLoad")
+					local v58 = v57 and v_u_51:Get("LoadTime")
+					if not v58 then
+						break
+					end
+					local v59 = v_u_51:Get("OfflineProgressTime") or 0
+					local v60 = require(game.ReplicatedStorage.OsTime)() - v58
+					local v61 = v57 + v59 + v60 - v_u_52.StartTime
+					local v62 = v_u_52.Count
+					local v63 = v62 * v_u_56.Time
+					local v64 = v61 / v63
+					local v65 = math.clamp(v64, 0, 1)
+					local v66 = v63 - v61
+					local v67 = v65 * v62
+					local v68 = math.floor(v67) / v_u_8.AutoCompletePerTicket
+					local v69 = (v62 - math.floor(v68) * v_u_8.AutoCompletePerTicket) / v_u_8.AutoCompletePerTicket
+					local v70 = math.ceil(v69)
+					v_u_4.TicketButton.Text = "Speed Up for " .. v70 .. " Ticket"
+					if v70 > 1 then
+						v_u_4.TicketButton.Text = v_u_4.TicketButton.Text .. "s"
+					end
+					v_u_4.ProgressBar.FillBar.Size = UDim2.new(v65, 0, 1, 0)
+					local v71 = v65 * v62
+					local v72 = math.floor(v71)
+					v_u_4.Item.AmountLabel.Text = v72 .. " / " .. v_u_52.Count
+					if v_u_52.Count <= v72 then
+						v_u_4.EndButton.BackgroundColor3 = Color3.fromRGB(26, 204, 36)
+						v_u_4.EndButton.BorderColor3 = Color3.fromRGB(43, 143, 58)
+						v_u_4.TicketButton.Visible = false
+					else
+						v_u_4.EndButton.BackgroundColor3 = Color3.fromRGB(201, 39, 28)
+						v_u_4.EndButton.BorderColor3 = Color3.fromRGB(104, 23, 16)
+						v_u_4.TicketButton.Visible = true
+					end
+					v_u_4.ProgressBar.TimeLabel.Text = require(game.ReplicatedStorage.TimeString)(v66)
+					task.wait(1)

@@ -71,33 +71,67 @@ return function(runtime)
         "local Config={Speed=65}; local cleanupMove; local function acquire() end; local function checkStop() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance() return 20 end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end\nend"))()
-    for _,failure in ipairs({"death","replacement","detached"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","success"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
-        local player={Character=c}; local obstacle={CanCollide=true,Parent=true}
-        local destroyed,cancelled,disconnected=0,false,false
+        r.Parent=c
+        local function part(collidable)
+            return {CanCollide=collidable,Parent=true,IsA=function(_,name) return name=="BasePart" end}
+        end
+        local player={Character=c}; local obstacle,noncollidable=part(true),part(false)
+        local added,fencePart=part(true),part(false)
+        local destroyed,cancelled,disconnected=0,false,0
+        local callbacks={}
+        local function signal(name)
+            return {Connect=function(_,callback)
+                callbacks[name]=callback
+                return {Disconnect=function() disconnected+=1;callbacks[name]=nil end}
+            end}
+        end
+        c.DescendantAdded=signal("characterAdded")
+        local fences={DescendantAdded=signal("fenceAdded")}
         local services={
-            RunService={Stepped={Connect=function(_,callback)
-                callback()
-                return {Disconnect=function() disconnected=true end}
-            end}},
-            TweenService={Create=function()
+            RunService={Stepped=signal("stepped")},
+            TweenService={Create=function(_,_,_,goal)
+                if failure=="setup-error" then error("Fake tween setup failed",0) end
                 return {Cancel=function() cancelled=true end,Play=function()
+                    check(not obstacle.CanCollide and not noncollidable.CanCollide,
+                        "Noclip is enabled before Tween:Play on "..failure)
+                    callbacks.characterAdded(added)
+                    callbacks.fenceAdded(fencePart)
+                    check(not added.CanCollide and not fencePart.CanCollide,
+                        "New parts immediately enter noclip on "..failure)
+                    obstacle.CanCollide=true;added.CanCollide=true
+                    callbacks.stepped()
+                    check(not obstacle.CanCollide and not added.CanCollide,
+                        "Stepped reapplies noclip to old and new parts on "..failure)
                     if failure=="replacement" then player.Character=character(100,true)
                     elseif failure=="detached" then r.Parent=nil
+                    elseif failure=="play-error" then error("Fake tween play failed",0)
+                    elseif failure=="success" then r.Position=goal.Position
                     else c.FindFirstChildOfClass=function() return {Health=0} end end
                 end}
             end},
         }
         local fakeGame={GetService=function(_,name) return assert(services[name],name) end}
-        local fakeWorkspace={FindFirstChild=function() return nil end}
+        local map={FindFirstChild=function(_,name) if name=="Fences" then return fences end end}
+        local fakeWorkspace={FindFirstChild=function(_,name) if name=="Map" then return map end end}
         local fakeInstance={new=function() return {Destroy=function() destroyed+=1 end} end}
         local move,token,pendingCleanup=movementFactory(player,fakeGame,fakeWorkspace,fakeInstance,
-            function() return {obstacle} end,{})
+            function(container) return container==fences and {} or {obstacle,noncollidable} end,{})
         local part={Name="Test",Position=Vector3.new(20,0,0),Size=Vector3.new(4,1,4),IsA=function() return true end}
         local ok,err=pcall(move,part)
-        check(not ok and err==token,"Movement detects character "..failure..": "..tostring(err))
-        check(cancelled and disconnected and destroyed==2,"Movement objects removed on "..failure)
-        check(obstacle.CanCollide==true and pendingCleanup()==nil,"Collision restored on "..failure)
+        if failure=="success" then check(ok,"Successful movement completes")
+        elseif failure=="play-error" or failure=="setup-error" then
+            check(not ok and err=="Fake tween "..(failure=="play-error" and "play" or "setup").." failed",
+                "Movement preserves tween failure on "..failure)
+        else check(not ok and err==token,"Movement detects character "..failure..": "..tostring(err)) end
+        check((failure=="setup-error" or cancelled) and disconnected==3 and destroyed==2,
+            "Movement objects and all signals removed on "..failure)
+        check(obstacle.CanCollide==true and not noncollidable.CanCollide and pendingCleanup()==nil,
+            "Original true and false collisions restored on "..failure)
+        check(added.CanCollide==true and not fencePart.CanCollide,
+            "New part collisions restored on "..failure)
+        check(next(callbacks)==nil,"No descendant or Stepped listeners survive "..failure)
     end
     return {passed=checked}
 end

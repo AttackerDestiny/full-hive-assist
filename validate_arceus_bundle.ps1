@@ -67,5 +67,6 @@ $gateOrder = @'
     initializeModules()
     runWithCharacterRecovery()
 '@ -replace "`r`n", "`n"
+if ([version]$version -ge [version]'1.6.0') { $gateOrder=$gateOrder.Replace("    initializeModules()`n","    initializeModules()`n    initializeProgression()`n") }
 if (-not ($bundle.Replace("`r`n", "`n")).Contains($gateOrder)) { throw 'Atlas gate must precede game-module loading and run()' }
 [pscustomobject]@{ Path = $bundlePath; Version = $version; Characters = $bundle.Length; UTF8 = $true; CompatibilityMarkers = $required.Count }

@@ -970,5 +970,38 @@
     "runtimeRestarted": false,
     "candidateDeployed": false,
     "repositoryWideRenormalization": false
+  },
+  "latestAutoProgressionV160": {
+    "version": "1.6.0",
+    "bundle": "auto_full_hive_assist.luau",
+    "sha256": "f5934fa44ae231e6dcfd09fea0a2c45aaf700af37b6a2dab26d45ed7fe50152e",
+    "bytes": 228277,
+    "observedUtc": "2026-10-21T15:45:10.567269+00:00",
+    "accounts": [
+      {
+        "account": "RileyCosmicguppydude",
+        "clientId": "ce939894-c003-43c3-bdc7-2a90bd08328b",
+        "startedAt": 1792597396,
+        "version": "1.6.0",
+        "running": true,
+        "phase": "startup-delay",
+        "ticketSpeedupEnabled": false,
+        "pendingOrUncertain": false
+      },
+      {
+        "account": "Luneri427",
+        "clientId": "e5c85afe-ac5a-4f64-8aa7-d744a5d1e047",
+        "startedAt": 1792597397,
+        "version": "1.6.0",
+        "running": true,
+        "phase": "startup-delay",
+        "ticketSpeedupEnabled": false,
+        "pendingOrUncertain": false
+      }
+    ],
+    "isolatedChecksPerExecutor": 3236,
+    "scope": "parallel material progression, exact gear honey reservation after materials, Atlas lease, status/task reporting, opt-in Blender ticket speedup",
+    "ticketSpeedup": "UseBlenderTickets and Feather BlenderTicketToggle default false; no ticket speedup observed",
+    "validationLimit": "Natural gear purchase/craft paths are partially observed; current Blender queues are intentionally waiting and no ticket toggle was enabled"
   }
 }

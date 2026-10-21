@@ -1,0 +1,158 @@
+[client=e5c85afe-ac5a-4f64-8aa7-d744a5d1e047 place=Bee Swarm Simulator job=1fe68220-9be0-4875-af59-673f64606f2d]
+-- Lines 280-435 of 501
+	-- upvalues: (ref) v_u_8, (copy) v_u_9, (ref) v_u_6, (ref) v_u_10, (copy) v_u_1
+	if v_u_8 then
+		local v73 = require(game.ReplicatedStorage.Events).ClientCall("BlenderCommand", "PlaceOrder", {
+			["Recipe"] = v_u_9[v_u_6],
+			["Count"] = v_u_10
+		})
+		if v73 then
+			require(game.ReplicatedStorage.ClientStatCache):Set("BlenderState", v73)
+			v_u_1.OpenProgressInfo()
+		end
+	else
+		return false
+	end
+end
+function v_u_1.StopOrder()
+	-- upvalues: (copy) v_u_1, (ref) v_u_6
+	require(game.ReplicatedStorage.Events).ClientCall("BlenderCommand", "StopOrder")
+	v_u_1.CloseProgressInfo()
+	v_u_1.FocusRecipe(v_u_6)
+	v_u_1.SetSelectedQuantity(1)
+	require(game.ReplicatedStorage.ClientStatCache):Set("BlenderState", nil)
+end
+function v_u_1.SpeedUpOrder()
+	-- upvalues: (ref) v_u_8, (copy) v_u_1
+	if v_u_8 then
+		local v74 = require(game.ReplicatedStorage.ClientStatCache)
+		local v75 = v74:Get("BlenderState")
+		if v75 then
+			local v76 = v74:Get("PlaytimeAtLoad")
+			if v76 then
+				local v77 = v74:Get("LoadTime")
+				if v77 then
+					local v78 = v74:Get("OfflineProgressTime") or 0
+					local v79 = v76 + (require(game.ReplicatedStorage.OsTime)() - v77) + v78 - v75.StartTime
+					local v80 = v75.Count
+					local v81 = v80 * v_u_8.Time
+					local v82 = v79 / v81
+					local v83 = math.clamp(v82, 0, 1)
+					local _ = v81 - v79
+					local v84 = v83 * v80
+					local v85 = math.floor(v84) / v_u_8.AutoCompletePerTicket
+					local v86 = (v80 - math.floor(v85) * v_u_8.AutoCompletePerTicket) / v_u_8.AutoCompletePerTicket
+					local v87 = math.ceil(v86)
+					if v87 <= 0 then
+						return
+					else
+						local v88 = require(game.ReplicatedStorage.Gui.QuestionBox)
+						local v89 = "Complete blending for " .. v87 .. " Ticket"
+						if v87 > 1 then
+							v89 = v89 .. "s"
+						end
+						local v90 = v89 .. "?"
+						if v88.Ask(v90) then
+							require(game.ReplicatedStorage.Events).ClientCall("BlenderCommand", "SpeedUpOrder")
+							v_u_1.CloseProgressInfo()
+						end
+					end
+				else
+					return
+				end
+			else
+				return
+			end
+		else
+			return
+		end
+	else
+		return
+	end
+end
+function v_u_1.Init(p91)
+	-- upvalues: (ref) v_u_2, (ref) v_u_3, (ref) v_u_4, (ref) v_u_5, (copy) v_u_1, (ref) v_u_6, (ref) v_u_7, (ref) v_u_11, (ref) v_u_10, (ref) v_u_13
+	v_u_2 = p91:WaitForChild("Blender")
+	require(game.ReplicatedStorage.ScreenInfo).ResizeGui(v_u_2)
+	local v92 = v_u_2:WaitForChild("Box")
+	v_u_3 = v92:WaitForChild("RecipeInfo")
+	v_u_4 = v92:WaitForChild("RecipeProgress")
+	v_u_5 = v92:WaitForChild("QuantitySelect")
+	v_u_1.FocusRecipe(1)
+	v_u_1.SetSelectedQuantity(1)
+	local function v102(p93, p_u_94, p95)
+		-- upvalues: (ref) v_u_1, (ref) v_u_6
+		local v_u_96 = p93:WaitForChild("ImageLabel")
+		local v_u_97 = v_u_96.Position
+		local v_u_98 = v_u_97 + UDim2.new(p_u_94 * 0.5, 0, 0, 0)
+		local v99 = p95 or {}
+		table.insert(v99, p93)
+		local function v100()
+			-- upvalues: (copy) v_u_96, (copy) v_u_98, (copy) v_u_97, (ref) v_u_1, (ref) v_u_6, (copy) p_u_94
+			v_u_96.Position = v_u_98
+			v_u_96:TweenPosition(v_u_97, "Out", "Quad", 0.25, true)
+			v_u_1.FocusRecipe(v_u_6 + p_u_94)
+		end
+		for _, v101 in ipairs(v99) do
+			v101.MouseButton1Click:connect(v100)
+		end
+	end
+	v102(v92:WaitForChild("BackButton"), -1)
+	v102(v92:WaitForChild("ForwardButton"), 1)
+	v_u_2.Box.SelectBox.SelectButton.MouseButton1Click:connect(function()
+		-- upvalues: (ref) v_u_7, (ref) v_u_1
+		if v_u_7 then
+			v_u_1.OpenQuantitySelect()
+		end
+	end)
+	v_u_5.CancelButton.MouseButton1Click:connect(function()
+		-- upvalues: (ref) v_u_1
+		v_u_1.CloseQuantitySelect()
+	end)
+	v_u_5.PlusButton.MouseButton1Click:connect(function()
+		-- upvalues: (ref) v_u_11, (ref) v_u_1, (ref) v_u_10
+		if v_u_11 then
+			v_u_1.SetSelectedQuantity(v_u_10 + 1)
+		end
+	end)
+	v_u_5.MinusButton.MouseButton1Click:connect(function()
+		-- upvalues: (ref) v_u_10, (ref) v_u_1
+		if v_u_10 > 1 then
+			v_u_1.SetSelectedQuantity(v_u_10 - 1)
+		end
+	end)
+	v_u_2.Box.CloseButton.MouseButton1Click:connect(function()
+		-- upvalues: (ref) v_u_1
+		v_u_1.Close()
+	end)
+	local v103 = v_u_5.ConfirmButton
+	local function v_u_104()
+		-- upvalues: (ref) v_u_1
+		v_u_1.PlaceOrder()
+	end
+	local v_u_105 = -1
+	v103.MouseButton1Click:connect(function()
+		-- upvalues: (ref) v_u_105, (copy) v_u_104
+		local v106 = tick()
+		if v106 - v_u_105 >= 0.2 then
+			v_u_105 = v106
+			v_u_104()
+		end
+	end)
+	local v107 = v_u_4.EndButton
+	local function v_u_108()
+		-- upvalues: (ref) v_u_1
+		v_u_1.StopOrder()
+	end
+	local v_u_109 = -1
+	v107.MouseButton1Click:connect(function()
+		-- upvalues: (ref) v_u_109, (copy) v_u_108
+		local v110 = tick()
+		if v110 - v_u_109 >= 0.2 then
+			v_u_109 = v110
+			v_u_108()
+		end
+	end)
+	local v111 = v_u_4.TicketButton
+	local function v_u_112()
+		-- upvalues: (ref) v_u_1

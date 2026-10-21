@@ -1,0 +1,81 @@
+[client=e5c85afe-ac5a-4f64-8aa7-d744a5d1e047 place=Bee Swarm Simulator job=1fe68220-9be0-4875-af59-673f64606f2d]
+-- Lines 140-218 of 321
+        Dur = p3.Dur,
+        SpawnTime = p3.SpawnTime,
+        Tweens = t4
+    }
+
+    if p3.Transparent then
+        clone.Transparency = 1
+        t6.Transparent = true
+    end
+
+    if p3.TreasureID then
+        local v9 = require(game.ReplicatedStorage.ClientStatCache):Get()
+        local Treasures = v9.Treasures
+
+        if not Treasures then
+            Treasures = {}
+            v9.Treasures = Treasures
+        end
+
+        local TreasureID = p3.TreasureID
+
+        for _, v10 in ipairs(Treasures) do
+            if v10 == TreasureID then
+                t6.Transparency = 0.7
+
+                if not p3.Transparent then
+                    clone.Transparency = t6.Transparency
+                end
+
+                clone.FrontDecal.Transparency = t6.Transparency
+                clone.BackDecal.Transparency = t6.Transparency
+
+                if clone:FindFirstChild("Sparkles") then
+                    clone.Sparkles:Destroy()
+                end
+            end
+        end
+    end
+
+    t3[p3.ID] = t6
+end
+
+function t1.Destroy(p4) -- line: 260
+    -- upvalues: t3 (ref)
+    local v11 = t3[p4]
+
+    if not v11 then
+        return
+    end
+
+    for _, v12 in ipairs(v11.Tweens) do
+        v12:Cancel()
+        v12:Destroy()
+    end
+
+    v11.Body:Destroy()
+    t3[p4] = nil
+end
+
+function t1.AnimateCollect(p5) -- line: 279
+    -- upvalues: v1 (copy), TweenService (copy), v5 (copy), v6 (copy), v7 (copy), t3 (ref)
+    local ID = p5.ID
+    local v13 = t3[ID]
+
+    if not v13 then
+        return
+    end
+
+    for _, v14 in ipairs(v13.Tweens) do
+        v14:Cancel()
+    end
+
+    local Body = v13.Body
+
+    if p5.Sound then
+        local Sound = Instance.new("Sound")
+
+        Sound.SoundId = p5.Sound.ID
+        Sound.Volume = p5.Sound.Volume

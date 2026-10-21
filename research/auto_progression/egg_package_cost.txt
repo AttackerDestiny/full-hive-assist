@@ -1,0 +1,132 @@
+[client=e5c85afe-ac5a-4f64-8aa7-d744a5d1e047 place=Bee Swarm Simulator job=1fe68220-9be0-4875-af59-673f64606f2d]
+-- Lines 1-130 of 530
+local v_u_1 = {}
+local v_u_2 = require(game.ReplicatedStorage.EggTypes)
+local v_u_3 = require(game.ReplicatedStorage.Events)
+local v_u_4 = require(game.ReplicatedStorage.AlertBoxes)
+local v_u_5 = require(game.ReplicatedStorage.NumberCommas)
+local v_u_6 = require(game.ReplicatedStorage.Utils.KeyCompressor).New({
+	["Category"] = "C",
+	["Amount"] = "A",
+	["Type"] = "T",
+	["SilenceSource"] = "I",
+	["VisibleSource"] = "V",
+	["Source"] = "S",
+	["Mute"] = "M",
+	["BufferMsg"] = "B",
+	["Alert"] = "R",
+	["Logged"] = "L",
+	["TreasureID"] = "D",
+	["IgnoreCap"] = "G",
+	["OpenMenu"] = "o"
+})
+function v_u_1.Exists(p7)
+	-- upvalues: (copy) v_u_2
+	local v8 = p7.Amount
+	if v8 == nil or v8 < 1 then
+		return false
+	end
+	local v9 = p7.Type
+	return v_u_2.Exists(v9)
+end
+function v_u_1.PlayerHas(p10, p11)
+	local v12 = p10.Amount
+	if v12 == nil then
+		return false
+	end
+	local v13 = p10.Type
+	if v13 == nil then
+		return false
+	end
+	local v14 = p11.Eggs[v13]
+	return v12 <= (v14 == nil and 0 or v14)
+end
+function v_u_1.CountAmountPlayerHas(p15, p16)
+	if p15.Amount == nil then
+		return 0
+	end
+	local v17 = p15.Type
+	return v17 == nil and 0 or (p16.Eggs[v17] or 0)
+end
+function v_u_1.Title(p18, p19)
+	-- upvalues: (copy) v_u_1, (copy) v_u_2, (copy) v_u_5
+	if v_u_1.Exists(p18) then
+		local v20 = v_u_2.Get(p18.Type)
+		local v21 = p18.Amount
+		if p19 or v21 == 1 then
+			return v20.Title or v20.DisplayName
+		elseif v20.Title then
+			return v_u_5(v21) .. " " .. v20.Title .. "s"
+		else
+			return v_u_5(v21) .. " " .. v20.PluralDisplayName
+		end
+	else
+		return nil
+	end
+end
+function v_u_1.CheckRequirements(p22, p23)
+	-- upvalues: (copy) v_u_2
+	local v24 = v_u_2.Get(p22.Type)
+	if v24 then
+		return not v24.PurchaseRequirements and true or (require(game.ReplicatedStorage.StatTools).CheckReqs(p23, v24.PurchaseRequirements) and true or false)
+	else
+		return false
+	end
+end
+function v_u_1.PurchaseRequirements(p25, _)
+	-- upvalues: (copy) v_u_1, (copy) v_u_2
+	if v_u_1.Exists(p25) then
+		local v26 = v_u_2.Get(p25.Type)
+		if v26 then
+			return v26.PurchaseRequirements
+		else
+			return nil
+		end
+	else
+		return nil
+	end
+end
+function v_u_1.NumericDescription(p27)
+	-- upvalues: (copy) v_u_1, (copy) v_u_2
+	if v_u_1.Exists(p27) then
+		local v28 = v_u_2.Get(p27.Type)
+		local v29 = p27.Amount
+		if v29 then
+			if v29 == 1 then
+				return "1 " .. v28.DisplayName
+			else
+				return v29 .. " " .. v28.PluralDisplayName
+			end
+		else
+			return nil
+		end
+	else
+		return nil
+	end
+end
+function v_u_1.Description(p30)
+	-- upvalues: (copy) v_u_1, (copy) v_u_2
+	if v_u_1.Exists(p30) then
+		local v31 = v_u_2:GetType(p30.Type)
+		if p30.Promo and v31.PromoDescription then
+			return v31.PromoDescription
+		else
+			return v31.Description
+		end
+	else
+		return nil
+	end
+end
+function v_u_1.CanGive(p32, p33)
+	-- upvalues: (copy) v_u_1, (copy) v_u_2
+	if not p33 then
+		print("cant give pack cause no stats")
+		return false
+	end
+	if v_u_1.Exists(p32) then
+		if p32.TreasureID ~= nil then
+			local v34 = p33.Treasures
+			if not v34 then
+				v34 = {}
+				p33.Treasures = v34
+			end

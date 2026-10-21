@@ -1,0 +1,60 @@
+[client=e5c85afe-ac5a-4f64-8aa7-d744a5d1e047 place=Bee Swarm Simulator job=1fe68220-9be0-4875-af59-673f64606f2d]
+-- Lines 74-131 of 131
+end
+function v_u_1.PurchaseEffect(p28, p29, _)
+	-- upvalues: (copy) v_u_1
+	if not (p29 and v_u_1.Exists(p28)) then
+		return false
+	end
+	local v30 = p29.Totals.Purchases.HiveSlots
+	local v31 = v30 == nil and 0 or v30
+	local v32 = p29.Totals.Purchases
+	local v33 = p28.Amount + 0.5
+	v32.HiveSlots = v31 + math.floor(v33)
+	return true
+end
+function v_u_1.Give(p34, p35, p36)
+	-- upvalues: (copy) v_u_1, (copy) v_u_2, (copy) v_u_3
+	if not p35 then
+		return false
+	end
+	if not v_u_1.Exists(p34) then
+		return false
+	end
+	local v37 = p34.Amount + 0.5
+	local v38 = math.floor(v37)
+	if v38 <= 0 then
+		return false
+	end
+	p35.UnlockedCells = p35.UnlockedCells + v38
+	if p36 then
+		require(game.ServerStorage.HoneycombManager):UpdateLockedCells(p36)
+	end
+	if not p34.Mute then
+		if p36 then
+			v_u_2.ServerCall("ServerItemPackEvent", p36, "Give", p34)
+		elseif v38 > 0 then
+			v_u_3:Push("+" .. v38 .. " Hive Slot")
+		end
+	end
+	return true
+end
+function v_u_1.Icon(_)
+	return nil
+end
+function v_u_1.Take(p39, p40, p41)
+	-- upvalues: (copy) v_u_1, (copy) v_u_2
+	if not p40 then
+		return false
+	end
+	if not v_u_1.PlayerHas(p39, p40) then
+		return false
+	end
+	p40.UnlockedCells = p40.UnlockedCells - p39.Amount
+	if not p39.Mute and p41 then
+		require(game.ServerStorage.HoneycombManager):UpdateLockedCells(p41)
+		v_u_2.ServerCall("ServerItemPackEvent", p41, "Take", p39)
+	end
+	return true
+end
+return v_u_1

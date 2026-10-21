@@ -1,0 +1,139 @@
+-- Read-only adapter cases against injected tables and fake physical nodes.
+-- No game, transport, real services, or executor globals are available here.
+return function(factory,Policy)
+    local passed=0
+    local function check(v,m) assert(v,m);passed+=1 end
+    local function node(name,class,list,v)
+        local o={Name=name,ClassName=class,Value=v,list=list or {}}
+        function o:FindFirstChild(key) for _,c in ipairs(self.list) do if c.Name==key then return c end end end
+        function o:GetChildren() return self.list end
+        function o:IsA(kind) return self.ClassName==kind or kind=="BasePart" and self.ClassName=="Part" end
+        return o
+    end
+    local function val(name,v) return node(name,"Value",nil,v) end
+    local function item(id,category,amount)
+        return node(id,"Part",{val("ItemCategory",category),val("ItemType",id),val("ItemAmount",amount or 1)})
+    end
+    local function shop(name,list)
+        return node(name,"Folder",{node("Floor","ObjectValue",nil,node(name.."Floor","Part")),node("Items","Folder",list)})
+    end
+    local function fixture()
+        local packages={}
+        function packages.PlayerHas(pack,s) return s.owns[pack.Type]==true end
+        function packages.GetCost(pack,s)
+            if pack.Type=="Blue ClayPlanter" and s.Totals.Purchases.Eggs[pack.Type] then return nil end
+            if pack.Category=="HiveSlot" then return {Category="Honey",Amount=3000000} end
+            if pack.Type=="Diamond" then return {Category="Eggs",Type="Ticket",Amount=400} end
+            if pack.Type=="Gumdrops" then return {Category="Eggs",Type="Ticket",Amount=pack.Amount/3} end
+            return {Category="Honey",Amount=pack.Type=="RoyalJelly" and pack.Amount*1000000 or 100}
+        end
+        function packages.PurchaseRequirements() return {} end
+        function packages.CanGive() return true end
+        function packages.CanPurchase() return true end
+        local top={item("Clippers","Collectors"),item("Porcelain Dipper","Collectors"),item("Bubble Wand","Collectors"),
+            item("Jar","Accessories"),item("Porcelain Port-O-Hive","Accessories"),item("Basic Boots","Accessories"),
+            item("Beekeeper's Boots","Accessories"),item("Blue ClayPlanter","Eggs"),item("Red ClayPlanter","Eggs"),
+            node("Hive Slot","Part",{val("ItemCategory","HiveSlot")})}
+        for _,id in ipairs({"Brave Guard","Blue Guard","Elite Blue Guard","Bucko Guard","Cobalt Guard",
+            "Looker Guard","Red Guard","Elite Red Guard","Riley Guard","Crimson Guard",
+            "Belt Pocket","Belt Bag","Mondo Belt Bag","Honeycomb Belt","Petal Belt"}) do
+            top[#top+1]=item(id,"Accessories")
+        end
+        local shops=node("Shops","Folder",{shop("GearShop",top),shop("EggDispenser",{item("Basic","Eggs")}),
+            shop("JellyDispenser",{item("RoyalJelly","Eggs",1),item("RoyalJelly","Eggs",10)}),
+            shop("GumdropDispenser",{item("Gumdrops","Eggs",3),item("Gumdrops","Eggs",30),item("Gumdrops","Eggs",300)}),
+            shop("TicketShop",{item("Diamond","Eggs")})})
+        local defs={Oil={Time=300,Ingredients={{Category="Eggs",Type="SunflowerSeed",Amount=50},{Category="Eggs",Type="RoyalJelly",Amount=10}},Requirements={}}}
+        local cells=node("Cells","Folder",{})
+        local deps={Policy=Policy,Packages=packages,Recipes={Get=function(id) return defs[id] end},
+            Reqs={Check=function() return true end},Accessories={Get=function(id)
+                if id=="Jar" or id=="Porcelain Port-O-Hive" then return {Slot="Container"} end
+                if id=="Basic Boots" or id=="Beekeeper's Boots" then return {Slot="Boots"} end
+                for _,name in ipairs({"Brave Guard","Blue Guard","Elite Blue Guard","Bucko Guard","Cobalt Guard"}) do
+                    if id==name then return {Slot="RightShoulder"} end
+                end
+                for _,name in ipairs({"Looker Guard","Red Guard","Elite Red Guard","Riley Guard","Crimson Guard"}) do
+                    if id==name then return {Slot="LeftShoulder"} end
+                end
+                for _,name in ipairs({"Belt Pocket","Belt Bag","Mondo Belt Bag","Honeycomb Belt","Petal Belt"}) do
+                    if id==name then return {Slot="Belt"} end
+                end
+            end},CellTools={HasActiveNeighbor=function() return false end},OsTime=function() return 1100 end,
+            Shops=shops,Hive=function() return node("Hive","Model",{cells}) end,HoneyReserve=1.2,Uncertain=function() return false end}
+        local s={Honey=1000.9,Eggs={},Codes={},Honeycomb={},UnlockedCells=25,owns={},
+            Totals={Purchases={Eggs={RoyalJelly=75},HiveSlots=0}},BlenderState=false,PlaytimeAtLoad=500,LoadTime=1000}
+        for _,code in ipairs(Policy.codes) do s.Codes[#s.Codes+1]=string.lower(code) end
+        return deps,s,cells,defs
+    end
+    do
+        local deps,s=fixture();s.owns["Cobalt Guard"]=true
+        local f=factory(deps)(s)
+        check(f.ownedGear["Brave Guard"]==true,"Cobalt on verified right shoulder supersedes Brave Guard")
+        check(f.ownedGear["Looker Guard"]==false,"Cobalt cannot skip the opposite left Looker Guard")
+        check(f.ownedGear["Crimson Guard"]==false,"Owning blue Cobalt never implies red Crimson ownership")
+        s.owns["Cobalt Guard"]=false;s.owns["Riley Guard"]=true
+        f=factory(deps)(s)
+        check(f.ownedGear["Looker Guard"]==true and f.ownedGear["Brave Guard"]==false,"Intermediate Riley Guard supersedes only its verified left shoulder chain")
+        s.owns["Riley Guard"]=false;s.owns["Bucko Guard"]=true
+        f=factory(deps)(s)
+        check(f.ownedGear["Brave Guard"]==true and f.ownedGear["Cobalt Guard"]==false,"Intermediate Bucko ownership skips weaker blue guard without skipping Cobalt")
+        s.owns["Belt Bag"]=true
+        f=factory(deps)(s)
+        check(f.ownedGear["Belt Pocket"]==true and f.ownedGear["Mondo Belt Bag"]==false,"Belt Bag supersedes Pocket but not the later Mondo bag")
+    end
+    do
+        local deps,s=fixture();local f,c=factory(deps)(s)
+        check(f.honey==1000 and f.honeyReserve==2,"Honey floors and reserve rounds up conservatively")
+        check(f.codesKnown and f.redeemedCodes.Wax and f.redeemedCodes.BeesBuzz123,"Actual lowercase server code array normalizes to requested names")
+        check(f.occupied==0 and f.capacity==25 and f.craft==false,"Sparse starter facts stay distinct from capacity")
+        check(c.basicEgg.cost.Honey==100 and c.hiveSlot.cost.Honey==3000000,"Verified shop package costs normalize")
+        check(c.purchases.Diamond.cost.Ticket==400,"Diamond price comes from package metadata")
+        check(c.basicEgg.part~=nil,"Shop movement uses a verified vendor floor or terrain part")
+        check(#c.packs.Gumdrops==3 and #c.packs.RoyalJelly==2,"Only physical fixed pack options are emitted")
+        check(c.recipes.Oil.ingredients.RoyalJelly==10 and c.recipes.Oil.time==300,"Verified recipe ingredients and time normalize")
+        check(c.recipes.Glue==false and c.useSuppliedRecipes==false,"Missing live recipe never falls back to supplied guesses")
+        check(f.ownedGear.Clippers==false,"Known missing item ownership remains false")
+    end
+    do
+        local deps,s=fixture();s.owns["Porcelain Dipper"]=true;s.owns["Porcelain Port-O-Hive"]=true;s.owns["Beekeeper's Boots"]=true
+        s.Totals.Purchases.Eggs["Blue ClayPlanter"]=1
+        local f,c=factory(deps)(s)
+        check(f.ownedGear["Bubble Wand"] and f.ownedGear.Clippers,"Verified stronger collector skips obsolete collectors")
+        check(f.ownedGear.Jar and f.ownedGear["Basic Boots"],"Same accessory slot chain prevents retrograde gear")
+        check(f.ownedGear["Blue Clay Planter"] and f.ownedGear["Red Clay Planter"]==false,"Permanent planted planter ownership uses ledger without skipping distinct planter")
+        check(c.gear["Blue Clay Planter"]==nil,"Owned one-time planter may legitimately have no remaining purchase cost")
+    end
+    do
+        local deps,s,cells=fixture()
+        cells.list={node("C1,1","Model",{val("CellX",1),val("CellY",1),val("CellType","Empty"),val("CellLocked",false)}),
+            node("C2,2","Model",{val("CellX",2),val("CellY",2),val("CellType","Empty"),val("CellLocked",false)})}
+        local f=factory(deps)(s)
+        check(f.emptyCell and f.emptyCell.x==1 and f.emptyCell.y==1,"Source-verified bottom row allows first zero-bee hatch")
+        s.Honeycomb={x1={y1={Type="Basic",Traits={}}}}
+        f=factory(deps)(s)
+        check(f.emptyCell==nil,"Cache occupancy overrides stale empty physical label")
+        deps.CellTools.HasActiveNeighbor=function() return true end
+        f=factory(deps)(s)
+        check(f.emptyCell.x==2 and f.emptyCell.y==2,"Other empty rows need verified active neighbor")
+    end
+    do
+        local deps,s=fixture();s.BlenderState={Recipe="Oil",Count=2,StartTime=0}
+        local f=factory(deps)(s)
+        check(f.craft.ready and f.craft.count==2,"Craft elapsed time uses verified playtime/load clock")
+        s.BlenderState.StartTime=1
+        f=factory(deps)(s)
+        check(not f.craft.ready,"Unfinished craft waits rather than claiming early")
+        s.BlenderState.StartTime=0;s.PlaytimeAtLoad=nil
+        check(factory(deps)(s).craft and factory(deps)(s).craft.unknown,"Unknown craft clock fails closed")
+        deps.Reqs.Check=function() return false end
+        local _,c=factory(deps)(s)
+        check(c.recipes.Oil==false,"Unmet recipe badge requirements disable crafting")
+    end
+    do
+        local deps,s=fixture();deps.Uncertain=function() return {Item="RoyalJelly"} end
+        check(factory(deps)(s).uncertain,"Unresolved host transaction blocks the pure planner")
+        s.Codes.wax="ambiguous"
+        check(not factory(deps)(s).codesKnown,"Malformed code record cannot be treated as unredeemed")
+    end
+    return {passed=passed}
+end

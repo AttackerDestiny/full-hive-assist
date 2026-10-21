@@ -1,0 +1,69 @@
+[client=e5c85afe-ac5a-4f64-8aa7-d744a5d1e047 place=Bee Swarm Simulator job=1fe68220-9be0-4875-af59-673f64606f2d]
+-- Lines 1-67 of 67
+-- https://lua.expert
+
+local t1 = {}
+
+local function cellName(p1, p2) -- line: 3
+    return "C" .. p1 .. "," .. p2
+end
+
+function t1.PartToHCCell(_, p4, p5) -- line: 7
+    if p5 ~= nil then
+        local Parent = p5.Parent
+
+        if Parent ~= nil then
+            local ParentParent = Parent.Parent
+
+            if ParentParent ~= nil and ParentParent == p4.Cells then
+                return Parent
+            end
+        end
+    end
+
+    return nil
+end
+
+function t1.Neighbors(_, p7) -- line: 25
+    local Parent = p7.Parent
+    local Value = p7.CellX.Value
+    local Value2 = p7.CellY.Value
+    local t2 = {}
+
+    function pushNeighbor(p8, p9) -- line: 31
+        -- upvalues: Parent (copy), Value (copy), Value2 (copy), t2 (copy)
+        local v2 = Parent:FindFirstChild("C" .. p8 + Value .. "," .. p9 + Value2)
+
+        if v2 ~= nil then
+            table.insert(t2, v2)
+        end
+    end
+
+    pushNeighbor(0, 1)
+    pushNeighbor(0, -1)
+    pushNeighbor(-1, 0)
+    pushNeighbor(1, 0)
+
+    local v3 = if Value % 2 == 1 then 1 else -1
+
+    pushNeighbor(-1, v3)
+    pushNeighbor(1, v3)
+
+    return t2
+end
+
+function t1.HasActiveNeighbor(_, p11) -- line: 52
+    -- upvalues: t1 (copy)
+    local v4 = t1:Neighbors(p11)
+
+    for _, v5 in ipairs(v4) do
+        if v5.CellType.Value ~= "Empty" then
+            return true
+        end
+    end
+
+    return false
+end
+
+return t1
+

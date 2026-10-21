@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.5.1"
+local SCRIPT_VERSION = "1.6.0"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -86,7 +86,8 @@ end
 local Config = {DryRun=false, PollSeconds=3, Speed=65, NearDistance=16,
     MaxActions=math.huge, MaxRoyalJellies=math.huge, AutoPurchase=true,
     HoneyReserve=0, RollDelay=0.3, StarEggHoney=100000000000,
-    AtlasInitiallyStopped=false, StartupDelaySeconds=60, PreserveUniqueGifted=false}
+    AtlasInitiallyStopped=false, StartupDelaySeconds=60, PreserveUniqueGifted=false, AutoProgression=true,
+    UseBlenderTickets=false}
 for k,v in pairs(env.FullHiveConfig or {}) do assert(Config[k] ~= nil, "Unknown config: "..k); Config[k]=v end
 -- Retain the old option for config compatibility; ordinary keeps must still
 -- follow the user's failsafe/force lists even if an old override was true.
@@ -105,6 +106,8 @@ local Report = {Version=SCRIPT_VERSION, Phase="starting", Actions=0, RoyalJellyU
 env.FullHiveReport = Report
 local Players, RS = game:GetService("Players"), game:GetService("ReplicatedStorage")
 local player, Events, Cache, Types, EggTypes
+local progression,atlasFarmOnly
+local Packages, Recipes, Reqs, Accessories, CellTools, OsTime
 local leased, previousAtlas, previousSettings, cleanupMove = false, nil, nil, nil
 local lateStarted = env.FullHiveLateStarted == true
 local basicLock = env.FullHiveBasicLock
@@ -139,12 +142,20 @@ local function initializeModules()
     Cache=loadModule(waitForChild(RS,"ClientStatCache"))
     Types=loadModule(waitForChild(RS,"BeeTypes")):GetTypes()
     EggTypes=loadModule(waitForChild(RS,"EggTypes"))
+    if ProgressionPolicy and createProgressionFacts and createProgression then
+        Packages=loadModule(waitForChild(RS,"ItemPackages"))
+        Recipes=loadModule(waitForChild(RS,"BlenderRecipes"))
+        Reqs=loadModule(waitForChild(RS,"StatReqs"))
+        Accessories=loadModule(waitForChild(RS,"Accessories"))
+        CellTools=loadModule(waitForChild(RS,"CellTools"))
+        OsTime=loadModule(waitForChild(RS,"OsTime"))
+    end
 end
 local function invoke(remote, ...)
     checkStop()
     assert(not env.FullHivePending and not env.AutoHivePendingRequest, "Server request already pending")
     local args = table.pack(...)
-    local request = {Name=remote.Name, Started=os.clock()}
+    local request = {Name=remote.Name, Started=os.clock(),Owner=player and player.UserId,Job=game.JobId}
     local mutation=remote.Name~="RetrievePlayerStats"
     if mutation then
         assert(not env.FullHiveUncertain,"An earlier mutation needs reconciliation")
@@ -152,6 +163,11 @@ local function invoke(remote, ...)
             request.X,request.Y,request.Item,request.Amount=args[1],args[2],args[3],args[4]
         elseif remote.Name=="ItemPackageEvent" and type(args[2])=="table" then
             request.Item,request.Amount=args[2].Type,args[2].Amount
+            request.Category=args[2].Category
+        elseif remote.Name=="BlenderCommand" then
+            request.Kind=args[1]
+            local order=type(args[2])=="table" and args[2] or (Cache:Get().BlenderState or {})
+            request.Item,request.Amount=order.Recipe,order.Count
         end
         env.FullHiveUncertain=request -- Retain until operation-specific validation.
     end
@@ -171,9 +187,10 @@ end
 local function refresh()
     local s=invoke(Events.RetrievePlayerStats)
     assert(type(s)=="table" and type(s.Eggs)=="table", "Stats unavailable")
-    for _,k in ipairs({"Honey","Eggs","Totals","Honeycomb","Settings","Quests"}) do
+    for _,k in ipairs({"Honey","Eggs","Totals","Honeycomb","Settings","Quests","UnlockedCells","Accessories","Collectors","Sprinklers","Codes","PlaytimeAtLoad","LoadTime","OfflineProgressTime","MiscInfo","ItemTimes","Treasures"}) do
         if s[k]~=nil then Cache:Set(k,s[k]) end
     end
+    Cache:Set("BlenderState",s.BlenderState or nil)
     return s
 end
 local function royalJellyPurchases(s)
@@ -307,6 +324,11 @@ local function acquire()
     checkStop()
     if leased then
         assertAtlasPaused()
+        if atlasFarmOnly and Config.AutoProgression then
+            local safe,why,rows=atlasFarmOnly(true)
+            Report.AtlasSpenderControls=rows
+            assert(safe,why)
+        end
         return
     end
     local _,cell=atlasControl()
@@ -318,6 +340,11 @@ local function acquire()
     -- Own the lease before toggling so failures also restore it.
     leased=true
     setAtlas(true)
+    if atlasFarmOnly and Config.AutoProgression then
+        local safe,why,rows=atlasFarmOnly(true)
+        Report.AtlasSpenderControls=rows
+        assert(safe,why)
+    end
 end
 local function move(part)
     acquire(); checkStop()
@@ -333,30 +360,40 @@ local function move(part)
     align.Attachment0=attachment; align.MaxForce=1000000; align.MaxVelocity=Config.Speed
     align.Responsiveness=45; align.Position=r.Position; align.Parent=r
     local collision={}
-    local noclipParts={}
-    for _,p in ipairs(descendants(r.Parent,"BasePart")) do noclipParts[#noclipParts+1]=p end
+    local movingCharacter=r.Parent
     local map=workspace:FindFirstChild("Map")
     local fences=map and map:FindFirstChild("Fences")
-    if fences then for _,p in ipairs(descendants(fences,"BasePart")) do noclipParts[#noclipParts+1]=p end end
-    local connection=game:GetService("RunService").Stepped:Connect(function()
-        if not r.Parent then return end
-        for _,p in ipairs(noclipParts) do
-            if collision[p]==nil then collision[p]=p.CanCollide end
-            p.CanCollide=false
-        end
-    end)
-    local tween=game:GetService("TweenService"):Create(align,TweenInfo.new(math.max(0.2,(target-r.Position).Magnitude/Config.Speed),Enum.EasingStyle.Linear),{Position=target})
-    local cleaned=false
+    local connections={}
+    local tween,cleaned
+    local function enroll(p)
+        if cleaned or not p:IsA("BasePart") then return end
+        if collision[p]==nil then collision[p]=p.CanCollide end
+        p.CanCollide=false
+    end
     local function cleanup()
         if cleaned then return end
-        cleaned=true; tween:Cancel(); connection:Disconnect(); align:Destroy(); attachment:Destroy()
+        cleaned=true
+        if tween then tween:Cancel() end
+        for _,connection in ipairs(connections) do connection:Disconnect() end
+        align:Destroy(); attachment:Destroy()
         for p,v in pairs(collision) do if p.Parent then p.CanCollide=v end end
         if r.Parent then r.AssemblyLinearVelocity=Vector3.zero end
     end
     cleanupMove=cleanup
-    tween:Play()
-    local deadline=os.clock()+(target-r.Position).Magnitude/Config.Speed+15
     local ok,err=pcall(function()
+        -- Enable noclip before the first tween frame, and enroll accessories or
+        -- other parts added during movement so cleanup restores their values.
+        for _,container in ipairs(fences and {movingCharacter,fences} or {movingCharacter}) do
+            connections[#connections+1]=container.DescendantAdded:Connect(enroll)
+            for _,p in ipairs(descendants(container,"BasePart")) do enroll(p) end
+        end
+        connections[#connections+1]=game:GetService("RunService").Stepped:Connect(function()
+            if not r.Parent then return end
+            for p in pairs(collision) do if p.Parent then p.CanCollide=false end end
+        end)
+        tween=game:GetService("TweenService"):Create(align,TweenInfo.new(math.max(0.2,(target-r.Position).Magnitude/Config.Speed),Enum.EasingStyle.Linear),{Position=target})
+        local deadline=os.clock()+(target-r.Position).Magnitude/Config.Speed+15
+        tween:Play()
         while (r.Position-target).Magnitude>4 do
             checkStop()
             if characterRoot()~=r then error(CHARACTER_UNAVAILABLE,0) end
@@ -430,6 +467,13 @@ end
 local function scan(s)
     return Policy.snapshot(s,Types)
 end
+local function progressionToyPart(name)
+    local toys=workspace:FindFirstChild("Toys")
+    local toy=toys and toys:FindFirstChild(name)
+    local part=toy and toy:FindFirstChild("Platform")
+    return part and part:IsA("BasePart") and part or nil
+end
+
 local function activeJellyBatch(s)
     local batch=env.FullHiveJellyBatch
     local h=hive()
@@ -557,6 +601,50 @@ local function jellyBatchSpent(remaining)
     if batch then batch.Remaining=remaining end
     if remaining==0 then env.FullHiveJellyBatch=nil; Report.JellyBatch=nil end
 end
+local function initializeProgression()
+    if not ProgressionPolicy or not createProgressionFacts or not createProgression then return end
+    local reader=(type(debug)=="table" and debug.getupvalues) or getupvalues
+    assert(type(reader)=="function" and type(getconnections)=="function","Atlas spending controls cannot be verified on this executor")
+    atlasFarmOnly=createAtlasProgressionControl({core=game:GetService("CoreGui"),
+        upvalues=reader,connections=getconnections,activate=activate})
+    if Config.AutoProgression and not Config.DryRun then acquire();release() end
+    local makeFacts=createProgressionFacts({
+        Policy=ProgressionPolicy,Packages=Packages,Recipes=Recipes,Reqs=Reqs,
+        Accessories=Accessories,CellTools=CellTools,OsTime=OsTime,Shops=workspace:FindFirstChild("Shops"),
+        Hive=hive,HoneyReserve=Config.HoneyReserve,UseBlenderTickets=function() return Config.UseBlenderTickets end,
+        Uncertain=function() return env.FullHiveUncertain end,
+    })
+    local buffTiles=loadModule(waitForChild(waitForChild(waitForChild(RS,"Gui"),"TileDisplay"),"BuffTile"))
+    local function nectarSeconds(name)
+        local tile=buffTiles.GetBuffTile(name.." Nectar")
+        if not tile then return 0 end
+        if type(tile.TimerStart)~="number" or type(tile.TimerDur)~="number" then return nil end
+        return math.max(0,tile.TimerStart+tile.TimerDur-OsTime())
+    end
+    local function buildFacts(s)
+        local facts,catalog=makeFacts(s)
+        catalog.blenderSpeedUp={perTicket=1}
+        for _,nectar in ipairs({"Comforting","Refreshing"}) do
+            local item=nectar.."Vial"
+            local seconds=nectarSeconds(nectar)
+            local key="nectar:"..nectar
+            if seconds then
+                facts.conditions[key]=(facts.occupied or 0)>=35 and seconds>=43200 and (s.Eggs[item] or 0)<10
+                    and OsTime()-(env.FullHiveLastNectarCondenserAt or 0)>=5
+            end
+            catalog.sources[item]={kind="nectar-vial",id=nectar,nectar=nectar,
+                readyCondition=key,part=progressionToyPart("Nectar Condenser")}
+        end
+        return facts,catalog
+    end
+    progression=createProgression({
+        Policy=ProgressionPolicy,env=env,Report=Report,Config=Config,Events=Events,
+        Packages=Packages,Recipes=Recipes,Reqs=Reqs,buildFacts=buildFacts,nectarSeconds=nectarSeconds,OsTime=OsTime,
+        checkStop=checkStop,refresh=refresh,invoke=invoke,move=move,near=near,release=release,
+        scan=scan,hiveFloor=hiveFloor,toyPart=progressionToyPart,jellyBatchSpent=jellyBatchSpent,
+        Types=Types,
+    })
+end
 local function find(cells,cell)
     for _,c in ipairs(cells) do if c.x==cell.x and c.y==cell.y then return c end end
 end
@@ -572,7 +660,9 @@ local function ensureRollTask(p)
 end
 local function spend(cell,item,validate,expectedTask)
     checkStop(); acquire(); move(hiveFloor()); near(hiveFloor())
-    local s=refresh(); local p,cells=plan(s)
+    local s=refresh()
+    if progression and not progression.allowsHive(s) then return false end
+    local p,cells=plan(s)
     local current=find(cells,cell)
     if not current or not validate(current,cells,p,s) then
         if expectedTask then return false end -- No request sent: replan safely.
@@ -646,22 +736,37 @@ end
 local function buy(item,amount,shop,inventoryCeiling)
     assert(Config.AutoPurchase,"Purchasing disabled")
     acquire(); move(shopFloor(shop)); near(shopFloor(shop))
-    local before=refresh().Eggs[item] or 0
+    local s=refresh()
+    if progression and not progression.allowsHive(s) then return false end
+    local before=s.Eggs[item] or 0
     if inventoryCeiling then
-        if before>=inventoryCeiling then return Cache:Get() end
+        if before>=inventoryCeiling then return false end
         while amount>inventoryCeiling-before do amount=amount/10 end
+    end
+    local usable=math.max(0,(s.Honey or 0)-Config.HoneyReserve)
+    if item=="RoyalJelly" then
+        plan(s)
+        if inventoryCeiling~=Report.RefillAmount or usable<Policy.jellyCost(royalJellyPurchases(s),inventoryCeiling-before) then return false end
+    elseif item=="Basic" then
+        assert(amount==1,"Basic purchases must remain separate")
+        if usable<10000000 then return false end
+    else
+        local cost=EggTypes.Get(item).TicketCost
+        if type(cost)~="number" or (s.Eggs.Ticket or 0)<cost*amount then return false end
     end
     assert(Report.Actions<Config.MaxActions,"Action limit reached")
     local accepted=invoke(Events.ItemPackageEvent,"Purchase",{Category="Eggs",Type=item,Amount=amount})
     assert(accepted,"Purchase rejected; no retry")
-    local s=refresh()
+    s=refresh()
     assert((s.Eggs[item] or 0)-before==amount,"Purchase inventory uncertain; no retry")
     env.FullHiveUncertain=nil
     Report.Actions=Report.Actions+1; Report.LastPurchase={Item=item,Amount=amount}
     return s
 end
 local function refill()
-    local s=refresh(); local _,_,slots=plan(s)
+    local s=refresh()
+    if progression and not progression.allowsHive(s) then return false end
+    local _,_,slots=plan(s)
     if jellyBatchReady(s) then return true end
     local target=Report.RefillAmount
     local inventory=s.Eggs.RoyalJelly or 0
@@ -684,7 +789,7 @@ local function refill()
         while amount>missing do amount=amount/10 end
         local cost=Policy.jellyCost(royalJellyPurchases(s),amount)
         if s.Honey-Config.HoneyReserve<cost then return false end
-        buy("RoyalJelly",amount,"JellyDispenser",target)
+        if buy("RoyalJelly",amount,"JellyDispenser",target)==false then return false end
     end
     local ready=jellyBatchReady(s)
     if ready then move(hiveFloor()) end
@@ -726,6 +831,9 @@ local function eventAction(s,cells,p)
                         local toys=assert(workspace:FindFirstChild("Toys"),"Toys not loaded")
                         local toy=assert(toys:FindFirstChild("Vicious Bee Claimer"),"Vicious claimer not loaded")
                         move(toy.Platform); near(toy.Platform)
+                        s=refresh()
+                        if progression and not progression.allowsHive(s) then return false end
+                        if (s.Eggs.Stinger or 0)<250 then return false end
                         assert(Report.Actions<Config.MaxActions,"Action limit reached")
                         Events.ToyEvent:FireServer(toy.Name)
                         local deadline=os.clock()+8
@@ -735,7 +843,7 @@ local function eventAction(s,cells,p)
                     end
                 else
                     local cost=assert(EggTypes.Get(egg).TicketCost,"Unknown ticket cost")
-                    if (s.Eggs.Ticket or 0)>=cost then buy(egg,1,"TicketShop"); return true end
+                    if (s.Eggs.Ticket or 0)>=cost then return buy(egg,1,"TicketShop")~=false end
                     -- Save tickets for the next bee; only Vicious can be skipped.
                     return false
                 end
@@ -743,7 +851,7 @@ local function eventAction(s,cells,p)
         end
     end
     if normalEvent then
-        if Config.AutoPurchase and (s.Eggs.Ticket or 0)>=1000 then buy("StarTreat",1,"TicketShop"); return true end
+        if Config.AutoPurchase and (s.Eggs.Ticket or 0)>=1000 then return buy("StarTreat",1,"TicketShop")~=false end
     end
     return false
 end
@@ -793,7 +901,7 @@ local function giftedBasic(s,cells,p)
                 -- Each request is exactly one Basic Egg. buy() verifies the
                 -- inventory delta before this count advances, and we remain
                 -- at the shop until all ten verified purchases finish.
-                buy("Basic",1,"EggDispenser")
+                if buy("Basic",1,"EggDispenser")==false then return false end
                 basicLock.BasicBatchPurchased=basicLock.BasicBatchPurchased+1
                 env.FullHiveBasicLock=basicLock
             end
@@ -808,7 +916,7 @@ local function giftedBasic(s,cells,p)
         return r~="Event" and r~="Mythic" and Policy.basicSlotSafe(basicLock,c,freshPlan)
     end
     if not basicLock.NeedsJelly then
-        spend(basicLock,"Basic",locked)
+        if spend(basicLock,"Basic",locked)==false then return false end
         basicLock.NeedsJelly=true
     else
         if spend(basicLock,"RoyalJelly",locked)==false then return false end
@@ -846,6 +954,7 @@ end
 local function useStarScript(s)
     acquire(); move(hiveFloor())
     s=refresh()
+    if progression and not progression.allowsHive(s) then release();return false end
     local cells=scan(s)
     if not starReady(s,cells) then release();return false end
     local used=starEggUses(s)
@@ -855,9 +964,15 @@ local function useStarScript(s)
     env.FullHiveStarBudget=budget
     env.FullHiveMove=function() move(hiveFloor()) end
     env.FullHiveRefill=refill
-    env.FullHiveJellyReady=function(stats) plan(stats); return jellyBatchReady(stats) end
+    env.FullHiveJellyReady=function(stats)
+        if progression and not progression.allowsHive(stats) then return false end
+        plan(stats); return jellyBatchReady(stats)
+    end
     env.FullHiveJellySpent=jellyBatchSpent
-    env.FullHiveNear=function() near(hiveFloor()) end
+    env.FullHiveNear=function()
+        near(hiveFloor())
+        assert(not progression or progression.allowsHive(refresh()),"Gear progression now has priority; Star workflow paused")
+    end
     env.FullHiveStarRunning=true
     local before=s.Eggs.Star or 0
     local ok,err=pcall(function()
@@ -920,6 +1035,14 @@ local function run()
         if Report.Actions>=Config.MaxActions or Report.RoyalJellyUsed>=Config.MaxRoyalJellies then break end
         s=Cache:Get()
         if not hive() then waitFor("Waiting for Atlas to claim a hive"); s=refresh(); continue end
+        if progression then
+            local did,why=progression.step(s)
+            if did then
+                if Config.DryRun then Report.Phase="dry-run";return end
+                if why then waitFor(why) end
+                s=refresh(); continue
+            end
+        end
         local p,cells,slots=plan(s)
         Report.Stage,Report.Slots,Report.Bees,Report.Needs=p.stage,slots,#cells,p.needs
         Report.Growth=p.growth
@@ -934,6 +1057,7 @@ local function run()
         Report.NextTarget=p.target and {X=p.target.x,Y=p.target.y,Type=p.target.bee.Type} or nil
         if Config.DryRun then Report.Phase="dry-run"; return end
         if not Report.Growth.CanReroll then
+            if progression and progression.grow(s,math.min(50,math.max(25,slots))) then s=refresh();continue end
             waitFor("Fill empty hive cells before rerolling: "..#cells.." bees / "..slots.." slots (Atlas or manual hatching)")
             s=refresh(); continue
         end
@@ -951,6 +1075,7 @@ local function run()
             if starReady(s,cells) then Report.Phase="star-eggs"; useStarScript(s); continue end
         end
         if not p.target then
+            if progression and not rollTask and not basicLock and progression.grow(s,math.min(50,slots+1)) then s=refresh();continue end
             local reason=p.stage=="final" and p.growth.Empty>0
                 and ("Waiting to fill "..p.growth.Empty.." empty hive cells (Atlas or manual hatching)")
                 or p.capacityStatus.Conflict and ("Kept bees and current targets require at least "
@@ -1001,14 +1126,14 @@ local function makeUI()
     old=parent:FindFirstChild("FullHiveStatus"); if old then old:Destroy() end
     local gui=Instance.new("ScreenGui"); gui.Name="FullHiveStatus"; gui.ResetOnSpawn=false; gui.DisplayOrder=10000; gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; gui.Parent=parent
     local make=FeatherTheme.make
-    local frame=make("Frame","StatusPanel",gui,{Size=UDim2.fromOffset(350,270),Position=UDim2.fromOffset(18,80)})
+    local frame=make("Frame","StatusPanel",gui,{Size=UDim2.fromOffset(350,300),Position=UDim2.fromOffset(18,80)})
     FeatherTheme.panel(frame)
     local statusScale=make("UIScale","ResponsiveScale",frame,{Scale=1})
     local function fitStatus()
         local camera=workspace.CurrentCamera
         if camera then
             local size=camera.ViewportSize
-            statusScale.Scale=math.max(0.2,math.min(1,(size.X-36)/350,(size.Y-124)/270))
+            statusScale.Scale=math.max(0.2,math.min(1,(size.X-36)/350,(size.Y-124)/300))
         end
     end
     fitStatus()
@@ -1034,14 +1159,14 @@ local function makeUI()
     make("UICorner","Corner",phase,{CornerRadius=UDim.new(0,6)})
     make("UIPadding","Inset",phase,{PaddingLeft=UDim.new(0,10)})
     local text=make("TextLabel","Activity",frame,{Position=UDim2.fromOffset(18,108),Size=UDim2.new(1,-36,0,38),
-        BackgroundTransparency=1,Text="Preparing your hive...",TextColor3=Color3.fromRGB(230,239,253),TextSize=13,
+        BackgroundTransparency=1,Text="Preparing progression...",TextColor3=Color3.fromRGB(230,239,253),TextSize=13,
         TextWrapped=true,Font=Enum.Font.GothamMedium,TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top})
     local metrics=make("Frame","Metrics",frame,{Position=UDim2.fromOffset(18,154),Size=UDim2.new(1,-36,0,32),BackgroundTransparency=1})
     make("UIListLayout","Layout",metrics,{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder})
     local function metric(name,order)
         local item=make("TextLabel",name,metrics,{Size=UDim2.new(1/3,-16/3,1,0),LayoutOrder=order,
             BackgroundColor3=Color3.fromRGB(33,47,76),BorderSizePixel=0,Font=Enum.Font.GothamMedium,TextSize=12,
-            TextColor3=Color3.fromRGB(201,223,251),Text="—"})
+            TextColor3=Color3.fromRGB(201,223,251),Text="â€”"})
         make("UICorner","Corner",item,{CornerRadius=UDim.new(0,8)})
         return item
     end
@@ -1049,6 +1174,16 @@ local function makeUI()
     local progressText=make("TextLabel","Progress",frame,{Position=UDim2.fromOffset(18,190),Size=UDim2.new(1,-36,0,20),
         BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=11,TextColor3=Color3.fromRGB(160,183,217),
         TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd})
+    local progressionText=make("TextLabel","Progression",frame,{Position=UDim2.fromOffset(18,214),Size=UDim2.new(1,-36,0,20),
+        BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=10,TextColor3=Color3.fromRGB(146,179,221),
+        TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd})
+    local blenderTicketButton=Instance.new("TextButton"); blenderTicketButton.Name="BlenderTicketToggle"
+    blenderTicketButton.Size=UDim2.fromOffset(150,18); blenderTicketButton.Position=UDim2.fromOffset(18,234)
+    blenderTicketButton.Text="Blender tickets: OFF"; blenderTicketButton.Parent=frame; FeatherTheme.button(blenderTicketButton,false)
+    blenderTicketButton.Activated:Connect(function()
+        Config.UseBlenderTickets=not Config.UseBlenderTickets
+        blenderTicketButton.Text="Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF")
+    end)
     local viewButton=Instance.new("TextButton"); viewButton.Name="ViewHiveButton"
     viewButton.Size=UDim2.new(0.5,-23,0,32); viewButton.Position=UDim2.new(0,18,1,-48)
     viewButton.Text="View hive"; viewButton.Parent=frame; FeatherTheme.button(viewButton,true)
@@ -1066,20 +1201,32 @@ local function makeUI()
     task.spawn(function()
         repeat
             local c=Report.Counts or {}
-            local progress=Report.Stage=="early" and string.format("Baby %d/4 • Music %d/4 • Shy %d/3",c.Baby or 0,c.Music or 0,c.Shy or 0)
-                or string.format("Actions %d • Jelly used %d",Report.Actions,Report.RoyalJellyUsed)
+            local progress=Report.Stage=="early" and string.format("Baby %d/4 â€¢ Music %d/4 â€¢ Shy %d/3",c.Baby or 0,c.Music or 0,c.Shy or 0)
+                or string.format("Actions %d â€¢ Jelly used %d",Report.Actions,Report.RoyalJellyUsed)
             local active=Report.ActiveTarget
             if active then
-                progress=string.format("Slot (%d,%d) • %s",active.X,active.Y,
+                progress=string.format("Slot (%d,%d) â€¢ %s",active.X,active.Y,
                     Report.CollectorFallback and (active.Reason=="gifted-collector-fallback" and "100-jelly gifted recovery" or "100-jelly collector recovery") or active.Reason)
             end
-            phase.Text=string.upper((Report.Stage or "inspect").."  •  "..(Report.Phase or "starting"))
+            phase.Text=string.upper((Report.Stage or "inspect").."  â€¢  "..(Report.Phase or "starting"))
             phase.TextColor3=Report.Error and Color3.fromRGB(255,176,192) or Color3.fromRGB(164,214,255)
             text.Text=Report.Error or Report.CleanupError or Report.Activity or Report.Phase
             progressText.Text=progress
+            local pg=Report.Progression or {}
+            local target=pg.Gear and ("Gear: "..pg.Gear) or "Gear: complete"
+            local action=pg.Action and (" • "..pg.Action) or ""
+            local blender=Report.Blender
+            if blender then
+                local state=blender.Complete and "ready to collect" or (tostring(math.ceil(blender.RemainingSeconds or 0)).."s left")
+                local tickets=(blender.SpeedupEnabled and (" • tickets "..tostring(blender.SpeedupTickets or 0).." (enabled)") or " • ticket speedup off")
+                progressionText.Text=target.." • Blender "..tostring(blender.Recipe).." x"..tostring(blender.Count).." ("..state..")"..tickets
+            else
+                progressionText.Text=target..action
+            end
+            blenderTicketButton.Text="Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF")
             slotsMetric.Text=tostring(Report.Slots or "?").." slots"
             jellyMetric.Text=tostring(Report.RoyalJelly or 0).." jelly"
-            refillMetric.Text=tostring(Report.RefillAmount or "—").." / refill"
+            refillMetric.Text=tostring(Report.RefillAmount or "â€”").." / refill"
             task.wait(0.4)
         until not gui.Parent or not env.FullHiveRunning
         if gui.Parent then phase.Text=string.upper(Report.Phase or "finished"); text.Text=Report.Error or "Assist finished"; button.Text="Finished" end
@@ -1090,6 +1237,7 @@ local ok,err=xpcall(function()
     initializePlayer()
     makeUI()
     initializeModules()
+    initializeProgression()
     runWithCharacterRecovery()
 end,function(e) return tostring(e) end)
 release()

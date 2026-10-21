@@ -1,0 +1,105 @@
+[client=e5c85afe-ac5a-4f64-8aa7-d744a5d1e047 place=Bee Swarm Simulator job=1fe68220-9be0-4875-af59-673f64606f2d]
+-- Lines 435-537 of 695
+					end
+				end
+				if v119 then
+					v116 = "  All (" .. v109 .. ")  "
+					v115 = v109
+				end
+				while true do
+					v111, v110 = require(game.ReplicatedStorage.Gui.QuantityBox).Ask(v114, v115, v116, v123, v109)
+					if not v110 then
+						break
+					end
+					local v127 = v111 == 1 and "\226\154\160\239\184\143 Feeding until gifted is not guaranteed to work and may use ALL your treats. Continue? \226\154\160\239\184\143" or "\226\154\160\239\184\143 Feeding until gifted is not guaranteed to work and may use all " .. require(game.ReplicatedStorage.NumberCommas)(v111) .. " treats. Continue? \226\154\160\239\184\143"
+					if require(game.ReplicatedStorage.Gui.QuestionBox).Ask(v127, true) then
+						break
+					end
+				end
+				if not v111 then
+					v111 = 0
+				end
+			end
+			if v111 <= 0 then
+				return v109, false
+			end
+		else
+			v111 = 1
+		end
+		if v107.WaxEffect then
+			v111 = 0
+			local v128 = v_u_1.GetLocalPlayerCell(p104, p105)
+			if v128 and v128.File then
+				local v129 = require(game.ReplicatedStorage.BeeStats).GetBeequip(v128.File)
+				if v129 then
+					local v130 = require(game.ReplicatedStorage.Beequips.BeequipFile)
+					setmetatable(v129, v130)
+					local v131 = v129:GetTypeDef()
+					if v131 then
+						local v132 = v107.DisplayName
+						local v133 = v128.File.Type
+						local v134 = tostring(v133)
+						local v135 = v131.DisplayName
+						local v136 = "Use the " .. v132 .. " on " .. v134 .. " Bee\'s " .. tostring(v135) .. "?"
+						v111 = require(game.ReplicatedStorage.Gui.QuestionBox).Ask(v136) and 1 or 0
+					end
+				end
+			end
+		end
+		local v137 = nil
+		if v107.TrueEgg or v107.Transform then
+			local v138 = require(game.ReplicatedStorage.StatTools)
+			local v139 = "Hatch " .. v107.DisplayName .. "?"
+			if p106.Type then
+				local v140 = v_u_3:GetBeeType(p106.Type)
+				if v140 then
+					v139 = (v107.CellType == "Empty" and "Remove " or "Transform ") .. v140 .. " Bee?"
+				end
+			end
+			local v141 = false
+			local v142 = v107.AutoJelly
+			if v142 then
+				v142 = v138.GetSetting(v108, "RollToLegendary") or v138.GetSetting(v108, "RollToGifted") or (v138.GetSetting(v108, "RollToMythic") or v138.GetSetting(v108, "RollToMutation"))
+			end
+			if v142 then
+				v141 = v138.GetSetting(v108, "RollToMythic") and (v138.GetSetting(v108, "RollToGifted") or v138.GetSetting(v108, "RollToMutation")) and true or v141
+				v139 = v139 .. " (Auto-Jelly is ON)"
+			end
+			if not require(game.ReplicatedStorage.Gui.QuestionBox).Ask(v139) then
+				return v109, false
+			end
+			if v138.CheckIfRoboBearChallengeIsActive(v108) and not require(game.ReplicatedStorage.Gui.QuestionBox).Ask("\226\154\160\239\184\143 Hatching or transforming a bee will end your Robo Bear Challenge. Continue?\226\154\160\239\184\143", true) then
+				return v109, false
+			end
+			if v142 and (v107.Name == "StarJelly" and not require(game.ReplicatedStorage.Gui.QuestionBox).Ask("\226\154\160\239\184\143You are about to Auto-Jelly using Star Jellies. Continue?\226\154\160\239\184\143", true)) then
+				return v109, false
+			end
+			if v141 and not require(game.ReplicatedStorage.Gui.QuestionBox).Ask("\226\154\160\239\184\143The Auto-Jelly settings you have selected are extremely rare. Continue?\226\154\160\239\184\143", true) then
+				return v109, false
+			end
+			if v107.RarityChoice and v107.RarityChoice == "Mythic" then
+				v137 = require(game.ReplicatedStorage.Gui.ChooseAMythicGui).Open()
+			end
+		end
+		local v143, v144, v145, v146, v147 = v_u_4.ClientCall("ConstructHiveCellFromEgg", p104, p105, p103, v111, v110, v137)
+		if v144 then
+			v_u_2:Set({ "Eggs", p103 }, v143)
+			v_u_2:Set("DiscoveredBees", v146)
+			v_u_2:Set("Honeycomb", v145)
+			v_u_2:Set({ "Totals", "EggUses" }, v147)
+			require(game.ReplicatedStorage.GateManager).UpdateGateColors()
+		end
+		return v143, v144
+	end
+	function v_u_78.EggDragEnd(p148)
+		-- upvalues: (copy) v_u_78, (ref) v_u_5, (copy) v_u_88, (ref) v_u_80, (ref) v_u_83, (copy) v_u_31, (copy) v_u_39, (ref) v_u_3, (ref) v_u_79
+		v_u_78.EggDragUpdate()
+		local v149 = v_u_5.Get(p148)
+		if v149 then
+			local v150 = v_u_88.GetActive()
+			v150:Unhighlight()
+			if not v_u_80 then
+				if v149.Usable then
+					local v151 = false
+					local v152 = false
+					if v_u_83 then

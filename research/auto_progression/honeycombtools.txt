@@ -1,0 +1,147 @@
+[client=e5c85afe-ac5a-4f64-8aa7-d744a5d1e047 place=Bee Swarm Simulator job=1fe68220-9be0-4875-af59-673f64606f2d]
+-- Lines 1-145 of 695
+local v_u_1 = {}
+local v_u_2 = require(game.ReplicatedStorage.ClientStatCache)
+local v_u_3 = require(game.ReplicatedStorage.HCCellTypes)
+require(game.ReplicatedStorage.CellTools)
+local v_u_4 = require(game.ReplicatedStorage.Events)
+local v_u_5 = require(game.ReplicatedStorage.EggTypes)
+v_u_3:NameToID("Empty")
+local _ = require(game.ReplicatedFirst.PlaceInfo).IsHiveHub
+function v_u_1.GetUnlockedCellCount()
+	return 25
+end
+function v_u_1.GetSizeX()
+	return 5
+end
+function v_u_1.GetSizeY()
+	return 10
+end
+function v_u_1.GetLocalPlayerHoneycomb()
+	local v6 = game:GetService("Players").LocalPlayer
+	if v6 == nil then
+		return nil
+	else
+		local v7 = v6:FindFirstChild("Honeycomb")
+		if v7 == nil then
+			return nil
+		else
+			return v7.Value
+		end
+	end
+end
+function v_u_1.PartToCellModel(p8, p9)
+	-- upvalues: (copy) v_u_1
+	local v10 = p9 or v_u_1.GetLocalPlayerHoneycomb()
+	if v10 then
+		if p8 == nil then
+			return nil
+		else
+			local v11 = p8.Parent
+			if v11 == nil then
+				return nil
+			else
+				local v12 = v11.Parent
+				if v12 == nil then
+					return nil
+				elseif v12 == v10.Cells then
+					if v11.CellLocked.Value then
+						return nil
+					else
+						return v11
+					end
+				else
+					return nil
+				end
+			end
+		end
+	else
+		return nil
+	end
+end
+function v_u_1.GetLocalPlayerCell(p13, p14)
+	-- upvalues: (copy) v_u_1, (copy) v_u_2
+	local v15 = v_u_1.GetLocalPlayerHoneycomb()
+	if v15 == nil then
+		return nil
+	end
+	local v16 = v_u_2:Get("Honeycomb")
+	game.Workspace:WaitForChild("Bees")
+	local v17 = v15.Cells:FindFirstChild("C" .. p13 .. "," .. p14 .. "")
+	if v17 == nil then
+		return nil
+	end
+	local v18 = v16["x" .. p13]
+	if v18 ~= nil then
+		v18 = v18["y" .. p14]
+	end
+	return {
+		["Body"] = v17,
+		["Type"] = not v18 and "Empty" or v18.Type .. "Bee",
+		["File"] = v18,
+		["X"] = p13,
+		["Y"] = p14,
+		["Locked"] = v17.CellLocked.Value
+	}
+end
+function v_u_1.ForEachLocalCell(p19, p20)
+	-- upvalues: (copy) v_u_1, (copy) v_u_2
+	local v21 = v_u_1.GetLocalPlayerHoneycomb()
+	if v21 == nil then
+		return
+	else
+		local v22 = v_u_2:Get("Honeycomb")
+		if v22 then
+			for v23 = 1, 5 do
+				for v24 = 1, 10 do
+					local v25 = v21.Cells:FindFirstChild("C" .. v23 .. "," .. v24 .. "")
+					if v25 == nil then
+						return nil
+					end
+					local v26 = v22["x" .. v23]
+					if v26 ~= nil then
+						v26 = v26["y" .. v24]
+					end
+					p19({
+						["Body"] = v25,
+						["Type"] = not v26 and "Empty" or v26.Type .. "Bee",
+						["File"] = v26,
+						["X"] = v23,
+						["Y"] = v24,
+						["Locked"] = v25.CellLocked.Value
+					})
+					if p20 and p20.Break then
+						return
+					end
+				end
+			end
+		end
+	end
+end
+function v_u_1.RevertLocalHiveAppearance()
+	-- upvalues: (copy) v_u_1, (copy) v_u_3
+	v_u_1.ForEachLocalCell(function(p27)
+		-- upvalues: (ref) v_u_3
+		if not p27.Locked then
+			local v28 = p27.Body.CellType.Value
+			p27.Body.Backplate.Material = "Plastic"
+			p27.Body.Backplate.Transparency = v_u_3:GetTransparency(v28)
+			p27.Body.Backplate.Color = v_u_3:GetColor(v28)
+		end
+	end)
+end
+function v_u_1.BuildEditor(p29, p_u_30)
+	-- upvalues: (copy) v_u_1, (copy) v_u_5, (copy) v_u_2, (copy) v_u_3, (copy) v_u_4
+	local v_u_31 = v_u_1.GetLocalPlayerHoneycomb()
+	local v_u_32 = v_u_5.Get(p29)
+	local v_u_33 = v_u_2:Get("Honeycomb")
+	local v_u_34 = game.Workspace:WaitForChild("Bees")
+	local function v_u_39(p35, p36)
+		-- upvalues: (copy) v_u_31, (copy) v_u_33
+		local v37 = v_u_31.Cells:FindFirstChild("C" .. p35 .. "," .. p36 .. "")
+		if v37 == nil then
+			return nil
+		end
+		local v38 = v_u_33["x" .. p35]
+		if v38 ~= nil then
+			v38 = v38["y" .. p36]

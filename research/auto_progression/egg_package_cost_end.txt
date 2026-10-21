@@ -1,0 +1,78 @@
+[client=e5c85afe-ac5a-4f64-8aa7-d744a5d1e047 place=Bee Swarm Simulator job=1fe68220-9be0-4875-af59-673f64606f2d]
+-- Lines 350-425 of 530
+			end
+			v98 = v98 + v106
+		end
+		local v107 = v98 + 0.5
+		return {
+			["Amount"] = math.floor(v107)
+		}
+	end
+	local v108 = v_u_2.Get(v81)
+	local v109 = require(game.ReplicatedStorage.OsTime)()
+	if v108.PurchaseDeadline and v108.PurchaseDeadline < v109 then
+		return nil
+	end
+	if v108.TicketCost then
+		local v110 = v84 * v108.TicketCost
+		local v111 = {
+			["Amount"] = v110
+		}
+		if v108.Sale and v109 < v108.Sale.Expiration then
+			local v112 = v110 * (1 - v108.Sale.Discount) + 0.5
+			v111.Amount = math.floor(v112)
+			v111.Discount = v108.Sale.Discount
+		end
+		return v111
+	end
+	if not v108.HoneyCost then
+		return nil
+	end
+	local v113 = {}
+	local v114 = p79.Amount + 0.5
+	v113.Amount = math.floor(v114) * v108.HoneyCost
+	return v113
+end
+function v_u_1.PurchaseEffect(p115, p116, _)
+	-- upvalues: (copy) v_u_1
+	if not v_u_1.Exists(p115) then
+		return false
+	end
+	local v117 = p116.Totals.Purchases.Eggs[p115.Type]
+	local v118 = v117 == nil and 0 or v117
+	p116.Totals.Purchases.Eggs[p115.Type] = v118 + p115.Amount
+	return true
+end
+function v_u_1.Give(p119, p120, p121)
+	-- upvalues: (copy) v_u_6, (copy) v_u_1, (copy) v_u_2, (copy) v_u_3, (copy) v_u_4
+	if not p121 then
+		p119 = v_u_6:Uncompress(p119)
+	end
+	if not v_u_1.Exists(p119) then
+		return false
+	end
+	if not p120 then
+		return false
+	end
+	local v122 = p120.Eggs[p119.Type]
+	local v123 = v122 == nil and 0 or v122
+	local v124 = p119.Amount + 0.5
+	local v125 = math.floor(v124)
+	local v126 = v_u_2.Get(p119.Type)
+	local v127 = v123 + v125
+	if v126.Capacity and (not p119.IgnoreCap and v126.Capacity < v127) then
+		local v128 = v126.Capacity
+		v127 = math.max(v123, v128)
+	end
+	p120.Eggs[p119.Type] = v127
+	if v126.OnGive then
+		v126.OnGive(p120, v125, p121)
+	end
+	local v129 = p120.Totals.EggsReceived[p119.Type] or 0
+	p120.Totals.EggsReceived[p119.Type] = v129 + v125
+	if p119.Source then
+		local v130 = p119.Source
+		local v131
+		if type(v130) == "table" then
+			v131 = p119.Source
+		else

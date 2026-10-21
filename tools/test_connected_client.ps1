@@ -13,6 +13,7 @@ $versionMatch=[regex]::Match($runtime,'local SCRIPT_VERSION = "(\d+\.\d+\.\d+)"'
 if (-not $versionMatch.Success) { throw 'Cannot locate bundle version' }
 $hasFailsafeCorrection=([version]$versionMatch.Groups[1].Value -ge [version]'1.5.1')
 $checkFinalBaby=$CheckFinalBabyQuota -or ([version]$versionMatch.Groups[1].Value -ge [version]'1.5.2')
+$hasProgression=([version]$versionMatch.Groups[1].Value -ge [version]'1.6.0')
 $policyTests = Get-Content -LiteralPath (Join-Path $project 'test_full_hive_policy.luau') -Raw
 $recoveryTests = Get-Content -LiteralPath (Join-Path $project 'test_character_recovery.luau') -Raw
 $collectorTests = Get-Content -LiteralPath (Join-Path $project 'test_collector_recovery.luau') -Raw
@@ -35,6 +36,16 @@ $code += 'local connectedReviewTests=[======['+$connectedReviewTests+']======]; 
 $code += 'local failsafeOnlyTests=[======['+$failsafeOnlyTests+']======]; '
 $code += 'local hasFailsafeCorrection='+$hasFailsafeCorrection.ToString().ToLowerInvariant()+'; '
 $code += 'local finalBabyTests=[======['+$finalBabyTests+']======];local checkFinalBaby='+$checkFinalBaby.ToString().ToLowerInvariant()+'; '
+if ($hasProgression) {
+    $progressionPolicy=[regex]::Match($bundle,'local ProgressionPolicy = \(function\(\)\n(.*?)\nend\)\(\)\nlocal createProgressionFacts',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
+    $progressionFacts=[regex]::Match($bundle,'local createProgressionFacts = \(function\(\)\n(.*?)\nend\)\(\)\nlocal createProgression =',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
+    if (-not $progressionPolicy -or -not $progressionFacts) { throw 'Cannot locate bundled progression modules' }
+    $progressionTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_auto_progression.luau') -Raw
+    $progressionFactsTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_progression_facts.luau') -Raw
+    $code += 'local progressionPolicy=[======['+$progressionPolicy+']======];local progressionFacts=[======['+$progressionFacts+']======];'
+    $code += 'local progressionTests=[======['+$progressionTests+']======];local progressionFactsTests=[======['+$progressionFactsTests+']======];'
+}
+$code += 'local hasProgression='+$hasProgression.ToString().ToLowerInvariant()+'; '
 $code += @'
 local main,mainError=loadstring(bundle)
 local embedded=assert(bundle:match("local StarEggSource = %[%=%=%=%=%[(.-)%]%=%=%=%=%]"))
@@ -56,12 +67,19 @@ local failsafeOnlyOK,failsafeOnlyResult=true,{notApplicable=true}
 if hasFailsafeCorrection then failsafeOnlyOK,failsafeOnlyResult=pcall(assert(loadstring(failsafeOnlyTests))(),p,types,runtime) end
 local finalBabyOK,finalBabyResult=true,{notApplicable=true}
 if checkFinalBaby then finalBabyOK,finalBabyResult=pcall(assert(loadstring(finalBabyTests))(),p,types) end
+local progressionOK,progressionResult,progressionFactsOK,progressionFactsResult=true,{notApplicable=true},true,{notApplicable=true}
+if hasProgression then
+    local pp=assert(loadstring(progressionPolicy))()
+    progressionOK,progressionResult=pcall(assert(loadstring(progressionTests))(),pp)
+    progressionFactsOK,progressionFactsResult=pcall(assert(loadstring(progressionFactsTests))(),assert(loadstring(progressionFacts))(),pp)
+end
 return {allPassed=main~=nil and star~=nil and policyOK and recoveryOK and collectorOK and batchOK and starJellyOK
-    and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK and finalBabyOK,
+    and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK and finalBabyOK and progressionOK and progressionFactsOK,
     main=main~=nil,mainError=mainError,embeddedStar=star~=nil,starError=starError,
     policy={ok=policyOK,result=policyResult},recovery={ok=recoveryOK,result=recoveryResult},collector={ok=collectorOK,result=collectorResult},batch={ok=batchOK,result=batchResult},starJelly={ok=starJellyOK,result=starJellyResult},
     starPreflight={ok=starPreflightOK,result=starPreflightResult},starProgress={ok=starProgressOK,result=starProgressResult},
-    finalOccupancy={ok=finalOccupancyOK,result=finalOccupancyResult},connectedReview={ok=connectedReviewOK,result=connectedReviewResult},failsafeOnly={ok=failsafeOnlyOK,result=failsafeOnlyResult},finalBaby={ok=finalBabyOK,result=finalBabyResult}}
+    finalOccupancy={ok=finalOccupancyOK,result=finalOccupancyResult},connectedReview={ok=connectedReviewOK,result=connectedReviewResult},failsafeOnly={ok=failsafeOnlyOK,result=failsafeOnlyResult},finalBaby={ok=finalBabyOK,result=finalBabyResult},
+    progression={ok=progressionOK,result=progressionResult},progressionFacts={ok=progressionFactsOK,result=progressionFactsResult}}
 '@
 $argsPath = Join-Path ([IO.Path]::GetTempPath()) ('bss-tests-'+[guid]::NewGuid().ToString()+'.json')
 try {
