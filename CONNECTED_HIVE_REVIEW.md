@@ -1,5 +1,7 @@
 # Auto-hive progression review from zero to fifty bees
 
+**Subsequent one-time authorization, October 21:** After this read-only review, the human explicitly requested executing the exact v1.5.0 bundle on RileyCosmicguppydude. One execution was verified with StartedAt `1792561453`, runtime/report/UI v1.5.0, normal startup delay and healthy waiting state. No Royal Jelly/item/purchase action occurred in the observed startup window. This is limited live startup evidence, not validation of every changed workflow; Luneri427 stayed untouched and the recurring research restriction remains read-only.
+
 ## Scope and evidence
 
 This review combines current source inspection with the primary agent's fresh **read-only connected MCP observations**. The research agents did not call connected APIs. No assist was executed, reloaded, stopped, deployed, or tested in a real session for this review. The existing running scripts stayed on v1.3.7. A published source change or successful compilation does not change or verify those running scripts.

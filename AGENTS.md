@@ -1,5 +1,6 @@
 # BSS project instructions
 
+- The human explicitly authorized one-time execution of the exact published v1.5.0 bundle on RileyCosmicguppydude and its startup verification on October 21. This does not authorize deploying other versions, modifying Luneri427, or changing the recurring read-only research restriction.
 - Latest human override: redo the zero-to-fifty auto-hive improvement review using connected Roblox MCP READ-ONLY inspection. Rediscover intended clients and verify account/place/executor before focused stats, metadata, and source reads. Do not execute, reload, deploy, stop, or re-execute the assist, change game state, spend items, reconnect phones, or run real/connected tests. Already-running scripts stay untouched. Published changes remain local code candidates, not live-verified behavior. This supersedes the prior offline-only restriction and all historical live-test/deployment instructions.
 - The human explicitly requested three subagents for this research task, overriding the historical no-subagent instruction for this task only.
 

@@ -466,7 +466,7 @@
     "connectedResearchPerformed": true,
     "newCodeLiveVerified": false,
     "liveTested": false,
-    "deployed": false,
+    "deployed": true,
     "assistExecuted": false,
     "existingLiveScriptsModified": false,
     "phoneFilesModified": false,
@@ -500,7 +500,13 @@
         "version": "1.3.7",
         "startedAt": 1792545521
       }
-    }
+    },
+    "deployedToAccounts": [
+      "RileyCosmicguppydude"
+    ],
+    "liveStartupVerified": true,
+    "liveVerificationScope": "Riley one-time startup and waiting state only",
+    "otherWorkflowLiveVerified": false
   },
   "previousOfflineCandidate": {
     "version": "1.4.4",
@@ -555,5 +561,59 @@
     "privateDownloadMode": "GitHub contents API with runtime FullHiveGitHubToken; contents-read access",
     "authenticatedBundleDownloadVerified": true,
     "userCredentialEmbedded": false
+  },
+  "latestAuthorizedExecution": {
+    "account": "RileyCosmicguppydude",
+    "version": "1.5.0",
+    "clientId": "ce939894-c003-43c3-bdc7-2a90bd08328b",
+    "jobId": "1fe68220-9be0-4875-af59-673f64606f2d",
+    "placeId": 1537690962,
+    "executor": "Arceus X",
+    "bundleSha256": "69f80c4336a6397772ac6caa0dfe313d5f478ee6f7a8685fa14fd80e419b98dc",
+    "bundleBytes": 157178,
+    "executeCount": 1,
+    "executedUtc": "2026-10-21T05:44:57.084588+00:00",
+    "startedAt": 1792561453,
+    "startupDelayObserved": true,
+    "postStartupVerified": true,
+    "preflight": {
+      "assistAbsent": true,
+      "pendingRequests": false,
+      "uncertainReceipt": false,
+      "atlasStopped": false,
+      "occupied": 41,
+      "unlocked": 41,
+      "royalJelly": 92,
+      "starJelly": 0,
+      "starEggs": 2,
+      "basicEggs": 0
+    },
+    "scope": "Human explicitly authorized this one-time execution on Riley; recurring research remains read-only",
+    "otherAccountModified": false,
+    "verifiedUtc": "2026-10-21T05:46:39.802391+00:00",
+    "running": true,
+    "stop": false,
+    "reportVersion": "1.5.0",
+    "uiVersion": "v1.5.0",
+    "phase": "waiting",
+    "activity": "Waiting for at least 600 Royal Jelly to start a batch",
+    "royalJelly": 92,
+    "starJelly": 0,
+    "starEggs": 2,
+    "basicEggs": 0,
+    "occupied": 41,
+    "unlocked": 41,
+    "refill": 600,
+    "normalRefill": 600,
+    "collectorFallback": false,
+    "safeNonCollector": 0,
+    "actionsObserved": 0,
+    "royalJellyUsedObserved": 0,
+    "atlasStopped": false,
+    "pendingRequests": false,
+    "uncertainReceipt": false,
+    "errors": false,
+    "cleanupErrors": false,
+    "verificationScope": "Startup, UI and normal funded-admission wait only; no claim of changed spending paths being tested"
   }
 }
