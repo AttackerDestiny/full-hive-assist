@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.6.4"
+local SCRIPT_VERSION = "1.6.5"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -152,7 +152,7 @@ local function initializeModules()
         OsTime=loadModule(waitForChild(RS,"OsTime"))
     end
 end
-local function invoke(remote, ...)
+local function invokeRequest(remote, hatchBefore, ...)
     checkStop()
     assert(not env.FullHivePending and not env.AutoHivePendingRequest, "Server request already pending")
     local args = table.pack(...)
@@ -162,6 +162,7 @@ local function invoke(remote, ...)
         assert(not env.FullHiveUncertain,"An earlier mutation needs reconciliation")
         if remote.Name=="ConstructHiveCellFromEgg" then
             request.X,request.Y,request.Item,request.Amount=args[1],args[2],args[3],args[4]
+            request.HatchBefore=hatchBefore -- Copied before the request can yield.
         elseif remote.Name=="ItemPackageEvent" and type(args[2])=="table" then
             request.Item,request.Amount=args[2].Type,args[2].Amount
             request.Category=args[2].Category
@@ -184,6 +185,9 @@ local function invoke(remote, ...)
     assert(done,"Uncertain server response; no retry: "..remote.Name)
     assert(ok,"Server request failed; no retry: "..tostring(values))
     return table.unpack(values,1,values.n)
+end
+local function invoke(remote, ...)
+    return invokeRequest(remote,nil,...)
 end
 local function refresh()
     local s=invoke(Events.RetrievePlayerStats)
@@ -662,9 +666,13 @@ local function initializeProgression()
         return facts,catalog
     end
     progression=createProgression({
-        Policy=ProgressionPolicy,Funds=ProgressionFunds,env=env,Report=Report,Config=Config,Events=Events,
+        Policy=ProgressionPolicy,Funds=ProgressionFunds,HatchReceipt=ProgressionHatchReceipt,
+        env=env,Report=Report,Config=Config,Events=Events,
         Packages=Packages,Recipes=Recipes,Reqs=Reqs,buildFacts=buildFacts,nectarSeconds=nectarSeconds,OsTime=OsTime,
         checkStop=checkStop,refresh=refresh,invoke=invoke,move=move,near=near,release=release,
+        invokeHatch=function(before,x,y)
+            return invokeRequest(Events.ConstructHiveCellFromEgg,before,x,y,"Basic",1,false)
+        end,
         fixedShopPackage=function(...) return fixedShopPackage(...) end,
         assertAtlasPaused=assertAtlasPaused,
         scan=scan,hiveFloor=hiveFloor,toyPart=progressionToyPart,jellyBatchSpent=jellyBatchSpent,

@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.6.5:** Empty-cell hatch receipts capture inventory, capacity and bee identities before the server request yields. Response and fresh stats must agree before the receipt closes; natural bee leveling remains allowed. Failed receipts retain their original baseline and response diagnostics. This fixes an evidenced receipt-accounting flaw; the exact failed response from Luneri's v1.6.4 hatch was not recorded, so its old uncertainty is not automatically cleared.
+
 **v1.6.4:** Adds Pesticide Planter after Petal Belt and before Coconut Canister. Accounts with36+ unlocked hive slots first catch up on missing Candy, Red Clay, Blue Clay and Tacky Planters, using permanent purchase records to skip already-owned/deployed planters.
 
 **v1.6.3:** Waits for the full missing crafting-jelly budget before buying any pack, then uses only verified fixed shop options. Reduces repeated metadata/UI discovery, skips unchanged status/viewer updates, and keeps balances and action guards fresh. Validated by3,306 isolated checks per executor; current stopped sessions are preserved until resumed.

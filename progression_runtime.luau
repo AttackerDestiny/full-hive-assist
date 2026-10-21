@@ -167,20 +167,17 @@ return function(H)
         local empty=facts.emptyCell
         assert(empty and empty.verified and empty.x==a.x and empty.y==a.y,"Empty cell changed")
         assert(not (s.Honeycomb["x"..a.x] or {})["y"..a.y],"Hatch cell is already occupied")
-        local remaining,accepted,comb=H.invoke(H.Events.ConstructHiveCellFromEgg,a.x,a.y,"Basic",1,false)
+        -- Stats/cache tables may change while InvokeServer yields. Capture all
+        -- receipt baselines first and retain them with the uncertain request.
+        local before,why=H.HatchReceipt.capture(s,a.x,a.y)
+        assert(before,why)
+        local remaining,accepted,comb=H.invokeHatch(before,a.x,a.y)
         local receipt=env.FullHiveUncertain
-        local beforeBasic=s.Eggs.Basic or 0
-        assert(accepted and remaining==beforeBasic-1 and type(comb)=="table","Hatch result uncertain")
+        receipt.HatchResponse={Remaining=remaining,Accepted=accepted,HasComb=type(comb)=="table"}
         local fresh=H.refresh()
-        local bee=(fresh.Honeycomb["x"..a.x] or {})["y"..a.y]
-        assert(bee and bee.Type and (fresh.Eggs.Basic or 0)==remaining,"New bee not reconciled")
-        local before=H.scan(s);local after,capacity=H.scan(fresh)
-        assert(#after==#before+1 and capacity==s.UnlockedCells,"Hatch occupancy/capacity uncertain")
-        for _,old in ipairs(before) do
-            local b=(fresh.Honeycomb["x"..old.x] or {})["y"..old.y]
-            assert(b and b.Type==old.bee.Type and (not table.find(old.bee.Traits or {},"Gifted")
-                or table.find(b.Traits or {},"Gifted")),"Existing bee changed during empty hatch")
-        end
+        local reconciled,reason=H.HatchReceipt.validate(before,
+            {remaining=remaining,accepted=accepted,comb=comb},fresh)
+        assert(reconciled,"Hatch result uncertain: "..tostring(reason))
         receipt.Kind="hatch-basic";receipt.Item="Basic";receipt.Amount=1
         return finishReceipt(s,fresh,receipt)
     end

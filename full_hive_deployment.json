@@ -1031,14 +1031,17 @@
     "validationLimit": "Natural gear purchase/craft paths are partially observed; current Blender queues are intentionally waiting and no ticket toggle was enabled"
   },
   "currentRelease": {
-    "version": "1.6.4",
+    "version": "1.6.5",
     "bundle": "auto_full_hive_assist.luau",
-    "sha256": "6282589d6994172090b19d7f1fb5d99ac19b193d765501df5c7f09cbc8ee7ab8",
-    "bytes": 246539,
-    "releasePath": "releases/v1.6.4/auto_full_hive_assist.luau",
+    "sha256": "dc2dc01ed78e40b226e04ef0479628dd1cac9fc8a77d00d257a18fff5a4615fb",
+    "bytes": 252281,
+    "releasePath": "releases/v1.6.5/auto_full_hive_assist.luau",
     "deployed": true,
-    "liveRuntimeVersion": "1.6.4",
-    "liveState": "running and post-start verified on RileyCosmicguppydude and Luneri427"
+    "liveRuntimeVersions": {
+      "RileyCosmicguppydude": "1.6.5",
+      "Luneri427": "1.6.4"
+    },
+    "liveState": "Riley updated; Luneri stopped with original unresolved hatch receipt"
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -1469,6 +1472,107 @@
     "atlasRestartedByThisRun": false,
     "codeChanged": false,
     "sameTwoAgentsStaticReview": true,
+    "automationChanged": false
+  },
+  "latestHatchReceiptFix": {
+    "version": "1.6.5",
+    "recordedUtc": "2026-10-21T21:37:54.606469+00:00",
+    "sha256": "dc2dc01ed78e40b226e04ef0479628dd1cac9fc8a77d00d257a18fff5a4615fb",
+    "bytes": 252281,
+    "checksLocal": 3360,
+    "checksPerConnectedExecutor": 3360,
+    "hatchReceiptChecks": 31,
+    "staticMarkers": 41,
+    "mainCompiled": true,
+    "embeddedCompiled": true,
+    "scope": "Pure pre-request hatch snapshots and response/fresh-stat reconciliation; existing hive/gear policy and physical movement remain unchanged",
+    "observedFailure": {
+      "account": "Luneri427",
+      "clientId": "9bdbb50e-85f1-4e65-a08f-eb94730ea906",
+      "executor": "Arceus X",
+      "placeId": 1537690962,
+      "jobId": "bf425498-a9ae-44ab-a747-96a254765cc0",
+      "version": "1.6.4",
+      "startedAt": 1792606761,
+      "running": false,
+      "stop": false,
+      "error": ":3339: Hatch result uncertain",
+      "atlasStopped": false,
+      "capacity": 44,
+      "occupied": 44,
+      "target": {
+        "x": 4,
+        "y": 9,
+        "type": "Basic",
+        "gifted": false,
+        "birth": 1792617325
+      },
+      "basicInventory": 0,
+      "basicEggUses": 110,
+      "purchasedHiveSlots": 19,
+      "lastProgressionAction": {
+        "kind": "buy-basic-egg",
+        "amount": 1,
+        "at": 1792617322
+      },
+      "movement": {
+        "arrived": true,
+        "distanceAtArrival": 2.0142679214478
+      },
+      "originalUncertain": {
+        "Name": "ConstructHiveCellFromEgg",
+        "Item": "Basic",
+        "Amount": 1,
+        "X": 4,
+        "Y": 9,
+        "Owner": 11780133534,
+        "Job": "bf425498-a9ae-44ab-a747-96a254765cc0",
+        "Started": 11669.579544016
+      },
+      "receiptCleared": false,
+      "hatchRetried": false,
+      "newVersionExecuted": false
+    },
+    "diagnosis": "The old checker captured Basic inventory after InvokeServer and scanned its before-hive after refresh. These baselines can change during a yielding request. The old failed response and pre-request state were not retained, so the exact failed subcondition cannot be established from the new hive alone.",
+    "changes": [
+      "Capture independent pre-request Basic/capacity/occupied/bee identities",
+      "Attach immutable-by-copy before snapshot to original uncertainty receipt before invoking",
+      "Preserve response scalar diagnostics for later reconciliation",
+      "Validate accepted response, exact Basic consumption, target, one new bee and prior species/Gifted protection against fresh stats",
+      "Allow natural level and trait progression"
+    ],
+    "accounts": [
+      {
+        "account": "RileyCosmicguppydude",
+        "version": "1.6.5",
+        "startedAt": 1792618585,
+        "executeCount": 1,
+        "maintenanceRunningFalseObserved": true,
+        "startupDelayObserved": true,
+        "postStartupVerified": true,
+        "verifiedUtc": "2026-10-21T21:38:29.195888+00:00",
+        "uiVersion": "v1.6.5",
+        "running": true,
+        "stop": false,
+        "phase": "waiting",
+        "atlasStopped": false,
+        "pendingOrUncertain": false,
+        "reportedErrors": false,
+        "royalJelly": 84,
+        "refill": 600,
+        "actionsSinceStart": 0,
+        "blueExtractQueued": 212,
+        "ticketSpeedupEnabled": false
+      },
+      {
+        "account": "Luneri427",
+        "version": "1.6.4",
+        "startedAt": 1792606761,
+        "running": false,
+        "deferredReason": "Original hatch uncertainty lacks a pre-request baseline; pending safeguard preserved"
+      }
+    ],
+    "validationLimit": "New receipt behavior has isolated pure-data coverage, including mutation of original input tables during a request. No new hatch, timer completion, RNG outcome or manual spend was forced. Historical rejected transport fixtures remain excluded.",
     "automationChanged": false
   }
 }
