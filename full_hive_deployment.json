@@ -506,7 +506,7 @@
       "Luneri427"
     ],
     "liveStartupVerified": true,
-    "liveVerificationScope": "Both startup/waiting; Riley first unique gifted Riley retention and saved-leftover completion; other workflows remain unobserved",
+    "liveVerificationScope": "Both startup/waiting; Riley first unique gifted retention and saved-leftover completion; Luneri natural one-Star-Jelly first gifted Hasty keep with no Royal Jelly use. Star Egg/Basic and other unobserved paths remain unverified.",
     "otherWorkflowLiveVerified": false,
     "connectedRegressionAccounts": [
       "RileyCosmicguppydude",
@@ -723,5 +723,54 @@
     "pendingOrUncertain": false,
     "atlasStopped": false,
     "coverage": "First unique gifted retention and completion/save-leftovers observed naturally; individual top-up/admission/intermediate roll sequence not fully captured"
+  },
+  "latestNaturalV150Check": {
+    "verifiedUtc": "2026-10-21T06:24:27.276376+00:00",
+    "version": "1.5.0",
+    "sameClientJobVerified": true,
+    "reexecuted": false,
+    "testsRepeated": false,
+    "noPendingOrUncertainRequests": true,
+    "noReportedErrors": true,
+    "atlasStopped": false,
+    "riley": {
+      "account": "RileyCosmicguppydude",
+      "startedAt": 1792561453,
+      "occupied": 41,
+      "royalJelly": 63,
+      "normalRefill": 600,
+      "cumulativeRoyalJellyUsed": 800,
+      "lastResult": "Normal Bubble",
+      "coordinate": {
+        "X": 5,
+        "Y": 8
+      },
+      "giftedRileyPreserved": true,
+      "NinjaTotal": 4,
+      "LionTotal": 0,
+      "rollTaskPresent": false,
+      "jellyBatchPresent": false
+    },
+    "luneri": {
+      "account": "Luneri427",
+      "startedAt": 1792562394,
+      "occupied": 43,
+      "royalJelly": 88,
+      "normalRefill": 2000,
+      "cumulativeRoyalJellyUsed": 0,
+      "lastResult": "Gifted Hasty",
+      "lastItem": "StarJelly",
+      "lastConsumed": 1,
+      "coordinate": {
+        "X": 5,
+        "Y": 8
+      },
+      "allEightFailsafesStillPresent": true,
+      "NinjaTotal": 4,
+      "LionTotal": 2,
+      "rollTaskPresent": false,
+      "jellyBatchPresent": false
+    },
+    "coverage": "Natural Star Jelly incidental first-gifted keep and saved Royal Jelly on Luneri; completed collector endpoint/save-leftovers on Riley. No per-request trace claim."
   }
 }
