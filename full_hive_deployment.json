@@ -433,5 +433,26 @@
       "freshStats": "unverified",
       "lastKnownClient": "bc02b986-3094-453b-b3a2-3b31114cc9fc"
     }
+  },
+  "latestLuneriPostReconnectVerification": {
+    "version": "1.3.7",
+    "phoneProfile": "phone2",
+    "errors": false,
+    "royalJelly": 115,
+    "refill": 2000,
+    "running": true,
+    "clientId": "e5c85afe-ac5a-4f64-8aa7-d744a5d1e047",
+    "starJelly": 0,
+    "uiVersion": "v1.3.7",
+    "slots": 43,
+    "verifiedUtc": "2026-10-21T01:13:38Z",
+    "phase": "waiting",
+    "NinjaTotal": 4,
+    "account": "Luneri427",
+    "startedAt": 1792545521,
+    "atlasStopped": false,
+    "LionTotal": 2,
+    "jobId": "1fe68220-9be0-4875-af59-673f64606f2d",
+    "pendingRequests": false
   }
 }
