@@ -1,5 +1,7 @@
 # Hive progression review: zero to fifty bees
 
+**Historical offline review:** The user subsequently authorized connected MCP read-only research and requested a fresh review. [CONNECTED_HIVE_REVIEW.md](CONNECTED_HIVE_REVIEW.md) supersedes this document as the evidence baseline. In particular, live metadata identifies Basic as Common and Bomber as Rare; the earlier fixed fixture was inaccurate. Historical validation results below apply to their original source/fixture versions only.
+
 Reviewed October 20, 2026 using three research/audit subagents, source inspection, and isolated local Luau fixtures. **No connected-client tests, phone actions, deployment, or live gameplay verification were performed for v1.4.0.** The already running version was left alone.
 
 ## Evidence and confidence

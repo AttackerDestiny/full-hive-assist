@@ -275,6 +275,13 @@ return function(P,T,runtime)
         local target=slotCount>=44 and math.max(10000,base) or base
         for _,inventory in ipairs({1,math.floor(target/2),target-1}) do
             cells=fixture()
+            -- This general fixture has 36 bees; its 35-slot snapshot must
+            -- remove one spare normal before testing the refill boundary.
+            if #cells>slotCount then
+                for i,c in ipairs(cells) do
+                    if c.bee.Type=="Bumble" and not P.gifted(c) then table.remove(cells,i);break end
+                end
+            end
             local missingCost=P.jellyCost(75,target-inventory)
             local snapshot=stats(cells,missingCost)
             snapshot.Totals.Purchases.HiveSlots=slotCount-25

@@ -25,7 +25,7 @@ $required = @(
     'StartupDelaySeconds=60',
     'Policy.startRollTask(p.target,p._cells,p)',
     'Policy.refillFor(slots,fallback)',
-    'local fallbackReady=p.collectorFallback',
+    'if item=="RoyalJelly" and not (jellyBatchReady(s) or refill()) then',
     'local CHARACTER_UNAVAILABLE = {}',
     'local function runWithCharacterRecovery()',
     'if characterRoot()~=r then error(CHARACTER_UNAVAILABLE,0) end'
@@ -44,6 +44,11 @@ $required = @(
     'function P.starJellyMissing(cells)'
     'local item=Policy.rollItem(cells,s.Eggs,p,rollTask)'
     'Roll settings changed before Star Jelly spending'
+    'local StarState = (function()'
+    'return Policy.snapshot(s,Types)'
+    'function Progress.coverage(cells,types)'
+    '"all-gifted-mythics-present"'
+    'Basic continuation identity needs reconciliation'
 )
 foreach ($needle in $required) {
     if (-not $bundle.Contains($needle)) { throw "Compatibility marker missing: $needle" }
@@ -52,6 +57,7 @@ if ($bundle -match 'getgenv\(\)\.FullHive') { throw 'Raw getgenv hook remains in
 if ($bundle -match 'local env = getgenv\(\)') { throw 'Un guarded getgenv remains' }
 if ($bundle.Contains('state[1]')) { throw 'Unguarded Atlas state indexing reintroduced' }
 if ($bundle.Contains('waitForAtlasReady') -or $bundle.Contains('AtlasReadyStableSeconds')) { throw 'Atlas callback readiness wait was not removed' }
+if ($bundle.Contains('Waiting for at least one bee and one Royal Jelly')) { throw 'Unrelated Royal Jelly startup gate was reintroduced' }
 $gateOrder = @'
     if not waitForStartupDelay() then return end
     initializePlayer()

@@ -412,6 +412,49 @@ local remote = ReplicatedStorage.Events:WaitForChild("ConstructHiveCellFromEgg",
 assert(remote and remote:IsA("RemoteFunction"), "Egg remote unavailable")
 local StarProgress = (function()
 local Progress = {}
+local function integer(value)
+    return type(value)=="number" and value>=0 and value<math.huge and value%1==0
+end
+function Progress.usage(stats)
+    local uses=stats.Totals and stats.Totals.EggUses
+    if type(uses)~="table" then return {known=false,recordedKnown=false,used=0} end
+    -- Live server counters omit Star before the first hatch. An absent key is
+    -- a zero budget baseline, never evidence that two eggs have been hatched.
+    if uses.Star==nil then return {known=true,recordedKnown=false,sparseZero=true,used=0} end
+    if not integer(uses.Star) then return {known=false,recordedKnown=false,used=0} end
+    return {known=true,recordedKnown=true,used=uses.Star}
+end
+function Progress.coverage(cells,types)
+    assert(type(types)=="table", "Bee metadata unavailable")
+    local required,mythics,counts={},{},{}
+    local eligible={Common=true,Basic=true,Rare=true,Epic=true,Legendary=true}
+    for name,info in pairs(types) do
+        if type(info)=="table" then
+            if eligible[info.Rarity] then required[#required+1]=name end
+            if info.Rarity=="Mythic" then mythics[#mythics+1]=name end
+        end
+    end
+    assert(table.find(required,"Basic") and #required>=29 and #mythics>=6,
+        "Incomplete Star Egg prerequisite metadata")
+    for _,cell in ipairs(cells) do
+        if cell.bee and table.find(cell.bee.Traits or {},"Gifted") then counts[cell.bee.Type]=true end
+    end
+    table.sort(required);table.sort(mythics)
+    local missing,missingMythics={},{}
+    for _,name in ipairs(required) do if not counts[name] then missing[#missing+1]=name end end
+    for _,name in ipairs(mythics) do if not counts[name] then missingMythics[#missingMythics+1]=name end end
+    return {required=required,missing=missing,missingMythics=missingMythics}
+end
+function Progress.budget(stats,limit)
+    local usage=Progress.usage(stats)
+    local inventory=stats.Eggs and stats.Eggs.Star
+    if not usage.known then return 0,"unknown-star-use-counter" end
+    if not integer(inventory) then return 0,"unknown-star-inventory" end
+    if limit~=nil and limit~=math.huge and not integer(limit) then return 0,"invalid-star-budget" end
+    local remaining=math.max(0,2-usage.used)
+    if remaining==0 then return 0,"two-recorded-uses" end
+    return math.min(remaining,inventory,math.max(0,limit or 2))
+end
 function Progress.read(stats)
     local completed = stats.Quests and stats.Quests.Completed
     if type(completed) ~= "table" then return {known=false, ready=false} end
@@ -422,17 +465,15 @@ function Progress.read(stats)
     end
     local mother, panda = done("Seven To Seven"), done("Royal Rumble")
     local earned = (mother and 1 or 0) + (panda and 1 or 0)
-    local inventory = stats.Eggs and stats.Eggs.Star or 0
-    local recorded = stats.Totals and stats.Totals.EggUses and stats.Totals.EggUses.Star
-    local recordedKnown = type(recorded) == "number" and recorded >= 0
-        and recorded < math.huge and recorded % 1 == 0
-    local used = recordedKnown and recorded or 0
+    local inventory = stats.Eggs and stats.Eggs.Star
+    local usage=Progress.usage(stats)
     return {known=true, mother=mother, panda=panda, earned=earned, inventory=inventory,
-        used=used, recordedKnown=recordedKnown,
-        ready=mother and panda and inventory==0 and recordedKnown and used>=2}
+        used=usage.used, recordedKnown=usage.recordedKnown,usageKnown=usage.known,
+        sparseZero=usage.sparseZero,inventoryKnown=integer(inventory),
+        ready=mother and panda and integer(inventory) and inventory==0
+            and usage.recordedKnown and usage.used>=2}
 end
 return Progress
-
 end)()
 local Policy = (function()
 -- Pure selection rules; embedded into the standalone combined script.
@@ -479,23 +520,12 @@ function Policy.missing(cells, required)
     return missing, counts
 end
 function Policy.starRequirements(types)
-    assert(type(types) == "table", "Bee metadata unavailable")
-    local required, hasBasic = {}, false
-    local eligible = {Basic=true, Common=true, Rare=true, Epic=true, Legendary=true}
-    for name, info in pairs(types) do
-        if type(info) == "table" and eligible[info.Rarity] then
-            assert(type(name) == "string" and name ~= "", "Invalid bee metadata name")
-            required[#required + 1] = name
-            if name == "Basic" then hasBasic = true end
-        end
-    end
-    assert(hasBasic and #required >= 29, "Incomplete Star Egg prerequisite metadata")
-    table.sort(required)
-    return required
+    return StarProgress.coverage({},types).required
 end
 function Policy.starPreflight(cells, types, settings)
-    local missing = Policy.missing(cells, Policy.starRequirements(types))
-    assert(#missing == 0, "Every gifted non-Event/non-Mythic type must be in the current hive before each Star Egg")
+    local coverage=StarProgress.coverage(cells,types)
+    assert(#coverage.missing == 0, "Every gifted non-Event/non-Mythic type must be in the current hive before each Star Egg")
+    if #coverage.missingMythics==0 then return false,"all-gifted-mythics-present" end
     assert(type(settings) == "table", "Roll settings unavailable before Star Egg")
     for _, flag in ipairs({"RollToGifted", "RollToLegendary", "RollToMythic", "RollToMutation"}) do
         assert(not settings[flag], "Roll settings must be OFF before Star Egg")
@@ -900,12 +930,19 @@ local Report = {
     Purchases = 0, RequiredTypes = #required,
 }
 env.AutoGiftedStarReport = Report
+local function deferStars(reason)
+    Report.Phase="star-eggs-deferred"
+    Report.DeferredReason=reason
+    Report.Activity="Star Eggs saved: "..reason
+    return false
+end
 local function updateReport()
     local stats, cells, counts, missing = scan()
     Report.Missing = missing
     Report.RoyalJelly = stats.Eggs.RoyalJelly or 0
     Report.StarEggs = stats.Eggs.Star or 0
     Report.StarProgress = StarProgress.read(stats)
+    Report.MissingGiftedMythics=StarProgress.coverage(cells,Types).missingMythics
     for _, name in ipairs({"Spicy", "Vector"}) do
         local info = Types[name]
         local discovered = stats.DiscGiftTypes
@@ -1007,7 +1044,12 @@ local function useItem(target, item, phase)
         "Item/phase mismatch")
     local before = stats.Eggs[item] or 0
     assert(before > 0, "Item inventory empty")
-    if item == "Star" then Policy.starPreflight(cells, Types, stats.Settings) end
+    if item == "Star" then
+        local ready,reason=Policy.starPreflight(cells, Types, stats.Settings)
+        if not ready then return deferStars(reason) end
+        local budget=StarProgress.budget(stats,Config.MaxStarEggs-usedEggs)
+        assert(budget>0,"Star Egg budget changed before spending")
+    end
     local remaining, accepted, honeycomb, discovered, eggUses =
         invokeServer(remote, current.x, current.y, item, 1, false)
     assert(accepted and type(honeycomb) == "table" and type(remaining) == "number",
@@ -1058,12 +1100,13 @@ local stats, cells, counts, missing, plan = updateReport()
 capturePermanents(cells)
 local questProgress = StarProgress.read(stats)
 assert(questProgress.known, "Quest completion data unavailable; stopping")
-local eggBudget = math.min(Config.MaxStarEggs, stats.Eggs.Star or 0)
+local eggBudget,budgetReason = StarProgress.budget(stats,Config.MaxStarEggs)
 Report.QuestEggsEarned = questProgress.earned
 Report.QuestEggsUsed = questProgress.used -- Compatibility alias: total recorded uses, not egg provenance.
 Report.StarEggUsesRecorded = questProgress.used
 Report.StarEggUsesKnown = questProgress.recordedKnown
 Report.EggBudget = eggBudget
+Report.EggBudgetReason=budgetReason
 Report.NextStarTarget = Policy.choose(cells, function(cell)
     return Policy.starSafe(cell, cells, Types, required)
 end)
@@ -1079,10 +1122,16 @@ if Config.DryRun then
 end
 
 if eggBudget > 0 then
+    if #StarProgress.coverage(cells,Types).missingMythics==0 then
+        return deferStars("all-gifted-mythics-present")
+    end
     Report.Phase = "prepare"
     while true do
         stopped()
         stats, cells, counts, missing = updateReport()
+        if #StarProgress.coverage(cells,Types).missingMythics==0 then
+            return deferStars("all-gifted-mythics-present")
+        end
         if #missing == 0 then break end -- Do not clean up duplicate bees here.
         assert(counts.Basic, "Gifted Basic is missing; Royal Jelly cannot supply it")
         local target = Policy.choose(cells, function(cell) return Policy.prepSafe(cell, cells, Types) end)
@@ -1097,12 +1146,15 @@ if eggBudget > 0 then
         stopped()
         refreshStats()
         stats, cells, counts, missing = updateReport()
+        if #StarProgress.coverage(cells,Types).missingMythics==0 then
+            return deferStars("all-gifted-mythics-present")
+        end
         assert(#missing == 0, "All gifted prerequisite types must be in the current hive before each egg")
         local target = Policy.choose(cells, function(cell)
             return Policy.starSafe(cell, cells, Types, required)
         end)
         assert(target, "No safe extra slot for Star Egg")
-        useItem(target, "Star", "eggs")
+        if useItem(target, "Star", "eggs")==false then return end
     end
 end
 

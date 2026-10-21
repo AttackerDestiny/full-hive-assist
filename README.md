@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.5.0 — fresh connected research build, not executed or deployed.** The zero-to-fifty review was redone using read-only MCP stats and game definitions from both accounts. It corrects the rarity fixture, validates hive capacity/coordinates before planning, removes an unrelated Royal Jelly startup wait, scopes Basic continuation to its owner/hive/server, and shares Star Egg coverage/budget rules between workflows. Star Eggs are saved when all gifted Mythics are current, with recorded-use and inventory reconciliation after a handoff. Existing targets, caps, refill qualification and saved-leftover rules remain. [Read the fresh review and limits](CONNECTED_HIVE_REVIEW.md). Validation is static compilation and source review only; the connected accounts stayed on v1.3.7.
+
 **v1.4.4 — offline Star Egg readiness correction, not deployed.** The standalone/embedded Star workflow now requires two valid recorded hatches before its post-egg rebuild. Completed quests and empty inventory no longer imply that eggs were hatched. Existing quest and empty-inventory gates remain; the main stage gate already used recorded hatches. The builder checks that both readiness source copies match. Validation is compilation and static review only; no fixtures or live scripts were executed.
 
 **v1.4.3 — offline completion correction, not deployed.** A qualifying recipe in 50 unlocked slots could previously finish with only 48 occupied bees. Completion now requires 50 occupied bees as well as the existing composition checks. Empty final slots produce a fill-cells advisory; targets and protected bees are unchanged. This correction has static validation only: automatic approval review blocked pure fixture execution, so no fixture pass is claimed.
@@ -12,7 +14,7 @@
 
 Zero-to-fifty acquisition is not yet autonomous: Atlas/manual actions still hatch empty cells and buy hive slots. The assist now reports the next growth step and waits before rerolling a partially filled starter hive. `FullHiveReport.Growth` and `CapacityStatus` expose these decisions. `FullHiveConfig.PreserveUniqueGifted` defaults to `true` for pre-Star-Egg stages from 35 slots; set it before execution to choose a different retention policy.
 
-**Current development restriction:** no real or connected-client tests, deployment, re-execution, or live recovery actions. Use isolated offline validation only. Publishing a build does not update a running executor.
+**Current development restriction:** connected MCP is authorized for read-only research, including focused stats, metadata and source inspection. Do not execute, reload, deploy, stop or re-execute the assist/Atlas, mutate game state, reconnect phones or run real tests. Previously rejected fixture commands remain unexecuted. Publishing a build does not update a running executor.
 
 **v1.3.7 species caps:** Keep at most **4 Ninja** and **2 Lion** bees, counting normal and gifted copies together. These are maximums, not new minimum targets. Surplus slots become eligible for replacement before optional Bubble/Frosty conversions and count as repair candidates when recovery is needed. Recovery does not finish on another over-cap copy. Existing gifted failsafes, stage targets, refill qualification, and saved-leftover rules still apply; cap cleanup runs as resources allow.
 

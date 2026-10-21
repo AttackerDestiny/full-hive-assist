@@ -17,6 +17,37 @@ function P.count(cells, name, giftedOnly)
     end
     return n
 end
+function P.snapshot(stats,types)
+    assert(type(stats.Honeycomb)=="table", "Hive snapshot unavailable")
+    local purchases=stats.Totals and stats.Totals.Purchases
+    assert(type(purchases)=="table", "Hive purchase counters unavailable")
+    local bought=purchases.HiveSlots
+    if bought==nil then bought=0 end
+    assert(type(bought)=="number" and bought>=0 and bought<=25 and bought%1==0,
+        "Invalid hive capacity purchase counter")
+    local purchasedCapacity=25+bought
+    local capacity=stats.UnlockedCells
+    if capacity==nil then capacity=purchasedCapacity else
+        assert(type(capacity)=="number" and capacity%1==0 and capacity>=purchasedCapacity and capacity<=50,
+            "Invalid unlocked hive capacity; refresh before spending")
+    end
+    local cells,seen={},{}
+    for x,col in pairs(stats.Honeycomb) do
+        local nx=type(x)=="string" and tonumber(x:match("^x(%d+)$"))
+        assert(nx and nx>0 and nx<math.huge and type(col)=="table", "Invalid hive column")
+        for y,bee in pairs(col) do
+            local ny=type(y)=="string" and tonumber(y:match("^y(%d+)$"))
+            assert(ny and ny>0 and ny<math.huge and type(bee)=="table" and types[bee.Type]
+                and (bee.Traits==nil or type(bee.Traits)=="table"), "Invalid hive cell")
+            local key=nx..","..ny
+            assert(not seen[key], "Duplicate normalized hive coordinate")
+            seen[key]=true;cells[#cells+1]={x=nx,y=ny,bee=bee}
+        end
+    end
+    assert(#cells<=capacity, "Occupied bees exceed unlocked capacity")
+    table.sort(cells,function(a,b) if a.y~=b.y then return a.y<b.y end return a.x<b.x end)
+    return cells,capacity
+end
 -- Capacity is not the number of bees. Acquisition is advisory until the host
 -- supplies verified empty-cell and shop interfaces; never guess a spend remote.
 function P.growth(cells, capacity, eggs)

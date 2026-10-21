@@ -1,9 +1,9 @@
--- Fixed rarity fixture for isolated planning tests; never reads a game client.
+-- Read-only MCP BeeTypes snapshot, 2026-10-20. Never reads a client at test time.
 local types={}
 local groups={
-    Basic={"Basic"},
-    Rare={"Brave","Bumble","Cool","Hasty","Looker","Rad","Rascal","Stubborn"},
-    Epic={"Bomber","Bubble","Bucko","Commander","Demo","Exhausted","Fire","Frosty","Honey","Rage","Riley","Shocked"},
+    Common={"Basic"},
+    Rare={"Bomber","Brave","Bumble","Cool","Hasty","Looker","Rad","Rascal","Stubborn"},
+    Epic={"Bubble","Bucko","Commander","Demo","Exhausted","Fire","Frosty","Honey","Rage","Riley","Shocked"},
     Legendary={"Baby","Carpenter","Demon","Diamond","Lion","Music","Ninja","Shy"},
     Mythic={"Buoyant","Fuzzy","Precise","Spicy","Tadpole","Vector"},
     Event={"Bear","Cobalt","Crimson","Digital","Festive","Gummy","Photon","Puppy","Tabby","Vicious","Windy"},

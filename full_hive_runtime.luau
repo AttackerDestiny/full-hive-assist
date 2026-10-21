@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.4.4"
+local SCRIPT_VERSION = "1.5.0"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -180,9 +180,10 @@ local function royalJellyPurchases(s)
     return eggs.RoyalJelly or 0
 end
 local function starEggUses(s)
-    local totals=s.Totals or {}
-    local uses=totals.EggUses or {}
-    return uses.Star or 0
+    local usage=StarState.usage(s)
+    -- Unknown counters cannot unlock later stages, but must not prevent a
+    -- brand-new hive from acquiring its first bees through unrelated actions.
+    return usage.used
 end
 local function hive()
     local ref=player:FindFirstChild("Honeycomb")
@@ -424,17 +425,7 @@ local function release()
     if #errors>0 then Report.CleanupError=table.concat(errors,"; "); warn("[Full Hive] Cleanup: "..Report.CleanupError) end
 end
 local function scan(s)
-    local cells={}
-    for x,col in pairs(s.Honeycomb or {}) do
-        local nx=tonumber(tostring(x):match("^x(%d+)$"))
-        if nx and type(col)=="table" then for y,b in pairs(col) do
-            local ny=tonumber(tostring(y):match("^y(%d+)$"))
-            if ny and type(b)=="table" and b.Type then cells[#cells+1]={x=nx,y=ny,bee=b} end
-        end end
-    end
-    table.sort(cells,function(a,b) if a.y~=b.y then return a.y<b.y end return a.x<b.x end)
-    local slots=25+((s.Totals and s.Totals.Purchases and s.Totals.Purchases.HiveSlots) or 0)
-    return cells,math.max(slots,#cells)
+    return Policy.snapshot(s,Types)
 end
 local function activeJellyBatch(s)
     local batch=env.FullHiveJellyBatch
@@ -448,7 +439,7 @@ local function context(s,slots)
     local jelly=s.Eggs.RoyalJelly or 0
     local bought=s.Totals and s.Totals.Purchases and s.Totals.Purchases.Eggs or {}
     local usable=math.max(0,(s.Honey or 0)-Config.HoneyReserve)
-    local used=s.Totals and s.Totals.EggUses and s.Totals.EggUses.Star or 0
+    local used=starEggUses(s)
     local normalRefill=Policy.refill(slots)
     if slots>=44 and not lateStarted then normalRefill=math.max(10000,normalRefill) end
     local collectorFallback=Policy.collectorRecovery(slots,1,usable,
@@ -754,6 +745,12 @@ local function eventAction(s,cells,p)
     return false
 end
 local function giftedBasic(s,cells,p)
+    if basicLock then
+        local h=hive()
+        assert(basicLock.Owner==player.UserId and basicLock.Job==game.JobId
+            and basicLock.Hive==(h and h.Name),
+            "Basic continuation identity needs reconciliation; purchases and lock preserved")
+    end
     if Policy.count(cells,"Basic",true)>0 then
         if basicLock then env.FullHiveJellyBatch=nil; Report.JellyBatch=nil end
         basicLock=nil; env.FullHiveBasicLock=nil; return false
@@ -763,7 +760,9 @@ local function giftedBasic(s,cells,p)
     if not basicLock then
         local c=p.candidates[1]
         if not c then return false end
-        basicLock={x=c.x,y=c.y,BasicBatchTarget=10,BasicBatchPurchased=0}
+        local h=assert(hive(),"Hive unavailable for Basic continuation")
+        basicLock={x=c.x,y=c.y,Owner=player.UserId,Hive=h.Name,Job=game.JobId,
+            BasicBatchTarget=10,BasicBatchPurchased=0}
         env.FullHiveBasicLock=basicLock
     end
     basicLock.BasicBatchTarget=basicLock.BasicBatchTarget or 10
@@ -815,12 +814,22 @@ local function giftedBasic(s,cells,p)
     return true
 end
 local function starReady(s,cells)
+    Report.StarEggDeferred=nil
+    local coverage=StarState.coverage(cells,Types)
+    Report.StarEggPrerequisitesMissing=coverage.missing
+    Report.StarEggMythicsMissing=coverage.missingMythics
+    if #coverage.missingMythics==0 then
+        Report.StarEggDeferred="all-gifted-mythics-present"
+        return false
+    end
     if Config.MaxActions < math.huge or Config.MaxRoyalJellies < math.huge then
         Report.StarEggDeferred="Existing Star Egg workflow requires an unlimited progression run"
         return false
     end
     local _,slots=scan(s)
     if slots<44 or s.Honey<Config.StarEggHoney or (s.Eggs.Star or 0)==0 then return false end
+    local budget,budgetReason=StarState.budget(s,2)
+    if budget==0 then Report.StarEggDeferred=budgetReason;return false end
     local used=starEggUses(s)
     if used>=2 then return false end
     local missing={}
@@ -833,9 +842,14 @@ local function starReady(s,cells)
 end
 local function useStarScript(s)
     acquire(); move(hiveFloor())
+    s=refresh()
+    local cells=scan(s)
+    if not starReady(s,cells) then release();return false end
     local used=starEggUses(s)
     -- Shared Star Egg workflow is embedded with reviewed host integration hooks.
-    env.FullHiveStarBudget=math.min(2-used,Config.MaxActions-Report.Actions)
+    local budget=StarState.budget(s,Config.MaxActions-Report.Actions)
+    assert(budget>0,"No qualified Star Egg budget")
+    env.FullHiveStarBudget=budget
     env.FullHiveMove=function() move(hiveFloor()) end
     env.FullHiveRefill=refill
     env.FullHiveJellyReady=function(stats) plan(stats); return jellyBatchReady(stats) end
@@ -853,9 +867,29 @@ local function useStarScript(s)
     env.FullHiveStarBudget,env.FullHiveMove,env.FullHiveRefill,env.FullHiveNear=nil,nil,nil,nil
     env.FullHiveJellyReady,env.FullHiveJellySpent=nil,nil
     assert(ok,err); assert(not env.AutoGiftedStarError,env.AutoGiftedStarError)
-    s=refresh(); assert((s.Eggs.Star or 0)<before,"Star Egg workflow made no progress")
-    Report.Actions=Report.Actions+before-(s.Eggs.Star or 0)
+    s=refresh()
+    assert(StarState.usage(s).known,"Star Egg result counter unavailable for reconciliation")
+    local afterUses=starEggUses(s)
+    local child=env.AutoGiftedStarReport or {}
+    local delta=afterUses-used
+    assert(not env.FullHivePending and not env.AutoHivePendingRequest and not env.FullHiveUncertain,
+        "Star Egg handoff left an unresolved request")
+    if delta==0 then
+        local freshCells=scan(s)
+        assert(child.DeferredReason=="all-gifted-mythics-present"
+            and child.StarEggsUsed==0 and (s.Eggs.Star or 0)==before
+            and #StarState.coverage(freshCells,Types).missingMythics==0,
+            "Star Egg workflow made no verified progress")
+    else
+        assert(delta>0 and delta<=budget and delta==child.StarEggsUsed
+            and before-(s.Eggs.Star or 0)==delta,
+            "Star Egg recorded usage disagrees with workflow result")
+        Report.Actions=Report.Actions+delta
+    end
+    Report.StarEggDeferred=child.DeferredReason
     env.FullHiveJellyBatch=nil; Report.JellyBatch=nil
+    release()
+    return delta>0
 end
 local function waitFor(reason)
     Report.Phase="waiting"; Report.Activity=reason
@@ -892,6 +926,7 @@ local function run()
             Tadpole=Policy.count(cells,"Tadpole"),Buoyant=Policy.count(cells,"Buoyant"),
             GiftedTadpole=Policy.count(cells,"Tadpole",true),GiftedBuoyant=Policy.count(cells,"Buoyant",true)}
         Report.StarEggsUsed=starEggUses(s)
+        Report.StarEggUsesKnown=StarState.usage(s).known
         Report.SafeSlots=#p.candidates
         Report.NextTarget=p.target and {X=p.target.x,Y=p.target.y,Type=p.target.bee.Type} or nil
         if Config.DryRun then Report.Phase="dry-run"; return end
@@ -901,11 +936,6 @@ local function run()
         end
         if p.complete then Report.Phase="endgame-complete"; Report.Activity="Final hive requirements reached"; return end
         local item=Policy.rollItem(cells,s.Eggs,p,rollTask)
-        local fallbackReady=p.collectorFallback
-        if #cells==0 or ((s.Eggs.RoyalJelly or 0)==0 and item~="StarJelly"
-            and Report.Actions==0 and not env.FullHiveStarted and not fallbackReady) then
-            waitFor("Waiting for at least one bee and one Royal Jelly"); s=refresh(); continue
-        end
         env.FullHiveStarted=true
         if basicLock then
             if giftedBasic(s,cells,p) then continue end
@@ -920,6 +950,8 @@ local function run()
         if not p.target then
             local reason=p.stage=="final" and p.growth.Empty>0
                 and ("Waiting to fill "..p.growth.Empty.." empty hive cells (Atlas or manual hatching)")
+                or p.capacityStatus.Conflict and ("Kept bees and current targets require at least "
+                    ..p.capacityStatus.Minimum.." cells; capacity is "..slots)
                 or "Targets held; waiting for Atlas, inventory, or Star Egg prerequisites"
             waitFor(reason); s=refresh(); continue
         end

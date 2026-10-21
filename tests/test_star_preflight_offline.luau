@@ -11,7 +11,9 @@ return function(source, types)
     end
     local body = assert(source:match("local Policy = %(function%(%)%s*(.-)\nend%)%(%)\nlocal required = Policy.starRequirements"),
         "Embedded pure policy boundary changed")
-    local P = assert(loadstring(body))()
+    local progressBody=assert(source:match("local StarProgress = %(function%(%)\n(.-)\nend%)%(%)"))
+    local Progress=assert(loadstring(progressBody))()
+    local P = assert(loadstring("return function(StarProgress)\n"..body.."\nend"))()(Progress)
     local required = P.starRequirements(types)
     check(#required == 29, "All 29 non-Event/non-Mythic species are required")
     check(table.find(required, "Basic") ~= nil, "Gifted Basic belongs in Star coverage")
