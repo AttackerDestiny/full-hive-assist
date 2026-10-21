@@ -3,7 +3,7 @@ local report = e.FullHiveReport or {}
 local result = {Account=game:GetService("Players").LocalPlayer.Name,
     Executor=type(identifyexecutor)=="function" and identifyexecutor() or "unknown",
     Running=e.FullHiveRunning, Stop=e.FullHiveStop, Version=e.FullHiveVersion,
-    Pending=e.FullHivePending, StarPending=e.AutoHivePendingRequest,
+    Pending=e.FullHivePending, Uncertain=e.FullHiveUncertain, StarPending=e.AutoHivePendingRequest,
     StarRunning=e.AutoGiftedStarRunning, AtlasOwned=e.FullHiveAtlasOwned}
 result.Report={}
 for _,key in ipairs({"Version","StartedAt","Phase","Activity","Error","CleanupError","AtlasPaused","Actions","RoyalJellyUsed","Honey","RoyalJelly","Slots","Stage","RollMode","RefillMode","LastResult","LastPurchase","ActiveTarget","RespawnRecoveries","CollectorFallback","SafeNonCollector","NormalRefillAmount","RefillAmount","JellyBatch"}) do

@@ -1,5 +1,8 @@
 # BSS project instructions
 
+- Latest human override: research progression from zero to fifty bees and improve auto-hive ONLY. Do not run real/connected-client tests, phone/game actions, deployment, re-execution, or reconnects for this work. Use isolated local fixtures. Already-running scripts stay untouched; published builds must be labeled not live-verified.
+- The human explicitly requested three subagents for this research task, overriding the historical no-subagent instruction for this task only.
+
 - Latest user correction, October 20, 2026: this existing repository (`AttackerDestiny/full-hive-assist`, branch `main`) is the publishing target. Do not create another repository or publish further changes to `full-hive-assist-standalone`.
 - Commit and push every completed change immediately without asking, using `git add`, `git commit`, `git push`. Skip unnecessary status checks, repeated verification, tests, inspections, and verbose explanations; preserve essential checks for affected behavior and safe deployment.
 - The recurring monitor runs every 10 minutes. This supersedes older one-minute cadence text. Keep healthy unchanged runs quiet and report meaningful changes or required action.

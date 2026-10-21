@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.3.7"
+local SCRIPT_VERSION = "1.4.0"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -86,7 +86,7 @@ end
 local Config = {DryRun=false, PollSeconds=3, Speed=65, NearDistance=16,
     MaxActions=math.huge, MaxRoyalJellies=math.huge, AutoPurchase=true,
     HoneyReserve=0, RollDelay=0.3, StarEggHoney=100000000000,
-    AtlasInitiallyStopped=false, StartupDelaySeconds=60}
+    AtlasInitiallyStopped=false, StartupDelaySeconds=60, PreserveUniqueGifted=true}
 for k,v in pairs(env.FullHiveConfig or {}) do assert(Config[k] ~= nil, "Unknown config: "..k); Config[k]=v end
 if env.FullHiveRunning then
     warn("[Full Hive] Already running v"..tostring(env.FullHiveVersion or "unversioned").."; stop the old instance before loading v"..SCRIPT_VERSION)
@@ -94,6 +94,7 @@ if env.FullHiveRunning then
 end
 assert(not env.AutoGiftedStarRunning, "Stop the other hive assist before starting Full Hive")
 assert(not env.AutoHivePendingRequest and not env.FullHivePending, "A previous server request is pending")
+assert(not env.FullHiveUncertain, "An earlier hive mutation needs reconciliation; do not retry")
 env.FullHiveRunning, env.FullHiveStop = true, false
 env.FullHiveVersion = SCRIPT_VERSION
 env.FullHivePreviousReport = env.FullHiveReport
@@ -141,6 +142,16 @@ local function invoke(remote, ...)
     assert(not env.FullHivePending and not env.AutoHivePendingRequest, "Server request already pending")
     local args = table.pack(...)
     local request = {Name=remote.Name, Started=os.clock()}
+    local mutation=remote.Name~="RetrievePlayerStats"
+    if mutation then
+        assert(not env.FullHiveUncertain,"An earlier mutation needs reconciliation")
+        if remote.Name=="ConstructHiveCellFromEgg" then
+            request.X,request.Y,request.Item,request.Amount=args[1],args[2],args[3],args[4]
+        elseif remote.Name=="ItemPackageEvent" and type(args[2])=="table" then
+            request.Item,request.Amount=args[2].Type,args[2].Amount
+        end
+        env.FullHiveUncertain=request -- Retain until operation-specific validation.
+    end
     env.FullHivePending = request
     local done, ok, values = false, false, nil
     task.spawn(function()
@@ -452,7 +463,7 @@ local function context(s,slots)
         collectorFallback=false
     end
     return {slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,lateStarted=lateStarted,nextFlexible=nextFlexible,
-        collectorFallback=collectorFallback,
+        collectorFallback=collectorFallback,preserveUniqueGifted=Config.PreserveUniqueGifted,enforceGrowth=true,
         canRefill30k=Config.AutoPurchase and usable>=Policy.jellyCost(bought.RoyalJelly or 0,30000)}
 end
 local function plan(s)
@@ -588,6 +599,12 @@ local function spend(cell,item,validate,expectedTask)
         if not jellyBatchReady(s) then return false end -- No request sent; refill/replan.
         assert(Report.RoyalJellyUsed<Config.MaxRoyalJellies,"Royal Jelly limit reached")
         local settings=s.Settings or {}
+        -- Recheck fresh inventory after movement: an incidental gift can make
+        -- a previously bounded bulk roll exceed the remaining test budget.
+        if before>Config.MaxRoyalJellies-Report.RoyalJellyUsed
+            and (settings.RollToGifted or settings.RollToLegendary) then
+            mode("off"); return false -- No request sent; retry with fresh planning.
+        end
         assert((settings.RollToGifted==true)==(Report.RollMode=="gifted")
             and (settings.RollToLegendary==true)==(Report.RollMode=="legendary")
             and not settings.RollToMythic and not settings.RollToMutation,"Roll settings changed before spending")
@@ -621,6 +638,7 @@ local function spend(cell,item,validate,expectedTask)
         end
     end
     if Report.LastResult.Gifted and (b.Type=="Bubble" or b.Type=="Frosty") then nextFlexible=b.Type end
+    if env then env.FullHiveUncertain=nil end -- Response/delta/hive protection verified.
     task.wait(Config.RollDelay)
     return b
 end
@@ -644,6 +662,7 @@ local function buy(item,amount,shop,inventoryCeiling)
     assert(accepted,"Purchase rejected; no retry")
     local s=refresh()
     assert((s.Eggs[item] or 0)-before==amount,"Purchase inventory uncertain; no retry")
+    env.FullHiveUncertain=nil
     Report.Actions=Report.Actions+1; Report.LastPurchase={Item=item,Amount=amount}
     return s
 end
@@ -750,6 +769,8 @@ local function giftedBasic(s,cells,p)
     basicLock.BasicBatchTarget=basicLock.BasicBatchTarget or 10
     basicLock.BasicBatchPurchased=basicLock.BasicBatchPurchased or 0
     local current=assert(find(cells,basicLock),"Gifted Basic locked slot missing")
+    assert(Policy.basicSlotSafe(basicLock,current,p),
+        "Gifted Basic slot became a kept bee; preserve lock and purchases for review")
     local rarity=Types[current.bee.Type].Rarity
     -- This permanent rule overrides the lock when a Basic Egg yields a Mythic/Event.
     if rarity=="Event" or rarity=="Mythic" then error("Gifted Basic lock now contains a protected bee; stopped") end
@@ -780,9 +801,9 @@ local function giftedBasic(s,cells,p)
     end
     if not (jellyBatchReady(s) or refill()) then return false end
     mode("off")
-    local function locked(c)
+    local function locked(c,_,freshPlan)
         local r=Types[c.bee.Type].Rarity
-        return Policy.key(c)==Policy.key(basicLock) and r~="Event" and r~="Mythic" and not (c.bee.Type=="Basic" and Policy.gifted(c))
+        return r~="Event" and r~="Mythic" and Policy.basicSlotSafe(basicLock,c,freshPlan)
     end
     if not basicLock.NeedsJelly then
         spend(basicLock,"Basic",locked)
@@ -864,6 +885,8 @@ local function run()
         if not hive() then waitFor("Waiting for Atlas to claim a hive"); s=refresh(); continue end
         local p,cells,slots=plan(s)
         Report.Stage,Report.Slots,Report.Bees,Report.Needs=p.stage,slots,#cells,p.needs
+        Report.Growth=Policy.growth(cells,slots,s.Eggs)
+        Report.CapacityStatus=p.capacityStatus
         Report.RoyalJelly,Report.Honey=s.Eggs.RoyalJelly or 0,s.Honey
         Report.Counts={Baby=Policy.count(cells,"Baby"),Music=Policy.count(cells,"Music"),Shy=Policy.count(cells,"Shy"),
             Tadpole=Policy.count(cells,"Tadpole"),Buoyant=Policy.count(cells,"Buoyant"),
@@ -872,6 +895,10 @@ local function run()
         Report.SafeSlots=#p.candidates
         Report.NextTarget=p.target and {X=p.target.x,Y=p.target.y,Type=p.target.bee.Type} or nil
         if Config.DryRun then Report.Phase="dry-run"; return end
+        if not Report.Growth.CanReroll then
+            waitFor("Fill empty hive cells before rerolling: "..#cells.." bees / "..slots.." slots (Atlas or manual hatching)")
+            s=refresh(); continue
+        end
         if p.complete then Report.Phase="endgame-complete"; Report.Activity="Final hive requirements reached"; return end
         local item=Policy.rollItem(cells,s.Eggs,p,rollTask)
         local fallbackReady=p.collectorFallback

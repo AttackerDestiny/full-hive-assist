@@ -1,5 +1,11 @@
 # Full Hive Assist
 
+**v1.4.0 — offline research build, not deployed.** Adds separate occupied/capacity growth reporting for 0–24 bees, first-gifted retention during pre-Star-Egg progression, final-composition capacity diagnostics, Basic-slot keep revalidation, fresh finite-budget checks, and persistent uncertain-mutation receipts. Existing live scripts were left untouched. See [research, sources, and limitations](HIVE_PROGRESSION_RESEARCH.md).
+
+Zero-to-fifty acquisition is not yet autonomous: Atlas/manual actions still hatch empty cells and buy hive slots. The assist now reports the next growth step and waits before rerolling a partially filled starter hive. `FullHiveReport.Growth` and `CapacityStatus` expose these decisions. `FullHiveConfig.PreserveUniqueGifted` defaults to `true` for pre-Star-Egg stages from 35 slots; set it before execution to choose a different retention policy.
+
+**Current development restriction:** no real or connected-client tests, deployment, re-execution, or live recovery actions. Use isolated offline validation only. Publishing a build does not update a running executor.
+
 **v1.3.7 species caps:** Keep at most **4 Ninja** and **2 Lion** bees, counting normal and gifted copies together. These are maximums, not new minimum targets. Surplus slots become eligible for replacement before optional Bubble/Frosty conversions and count as repair candidates when recovery is needed. Recovery does not finish on another over-cap copy. Existing gifted failsafes, stage targets, refill qualification, and saved-leftover rules still apply; cap cleanup runs as resources allow.
 
 **v1.3.6 Star Jelly upgrades:** In addition to missing gifted Rare/Epic failsafes, available Star Jelly can upgrade an eligible normal Bubble/Frosty selected by the existing planner. It can start without the Royal Jelly refill threshold, uses one Star Jelly per request with all roll-to flags off, and stays on that coordinate through intermediate results until the existing keep rules complete it. No new hive targets are introduced. While Star Jelly remains, this unfinished conversion does not become 100-jelly recovery. Once Star Jelly runs out, existing Royal Jelly qualification and repair rules apply. The Royal Jelly completion/save-leftovers rules remain unchanged.
@@ -83,6 +89,14 @@ The bundle contains compatibility fallbacks for **Arceus X Android** and has bee
 Existing validation includes policy checks and selected live Potassium tests. Later progression paths have not all been exercised with live resources. See the [validation details](FULL_HIVE_README.md#validation-on-october-18-2026) and [test log](FULL_HIVE_TEST_LOG.md) for scope and observations.
 
 ## Development
+
+Run the isolated suite with the official local Luau CLI:
+
+```powershell
+./tools/test_offline.ps1 -LuauPath 'C:\path\to\luau.exe'
+```
+
+This runner uses fixed rarity metadata and local stubs, compiles the bundle without executing it, and never contacts Roblox. `tools/test_connected_client.ps1` is retained for historical reference and is prohibited under the current instruction. A non-null `FullHiveUncertain` blocks a later launch until the earlier mutation is reconciled; never clear it as a retry mechanism.
 
 ### Connected cloud phones
 

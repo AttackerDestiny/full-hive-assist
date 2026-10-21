@@ -454,5 +454,22 @@
     "LionTotal": 2,
     "jobId": "1fe68220-9be0-4875-af59-673f64606f2d",
     "pendingRequests": false
+  },
+  "offlineCandidate": {
+    "version": "1.4.0",
+    "createdUtc": "2026-10-21T02:57:50Z",
+    "validation": "isolated-local-fixtures-only",
+    "liveTested": false,
+    "deployed": false,
+    "phoneFilesModified": false,
+    "existingLiveScriptsModified": false,
+    "checks": 2890,
+    "staticMarkers": 36,
+    "bytes": 146860,
+    "sha256": "2368d34164dd8ce0244de815099dadedae8e2cae9a3da228ef7c3666d2797ea3",
+    "luauCliVersion": "0.743",
+    "researchAgents": 3,
+    "scope": "auto-hive-only",
+    "acquisition": "advisory; empty hatching and capacity purchases still use Atlas/manual actions"
   }
 }

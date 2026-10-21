@@ -18,6 +18,36 @@ function P.count(cells, name, giftedOnly)
     end
     return n
 end
+-- Capacity is not the number of bees. Acquisition is advisory until the host
+-- supplies verified empty-cell and shop interfaces; never guess a spend remote.
+function P.growth(cells, capacity, eggs)
+    local occupied=#cells
+    local empty=math.max(0,capacity-occupied)
+    local action=empty>0 and ((eggs and (eggs.Basic or 0)>0) and "hatch-owned-basic" or "acquire-basic-egg")
+        or (capacity<50 and "expand-capacity" or "optimize-hive")
+    return {Occupied=occupied,Capacity=capacity,Empty=empty,Action=action,
+        CanReroll=occupied>=25,AutomaticAcquisition=false}
+end
+function P.basicSlotSafe(lock, cell, plan)
+    return cell and cell.bee and P.key(cell)==P.key(lock)
+        and not (plan.protected or {})[P.key(cell)]
+        and not (plan.keep or {})[P.key(cell)]
+        and not (cell.bee.Type=="Basic" and P.gifted(cell))
+end
+function P.capacityStatus(cells, keep, needs, capacity)
+    local required={}
+    for _,c in ipairs(cells) do
+        if c.bee and keep[P.key(c)] then required[c.bee.Type]=(required[c.bee.Type] or 0)+1 end
+    end
+    for _,need in ipairs(needs) do
+        local goal=P.count(cells,need.name,need.gifted)+need.amount
+        required[need.name]=math.max(required[need.name] or 0,goal)
+    end
+    local minimum=0
+    for _,amount in pairs(required) do minimum+=amount end
+    return {Minimum=minimum,Capacity=capacity,Shortfall=math.max(0,minimum-capacity),
+        Conflict=minimum>capacity,Required=required}
+end
 function P.starJellyMissing(cells)
     local missing={}
     -- These eight Rare/Epic failsafes are obtainable from Star Jelly.
@@ -92,6 +122,11 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     if not task.Rolled then return false end
     local name = cell.bee.Type
     local gifted = P.gifted(cell)
+    if gifted and plan.preserveUniqueGifted then
+        local first=(task.InitialGifted[name] or 0)==0
+        if P.count(cells,name,true)>1 then return false end
+        if first then return true,"gifted-diversity-result" end
+    end
     -- A newly needed gifted failsafe may replace a normal copy; surplus
     -- normals are then cleaned up. Never finish a roll on another excess copy.
     local slotCap=P.slotCaps[name]
@@ -148,6 +183,7 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
     if done then return false end
     local name = cell.bee.Type
     local limit = P.giftedLimit(name, plan.stage)
+    if P.gifted(cell) and plan.preserveUniqueGifted and P.count(cells,name,true)>1 then return true end
     if P.slotCaps[name] and P.count(cells,name)>P.slotCaps[name] then return true end
     if P.gifted(cell) and limit and P.count(cells, name, true) > limit then return true end
     if P.gifted(cell) and (limit or name=="Bubble" or name=="Frosty") then return false end
@@ -243,6 +279,12 @@ function P.plan(cells, types, ctx)
         end
     end
     for _, name in ipairs(post and P.trueSingles or P.singles) do reserve(name, 1, true) end
+    -- Preserve current-hive diversity for the existing Star Egg preparation.
+    -- This is opt-in at policy level and enabled by the runtime configuration.
+    local preserveUniqueGifted=ctx.preserveUniqueGifted and ctx.slots>=35 and not post and (ctx.starUsed or 0)<2
+    if preserveUniqueGifted then
+        for _,c in ipairs(cells) do if c.bee and P.gifted(c) then reserve(c.bee.Type,1,true) end end
+    end
     local uniqueGifted = {}
     for k,v in pairs(keep) do uniqueGifted[k] = v end
     local babyGoal = stage == "final" and math.max(0, 4 - P.count(cells, "Tadpole", true)) or 4
@@ -437,11 +479,15 @@ function P.plan(cells, types, ctx)
     local waitingLate = stage == "late" and not ctx.lateStarted
     -- At 44+, the 10k entry condition gates legendary work, not early repairs.
     if waitingLate and #needs == 0 and reason ~= "convert-flexible" and reason ~= "slot-cap" and not collectorFallback then target = nil end
+    local growth=P.growth(cells,ctx.slots)
+    if ctx.enforceGrowth and not growth.CanReroll then target=nil; reason="hive-growth" end
+    local capacityStatus=P.capacityStatus(cells,keep,needs,ctx.slots)
     return {stage=stage, keep=keep, protected=protected, temporary=temporary, needs=needs, candidates=candidates,
+        growth=growth,capacityStatus=capacityStatus,preserveUniqueGifted=preserveUniqueGifted,
         fallbackCandidates=fallbackCandidates, collectorFallback=collectorFallback and #fallbackCandidates>0,
         recoveryGifted=recoveryMode=="gifted",
         target=target, mode=mode, reason=reason, babyGoal=babyGoal,
-        complete=stage == "final" and #needs == 0 and not cleanupTarget}
+        complete=stage == "final" and #needs == 0 and not cleanupTarget and not capacityStatus.Conflict}
 end
 return P
 
