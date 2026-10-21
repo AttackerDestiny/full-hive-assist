@@ -976,7 +976,7 @@
     "bundle": "auto_full_hive_assist.luau",
     "sha256": "f73e183aeb814aa3089117da0bd1167aa7153868c82913d813192038c6a23580",
     "bytes": 228315,
-    "observedUtc": "2026-10-21T15:58:32.855008+00:00",
+    "observedUtc": "2026-10-21T16:04:26.769031+00:00",
     "accounts": [
       {
         "account": "RileyCosmicguppydude",
@@ -984,7 +984,10 @@
         "startedAt": 1792598251,
         "version": "1.6.0",
         "running": true,
-        "phase": "startup-delay",
+        "phase": "waiting",
+        "activity": "saving-gear-honey",
+        "gearTarget": "Diamond Drenchers",
+        "optionalHiveAllowed": false,
         "ticketSpeedupEnabled": false,
         "pendingOrUncertain": false
       },
@@ -994,8 +997,16 @@
         "startedAt": 1792598252,
         "version": "1.6.0",
         "running": true,
-        "phase": "startup-delay",
+        "phase": "waiting",
+        "activity": "waiting-currency:Ticket",
+        "gearTarget": "Diamond Mask",
+        "optionalHiveAllowed": true,
+        "missingItems": {
+          "RoyalJelly": 2254,
+          "Diamond": 2
+        },
         "ticketSpeedupEnabled": false,
+        "pendingReadOnly": true,
         "pendingOrUncertain": false
       }
     ],
