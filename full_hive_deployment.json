@@ -1039,9 +1039,9 @@
     "deployed": true,
     "liveRuntimeVersions": {
       "RileyCosmicguppydude": "1.6.5",
-      "Luneri427": "1.6.4"
+      "Luneri427": "1.6.5"
     },
-    "liveState": "Riley updated; Luneri stopped with original unresolved hatch receipt"
+    "liveState": "v1.6.5 running and post-start verified on RileyCosmicguppydude and Luneri427 after approved legacy hatch acknowledgement"
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -1566,13 +1566,105 @@
       },
       {
         "account": "Luneri427",
-        "version": "1.6.4",
-        "startedAt": 1792606761,
-        "running": false,
-        "deferredReason": "Original hatch uncertainty lacks a pre-request baseline; pending safeguard preserved"
+        "version": "1.6.5",
+        "startedAt": 1792639121,
+        "running": true,
+        "clientId": "89c64c41-509a-46a8-9eca-ddf3871065e5",
+        "maintenanceRunningFalseObserved": true,
+        "startupDelayObserved": true,
+        "postStartupVerified": true,
+        "uiVersion": "v1.6.5",
+        "stop": false,
+        "atlasStopped": false,
+        "pendingOrUncertain": false,
+        "reportedErrors": false,
+        "legacyHatchAcknowledged": true,
+        "acknowledgementScope": "single-original-Basic-hatch-no-replay"
       }
     ],
     "validationLimit": "New receipt behavior has isolated pure-data coverage, including mutation of original input tables during a request. No new hatch, timer completion, RNG outcome or manual spend was forced. Historical rejected transport fixtures remain excluded.",
-    "automationChanged": false
+    "automationChanged": false,
+    "acknowledgement": {
+      "verifiedUtc": "2026-10-22T03:24:30.283760+00:00",
+      "humanInstruction": "Acknowledge this hatch and resume v1.6.5",
+      "scope": "single-original-Basic-hatch-no-replay",
+      "account": "Luneri427",
+      "clientId": "89c64c41-509a-46a8-9eca-ddf3871065e5",
+      "executor": "Arceus X",
+      "placeId": 1537690962,
+      "jobId": "bf425498-a9ae-44ab-a747-96a254765cc0",
+      "oldVersion": "1.6.4",
+      "oldStartedAt": 1792606761,
+      "oldReceipt": {
+        "Name": "ConstructHiveCellFromEgg",
+        "Item": "Basic",
+        "Amount": 1,
+        "X": 4,
+        "Y": 9,
+        "Owner": 11780133534,
+        "Job": "bf425498-a9ae-44ab-a747-96a254765cc0",
+        "Started": 11669.579544016
+      },
+      "freshReconciliation": {
+        "occupied": 44,
+        "capacity": 44,
+        "hiveSlotsPurchased": 19,
+        "basicInventory": 0,
+        "basicUses": 110,
+        "targetType": "Basic",
+        "targetGifted": false,
+        "targetBirth": 1792617325,
+        "blueExtractOwned": 22,
+        "blueExtractQueued": 231,
+        "oilOwned": 149,
+        "royalJelly": 412,
+        "starJelly": 2
+      },
+      "receiptPresentInNewExecutor": false,
+      "differentReceiptPresent": false,
+      "hatchRetried": false,
+      "flagsCleared": false,
+      "atlasLoadedBeforeResume": true,
+      "resumeVersion": "1.6.5",
+      "newStartedAt": 1792639121,
+      "startupDelayObserved": true,
+      "uiVersion": "v1.6.5",
+      "running": true,
+      "stop": false,
+      "atlasStoppedAfterStart": false,
+      "pendingOrUncertainAfterStart": false,
+      "reportedErrors": false,
+      "naturalPostResume": {
+        "phase": "waiting",
+        "stage": "late",
+        "activity": "Waiting for at least 10000 Royal Jelly to start a batch",
+        "actions": 54,
+        "royalJellyUsed": 52,
+        "royalJelly": 360,
+        "collectorFallback": false,
+        "remainingBasicRecoveryCoordinate": null,
+        "blenderRecipe": "BlueExtract",
+        "blenderCount": 231,
+        "blenderTicketSpeedupEnabled": false,
+        "optionalHiveAllowed": true,
+        "starJellyUsed": 2,
+        "starJelly": 0,
+        "lastResult": {
+          "x": 4,
+          "y": 9,
+          "item": "RoyalJelly",
+          "type": "Bubble",
+          "gifted": false,
+          "consumed": 1
+        },
+        "lastCompletedReason": "collector-result",
+        "basicEggUsesAfterResume": 110,
+        "basicInventoryAfterResume": 0,
+        "targetBirthAfterResume": 1792617325,
+        "rollTaskPresent": false,
+        "batchPresent": false,
+        "refillMode": "legendary-entry"
+      }
+    }
   }
 }
