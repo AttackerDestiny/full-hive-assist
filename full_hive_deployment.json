@@ -1031,17 +1031,17 @@
     "validationLimit": "Natural gear purchase/craft paths are partially observed; current Blender queues are intentionally waiting and no ticket toggle was enabled"
   },
   "currentRelease": {
-    "version": "1.6.5",
+    "version": "1.6.6",
     "bundle": "auto_full_hive_assist.luau",
-    "sha256": "dc2dc01ed78e40b226e04ef0479628dd1cac9fc8a77d00d257a18fff5a4615fb",
-    "bytes": 252281,
-    "releasePath": "releases/v1.6.5/auto_full_hive_assist.luau",
+    "sha256": "8120394e3a145f503b063ca784108fc19de8a57b88cebce21d8f921e767857ea",
+    "bytes": 255976,
+    "releasePath": "releases/v1.6.6/auto_full_hive_assist.luau",
     "deployed": true,
     "liveRuntimeVersions": {
-      "RileyCosmicguppydude": "1.6.5",
-      "Luneri427": "1.6.5"
+      "RileyCosmicguppydude": "1.6.6",
+      "Luneri427": "1.6.6"
     },
-    "liveState": "v1.6.5 running and post-start verified on RileyCosmicguppydude and Luneri427 after approved legacy hatch acknowledgement"
+    "liveState": "Both running and post-start verified; Luneri Oil craft/speedup naturally completed"
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -1666,5 +1666,164 @@
         "refillMode": "legendary-entry"
       }
     }
+  },
+  "latestBlenderSpeedupFix": {
+    "version": "1.6.6",
+    "verifiedUtc": "2026-10-22T03:45:43.173625+00:00",
+    "sha256": "8120394e3a145f503b063ca784108fc19de8a57b88cebce21d8f921e767857ea",
+    "bytes": 255976,
+    "checksLocal": 3401,
+    "checksPerConnectedExecutor": 3401,
+    "staticMarkers": 41,
+    "mainCompiled": true,
+    "embeddedCompiled": true,
+    "suites": {
+      "policy": 753,
+      "character": 91,
+      "collector": 896,
+      "batch": 325,
+      "starJelly": 589,
+      "starPreflight": 220,
+      "starProgress": 17,
+      "finalOccupancy": 10,
+      "connectedReview": 82,
+      "failsafeOnlyRecovery": 38,
+      "finalBabyQuota": 60,
+      "progression": 196,
+      "progressionFacts": 45,
+      "funds": 17,
+      "hatchReceipt": 31,
+      "blenderReceipt": 31
+    },
+    "jobId": "bf425498-a9ae-44ab-a747-96a254765cc0",
+    "placeId": 1537690962,
+    "observedFailure": {
+      "account": "Luneri427",
+      "clientId": "89c64c41-509a-46a8-9eca-ddf3871065e5",
+      "executor": "Arceus X",
+      "version": "1.6.5",
+      "startedAt": 1792639121,
+      "running": false,
+      "stop": false,
+      "error": ":3439: Blender speedup output not reconciled",
+      "originalReceipt": {
+        "Name": "BlenderCommand",
+        "Kind": "SpeedUpOrder",
+        "Item": "BlueExtract",
+        "Amount": 231,
+        "Started": 1785.4333322528,
+        "Owner": 11780133534,
+        "Job": "bf425498-a9ae-44ab-a747-96a254765cc0"
+      },
+      "reportBefore": {
+        "fullOrderCount": 231,
+        "ticketBilledRemainingUnits": 118,
+        "tickets": 258,
+        "output": 22,
+        "speedupEnabled": true
+      },
+      "freshAfter": {
+        "queueAbsent": true,
+        "tickets": 140,
+        "output": 253
+      },
+      "actualOutputDelta": 231,
+      "actualTicketDebit": 118,
+      "movementArrived": true,
+      "movementDistance": 0.92868632078171,
+      "atlasStoppedAfterError": false
+    },
+    "diagnosis": "Planner used remainingUnits as action.amount; runtime compared full collected output with this smaller billable quantity. The completed request consumed the quoted118tickets and delivered all231BlueExtracts; it was not a failed craft.",
+    "resolvedOldReceipt": {
+      "executorArchiveKey": "Luneri427:SpeedUpOrder:1785.4333322528",
+      "resolvedAt": 1792640272,
+      "exactTicketAndOutputProof": true,
+      "queueAbsent": true,
+      "originalPreservedInArchive": true,
+      "requestRepeated": false,
+      "unrelatedFlagsCleared": false
+    },
+    "changes": [
+      "Separate full order output Count from ticket-billed remainingUnits",
+      "Carry recipe/Count/StartTime identity through fresh travel replan",
+      "Attach copied pre-request ticket/output/queue baseline to durable uncertainty receipt",
+      "Validate exact ticket debit, full output delta and absent queue",
+      "Preserve explicit ticket-toggle choices across maintenance; default remainsOFF"
+    ],
+    "accounts": [
+      {
+        "account": "Luneri427",
+        "clientId": "89c64c41-509a-46a8-9eca-ddf3871065e5",
+        "executor": "Arceus X",
+        "startedAt": 1792640484,
+        "version": "1.6.6",
+        "uiVersion": "v1.6.6",
+        "executeCount": 1,
+        "runningFalseObservedBeforeStart": true,
+        "startupDelayObserved": true,
+        "postStartupVerified": true,
+        "running": true,
+        "stop": false,
+        "atlasStopped": false,
+        "reportedErrors": false,
+        "pendingMutation": false,
+        "uncertainReceipt": false,
+        "naturalActions": 2,
+        "lastProgressionAction": {
+          "kind": "speedup-blender",
+          "item": "Oil",
+          "amount": 1,
+          "at": 1792640552
+        },
+        "oilBefore": 149,
+        "oilAfter": 150,
+        "ticketBeforeNewOrder": 140,
+        "ticketAfter": 139,
+        "blueExtract": 253,
+        "royalJelly": 361,
+        "blenderQueueAbsent": true,
+        "ticketChoicePreservedOnAtStart": true,
+        "ticketToggleAtFinalRead": "OFF",
+        "gearTarget": "Diamond Mask",
+        "missingGearItems": {
+          "Diamond": 2
+        },
+        "activity": "Waiting for at least10000RoyalJelly; material ticket wait remains parallel"
+      },
+      {
+        "account": "RileyCosmicguppydude",
+        "clientId": "8726d366-5f56-423e-9eac-50f711a54974",
+        "executor": "Arceus X",
+        "startedAt": 1792640530,
+        "version": "1.6.6",
+        "uiVersion": "v1.6.6",
+        "executeCount": 1,
+        "maintenanceRunningFalseObserved": true,
+        "startupDelayObserved": true,
+        "postStartupVerified": true,
+        "running": true,
+        "stop": false,
+        "atlasStopped": false,
+        "reportedErrors": false,
+        "pendingMutation": false,
+        "uncertainReceipt": false,
+        "existingRollTaskPreserved": {
+          "x": 1,
+          "y": 5,
+          "reason": "collector-fallback"
+        },
+        "naturalRoyalJellyUsed": 6,
+        "actions": 7,
+        "royalJelly": 94,
+        "refill": 600,
+        "blenderRecipe": "BlueExtract",
+        "blenderCount": 212,
+        "blenderStartTime": 1318263.661902,
+        "ticketToggleAtFinalRead": "OFF"
+      }
+    ],
+    "validationLimit": "The original231-output partially elapsed speedup was successful onv1.6.5 and its bad receipt was reconciled without replay. v1.6.6 has isolated coverage of231output/118tickets, while natural post-fix live execution observed a one-Oil craft/speedup. Another partially elapsed large order was not forced. Historical rejected transport fixtures remain excluded.",
+    "atlasReloaded": false,
+    "automationChanged": false
   }
 }

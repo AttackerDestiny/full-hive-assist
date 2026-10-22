@@ -117,14 +117,40 @@ return function(P)
         f.inventory.BlueExtract=2
         local gear=P.plan(f,catalog("Clippers",100,{BlueExtract=2}))
         check(gear.action.kind=="wait" and gear.action.reason=="saving-gear-honey" and gear.optionalHiveAllowed==false and gear.reserveHoney==100,"After materials, gear honey blocks optional hive")
-        f.craft={item="Oil",count=7,ready=false,speedupEnabled=false,remainingUnits=2,tickets=20}
+        f.craft={item="Oil",count=7,ready=false,speedupEnabled=false,remainingUnits=2,tickets=20,startTime=500}
         local disabled=P.plan(f,catalog("Clippers",100,{BlueExtract=2}))
         check(disabled.action.kind=="wait" and disabled.action.reason=="blender-busy","Blender ticket speedup is disabled by default")
         f.craft.speedupEnabled=true
         local sped=P.plan(f,setmetatable({blenderSpeedUp={perTicket=1}},{__index=catalog("Clippers",100,{BlueExtract=2})}))
-        check(sped.action.kind=="speedup-blender" and sped.action.amount==2 and sped.action.tickets==2,"Explicit speedup spends exact remaining units")
+        check(sped.action.kind=="speedup-blender" and sped.action.amount==7 and sped.action.remainingUnits==2 and sped.action.tickets==2,
+            "Explicit speedup separates full output from exact ticket-billed remaining units")
         f.craft.tickets=1
         check(P.plan(f,setmetatable({blenderSpeedUp={perTicket=1}},{__index=catalog("Clippers",100,{BlueExtract=2})})).action.reason=="waiting-tickets-for-blender","Insufficient tickets waits without speedup")
+    end
+    do
+        local f=facts();local c=catalog("Clippers",100,{BlueExtract=250})
+        f.craft={item="BlueExtract",count=231,ready=false,speedupEnabled=true,remainingUnits=118,
+            autoCompletePerTicket=1,tickets=118,startTime=1000.5}
+        local r=P.plan(f,c)
+        check(r.action.kind=="speedup-blender" and r.action.amount==231 and r.action.remainingUnits==118
+            and r.action.tickets==118,"231-output order with 118 billable units expects full 231 output")
+        check(r.action.orderStartTime==1000.5 and r.action.orderCount==231,"Speedup action binds the exact order start and count")
+        f.craft={item="BlueExtract",count=15,ready=false,speedupEnabled=true,remainingUnits=15,
+            autoCompletePerTicket=10,tickets=2,startTime=2000}
+        r=P.plan(f,c)
+        check(r.action.amount==15 and r.action.remainingUnits==15 and r.action.tickets==2,"Partial ten-unit ticket block preserves full output and rounds ticket quote up")
+        f.craft.remainingUnits=5;f.craft.tickets=1;r=P.plan(f,c)
+        check(r.action.amount==15 and r.action.tickets==1,"Elapsed ten-unit block reduces ticket charge without reducing output")
+        f.craft.remainingUnits=16
+        check(P.plan(f,c).action.reason=="unknown-blender-speedup","Remaining billable units cannot exceed the original order")
+        f.craft.remainingUnits=5;f.craft.startTime=nil
+        check(P.plan(f,c).action.reason=="unknown-blender-speedup","Enabled speedup requires source order identity")
+        f.craft.startTime=math.huge
+        check(P.plan(f,c).action.reason=="unknown-blender-speedup","Nonfinite order start cannot authorize speedup")
+        f.craft.speedupEnabled=false
+        check(P.plan(f,c).action.reason=="blender-busy","Disabled speedup ignores optional quote identity and remains a parallel timer wait")
+        f.craft.ready=true;r=P.plan(f,c)
+        check(r.action.kind=="collect-craft" and r.action.amount==15,"Ready collection continues to expect the full order output")
     end
     do
         local f=facts();f.inventory.Oil=10;f.inventory.SunflowerSeed=7000;f.inventory.RoyalJelly=1400

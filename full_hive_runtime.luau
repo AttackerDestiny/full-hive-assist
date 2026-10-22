@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.6.5"
+local SCRIPT_VERSION = "1.6.6"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -152,7 +152,7 @@ local function initializeModules()
         OsTime=loadModule(waitForChild(RS,"OsTime"))
     end
 end
-local function invokeRequest(remote, hatchBefore, ...)
+local function invokeRequest(remote, receiptBefore, ...)
     checkStop()
     assert(not env.FullHivePending and not env.AutoHivePendingRequest, "Server request already pending")
     local args = table.pack(...)
@@ -162,7 +162,7 @@ local function invokeRequest(remote, hatchBefore, ...)
         assert(not env.FullHiveUncertain,"An earlier mutation needs reconciliation")
         if remote.Name=="ConstructHiveCellFromEgg" then
             request.X,request.Y,request.Item,request.Amount=args[1],args[2],args[3],args[4]
-            request.HatchBefore=hatchBefore -- Copied before the request can yield.
+            request.HatchBefore=receiptBefore -- Copied before the request can yield.
         elseif remote.Name=="ItemPackageEvent" and type(args[2])=="table" then
             request.Item,request.Amount=args[2].Type,args[2].Amount
             request.Category=args[2].Category
@@ -170,6 +170,7 @@ local function invokeRequest(remote, hatchBefore, ...)
             request.Kind=args[1]
             local order=type(args[2])=="table" and args[2] or (Cache:Get().BlenderState or {})
             request.Item,request.Amount=order.Recipe,order.Count
+            request.BlenderBefore=receiptBefore
         end
         env.FullHiveUncertain=request -- Retain until operation-specific validation.
     end
@@ -667,11 +668,15 @@ local function initializeProgression()
     end
     progression=createProgression({
         Policy=ProgressionPolicy,Funds=ProgressionFunds,HatchReceipt=ProgressionHatchReceipt,
+        BlenderReceipt=ProgressionBlenderReceipt,
         env=env,Report=Report,Config=Config,Events=Events,
         Packages=Packages,Recipes=Recipes,Reqs=Reqs,buildFacts=buildFacts,nectarSeconds=nectarSeconds,OsTime=OsTime,
         checkStop=checkStop,refresh=refresh,invoke=invoke,move=move,near=near,release=release,
         invokeHatch=function(before,x,y)
             return invokeRequest(Events.ConstructHiveCellFromEgg,before,x,y,"Basic",1,false)
+        end,
+        invokeSpeedup=function(before)
+            return invokeRequest(Events.BlenderCommand,before,"SpeedUpOrder")
         end,
         fixedShopPackage=function(...) return fixedShopPackage(...) end,
         assertAtlasPaused=assertAtlasPaused,
@@ -1233,6 +1238,8 @@ local function makeUI()
     blenderTicketButton.Text="Blender tickets: OFF"; blenderTicketButton.Parent=frame; FeatherTheme.button(blenderTicketButton,false)
     blenderTicketButton.Activated:Connect(function()
         Config.UseBlenderTickets=not Config.UseBlenderTickets
+        env.FullHiveConfig=env.FullHiveConfig or {}
+        env.FullHiveConfig.UseBlenderTickets=Config.UseBlenderTickets
         blenderTicketButton.Text="Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF")
     end)
     local viewButton=Instance.new("TextButton"); viewButton.Name="ViewHiveButton"

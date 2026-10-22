@@ -361,13 +361,16 @@ local function plan(facts,catalog)
         if type(craft)~="table" or type(craft.item)~="string" or not integer(craft.count) or craft.count==0
             or type(craft.ready)~="boolean" then return wait("unknown-blender-state",base) end
         if not craft.ready and craft.speedupEnabled==true then
-            if not integer(craft.remainingUnits) or craft.remainingUnits<1 then return wait("unknown-blender-speedup",base) end
+            if not integer(craft.remainingUnits) or craft.remainingUnits<1 or craft.remainingUnits>craft.count
+                or type(craft.startTime)~="number" or craft.startTime~=craft.startTime
+                or craft.startTime<=-math.huge or craft.startTime>=math.huge then return wait("unknown-blender-speedup",base) end
             local tickets=craft.tickets
             local perTicket=craft.autoCompletePerTicket or (catalog.blenderSpeedUp and catalog.blenderSpeedUp.perTicket) or 1
             if not integer(tickets) or not integer(perTicket) or perTicket<1 then return wait("unknown-blender-tickets",base) end
             local needed=math.ceil(craft.remainingUnits/perTicket)
             if tickets<needed then craftAction=parallelAction({kind="wait",reason="waiting-tickets-for-blender"})
-            else craftAction=parallelAction({kind="speedup-blender",item=craft.item,amount=craft.remainingUnits,tickets=needed}) end
+            else craftAction=parallelAction({kind="speedup-blender",item=craft.item,amount=craft.count,
+                remainingUnits=craft.remainingUnits,orderStartTime=craft.startTime,orderCount=craft.count,tickets=needed}) end
         elseif not craft.ready then
             craftAction=parallelAction({kind="wait",reason="blender-busy"})
         end

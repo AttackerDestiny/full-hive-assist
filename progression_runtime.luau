@@ -26,7 +26,7 @@ return function(H)
         return d.optionalHiveAllowed==true
     end
     local function same(a,b)
-        for _,k in ipairs({"kind","gear","item","amount","code","x","y","sourceId","packId","tickets"}) do
+        for _,k in ipairs({"kind","gear","item","amount","code","x","y","sourceId","packId","tickets","remainingUnits","orderCount","orderStartTime"}) do
             if a[k]~=b[k] then return false end
         end
         return true
@@ -150,16 +150,13 @@ return function(H)
     end
     local function speedup(a,s)
         assert(H.Config.UseBlenderTickets==true,"Blender ticket speedup is disabled")
-        local current=s.BlenderState
-        assert(current and current.Recipe==a.item and current.Count>0,"Craft order changed")
-        local beforeTickets=s.Eggs.Ticket or 0
-        local beforeOutput=s.Eggs[a.item] or 0
-        H.invoke(H.Events.BlenderCommand,"SpeedUpOrder")
+        local before,why=H.BlenderReceipt.capture(s,a)
+        assert(before,why)
+        H.invokeSpeedup(before)
         local receipt=env.FullHiveUncertain
         local fresh=H.refresh()
-        assert((fresh.Eggs.Ticket or 0)==beforeTickets-a.tickets,"Blender ticket delta uncertain")
-        assert(not fresh.BlenderState and (fresh.Eggs[a.item] or 0)-beforeOutput==a.amount,
-            "Blender speedup output not reconciled")
+        local reconciled,reason=H.BlenderReceipt.validate(before,fresh)
+        assert(reconciled,"Blender speedup output not reconciled: "..tostring(reason))
         receipt.Kind="speedup-blender";receipt.Item=a.item;receipt.Amount=a.amount;receipt.Tickets=a.tickets
         return finishReceipt(s,fresh,receipt)
     end

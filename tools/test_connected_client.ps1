@@ -15,6 +15,7 @@ $hasFailsafeCorrection=([version]$versionMatch.Groups[1].Value -ge [version]'1.5
 $checkFinalBaby=$CheckFinalBabyQuota -or ([version]$versionMatch.Groups[1].Value -ge [version]'1.5.2')
 $hasFunds=([version]$versionMatch.Groups[1].Value -ge [version]'1.6.1')
 $hasHatchReceipt=([version]$versionMatch.Groups[1].Value -ge [version]'1.6.5')
+$hasBlenderReceipt=([version]$versionMatch.Groups[1].Value -ge [version]'1.6.6')
 $hasProgression=([version]$versionMatch.Groups[1].Value -ge [version]'1.6.0')
 $policyTests = Get-Content -LiteralPath (Join-Path $project 'test_full_hive_policy.luau') -Raw
 $recoveryTests = Get-Content -LiteralPath (Join-Path $project 'test_character_recovery.luau') -Raw
@@ -61,6 +62,13 @@ if ($hasHatchReceipt) {
     $code+='local hatchReceipt=[======['+$hatchReceipt+']======];local hatchReceiptTests=[======['+$hatchReceiptTests+']======];'
 }
 $code+='local hasHatchReceipt='+$hasHatchReceipt.ToString().ToLowerInvariant()+'; '
+if ($hasBlenderReceipt) {
+    $blenderReceipt=[regex]::Match($bundle,'local ProgressionBlenderReceipt = \(function\(\)\n(.*?)\nend\)\(\)\nlocal ProgressionHatchReceipt',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
+    if (-not $blenderReceipt) { throw 'Cannot locate bundled Blender receipt validator' }
+    $blenderReceiptTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_progression_blender_receipt.luau') -Raw
+    $code+='local blenderReceipt=[======['+$blenderReceipt+']======];local blenderReceiptTests=[======['+$blenderReceiptTests+']======];'
+}
+$code+='local hasBlenderReceipt='+$hasBlenderReceipt.ToString().ToLowerInvariant()+'; '
 $code += 'local hasProgression='+$hasProgression.ToString().ToLowerInvariant()+'; '
 $code += @'
 local main,mainError=loadstring(bundle)
@@ -93,13 +101,15 @@ local fundsOK,fundsResult=true,{notApplicable=true}
 if hasFunds then fundsOK,fundsResult=pcall(assert(loadstring(fundsTests))(),assert(loadstring(funds))()) end
 local hatchReceiptOK,hatchReceiptResult=true,{notApplicable=true}
 if hasHatchReceipt then hatchReceiptOK,hatchReceiptResult=pcall(assert(loadstring(hatchReceiptTests))(),assert(loadstring(hatchReceipt))()) end
+local blenderReceiptOK,blenderReceiptResult=true,{notApplicable=true}
+if hasBlenderReceipt then blenderReceiptOK,blenderReceiptResult=pcall(assert(loadstring(blenderReceiptTests))(),assert(loadstring(blenderReceipt))()) end
 return {allPassed=main~=nil and star~=nil and policyOK and recoveryOK and collectorOK and batchOK and starJellyOK
-    and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK and finalBabyOK and progressionOK and progressionFactsOK and fundsOK and hatchReceiptOK,
+    and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK and finalBabyOK and progressionOK and progressionFactsOK and fundsOK and hatchReceiptOK and blenderReceiptOK,
     main=main~=nil,mainError=mainError,embeddedStar=star~=nil,starError=starError,
     policy={ok=policyOK,result=policyResult},recovery={ok=recoveryOK,result=recoveryResult},collector={ok=collectorOK,result=collectorResult},batch={ok=batchOK,result=batchResult},starJelly={ok=starJellyOK,result=starJellyResult},
     starPreflight={ok=starPreflightOK,result=starPreflightResult},starProgress={ok=starProgressOK,result=starProgressResult},
     finalOccupancy={ok=finalOccupancyOK,result=finalOccupancyResult},connectedReview={ok=connectedReviewOK,result=connectedReviewResult},failsafeOnly={ok=failsafeOnlyOK,result=failsafeOnlyResult},finalBaby={ok=finalBabyOK,result=finalBabyResult},
-    progression={ok=progressionOK,result=progressionResult},progressionFacts={ok=progressionFactsOK,result=progressionFactsResult},funds={ok=fundsOK,result=fundsResult},hatchReceipt={ok=hatchReceiptOK,result=hatchReceiptResult}}
+    progression={ok=progressionOK,result=progressionResult},progressionFacts={ok=progressionFactsOK,result=progressionFactsResult},funds={ok=fundsOK,result=fundsResult},hatchReceipt={ok=hatchReceiptOK,result=hatchReceiptResult},blenderReceipt={ok=blenderReceiptOK,result=blenderReceiptResult}}
 '@
 $argsPath = Join-Path ([IO.Path]::GetTempPath()) ('bss-tests-'+[guid]::NewGuid().ToString()+'.json')
 try {

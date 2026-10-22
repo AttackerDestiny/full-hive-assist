@@ -167,6 +167,7 @@ return function(factory,Policy)
         defs.Oil.AutoCompletePerTicket=10;s.PlaytimeAtLoad=1400
         local f=factory(deps)(s)
         check(f.craft.completedUnits==5 and f.craft.autoCompletePerTicket==10,"Speedup uses verified recipe units per ticket")
+        check(f.craft.startTime==s.BlenderState.StartTime,"Blender facts preserve the server order identity for travel revalidation")
         check(f.craft.remainingUnits==15,"Partial ten-unit ticket block does not underquote two remaining tickets")
         s.PlaytimeAtLoad=2900
         f=factory(deps)(s)

@@ -1,4 +1,6 @@
-# Feather auto progression v1.6.4
+# Feather auto progression v1.6.6
+
+Blender speedup separates the full order output from the remaining units used to calculate tickets. A partially elapsed231-item order can cost118tickets and still collect231items. The action carries the original recipe/count/start time through movement; a copied pre-request baseline verifies the full output increase, exact ticket debit and cleared queue before closing its receipt. The ticket toggle remains off by default and preserves an explicit user choice across maintenance.
 
 For accounts starting with36+ unlocked slots, the next target first checks missing **Candy → Red Clay → Blue Clay → Tacky Planters**, regardless of skipped earlier equipment. Each planter is checked independently against its permanent purchase record; a deployed planter with inventory0 still counts as owned. Once all four are owned, the normal route resumes. Below36 slots the original stage order is preserved.
 
@@ -51,4 +53,4 @@ Verified Atlas progression/material-consumption and honey-spending Memory Match 
 
 Read-only definitions and interfaces are recorded in [research/auto_progression/interface_contract.json](research/auto_progression/interface_contract.json). Both live clients were identified independently through connected Roblox MCP. No Diamond Egg token was discoverable in either client's collectible folders, so no token position, identifier or claim remote was invented. The script uses the verified purchase path when a required egg is missing.
 
-The supported runner passed 3,230 isolated checks per connected executor and locally: 753 policy, 82 character/movement, 896 recovery, 325 batch, 589 Star Jelly, 220 Star preflight, 17 Star progress, 10 final occupancy, 82 connected review, 38 failsafe-only recovery, 60 final Baby quota, 129 progression and 29 fact-adapter checks. Main and embedded sources compile. Historical rejected transport fixtures remain excluded. These isolated results do not establish natural execution of every purchase, craft, condenser or hatch path; live observations are recorded separately in FULL_HIVE_TEST_LOG.md.
+The v1.6.6 runner passed3,401 isolated checks per connected executor and locally:753 policy,91 character/movement,896 recovery,325 batch,589 Star Jelly,220 Star preflight,17 Star progress,10 final occupancy,82 connected review,38 failsafe-only recovery,60 final Baby quota,196 progression,45 fact-adapter,17 funds,31 hatch-receipt and31 Blender-receipt checks. Main and embedded sources compile. Historical rejected transport fixtures remain excluded. These isolated results do not establish natural execution of every purchase, craft, condenser or hatch path; live observations are recorded separately in FULL_HIVE_TEST_LOG.md.

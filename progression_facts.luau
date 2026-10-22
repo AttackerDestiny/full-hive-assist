@@ -311,7 +311,7 @@ return function(deps)
                 if integer(perTicket) and perTicket>0 then
                     remainingUnits=math.max(0,blender.Count-math.floor(completed/perTicket)*perTicket)
                 end
-                facts.craft={item=blender.Recipe,count=blender.Count,ready=elapsed>=total,
+                facts.craft={item=blender.Recipe,count=blender.Count,startTime=blender.StartTime,ready=elapsed>=total,
                     elapsedSeconds=math.max(0,elapsed),totalSeconds=total,
                     remainingSeconds=math.max(0,total-elapsed),completedUnits=completed,
                     remainingUnits=remainingUnits,autoCompletePerTicket=perTicket,
