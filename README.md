@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.6.7:** Fixes a false force-slot stop when an unsent fixed-target lease intentionally selected a surplus gifted Bubble/Frosty coordinate. The exact coordinate is allowed only while its fixed gifted goals remain unmet and reserved copies stay protected.
+
 **v1.6.6:** Fixes Blender speedup completion checks for partially elapsed orders. Tickets pay for unfinished units, while collection awards the full order. Queue identity and inventory baselines are preserved through the request, and the explicit ticket-toggle choice survives maintenance.
 
 **v1.6.5:** Empty-cell hatch receipts capture inventory, capacity and bee identities before the server request yields. Response and fresh stats must agree before the receipt closes; natural bee leveling remains allowed. Failed receipts retain their original baseline and response diagnostics. This fixes an evidenced receipt-accounting flaw; the exact failed response from Luneri's v1.6.4 hatch was not recorded, so its old uncertainty is not automatically cleared.

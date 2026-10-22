@@ -160,6 +160,34 @@ return function(P,T)
         check(task.x==x and task.y==y and task.InitialTotal.Baby==4 and task.InitialGifted.Cool==1,
             "Replanning preserves slot and starting counts")
     end
+    for _,name in ipairs({"Bubble","Frosty"}) do
+        local base=hive({{name,8,true},{"Baby",4},{"Music",4},{"Shy",3}})
+        local q=P.plan(base,T,ctx(44));local target
+        for _,c in ipairs(q.candidates) do if c.bee.Type==name then target=c;break end end
+        check(target~=nil and q.reason=="fixed-targets","Fixed needs select a surplus gifted "..name)
+        local task=P.startRollTask(target,base,q)
+        check(not task.Rolled and P.rollTaskSafe(task,target,base,T,q),"Original unsent surplus gifted collector lease remains safe")
+        local kept
+        for _,c in ipairs(base) do if q.keep[P.key(c)] and c.bee.Type==name then kept=c;break end end
+        check(not P.rollTaskSafe(task,kept,base,T,q),"Cannot switch the lease to a reserved collector")
+        local original=task.InitialFingerprint;task.InitialFingerprint="Brave:false"
+        check(not P.rollTaskSafe(task,target,base,T,q),"A changed gifted result cannot use the initial-source exception")
+        task.InitialFingerprint=original;task.Rolled=true
+        check(not P.rollTaskSafe(task,target,base,T,q),"Rolled gifted-result keep semantics stay unchanged")
+        task.Rolled=false;q.protected[P.key(target)]=true
+        check(not P.rollTaskSafe(task,target,base,T,q),"Permanent protection still wins over a source lease")
+        q.protected[P.key(target)]=nil;q.reason="convert-flexible"
+        check(not P.rollTaskSafe(task,target,base,T,q),"Source exception requires an active fixed-target plan")
+        q.reason="fixed-targets";q.needs={}
+        check(not P.rollTaskSafe(task,target,base,T,q),"Satisfied goals cannot consume surplus gifted collectors")
+        q=P.plan(base,T,ctx(44))
+        local removed=false
+        for _,c in ipairs(base) do if not removed and q.keep[P.key(c)] and c.bee.Type==name then q.keep[P.key(c)]=nil;removed=true end end
+        check(not P.rollTaskSafe(task,target,base,T,q),"Fewer than four reserved collectors fails closed")
+        local exact=hive({{name,4,true},{"Baby",4},{"Music",4},{"Shy",3}})
+        local exactPlan=P.plan(exact,T,ctx(44));local exactTask=P.startRollTask(exact[1],exact,exactPlan)
+        check(not P.rollTaskSafe(exactTask,exact[1],exact,T,exactPlan),"A four-copy gifted force group stays reserved")
+    end
     do
         local fallbackCtx=ctx(43); fallbackCtx.collectorFallback=true
         local base=hive({{"Honey",1},{"Exhausted",2},{"Baby",4},{"Music",4},{"Shy",3},

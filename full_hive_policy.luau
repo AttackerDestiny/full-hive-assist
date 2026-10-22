@@ -230,6 +230,20 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
     if done then return false end
     local name = cell.bee.Type
     local limit = P.giftedLimit(name, plan.stage, plan.babyGoal)
+    -- Fixed goals can consume a planner-selected surplus gifted collector.
+    -- Revalidate the original unrolled coordinate, the four reserved force
+    -- copies and a reserved gifted copy before bypassing the result shield.
+    if not task.Rolled and task.Reason=="fixed-targets" and plan.reason=="fixed-targets"
+        and #(plan.needs or {})>0 and P.key(task)==P.key(cell)
+        and task.InitialFingerprint==name..":"..tostring(P.gifted(cell))
+        and P.gifted(cell) and (name=="Bubble" or name=="Frosty")
+        and not plan.keep[P.key(cell)] and P.keptGiftedCount(cells,plan,name)>=1 then
+        local reserved=0
+        for _,c in ipairs(cells) do
+            if c.bee and c.bee.Type==name and plan.keep[P.key(c)] then reserved+=1 end
+        end
+        if reserved>=4 then return true end
+    end
     if P.gifted(cell) and plan.starPrepare and P.count(cells,name,true)>1 then return true end
     if P.gifted(cell) and name=="Fire" and P.count(cells,name,true)>P.keptGiftedCount(cells,plan,name) then return true end
     if P.slotCaps[name] and P.count(cells,name)>P.slotCaps[name] then return true end

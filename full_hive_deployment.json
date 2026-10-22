@@ -1031,17 +1031,17 @@
     "validationLimit": "Natural gear purchase/craft paths are partially observed; current Blender queues are intentionally waiting and no ticket toggle was enabled"
   },
   "currentRelease": {
-    "version": "1.6.6",
+    "version": "1.6.7",
     "bundle": "auto_full_hive_assist.luau",
-    "sha256": "8120394e3a145f503b063ca784108fc19de8a57b88cebce21d8f921e767857ea",
-    "bytes": 255976,
-    "releasePath": "releases/v1.6.6/auto_full_hive_assist.luau",
+    "sha256": "8a6ae5118807b804fe6e9bb23eb7c1caffdfb12bcdfe702d17214b900bf33c9a",
+    "bytes": 256794,
+    "releasePath": "releases/v1.6.7/auto_full_hive_assist.luau",
     "deployed": true,
     "liveRuntimeVersions": {
-      "RileyCosmicguppydude": "1.6.6",
-      "Luneri427": "1.6.6"
+      "RileyCosmicguppydude": "1.6.7",
+      "Luneri427": "1.6.7"
     },
-    "liveState": "Both running and post-start verified; Luneri Oil craft/speedup naturally completed"
+    "liveState": "Both were post-start verified on v1.6.7; latest MCP discovery returned no clients, so no crash/reconnect inferred"
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -1824,6 +1824,107 @@
     ],
     "validationLimit": "The original231-output partially elapsed speedup was successful onv1.6.5 and its bad receipt was reconciled without replay. v1.6.6 has isolated coverage of231output/118tickets, while natural post-fix live execution observed a one-Oil craft/speedup. Another partially elapsed large order was not forced. Historical rejected transport fixtures remain excluded.",
     "atlasReloaded": false,
+    "automationChanged": false
+  },
+  "latestStaleUnsentLeaseFix": {
+    "version": "1.6.7",
+    "verifiedUtc": "2026-10-22T06:12:09.925502+00:00",
+    "sha256": "8a6ae5118807b804fe6e9bb23eb7c1caffdfb12bcdfe702d17214b900bf33c9a",
+    "bytes": 256794,
+    "checksLocal": 3421,
+    "checksPerConnectedExecutor": 3421,
+    "staticMarkers": 41,
+    "mainCompiled": true,
+    "embeddedCompiled": true,
+    "suites": {
+      "policy": 773,
+      "character": 91,
+      "collector": 896,
+      "batch": 325,
+      "starJelly": 589,
+      "starPreflight": 220,
+      "starProgress": 17,
+      "finalOccupancy": 10,
+      "connectedReview": 82,
+      "failsafeOnlyRecovery": 38,
+      "finalBabyQuota": 60,
+      "progression": 196,
+      "progressionFacts": 45,
+      "funds": 17,
+      "hatchReceipt": 31,
+      "blenderReceipt": 31
+    },
+    "accounts": [
+      {
+        "account": "Luneri427",
+        "clientId": "89c64c41-509a-46a8-9eca-ddf3871065e5",
+        "executor": "Arceus X",
+        "jobId": "bf425498-a9ae-44ab-a747-96a254765cc0",
+        "startedAt": 1792648773,
+        "version": "1.6.7",
+        "running": true,
+        "stop": false,
+        "error": null,
+        "phase": "rolling",
+        "activity": "collector-fallback",
+        "actions": 93,
+        "royalJelly": 75,
+        "royalJellyUsed": 9888,
+        "oilOwned": 146,
+        "oilQueued": 4,
+        "blueExtract": 253,
+        "blenderRecipe": "Oil",
+        "blenderCount": 4,
+        "collectorFallback": true,
+        "recoveryBatchRemaining": 87,
+        "atlasStoppedDuringAction": true,
+        "atlasResumedAfterAction": true,
+        "ticketToggle": "OFF",
+        "pendingOrUncertain": false
+      },
+      {
+        "account": "RileyCosmicguppydude",
+        "clientId": "8726d366-5f56-423e-9eac-50f711a54974",
+        "executor": "Arceus X",
+        "jobId": "bf425498-a9ae-44ab-a747-96a254765cc0",
+        "startedAt": 1792648942,
+        "version": "1.6.7",
+        "running": true,
+        "stop": false,
+        "error": null,
+        "phase": "waiting",
+        "activity": "saving-gear-honey",
+        "actions": 0,
+        "royalJelly": 27,
+        "oilOwned": 152,
+        "blueExtract": 252,
+        "ticketToggle": "OFF",
+        "pendingOrUncertain": false
+      }
+    ],
+    "observedError": {
+      "account": "Luneri427",
+      "version": "1.6.6",
+      "error": ":4171: Active roll slot became a force slot; stopped before switching",
+      "rollTaskInitialFingerprint": "Bubble:true",
+      "rollTaskReason": "fixed-targets",
+      "rolled": false,
+      "target": "2,6",
+      "currentTarget": "Gifted Bubble",
+      "fixedNeeds": [
+        "Carpenter",
+        "Lion",
+        "Music",
+        "Shy"
+      ],
+      "cause": "Planner selected an unkept surplus gifted Bubble for a fixed target, but the generic gifted Bubble shield rejected the original unsent coordinate during revalidation; no spend was sent."
+    },
+    "changes": [
+      "Permit only the original unrolled fixed-target coordinate when fresh plan still has unmet fixed goals, fingerprint matches, target is an unkept gifted Bubble/Frosty surplus, at least one gifted copy is reserved and four species copies are reserved",
+      "Keep protected cells, reserved failsafes, changed fingerprints, rolled tasks, satisfied goals and coordinate switches rejected",
+      "No batch reset, leftover reseed, remote retry or new spending policy"
+    ],
+    "validationLimit": "The supported runner passed3421 checks locally and on both connected executors before deployment. Natural post-fix Luneri state continued collector recovery without the force-slot error; Riley started normally. The latest list-clients call then returned no clients, which is not evidence of a crash. No reconnect or real retry was performed.",
     "automationChanged": false
   }
 }
