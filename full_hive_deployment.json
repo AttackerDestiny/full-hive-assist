@@ -1041,7 +1041,7 @@
       "RileyCosmicguppydude": "1.7.6",
       "Luneri427": "1.7.6"
     },
-    "liveState": "Both running on1.7.6 with matching UI, no error and Atlas resumed. Riley normal Ninja/Shy cleanup naturally verified; Luneri saving for40% Star."
+    "liveState": "Last verified1.7.6 on both; current runtime unavailable: no executor clients and both Android control endpoints refuse connections. No crash or game state claim."
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -2475,5 +2475,38 @@
         "retirementCleanupDeferredBehindStarGoal": true
       }
     ]
+  },
+  "latestConnectionObservation": {
+    "date": "2026-10-23",
+    "timezone": "America/Chicago",
+    "trigger": "Human reports both accounts disconnected",
+    "robloxMcpClients": 0,
+    "phones": {
+      "phone1": {
+        "tailscaleOnline": true,
+        "tailscalePingResponded": true,
+        "controlStatus": "unreachable",
+        "tcp18765": "refused-WinError10061"
+      },
+      "phone2": {
+        "tailscaleOnline": true,
+        "tailscalePingResponded": true,
+        "controlStatus": "unreachable",
+        "tcp18765": "refused-WinError10061",
+        "explicitSeparateProfileUsed": true
+      }
+    },
+    "gameCrashConfirmed": false,
+    "screensOrForegroundVerified": false,
+    "phoneOrGameMutated": false,
+    "scriptsExecuted": false,
+    "pendingFlagsCleared": false,
+    "lastActionReplayed": false,
+    "sourceChanged": false,
+    "currentRuntimeVersionUnknown": true,
+    "lastVerifiedRelease": "1.7.6",
+    "requiredUserAction": "On each phone open Cloudphone Control and Start remote server until Remote server: running",
+    "nextStep": "Check fresh screen/foreground and Alt1, rediscover identities and reconcile server-backed hive/inventory/amulets/receipts before any authorized recovery or loader",
+    "automationChanged": false
   }
 }
