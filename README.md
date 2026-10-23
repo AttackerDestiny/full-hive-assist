@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.7.3:** Recovers once from an unsent movement timeout after cleaning up the tween/noclip and releasing Atlas. Fresh planning preserves the existing hive objective and batch. Pending or uncertain requests block recovery, and a second timeout stops safely.
+
 **v1.7.2:** Adds the requested King Beetle/Ant/Star/Moon amulet decisions and active quest assistance, with gear → Star → hive honey priority. Quest consumables run during savings; field items require standing in a field. Fuzzy is capped at one total copy, and Star Jelly stops after the eight gifted Rare/Epic failsafes. Also fixes the repeated force-slot error after surplus gifted collector results. [Amulet and quest rules](AMULETS_AND_QUESTS.md).
 
 **v1.6.7:** Fixes a false force-slot stop when an unsent fixed-target lease intentionally selected a surplus gifted Bubble/Frosty coordinate. The exact coordinate is allowed only while its fixed gifted goals remain unmet and reserved copies stay protected.

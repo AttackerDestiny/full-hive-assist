@@ -1031,17 +1031,17 @@
     "validationLimit": "Natural gear purchase/craft paths are partially observed; current Blender queues are intentionally waiting and no ticket toggle was enabled"
   },
   "currentRelease": {
-    "version": "1.7.2",
+    "version": "1.7.3",
     "bundle": "auto_full_hive_assist.luau",
-    "sha256": "5398f6637c8651490072451a71ca94f1a0dde5f95595256fb12dabfdb1c52af6",
-    "bytes": 284214,
-    "releasePath": "releases/v1.7.2/auto_full_hive_assist.luau",
+    "sha256": "1baac75658c6f8526067258f705a4ea472ffa3dc8e39f454879dc09252d165a5",
+    "bytes": 285463,
+    "releasePath": "releases/v1.7.3/auto_full_hive_assist.luau",
     "deployed": true,
     "liveRuntimeVersions": {
-      "RileyCosmicguppydude": "1.7.2",
-      "Luneri427": "1.7.2"
+      "RileyCosmicguppydude": "1.7.3",
+      "Luneri427": "1.7.3"
     },
-    "liveState": "Both healthy, matchingUI, Atlas resumed; Star/Moon targets and MagicBean quest verified; Fuzzy cap1 on both"
+    "liveState": "Both running, matching UI, no new error or unresolved request; Atlas resumed. Luneri dispenser/hive travel and roll completion naturally verified."
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -2133,6 +2133,124 @@
       "cadenceMinutesPreserved": 30,
       "targetPreserved": true,
       "promptUpdatedForNoAgentsAndLatestRules": true
+    }
+  },
+  "latestMovementRecoveryFix": {
+    "version": "1.7.3",
+    "verifiedUtc": "2026-10-23T04:53:17.242810+00:00",
+    "sha256": "1baac75658c6f8526067258f705a4ea472ffa3dc8e39f454879dc09252d165a5",
+    "bytes": 285463,
+    "originalFailure": {
+      "account": "Luneri427",
+      "version": "1.7.2",
+      "startedAt": 1792721062,
+      "error": ":4447: Movement timed out",
+      "destination": "Workspace.Decorations.Misc.JellyMachine.round peace",
+      "remainingDistance": 138.90606689453,
+      "mutationPending": false,
+      "uncertainReceipt": false,
+      "atlasResumed": true
+    },
+    "confirmedReproduction": {
+      "version": "1.7.2",
+      "startedAt": 1792730731,
+      "naturalFirstTripSucceeded": true,
+      "laterTimeout": true,
+      "failedDestination": "Workspace.Decorations.Misc.JellyMachine.round peace",
+      "remainingDistance": 60.584613800049,
+      "royalJellyAtFailure": 3722,
+      "lastVerifiedPurchaseAmount": 1,
+      "pendingOrUncertain": false
+    },
+    "diagnosis": "A pre-request AlignPosition timeout was terminal although no item request was in flight. The exact intermittent physical/Atlas timing cause was not established; a fresh attempt completed the same verified route.",
+    "change": {
+      "privateMovementTimeoutToken": true,
+      "maximumMovementRecoveriesPerExecution": 1,
+      "cleanupBeforeRecovery": true,
+      "atlasReleaseBeforeWait": true,
+      "waitSeconds": 2,
+      "freshPlanningBeforeNextAction": true,
+      "preserveCoordinateBasicLockBatchAndCounters": true,
+      "blockOnAnyPendingUncertainOrStarHandoff": true,
+      "secondTimeoutStops": true,
+      "manualCFrameOrDistantRemote": false
+    },
+    "validation": {
+      "offlineChecks": 3553,
+      "checksEachConnectedExecutor": 3553,
+      "characterAndMovementChecks": 154,
+      "otherSuitesUnchanged": true,
+      "mainCompiled": true,
+      "embeddedCompiled": true,
+      "compatibilityMarkers": 41,
+      "historicalRejectedTransportFixturesExcluded": true
+    },
+    "accounts": [
+      {
+        "account": "Luneri427",
+        "clientId": "9812722d-e34a-44c6-924d-02c0de835cfe",
+        "executor": "Arceus X",
+        "placeId": 1537690962,
+        "jobId": "c0345f98-4982-4e49-b013-707668d06846",
+        "startedAt": 1792731007,
+        "version": "1.7.3",
+        "uiVersion": "v1.7.3",
+        "running": true,
+        "stop": false,
+        "phase": "waiting",
+        "error": null,
+        "cleanupError": null,
+        "pending": false,
+        "uncertainReceipt": false,
+        "atlasStopped": false,
+        "actions": 24,
+        "royalJellyUsed": 718,
+        "royalJellySaved": 3282,
+        "refill": 4000,
+        "dispenserArrivalDistance": 0.83425754308701,
+        "hiveArrivalDistance": 3.4160232543945,
+        "movementRecoveryTriggerObserved": false,
+        "blenderTicketsEnabled": true,
+        "configPreserved": true
+      },
+      {
+        "account": "RileyCosmicguppydude",
+        "clientId": "ecf53722-a449-4adb-a22d-3dce49c14167",
+        "executor": "Arceus X",
+        "placeId": 1537690962,
+        "jobId": "c0345f98-4982-4e49-b013-707668d06846",
+        "startedAt": 1792731090,
+        "version": "1.7.3",
+        "uiVersion": "v1.7.3",
+        "maintenanceRunningFalseObserved": true,
+        "running": true,
+        "stop": false,
+        "phase": "waiting",
+        "error": null,
+        "cleanupError": null,
+        "pending": false,
+        "uncertainReceipt": false,
+        "atlasStopped": false,
+        "royalJellySaved": 217,
+        "refill": 4000,
+        "blenderTicketsEnabled": false,
+        "configPreserved": true
+      }
+    ],
+    "deployment": {
+      "executeCountV173PerAccount": 1,
+      "builtIn60SecondStartupObserved": true,
+      "atlasReloaded": false,
+      "flagsCleared": false,
+      "leftoversSeeded": false,
+      "configReset": false
+    },
+    "limits": "Natural dispenser/hive travel, nearby purchases and roll completion were observed on Luneri after v1.7.3. The new timeout recovery trigger itself, its second-timeout limit and unresolved-state blocks are isolated fixture coverage, not forced natural live outcomes. No exact underlying intermittent physics cause is claimed.",
+    "automation": {
+      "statusPreserved": "PAUSED",
+      "cadenceMinutesPreserved": 30,
+      "targetPreserved": true,
+      "versionAndRecoveryInstructionsUpdated": true
     }
   }
 }
