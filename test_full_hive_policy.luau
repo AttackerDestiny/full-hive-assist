@@ -279,5 +279,79 @@ return function(P,T)
         target.bee={Type="Fuzzy",Traits={"Gifted"}};q=P.plan(base,T,ctx(41))
         check(P.rollTaskDone(task,target,base,T,q),"First gifted Fuzzy is retained while normal surplus becomes cleanup")
     end
+    for _,slots in ipairs({25,41,43,44,46,50})do
+        local base=hive({{"Ninja",2},{"Ninja",2,true},{"Shy",2},{"Shy",2,true},{"Baby",4},{"Music",4},{"Bubble",4},{"Frosty",4},{"Tabby",1,true}})
+        local context=ctx(slots,2);context.questRetired={Ninja=true,Shy=true}
+        local q=P.plan(base,T,context)
+        for _,name in ipairs({"Ninja","Shy"})do
+            local kept,safe,gift=0,0,0
+            for _,c in ipairs(base)do if c.bee.Type==name then
+                if q.keep[P.key(c)]then kept+=1;gift+=P.gifted(c)and 1 or 0
+                else safe+=1 end
+            end end
+            check(kept==1 and gift==1 and safe==3,"Completed objective keeps exactly one gifted "..name.." at "..slots)
+            check(P.slotCap(name,q)==1,"Retired species uses only its gifted failsafe slot")
+            for _,need in ipairs(q.needs)do check(need.name~=name or need.gifted,"Retired normal quota cannot reappear")end
+        end
+        for _,c in ipairs(base)do if c.bee.Type=="Tabby"then check(q.protected[P.key(c)],"Quest retirement preserves Event protection")end end
+        local normal=base[1]
+        check(not P.isUsableCollector(normal,base,q),"Retired normal Ninja is a wrong bee for100-jelly recovery")
+        check(q.target and(q.target.bee.Type=="Ninja"or q.target.bee.Type=="Shy"),"Retired surplus precedes optional flexible conversion")
+        context.collectorFallback=true;context.honey=0
+        q=P.plan(base,T,context)
+        if slots>=35 then check(q.collectorFallback and q.target and not q.keep[P.key(q.target)],"Retired surplus enters100-jelly recovery")end
+    end
+    for _,name in ipairs({"Ninja","Shy"})do
+        for _,reason in ipairs({"collector-fallback","gifted-collector-fallback","fixed-targets","convert-flexible"})do
+            local base=hive({{"Hasty",1},{name,1,true},{name,1,false}});local target=base[1]
+            local old={stage="mid",reason=reason,mode="off",needs={{name=name,amount=2,gifted=false}}}
+            local task=P.startRollTask(target,base,old);task.Rolled=true
+            local context=ctx(41);context.questRetired={[name]=true}
+            for _,gifted in ipairs({false,true})do
+                target.bee={Type=name,Traits=gifted and{"Gifted"}or{}}
+                local q=P.plan(base,T,context)
+                check(not P.rollTaskDone(task,target,base,T,q),"Retired normal/duplicate gifted cannot finish even a stale task goal")
+                check(P.rollTaskSafe(task,target,base,T,q),"Rejected retired result stays on the same active coordinate")
+            end
+            base=hive({{"Hasty",1},{name,1,false}});target=base[1]
+            task=P.startRollTask(target,base,old);task.Rolled=true;target.bee={Type=name,Traits={"Gifted"}}
+            local q=P.plan(base,T,context)
+            check(P.rollTaskDone(task,target,base,T,q),"First needed gifted result is retained after retirement")
+            check(not P.rollTaskSafe(task,target,base,T,q),"Accepted first gifted cannot be overwritten")
+        end
+    end
+    do
+        local base=hive({{"Ninja",2},{"Shy",3},{"Bubble",4},{"Frosty",4},{"Baby",4},{"Music",4}})
+        local context=ctx(41);context.questRetired={Ninja=true}
+        local q=P.plan(base,T,context);local shyKept=0
+        for _,c in ipairs(base)do if c.bee.Type=="Shy"and q.keep[P.key(c)]then shyKept+=1 end end
+        check(shyKept==3,"Ninja objective completion never retires Shy early")
+        context.questRetired={Shy=true};q=P.plan(base,T,context);local ninjaKept=0
+        for _,c in ipairs(base)do if c.bee.Type=="Ninja"and q.keep[P.key(c)]then ninjaKept+=1 end end
+        check(ninjaKept==2,"Shy objective completion never retires Ninja early")
+        context.starPrepare=true;context.questRetired={Ninja=true,Shy=true}
+        q=P.plan(base,T,context)
+        for _,name in ipairs({"Ninja","Shy"})do
+            local needed=false;for _,need in ipairs(q.needs)do if need.name==name and need.gifted then needed=true end end
+            check(needed,"Star Egg preparation still requires one gifted "..name)
+        end
+    end
+    do
+        local base=hive({{"Ninja",2},{"Shy",2},{"Shy",1,true},{"Baby",4},{"Music",4},{"Bubble",4,true},{"Frosty",4,true}})
+        local target=base[1]
+        local original=P.plan(base,T,ctx(44))
+        original.reason="fixed-targets";original.mode="gifted"
+        local task=P.startRollTask(target,base,original);task.Rolled=true
+        target.bee={Type="Fire",Traits={}}
+        local context=ctx(44);context.jelly=0;context.honey=600000000;context.collectorFallback=true
+        context.questRetired={Ninja=true,Shy=true}
+        local q=P.plan(base,T,context)
+        check(q.keep[P.key(target)]and q.collectorFallback,"Live Fire result is useful when retiring normal Shy leaves a red placeholder vacancy")
+        check(P.rollTaskDone(task,target,base,T,q),"Exhausted fixed task accepts an existing useful placeholder during repair transition")
+        check(not P.rollTaskSafe(task,target,base,T,q),"Accepted Fire is preserved instead of throwing a force-slot error")
+        target.bee={Type="Hasty",Traits={}}
+        q=P.plan(base,T,context)
+        check(not P.rollTaskDone(task,target,base,T,q)and P.rollTaskSafe(task,target,base,T,q),"Unlisted outcomes still continue the same repair coordinate")
+    end
     return {passed=checked}
 end

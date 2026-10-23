@@ -1031,17 +1031,17 @@
     "validationLimit": "Natural gear purchase/craft paths are partially observed; current Blender queues are intentionally waiting and no ticket toggle was enabled"
   },
   "currentRelease": {
-    "version": "1.7.3",
+    "version": "1.7.6",
     "bundle": "auto_full_hive_assist.luau",
-    "sha256": "1baac75658c6f8526067258f705a4ea472ffa3dc8e39f454879dc09252d165a5",
-    "bytes": 285463,
-    "releasePath": "releases/v1.7.3/auto_full_hive_assist.luau",
+    "sha256": "91b1890b999500fd0604c17128b6cb2d7ddfc2d7dcd603ee06fe0fb9da93c77f",
+    "bytes": 289386,
+    "releasePath": "releases/v1.7.6/auto_full_hive_assist.luau",
     "deployed": true,
     "liveRuntimeVersions": {
-      "RileyCosmicguppydude": "1.7.3",
-      "Luneri427": "1.7.3"
+      "RileyCosmicguppydude": "1.7.6",
+      "Luneri427": "1.7.6"
     },
-    "liveState": "Both running, matching UI, no new error or unresolved request; Atlas resumed. Luneri dispenser/hive travel and roll completion naturally verified."
+    "liveState": "Both running on1.7.6 with matching UI, no error and Atlas resumed. Riley normal Ninja/Shy cleanup naturally verified; Luneri saving for40% Star."
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -2252,5 +2252,228 @@
       "targetPreserved": true,
       "versionAndRecoveryInstructionsUpdated": true
     }
+  },
+  "latestStarThresholdAndQuestRetirement": {
+    "version": "1.7.6",
+    "verifiedUtc": "2026-10-23T07:01:20.189461+00:00",
+    "releases": {
+      "1.7.4": {
+        "sha256": "cf8b52d88236eac797023ee0356812da3e8b4ea7481950376a3f75fcc8eb2ba7",
+        "bytes": 286329
+      },
+      "1.7.5": {
+        "sha256": "8fdb97fc512e667f3ae91b09e37e8f5031e8ce2457be8c973ad82a619f706927",
+        "bytes": 289272
+      },
+      "1.7.6": {
+        "sha256": "91b1890b999500fd0604c17128b6cb2d7ddfc2d7dcd603ee06fe0fb9da93c77f",
+        "bytes": 289386
+      }
+    },
+    "humanRules": {
+      "goldDiamondMinimumBluePlusGlobalPollen": 0.4,
+      "pollenPercentagesEqualWeight": true,
+      "otherStatsExcluded": true,
+      "exactThresholdQualifies": true,
+      "equalTotalHigherTierAccepted": true,
+      "bronzeSilverUnchanged": true,
+      "supremeStillRequiresPopStar10B": true,
+      "ninjaRetirement": {
+        "quest": "Star Journey 1",
+        "type": "Collect Tokens",
+        "tag": "Haste",
+        "goal": 2500
+      },
+      "shyRetirement": {
+        "quest": "Star Journey 2",
+        "type": "Collect Tokens",
+        "tag": "Red Boost",
+        "goal": 5000
+      },
+      "retireAtNamedTokenObjectiveCompletion": true,
+      "completedQuestHistoryAlsoProvesCompletion": true,
+      "normalCopiesSafe": true,
+      "extraGiftedCopiesSafe": true,
+      "oneGiftedEachReserved": true,
+      "starEggPreparationGiftedKeepsPreserved": true,
+      "unknownEvidencePreservesPriorRules": true,
+      "noNewOrdinaryGiftedMinimum": true
+    },
+    "preUpdateStar": {
+      "RileyCosmicguppydude": {
+        "tier": "Diamond",
+        "blue": 0.38,
+        "globalPollen": 0.09,
+        "combined": 0.47,
+        "discovered": 33
+      },
+      "Luneri427": {
+        "tier": "Diamond",
+        "blue": 0.24,
+        "globalPollen": 0.1,
+        "combined": 0.34,
+        "discovered": 30
+      }
+    },
+    "questEvidence": {
+      "liveDefinitionsVerified": true,
+      "bothAccountsCompletedQuestNames": [
+        "Star Journey 1",
+        "Star Journey 2"
+      ],
+      "bothActiveOnStarJourney4": true,
+      "GetProgressionOptionalQuestNameOmitted": true,
+      "noQuestOrTokenRemoteFiredForDetection": true
+    },
+    "interimDeployments": {
+      "1.7.4": {
+        "startedAtBoth": 1792737843,
+        "bothMaintenanceRunningFalseObserved": true,
+        "checksEachExecutor": 3596,
+        "LuneriSaving34of40Observed": true,
+        "Riley47GoalCompleteObserved": true
+      },
+      "1.7.5": {
+        "startedAtRiley": 1792738430,
+        "startedAtLuneri": 1792738431,
+        "checksEachExecutor": 3838,
+        "RileyError": ":4670: Active roll slot became a force slot; stopped before switching",
+        "RileyFailedResult": {
+          "coordinate": [
+            2,
+            2
+          ],
+          "type": "Fire",
+          "gifted": false,
+          "royalJelly": 0,
+          "lastRollConsumed": 255,
+          "totalRoyalJellyUsed": 4000
+        },
+        "pendingOrUncertainAtFailure": false
+      }
+    },
+    "fireTransitionFix": "When a normal batch is exhausted and genuine collector repair becomes active, an existing useful red/crit placeholder may finish under existing keep rules. Retired normal Shy no longer count toward the initial red group; only its reserved gifted copy does. No task/receipt/admission is manually discarded or seeded.",
+    "validation": {
+      "offlineChecks": 3842,
+      "checksEachConnectedExecutor": 3842,
+      "suites": {
+        "policy": 1019,
+        "character": 154,
+        "collector": 896,
+        "batch": 325,
+        "starJelly": 543,
+        "starPreflight": 220,
+        "occupancy": 10,
+        "starProgress": 17,
+        "connectedReview": 82,
+        "failsafeOnly": 38,
+        "finalBaby": 60,
+        "progression": 196,
+        "facts": 45,
+        "funds": 17,
+        "hatchReceipt": 31,
+        "blenderReceipt": 31,
+        "amulet": 88,
+        "quest": 70
+      },
+      "mainCompiled": true,
+      "embeddedCompiled": true,
+      "markers": 41,
+      "blockedTransportFixtureExcluded": true
+    },
+    "deployment": {
+      "executeCountV176PerAccount": 1,
+      "startedAtRiley": 1792738777,
+      "startedAtLuneri": 1792738782,
+      "priorRunningFalseVerified": true,
+      "startupDelayObserved": true,
+      "atlasReloaded": false,
+      "flagsCleared": false,
+      "leftoversSeeded": false,
+      "originalRileyRollTaskPreserved": true
+    },
+    "limits": "Gold/Diamond threshold logic and live savings/goal recognition were verified. Exact40% offer acceptance and active-objective-before-full-quest completion are isolated fixture coverage. Both completed-quest histories were live verified. Riley naturally removed normal Ninja/Shy and retained its original gifted Shy, resolved the Fire transition and saved repair leftovers. Luneri cleanup is deferred by the authorized Star priority; no new qualifying Star RNG outcome or token objective was forced.",
+    "automation": {
+      "statusPreserved": "PAUSED",
+      "cadenceMinutes": 30,
+      "targetPreserved": true,
+      "noAgentsAndLatestRulesSaved": true
+    },
+    "accounts": [
+      {
+        "account": "RileyCosmicguppydude",
+        "clientId": "ecf53722-a449-4adb-a22d-3dce49c14167",
+        "executor": "Arceus X",
+        "jobId": "c0345f98-4982-4e49-b013-707668d06846",
+        "placeId": 1537690962,
+        "version": "1.7.6",
+        "uiVersion": "v1.7.6",
+        "startedAt": 1792738777,
+        "running": true,
+        "stop": false,
+        "phase": "waiting",
+        "error": null,
+        "cleanupError": null,
+        "atlasStopped": false,
+        "pendingReadOnly": "Transient RetrievePlayerStats left unchanged",
+        "uncertainReceipt": false,
+        "normalNinjaBeforeV175": 2,
+        "normalNinjaAfter": 0,
+        "giftedNinjaBeforeAndAfter": 0,
+        "normalShyBefore": 2,
+        "normalShyAfter": 0,
+        "giftedShyPreservedAt": [
+          3,
+          5
+        ],
+        "retirementEvidence": "Exact completed quest history for both objectives",
+        "actionsSinceV176": 40,
+        "royalJellyUsedSinceV176": 24,
+        "royalJellySaved": 76,
+        "normalRefill": 4000,
+        "starJellySaved": 3,
+        "starCombinedPollen": 0.47,
+        "starGoalComplete": true,
+        "taskAtLastRead": null,
+        "batchAtLastRead": null
+      },
+      {
+        "account": "Luneri427",
+        "clientId": "9812722d-e34a-44c6-924d-02c0de835cfe",
+        "executor": "Arceus X",
+        "jobId": "c0345f98-4982-4e49-b013-707668d06846",
+        "placeId": 1537690962,
+        "version": "1.7.6",
+        "uiVersion": "v1.7.6",
+        "startedAt": 1792738782,
+        "running": true,
+        "stop": false,
+        "phase": "waiting",
+        "error": null,
+        "cleanupError": null,
+        "atlasStopped": false,
+        "pending": false,
+        "uncertainReceipt": false,
+        "royalJelly": 105,
+        "starJelly": 1,
+        "honey": 831235081,
+        "starCombinedPollen": 0.34,
+        "starMinimum": 0.4,
+        "starSaving": true,
+        "diamondGeneratorUses": 2,
+        "normalNinja": 1,
+        "giftedNinjaPreservedAt": [
+          5,
+          2
+        ],
+        "normalShy": 2,
+        "giftedShyPreservedAt": [
+          2,
+          7
+        ],
+        "questHistoryVerifiedForBothRules": true,
+        "retirementCleanupDeferredBehindStarGoal": true
+      }
+    ]
   }
 }

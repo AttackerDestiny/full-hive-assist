@@ -119,9 +119,16 @@ end
 function P.isRecoveryTask(task)
     return task and (task.Reason=="collector-fallback" or task.Reason=="gifted-collector-fallback")
 end
-function P.isUsableCollector(cell, cells)
+function P.slotCap(name,plan)
+    if(plan and plan.questRetired or{})[name]then return 1 end
+    return P.slotCaps[name]
+end
+function P.isUsableCollector(cell, cells, plan)
     if not P.isCollectorSection(cell) then return false end
-    local cap=P.slotCaps[cell.bee.Type]
+    if(plan and plan.questRetired or{})[cell.bee.Type]then
+        return P.gifted(cell)and P.count(cells,cell.bee.Type,true)==1
+    end
+    local cap=P.slotCap(cell.bee.Type,plan)
     return not cap or P.count(cells,cell.bee.Type)<=cap
 end
 function P.recoveryMode(honey)
@@ -161,9 +168,12 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     if not task.Rolled then return false end
     local name = cell.bee.Type
     local gifted = P.gifted(cell)
+    -- Completed token objectives retire every normal copy and all duplicate
+    -- gifted copies. Stale task goals cannot turn them back into keeps.
+    if(plan.questRetired or{})[name]and(not gifted or P.count(cells,name,true)>1)then return false end
     -- A newly needed gifted failsafe may replace a normal copy; surplus
     -- normals are then cleaned up. Never finish a roll on another excess copy.
-    local slotCap=P.slotCaps[name]
+    local slotCap=P.slotCap(name,plan)
     if slotCap and P.count(cells,name)>slotCap
         and not (gifted and (task.InitialGifted[name] or 0)==0) then return false end
     local limit = P.giftedLimit(name, plan.stage, plan.babyGoal)
@@ -210,14 +220,16 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     -- collector never steals an old force slot just by sorting first.
     local normalCaps={Baby=plan.stage=="final" and (plan.babyGoal or 4) or 4,Music=4,Shy=3,Bubble=4,Frosty=4,Ninja=2}
     local cap=normalCaps[name]
+    if(plan.questRetired or{})[name]then cap=0 end
     if (not task.Goals or #task.Goals==0) and cap and (task.InitialTotal[name] or 0)<cap and P.count(cells,name)<=cap then
         return true, "force-quota-result"
     end
-    if not gifted and (plan.stage=="early" or (P.isRecoveryTask(task) and (plan.stage=="mid" or plan.stage=="late")))
+    if not gifted and (plan.stage=="early" or ((P.isRecoveryTask(task)or plan.collectorFallback) and (plan.stage=="mid" or plan.stage=="late")))
         and (name=="Looker" or name=="Commander" or name=="Fire") then
         local initial=task.InitialTotal
         local better=name=="Looker" and (initial.Music or 0)+(initial.Commander or 0)
-            or name=="Commander" and (initial.Music or 0) or (initial.Shy or 0)
+            or name=="Commander" and (initial.Music or 0)
+            or((plan.questRetired or{}).Shy and math.min(1,task.InitialGifted.Shy or 0)or(initial.Shy or 0))
         local capForGroup=name=="Fire" and 3 or 4
         if better+(initial[name] or 0)<capForGroup and plan.keep[P.key(cell)] then
             return true,"placeholder-upgrade"
@@ -232,6 +244,7 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
     local done = P.rollTaskDone(task, cell, cells, types, plan)
     if done then return false end
     local name = cell.bee.Type
+    if(plan.questRetired or{})[name]then return not P.gifted(cell)or P.count(cells,name,true)>1 end
     local limit = P.giftedLimit(name, plan.stage, plan.babyGoal)
     -- Fixed goals can consume a planner-selected surplus gifted collector.
     -- Revalidate the original unrolled coordinate, the four reserved force
@@ -253,7 +266,8 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
     end
     if P.gifted(cell) and plan.starPrepare and P.count(cells,name,true)>1 then return true end
     if P.gifted(cell) and name=="Fire" and P.count(cells,name,true)>P.keptGiftedCount(cells,plan,name) then return true end
-    if P.slotCaps[name] and P.count(cells,name)>P.slotCaps[name] then return true end
+    local slotCap=P.slotCap(name,plan)
+    if slotCap and P.count(cells,name)>slotCap then return true end
     if P.gifted(cell) and limit and P.count(cells, name, true) > limit then return true end
     if P.gifted(cell) and (limit or name=="Bubble" or name=="Frosty") then return false end
     if task.Reason == "convert-flexible" and not P.gifted(cell)
@@ -304,6 +318,10 @@ function P.refillFor(slots, collectorFallback)
 end
 function P.plan(cells, types, ctx)
     local stage = P.stage(ctx)
+    local questRetired,slotCaps={},table.clone(P.slotCaps)
+    for _,name in ipairs({"Ninja","Shy"})do
+        if(ctx.questRetired or{})[name]==true then questRetired[name]=true;slotCaps[name]=1 end
+    end
     local collectorFallback=P.refill(ctx.slots)>100 and ctx.collectorFallback==true
     local recoveryMode,recoveryReason=P.recoveryMode(ctx.honey)
     local post = stage == "blue" or stage == "final"
@@ -348,6 +366,7 @@ function P.plan(cells, types, ctx)
         end
     end
     for _, name in ipairs(post and P.trueSingles or P.singles) do reserve(name, 1, true) end
+    for name in pairs(questRetired)do reserve(name,1,true)end
     -- Ordinary keeps are the configured failsafes/forces only. Historical
     -- preserveUniqueGifted overrides never promote unlisted gifted species.
     local uniqueGifted = {}
@@ -386,6 +405,7 @@ function P.plan(cells, types, ctx)
                 for _, c in ipairs(cells) do
                     local exactDuplicate = pass and P.exactGifted[name] and P.count(cells, name, true) >= 1
                     if red < 3 and c.bee and c.bee.Type == name and P.gifted(c) == pass
+                        and not(name=="Shy"and questRetired.Shy)
                         and not keep[P.key(c)] and not exactDuplicate then
                         keep[P.key(c)], red = true, red + 1
                     end
@@ -396,9 +416,9 @@ function P.plan(cells, types, ctx)
         -- Ninja has two collector force slots, but only one gifted Ninja is a
         -- failsafe copy. Fill the second force slot with a normal Ninja when
         -- possible, leaving any extra gifted copy eligible for reroll.
-        reserve("Ninja", 1, true); reserveNormal("Ninja", 2)
+        reserve("Ninja", 1, true); if not questRetired.Ninja then reserveNormal("Ninja", 2)end
         -- Only opportunistically keep collectors. They can be consumed for fixed targets.
-        need("Baby", 4, false); need("Music", 4, false); need("Shy", 3, false)
+        need("Baby", 4, false); need("Music", 4, false); if not questRetired.Shy then need("Shy", 3, false)end
         if stage ~= "early" then
             for _, name in ipairs(P.mid) do need(name, 1, true) end
         end
@@ -447,7 +467,7 @@ function P.plan(cells, types, ctx)
         end
     end
     local excess = {}
-    for name,cap in pairs(P.slotCaps) do
+    for name,cap in pairs(slotCaps) do
         local ranked={}
         for _,c in ipairs(cells) do if c.bee and c.bee.Type==name then ranked[#ranked+1]=c end end
         table.sort(ranked,function(a,b)
@@ -459,6 +479,9 @@ function P.plan(cells, types, ctx)
         for i=cap+1,#ranked do
             local c=ranked[i]
             if not protected[P.key(c)]or name=="Fuzzy"then keep[P.key(c)],protected[P.key(c)]=nil,nil; excess[P.key(c)]=true end
+        end
+        if questRetired[name]then
+            for _,c in ipairs(ranked)do if not keep[P.key(c)]then excess[P.key(c)]=true end end
         end
     end
     local candidates, conversion = {}, {}
@@ -487,7 +510,7 @@ function P.plan(cells, types, ctx)
         if P.count(cells, "Music") < 4 then
             upgrades[#upgrades+1] = "Looker"; upgrades[#upgrades+1] = "Commander"
         end
-        if P.count(cells, "Shy") < 3 then upgrades[#upgrades+1] = "Fire" end
+        if not questRetired.Shy and P.count(cells, "Shy") < 3 then upgrades[#upgrades+1] = "Fire" end
         for _, name in ipairs(upgrades) do
             for _, c in ipairs(cells) do
                 if c.bee and c.bee.Type == name and not uniqueGifted[P.key(c)] then
@@ -501,7 +524,7 @@ function P.plan(cells, types, ctx)
     end
     local fallbackCandidates = {}
     for _, c in ipairs(candidates) do
-        if not P.isUsableCollector(c,cells) then fallbackCandidates[#fallbackCandidates + 1] = c end
+        if not P.isUsableCollector(c,cells,{questRetired=questRetired}) then fallbackCandidates[#fallbackCandidates + 1] = c end
     end
     local target, mode, reason = nil, "off", nil
     local royalNeeds = false
@@ -552,6 +575,7 @@ function P.plan(cells, types, ctx)
     if ctx.enforceGrowth and not growth.CanReroll then target=nil; reason="hive-growth" end
     local capacityStatus=P.capacityStatus(cells,keep,needs,ctx.slots)
     return {stage=stage, keep=keep, protected=protected, temporary=temporary, needs=needs, candidates=candidates,
+        questRetired=questRetired,
         growth=growth,capacityStatus=capacityStatus,starPrepare=ctx.starPrepare==true and not post,
         fallbackCandidates=fallbackCandidates, collectorFallback=collectorFallback and #fallbackCandidates>0,
         recoveryGifted=recoveryMode=="gifted",

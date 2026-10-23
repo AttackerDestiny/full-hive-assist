@@ -1,5 +1,5 @@
 -- Pure decisions over verified game amulet packages. No services or spending.
-local P={tiers={"Bronze","Silver","Gold","Diamond","Supreme"},requirements={5,10,20,30,40},prices={25000000,50000000,250000000,1000000000,10000000000}}
+local P={tiers={"Bronze","Silver","Gold","Diamond","Supreme"},requirements={5,10,20,30,40},prices={25000000,50000000,250000000,1000000000,10000000000},starMinimumTotals={0,0,.4,.4,0}}
 local function finite(n) return type(n)=="number" and n==n and n>-math.huge and n<math.huge end
 function P.read(a)
     if a==nil then return nil end
@@ -28,8 +28,13 @@ local function antGood(o)
         or(o.rank>=4 and o.critChance>0 and o.critPower>0)
     return o.convert>0 and o.blue>0 and crit and(o.rank<5 or o.attack>=1)
 end
+function P.starPollenTotal(o) return o and(o.blue+o.pollen)or 0 end
 function P.starGood(o)
+    -- The requested total counts Blue Pollen and global Pollen equally.
+    -- Capacity, red/white pollen and Bee Gather do not contribute. Tolerate
+    -- only floating-point roundoff at an exact40% boundary.
     return o and o.capacity>0 and o.blue>0 and(o.rank==5 and o.pop or o.rank<5 and o.pollen>0)
+        and P.starPollenTotal(o)+1e-9>=(P.starMinimumTotals[o.rank]or 0)
 end
 function P.moonGood(o) return o and o.capacity>=250000 and o.honeyPerPollen>0 end
 function P.rejectDualPrompt(text) return text=="Spend 500 billion honey to guarantee 2 passive abilities?" end
@@ -83,6 +88,6 @@ function P.starTarget(discovered,current)
     if rank==0 then return nil,"gifted-types-below-five" end
     local old=P.read(current)
     if old and(old.rank>rank or old.rank==rank and P.starGood(old))then return nil,"star-goal-complete" end
-    return {rank=rank,name=P.tiers[rank].." Star Amulet Generator",price=P.prices[rank],gifted=P.requirements[rank]}
+    return {rank=rank,name=P.tiers[rank].." Star Amulet Generator",price=P.prices[rank],gifted=P.requirements[rank],minimumPollenTotal=P.starMinimumTotals[rank]}
 end
 return P

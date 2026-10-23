@@ -98,10 +98,10 @@ return function(H)
         state.Amulet=o.group..": "..(take and"replaced"or"kept current")
         return true
     end
-    local function questFacts(s)
+    local function questFacts(s,requested)
         local list={}
         for _,active in ipairs((s.Quests or{}).Active or{})do
-            if Q.rules[active.Name]then
+            if(requested or Q.rules)[active.Name]then
                 local def=Quests:Get(active.Name)
                 if def then
                     local tasks=Quests.ResolveTasks(def,s)
@@ -111,7 +111,7 @@ return function(H)
                     local q={name=active.Name,key=key(active.StartValues),active=true,tasks={}}
                     for i,t in ipairs(tasks)do
                         local v=values[i]
-                        if v then q.tasks[#q.tasks+1]={index=i,type=t.Type,item=t.Item,toy=t.Toy,current=v[2],goal=v[3]}end
+                        if v then q.tasks[#q.tasks+1]={index=i,type=t.Type,item=t.Item,toy=t.Toy,tag=t.Tag,current=v[2],goal=v[3]}end
                     end
                     list[#list+1]=q
                 end
@@ -120,6 +120,15 @@ return function(H)
         return list
     end
     local function questActions(s)return Q.actions(questFacts(s))end
+    function R.hiveRetirements(s)
+        local completed=(s.Quests or{}).Completed
+        local retired,evidence=Q.hiveRetirements({},completed)
+        if not retired.Ninja or not retired.Shy then
+            retired,evidence=Q.hiveRetirements(questFacts(s,Q.hiveRules),completed)
+        end
+        report.QuestHiveRetirements={Retired=retired,Evidence=evidence}
+        return retired
+    end
     local function matchingQuest(s,a)
         for _,v in ipairs(questActions(s))do
             if v.quest==a.quest and v.questKey==a.questKey and v.index==a.index and v.mode==a.mode and v.item==a.item then return v end
@@ -226,6 +235,9 @@ return function(H)
     function R.inspect(s)
         local quests,res=questActions(s)
         local target,why=A.starTarget(type(s.DiscGiftTypes)=="table"and #s.DiscGiftTypes or nil,(s.Amulets or{}).Star)
+        local current=A.read((s.Amulets or{}).Star)
+        state.StarPollenTotal=A.starPollenTotal(current)
+        state.StarMinimumTotal=target and target.minimumPollenTotal or(current and A.starMinimumTotals[current.rank]or 0)
         state.Amulet=target and("Target: "..target.name)or why
         state.Quest=quests[1]and(quests[1].quest..": "..quests[1].item)or"No requested active quest objectives"
         state.ReserveHoney=target and target.price or 0
@@ -251,6 +263,9 @@ return function(H)
         if H.Config.AutoAmulets then
             if target then
                 state.Amulet="Saving for "..target.name
+                if target.minimumPollenTotal>0 then
+                    state.Amulet..=string.format(" (%.0f%% / %.0f%% pollen)",state.StarPollenTotal*100,target.minimumPollenTotal*100)
+                end
                 if s.Honey>=target.price+H.Config.HoneyReserve then
                     if generate(target.name,s,{category="Honey",amount=target.price})then return true end
                 end

@@ -1,5 +1,11 @@
 # Full Hive Assist
 
+**v1.7.6:** Includes the40% Star requirement and quest-dependent Ninja/Shy retirement. Also fixes the observed exhausted-batch transition where an existing useful Fire placeholder was rejected after normal Shy reservations retired.
+
+**v1.7.5:** After Star Journey1's2500Haste objective, normal Ninja and gifted duplicates become safe replacement slots; Star Journey2's5000RedBoost objective does the same for Shy. Exactly one gifted copy of each stays reserved, including Star Egg preparation. Verified objective progress or completed-quest history is required; unknown progress preserves the prior rules. Includes v1.7.4's40% Gold/Diamond Star minimum.
+
+**v1.7.4:** Gold and Diamond Star Amulets now require at least40% combined Blue Pollen + global Pollen, in addition to their required stats. Below-threshold current amulets resume Star saving; exactly40% qualifies. The background status shows the current total and target while saving.
+
 **v1.7.3:** Recovers once from an unsent movement timeout after cleaning up the tween/noclip and releasing Atlas. Fresh planning preserves the existing hive objective and batch. Pending or uncertain requests block recovery, and a second timeout stops safely.
 
 **v1.7.2:** Adds the requested King Beetle/Ant/Star/Moon amulet decisions and active quest assistance, with gear → Star → hive honey priority. Quest consumables run during savings; field items require standing in a field. Fuzzy is capped at one total copy, and Star Jelly stops after the eight gifted Rare/Epic failsafes. Also fixes the repeated force-slot error after surplus gifted collector results. [Amulet and quest rules](AMULETS_AND_QUESTS.md).

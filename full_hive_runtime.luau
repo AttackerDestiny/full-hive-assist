@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.7.3"
+local SCRIPT_VERSION = "1.7.6"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -536,6 +536,7 @@ local function context(s,slots)
         collectorFallback=false
     end
     return {slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,lateStarted=lateStarted,nextFlexible=nextFlexible,
+        questRetired=background and background.hiveRetirements(s)or{},
         collectorFallback=collectorFallback,enforceGrowth=true,eggs=s.Eggs,
         canRefill30k=Config.AutoPurchase and usable>=Policy.jellyCost(bought.RoyalJelly or 0,30000)}
 end
@@ -563,10 +564,10 @@ local function plan(s)
         local invalid=rollTask.Version~=2 or rollTask.Owner~=player.UserId or rollTask.Hive~=(h and h.Name)
             or rollTask.Job~=game.JobId
         local done,why
-        if not invalid and p.collectorFallback and current and Policy.isUsableCollector(current,cells)
+        if not invalid and p.collectorFallback and current and Policy.isUsableCollector(current,cells,p)
             and not Policy.isRecoveryTask(rollTask) then
             done,why=true,"collector-held-during-recovery"
-        elseif not invalid and p.collectorFallback and current and not Policy.isUsableCollector(current,cells)
+        elseif not invalid and p.collectorFallback and current and not Policy.isUsableCollector(current,cells,p)
             and Policy.rollTaskSafe(rollTask,current,cells,Types,p) then
             -- The existing coordinate stays leased, but an older gifted task
             -- must adopt recovery mode before its next request.

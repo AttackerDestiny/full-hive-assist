@@ -46,6 +46,40 @@ return function(P)
  ok(not P.choose("Star",nil,star("Supreme",.7,.2,false)),"Supreme without PopStar rejected")
  ok(not P.choose("Star",nil,star("Gold",.3,nil,false)),"Gold without global pollen rejected")
  ok(not P.choose("Star",star("Diamond",.3,.1),star("Gold",.4,.2)),"Lower Star tier does not replace higher")
+ for _,tier in ipairs({"Gold","Diamond"})do
+  local discovered=tier=="Gold"and 20 or 30
+  local weak=star(tier,.24,.1)
+  ok(not P.choose("Star",nil,weak),tier.." rejects34% even with all named stats")
+  local target=P.starTarget(discovered,weak)
+  ok(target and target.minimumPollenTotal==.4,tier.." resumes saving when the current total is below40%")
+  ok(not P.choose("Star",star(tier,.3,.1),weak),tier.." cannot replace a qualifying current amulet with34%")
+  for _,pair in ipairs({{.3,.1},{.34,.06},{.28,.12},{.35,.05}})do
+   local exact=star(tier,pair[1],pair[2])
+   ok(P.choose("Star",weak,exact),tier.." accepts exactly40% across different stat splits")
+   ok(not P.starTarget(discovered,exact),tier.." stops funding at exactly40%")
+  end
+  ok(not P.choose("Star",nil,star(tier,.299999,.1)),tier.." rejects39.9999% rather than rounding it to40%")
+  ok(P.choose("Star",nil,star(tier,.31,.1)),tier.." accepts41%")
+  local unrelated=star(tier,.24,.1)
+  for _,mod in ipairs({m("PollenBonus",.9,{Color="Red"}),m("PollenBonus",.9,{Color="White"}),
+   m("PollenBonus",.9,{Tag="Bee Gather"}),m("CriticalChance",.5),m("CriticalPower",2),m("BaseProductionRate",2)})do
+   unrelated.Mods[#unrelated.Mods+1]=mod
+  end
+  ok(not P.choose("Star",nil,unrelated),tier.." excludes other percentages and capacity from the total")
+  ok(math.abs(P.starPollenTotal(P.read(unrelated))-.34)<1e-12,tier.." reports only Blue plus global Pollen")
+  ok(not P.choose("Star",nil,star(tier,.5,nil)),tier.." still requires global Pollen even above40%")
+  ok(not P.choose("Star",nil,star(tier,0,.5)),tier.." still requires Blue Pollen even above40%")
+  local noCapacity=star(tier,.3,.1);table.remove(noCapacity.Mods,1)
+  ok(not P.choose("Star",nil,noCapacity),tier.." still requires capacity")
+ end
+ ok(P.choose("Star",star("Gold",.3,.1),star("Diamond",.34,.06)),"Equal40% Gold-to-Diamond upgrade is accepted")
+ ok(not P.choose("Star",star("Gold",.3,.1),star("Diamond",.24,.1)),"A higher tier below40% is rejected")
+ ok(P.starTarget(30,star("Gold",.3,.1)).rank==4,"Qualified Gold does not stop funding a newly unlocked Diamond")
+ for _,tier in ipairs({"Bronze","Silver"})do
+  ok(P.choose("Star",nil,star(tier,.1,.05)),tier.." retains its original stats without a40% floor")
+ end
+ ok(P.choose("Star",nil,star("Supreme",.1,nil,true)),"Supreme requires PopStar and Blue without the Gold/Diamond floor")
+ ok(not P.choose("Star",nil,star("Supreme",.5,.2,false)),"A high total never substitutes for Supreme PopStar")
  local good=a("Moon Amulet",{m("ContainerSpace",250000),m("PollenValue",.02)})
  ok(P.moonGood(P.read(good)),"250k with honey per pollen stops")
  ok(not P.moonGood(P.read(a("Moon Amulet",{m("ContainerSpace",250000),m("PollenBonus",.1)}))),"Pollen is not honey per pollen")

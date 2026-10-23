@@ -27,5 +27,27 @@ return function(P)
   local rows=P.actions(input);check(#rows==1 and rows[1].mode==mode,"Requested objective mapped exactly")
   input[1].tasks[1].current=3;check(#P.actions(input)==0,"Mapped objective stops at completion")
  end end
+ for quest,rule in pairs(P.hiveRules)do
+  local function facts(current,active,tag,typ,goal)
+   return{{name=quest,active=active~=false,tasks={{type=typ or"Collect Tokens",tag=tag or rule.tag,current=current,goal=goal or rule.goal}}}}
+  end
+  check(not P.hiveRetirements(facts(rule.goal-1),{})[rule.species],"Incomplete token objective retains forces")
+  local retired,evidence=P.hiveRetirements(facts(rule.goal),{})
+  check(retired[rule.species]and evidence[rule.species].reason=="token-objective","Exact completed token objective retires its normal species")
+  check(P.hiveRetirements(facts(rule.goal+10),{})[rule.species],"Over-completed objective also qualifies")
+  check(not P.hiveRetirements(facts(rule.goal,false),{})[rule.species],"Inactive progress without completion history is insufficient")
+  check(not P.hiveRetirements(facts(rule.goal,true,"Honey"),{})[rule.species],"Other token types cannot retire a force")
+  check(not P.hiveRetirements(facts(rule.goal,true,nil,"Use Items"),{})[rule.species],"Objective type must match")
+  check(not P.hiveRetirements(facts(rule.goal,true,nil,nil,rule.goal+1),{})[rule.species],"Objective goal must match verified definition")
+  check(not P.hiveRetirements(facts(math.huge),{})[rule.species],"Invalid progress fails closed")
+  retired,evidence=P.hiveRetirements({}, {quest})
+  check(retired[rule.species]and evidence[rule.species].reason=="completed-quest","Historical completed quest proves its token objective")
+  check(not P.hiveRetirements({}, {quest.."0"})[rule.species],"Quest names match exactly")
+ end
+ local retired=P.hiveRetirements({}, {"Star Journey 1"})
+ check(retired.Ninja and not retired.Shy,"Quest1 changes Ninja only")
+ retired=P.hiveRetirements({}, {"Star Journey 2"})
+ check(retired.Shy and not retired.Ninja,"Quest2 changes Shy only")
+ check(next((P.hiveRetirements({},{})))==nil,"Unknown quest state preserves original forces")
  return{passed=n}
 end

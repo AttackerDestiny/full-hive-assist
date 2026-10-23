@@ -9,6 +9,30 @@ local P={rules={
 }}
 local caps={MoonCharm=44,Stinger=4,Enzymes=1,Oil=1,MagicBean=1,FieldDice=10,CloudVial=3,Gold=1,RedExtract=5,BlueExtract=5,Coconut=20,
  ["Moon Amulet Generator"]=1,["Sprout Summoner"]=1,Honeystorm=1}
+P.hiveRules={
+ ["Star Journey 1"]={species="Ninja",tag="Haste",goal=2500},
+ ["Star Journey 2"]={species="Shy",tag="Red Boost",goal=5000}
+}
+function P.hiveRetirements(quests,completed)
+    local retired,evidence={},{}
+    for _,name in ipairs(completed or{})do
+        local rule=type(name)=="string"and P.hiveRules[name]
+        if rule then retired[rule.species]=true;evidence[rule.species]={quest=name,reason="completed-quest",goal=rule.goal}end
+    end
+    for _,q in ipairs(quests or{})do
+        local rule=P.hiveRules[q.name]
+        if rule and q.active==true and not retired[rule.species]then
+            for _,t in ipairs(q.tasks or{})do
+                if t.type=="Collect Tokens"and t.tag==rule.tag and t.goal==rule.goal
+                    and type(t.current)=="number"and t.current<math.huge and t.current>=rule.goal and t.current%1==0 then
+                    retired[rule.species]=true
+                    evidence[rule.species]={quest=q.name,reason="token-objective",current=t.current,goal=rule.goal}
+                end
+            end
+        end
+    end
+    return retired,evidence
+end
 function P.actions(quests)
     local out={};local reserves={}
     for _,q in ipairs(quests or{})do
