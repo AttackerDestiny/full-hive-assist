@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.7.2:** Adds the requested King Beetle/Ant/Star/Moon amulet decisions and active quest assistance, with gear → Star → hive honey priority. Quest consumables run during savings; field items require standing in a field. Fuzzy is capped at one total copy, and Star Jelly stops after the eight gifted Rare/Epic failsafes. Also fixes the repeated force-slot error after surplus gifted collector results. [Amulet and quest rules](AMULETS_AND_QUESTS.md).
+
 **v1.6.7:** Fixes a false force-slot stop when an unsent fixed-target lease intentionally selected a surplus gifted Bubble/Frosty coordinate. The exact coordinate is allowed only while its fixed gifted goals remain unmet and reserved copies stay protected.
 
 **v1.6.6:** Fixes Blender speedup completion checks for partially elapsed orders. Tickets pay for unfinished units, while collection awards the full order. Queue identity and inventory baselines are preserved through the request, and the explicit ticket-toggle choice survives maintenance.

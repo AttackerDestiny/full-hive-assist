@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.6.7"
+local SCRIPT_VERSION = "1.7.2"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -87,7 +87,7 @@ local Config = {DryRun=false, PollSeconds=3, Speed=65, NearDistance=16,
     MaxActions=math.huge, MaxRoyalJellies=math.huge, AutoPurchase=true,
     HoneyReserve=0, RollDelay=0.3, StarEggHoney=100000000000,
     AtlasInitiallyStopped=false, StartupDelaySeconds=60, PreserveUniqueGifted=false, AutoProgression=true,
-    UseBlenderTickets=false}
+    UseBlenderTickets=false, AutoAmulets=true, AutoQuestAssist=true}
 for k,v in pairs(env.FullHiveConfig or {}) do assert(Config[k] ~= nil, "Unknown config: "..k); Config[k]=v end
 -- Retain the old option for config compatibility; ordinary keeps must still
 -- follow the user's failsafe/force lists even if an old override was true.
@@ -107,6 +107,7 @@ env.FullHiveReport = Report
 local Players, RS = game:GetService("Players"), game:GetService("ReplicatedStorage")
 local player, Events, Cache, Types, EggTypes
 local progression,atlasFarmOnly
+local background,shopFloor
 local fixedShopPackage
 local Packages, Recipes, Reqs, Accessories, CellTools, OsTime
 local leased, previousAtlas, previousSettings, cleanupMove = false, nil, nil, nil
@@ -193,7 +194,7 @@ end
 local function refresh()
     local s=invoke(Events.RetrievePlayerStats)
     assert(type(s)=="table" and type(s.Eggs)=="table", "Stats unavailable")
-    for _,k in ipairs({"Honey","Eggs","Totals","Honeycomb","Settings","Quests","UnlockedCells","Accessories","Collectors","Sprinklers","Codes","PlaytimeAtLoad","LoadTime","OfflineProgressTime","MiscInfo","ItemTimes","Treasures"}) do
+    for _,k in ipairs({"Honey","Eggs","Totals","Honeycomb","Settings","Quests","UnlockedCells","Accessories","Collectors","Sprinklers","Codes","PlaytimeAtLoad","LoadTime","OfflineProgressTime","MiscInfo","ItemTimes","Treasures","Amulets","IncomingAmulets","DiscGiftTypes","ToyTimes","ToyPlaytimes","PlayerActiveTimes"}) do
         if s[k]~=nil then Cache:Set(k,s[k]) end
     end
     Cache:Set("BlenderState",s.BlenderState or nil)
@@ -525,7 +526,7 @@ local function context(s,slots)
     -- A full normal amount or affordable remaining top-up precedes recovery.
     -- Recheck the missing amount after each pack, not the cost of a new batch.
     if (batch and not batch.Recovery)
-        or ((s.Eggs.StarJelly or 0)>0 and Policy.starJellyUpgradeTask(rollTask))
+        or ((s.Eggs.StarJelly or 0)>0 and #Policy.starJellyMissing(Policy.snapshot(s,Types))>0 and Policy.starJellyUpgradeTask(rollTask))
         or (env.FullHiveCollectorFallback~=true and jelly>=normalRefill) then
         collectorFallback=false
     end
@@ -591,7 +592,7 @@ local function plan(s)
     Report.RefillMode=p.collectorFallback and "fallback-100" or (slots==43 and "normal-2000" or "stage-refill")
     Report.StarJelly=s.Eggs.StarJelly or 0
     Report.StarJellyMissing=Policy.starJellyMissing(cells)
-    Report.StarJellyUpgrade=Policy.starJellyUpgrade(p,rollTask)
+    Report.StarJellyUpgrade=false -- Only the eight missing gifted Rare/Epic failsafes admit Star Jelly.
     local batch=env.FullHiveJellyBatch
     -- The first legendary batch also satisfies the original 10k entry gate.
     if slots>=44 and not p.collectorFallback and (not lateStarted
@@ -683,6 +684,15 @@ local function initializeProgression()
         scan=scan,hiveFloor=hiveFloor,toyPart=progressionToyPart,jellyBatchSpent=jellyBatchSpent,
         Types=Types,
     })
+    if createBackground then
+        background=createBackground({AmuletPolicy=AmuletPolicy,QuestPolicy=QuestAssistPolicy,
+            env=env,Report=Report,Config=Config,RS=RS,player=player,load=loadModule,
+            Events=Events,Reqs=Reqs,Packages=Packages,Funds=ProgressionFunds,
+            checkStop=checkStop,refresh=refresh,invoke=invoke,move=move,near=near,release=release,
+            assertAtlasPaused=assertAtlasPaused,scan=scan,hiveFloor=hiveFloor,
+            shopFloor=function(name)return shopFloor(name)end,
+            fixedShopPackage=function(...)return fixedShopPackage(...)end,jellyBatchSpent=jellyBatchSpent})
+    end
 end
 local function find(cells,cell)
     for _,c in ipairs(cells) do if c.x==cell.x and c.y==cell.y then return c end end
@@ -701,6 +711,7 @@ local function spend(cell,item,validate,expectedTask)
     checkStop(); acquire(); move(hiveFloor()); near(hiveFloor())
     local s=refresh()
     if progression and not progression.allowsHive(s) then return false end
+    if background and not background.allowsHive(s) then release();return false end
     local p,cells=plan(s)
     local current=find(cells,cell)
     if not current or not validate(current,cells,p,s) then
@@ -765,7 +776,7 @@ local function spend(cell,item,validate,expectedTask)
     task.wait(Config.RollDelay)
     return b
 end
-local function shopFloor(name)
+shopFloor=function(name)
     local shops=assert(workspace:FindFirstChild("Shops"),"Shops not loaded")
     local shop=assert(shops:FindFirstChild(name),"Shop not loaded: "..name)
     local floor=shop:FindFirstChild("Floor")
@@ -793,6 +804,7 @@ local function buy(item,amount,shop,inventoryCeiling)
     acquire(); move(shopFloor(shop)); near(shopFloor(shop))
     local s=refresh()
     if progression and not progression.allowsHive(s) then return false end
+    if background and not background.allowsHive(s) then release();return false end
     local before=s.Eggs[item] or 0
     if inventoryCeiling then
         if before>=inventoryCeiling then return false end
@@ -1091,6 +1103,8 @@ local function run()
         if Report.Actions>=Config.MaxActions or Report.RoyalJellyUsed>=Config.MaxRoyalJellies then break end
         s=Cache:Get()
         if not hive() then waitFor("Waiting for Atlas to claim a hive"); s=refresh(); continue end
+        if background and Config.AutoAmulets and background.offers(s) then s=refresh();continue end
+        if background and background.consumables(s)then s=refresh();continue end
         if progression then
             local did,why=progression.step(s)
             if did then
@@ -1098,6 +1112,10 @@ local function run()
                 if why then waitFor(why) end
                 s=refresh(); continue
             end
+        end
+        if background then
+            local did,why=background.step(s)
+            if did then if why then waitFor(why)end;s=refresh();continue end
         end
         local p,cells,slots=plan(s)
         Report.Stage,Report.Slots,Report.Bees,Report.Needs=p.stage,slots,#cells,p.needs
@@ -1117,7 +1135,12 @@ local function run()
             waitFor("Fill empty hive cells before rerolling: "..#cells.." bees / "..slots.." slots (Atlas or manual hatching)")
             s=refresh(); continue
         end
-        if p.complete then Report.Phase="endgame-complete"; Report.Activity="Final hive requirements reached"; return end
+        if p.complete then
+            if background and(Config.AutoAmulets or Config.AutoQuestAssist)then
+                waitFor("Hive complete; monitoring amulets and active quests");s=refresh();continue
+            end
+            Report.Phase="endgame-complete"; Report.Activity="Final hive requirements reached"; return
+        end
         local item=Policy.rollItem(cells,s.Eggs,p,rollTask)
         env.FullHiveStarted=true
         if basicLock then
@@ -1182,14 +1205,14 @@ local function makeUI()
     old=parent:FindFirstChild("FullHiveStatus"); if old then old:Destroy() end
     local gui=Instance.new("ScreenGui"); gui.Name="FullHiveStatus"; gui.ResetOnSpawn=false; gui.DisplayOrder=10000; gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; gui.Parent=parent
     local make=FeatherTheme.make
-    local frame=make("Frame","StatusPanel",gui,{Size=UDim2.fromOffset(350,350),Position=UDim2.fromOffset(18,80)})
+    local frame=make("Frame","StatusPanel",gui,{Size=UDim2.fromOffset(350,418),Position=UDim2.fromOffset(18,80)})
     FeatherTheme.panel(frame)
     local statusScale=make("UIScale","ResponsiveScale",frame,{Scale=1})
     local function fitStatus()
         local camera=workspace.CurrentCamera
         if camera then
             local size=camera.ViewportSize
-            statusScale.Scale=math.max(0.2,math.min(1,(size.X-36)/350,(size.Y-124)/350))
+            statusScale.Scale=math.max(0.2,math.min(1,(size.X-36)/350,(size.Y-124)/418))
         end
     end
     fitStatus()
@@ -1242,6 +1265,9 @@ local function makeUI()
         env.FullHiveConfig.UseBlenderTickets=Config.UseBlenderTickets
         blenderTicketButton.Text="Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF")
     end)
+    local backgroundText=make("TextLabel","BackgroundStatus",frame,{Position=UDim2.fromOffset(18,302),Size=UDim2.new(1,-36,0,60),
+        BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=10,TextColor3=Color3.fromRGB(167,195,230),
+        TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top,TextWrapped=true})
     local viewButton=Instance.new("TextButton"); viewButton.Name="ViewHiveButton"
     viewButton.Size=UDim2.new(0.5,-23,0,32); viewButton.Position=UDim2.new(0,18,1,-48)
     viewButton.Text="View hive"; viewButton.Parent=frame; FeatherTheme.button(viewButton,true)
@@ -1304,6 +1330,8 @@ local function makeUI()
             end
             setText(progressionText,table.concat(lines,"\n"))
             setText(blenderTicketButton,"Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF"))
+            local bg=Report.Background or{}
+            setText(backgroundText,"Amulets: "..tostring(bg.Amulet or"Inspecting").."\nQuest assist: "..tostring(bg.Quest or"Inspecting"))
             setText(slotsMetric,tostring(Report.Slots or "?").." slots")
             setText(jellyMetric,tostring(Report.RoyalJelly or 0).." jelly")
             setText(refillMetric,tostring(Report.RefillAmount or "-").." / refill")

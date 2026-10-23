@@ -25,6 +25,7 @@ return function(H)
         local d=read(s)
         return d.optionalHiveAllowed==true
     end
+    R.inspect=read
     local function same(a,b)
         for _,k in ipairs({"kind","gear","item","amount","code","x","y","sourceId","packId","tickets","remainingUnits","orderCount","orderStartTime"}) do
             if a[k]~=b[k] then return false end

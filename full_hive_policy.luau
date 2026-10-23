@@ -1,6 +1,6 @@
 -- Pure planner. No Roblox calls; every spending action must revalidate this plan.
 local P = {}
-P.slotCaps = {Ninja=4, Lion=2}
+P.slotCaps = {Ninja=4, Lion=2, Fuzzy=1}
 P.mid = {"Bumble", "Cool", "Looker", "Bomber", "Bubble", "Commander", "Bucko", "Frosty"}
 P.legendary = {"Baby", "Carpenter", "Demon", "Lion", "Diamond", "Music", "Ninja", "Shy"}
 P.singles = {"Basic", "Bumble", "Cool", "Looker", "Bomber", "Bubble", "Commander", "Bucko", "Frosty", "Carpenter", "Demon", "Lion", "Diamond", "Ninja", "Shy"}
@@ -108,8 +108,7 @@ function P.starJellyUpgrade(plan,task)
     return not P.gifted(target) and (target.bee.Type=="Bubble" or target.bee.Type=="Frosty")
 end
 function P.rollItem(cells,eggs,plan,task)
-    if (eggs.StarJelly or 0)>0 and (#P.starJellyMissing(cells)>0
-        or P.starJellyUpgrade(plan,task)) then return "StarJelly" end
+    if (eggs.StarJelly or 0)>0 and #P.starJellyMissing(cells)>0 then return "StarJelly" end
     return "RoyalJelly"
 end
 function P.isCollectorSection(cell)
@@ -156,6 +155,8 @@ end
 -- The task belongs to one coordinate. Candidate sorting never ends a task.
 function P.rollTaskDone(task, cell, cells, types, plan)
     if not cell or not cell.bee then return true, "slot-unavailable" end
+    if cell.bee.Type=="Fuzzy"and P.count(cells,"Fuzzy")>1
+        and not(P.gifted(cell)and P.count(cells,"Fuzzy",true)==1)then return false end
     if (plan.protected or {})[P.key(cell)] then return true, "protected-result" end
     if not task.Rolled then return false end
     local name = cell.bee.Type
@@ -225,6 +226,8 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     return false
 end
 function P.rollTaskSafe(task, cell, cells, types, plan)
+    if task.Rolled and cell and cell.bee and cell.bee.Type=="Fuzzy"and P.count(cells,"Fuzzy")>1
+        and not P.rollTaskDone(task,cell,cells,types,plan)then return true end
     if not cell or not cell.bee or plan.protected[P.key(cell)] then return false end
     local done = P.rollTaskDone(task, cell, cells, types, plan)
     if done then return false end
@@ -233,16 +236,20 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
     -- Fixed goals can consume a planner-selected surplus gifted collector.
     -- Revalidate the original unrolled coordinate, the four reserved force
     -- copies and a reserved gifted copy before bypassing the result shield.
-    if not task.Rolled and task.Reason=="fixed-targets" and plan.reason=="fixed-targets"
+    if task.Reason=="fixed-targets" and plan.reason=="fixed-targets"
         and #(plan.needs or {})>0 and P.key(task)==P.key(cell)
-        and task.InitialFingerprint==name..":"..tostring(P.gifted(cell))
+        and (task.Rolled or task.InitialFingerprint==name..":"..tostring(P.gifted(cell)))
         and P.gifted(cell) and (name=="Bubble" or name=="Frosty")
-        and not plan.keep[P.key(cell)] and P.keptGiftedCount(cells,plan,name)>=1 then
-        local reserved=0
+        and (task.Rolled or not plan.keep[P.key(cell)]) then
+        local reserved,gifted=0,0
         for _,c in ipairs(cells) do
-            if c.bee and c.bee.Type==name and plan.keep[P.key(c)] then reserved+=1 end
+            if P.key(c)~=P.key(cell) and c.bee and c.bee.Type==name
+                and (task.Rolled or plan.keep[P.key(c)]) then
+                reserved+=1
+                if P.gifted(c) then gifted+=1 end
+            end
         end
-        if reserved>=4 then return true end
+        if reserved>=4 and gifted>=1 then return true end
     end
     if P.gifted(cell) and plan.starPrepare and P.count(cells,name,true)>1 then return true end
     if P.gifted(cell) and name=="Fire" and P.count(cells,name,true)>P.keptGiftedCount(cells,plan,name) then return true end
@@ -444,13 +451,14 @@ function P.plan(cells, types, ctx)
         local ranked={}
         for _,c in ipairs(cells) do if c.bee and c.bee.Type==name then ranked[#ranked+1]=c end end
         table.sort(ranked,function(a,b)
+            if name=="Fuzzy"and P.gifted(a)~=P.gifted(b)then return P.gifted(a)end
             local ak,bk=keep[P.key(a)]==true,keep[P.key(b)]==true
             if ak~=bk then return ak end
             return P.key(a)<P.key(b)
         end)
         for i=cap+1,#ranked do
             local c=ranked[i]
-            if not protected[P.key(c)] then keep[P.key(c)]=nil; excess[P.key(c)]=true end
+            if not protected[P.key(c)]or name=="Fuzzy"then keep[P.key(c)],protected[P.key(c)]=nil,nil; excess[P.key(c)]=true end
         end
     end
     local candidates, conversion = {}, {}

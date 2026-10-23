@@ -91,7 +91,7 @@ return function(runtime,Policy,Types)
     spent(0); s.Eggs.RoyalJelly=1; plan(s)
     check(report.RefillAmount==4000 and not ready(s),'After entry exhaustion, base 4k is required')
     s.Eggs.RoyalJelly=4000; plan(s); check(ready(s),'Exact base refill starts next batch')
-    local spending=assert(runtime:match('(local function spend%(cell,item,validate,expectedTask%).-)\nlocal function shopFloor'))
+    local spending=assert(runtime:match('(local function spend%(cell,item,validate,expectedTask%).-)\nshopFloor=function'))
     local makeSpend=assert(loadstring('return function(s,ready)\nlocal env={} -- Fixture state must never resolve an executor global.\n'..
         'local Report={Actions=0,RoyalJellyUsed=0,RollMode="off"}; local Config={MaxActions=100,MaxRoyalJellies=1000,RollDelay=0}; local Events={ConstructHiveCellFromEgg={}}; local target={x=1,y=1,bee={Type="Bubble",Traits={}}}; local calls=0; local function checkStop() end; local function acquire() end; local function move() end; local function near() end; local function hiveFloor() end; local function refresh() return s end; local function plan() return {protected={},temporary={}}, {target} end; local function find() return target end; local jellyBatchReady=ready; local function jellyBatchSpent() end; local function invoke() calls+=1; return s.Eggs.RoyalJelly-1,true,{x1={y1=target.bee}} end; local Cache={Set=function() end}; local Policy={key=function() return "1,1" end}; local task={wait=function() end}\n'..
         spending..'\nreturn function() return spend(target,"RoyalJelly",function() return true end) end,function() return calls end\nend'))()

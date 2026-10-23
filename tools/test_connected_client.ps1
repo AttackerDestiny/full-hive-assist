@@ -16,6 +16,7 @@ $checkFinalBaby=$CheckFinalBabyQuota -or ([version]$versionMatch.Groups[1].Value
 $hasFunds=([version]$versionMatch.Groups[1].Value -ge [version]'1.6.1')
 $hasHatchReceipt=([version]$versionMatch.Groups[1].Value -ge [version]'1.6.5')
 $hasBlenderReceipt=([version]$versionMatch.Groups[1].Value -ge [version]'1.6.6')
+$hasBackground=([version]$versionMatch.Groups[1].Value -ge [version]'1.7.0')
 $hasProgression=([version]$versionMatch.Groups[1].Value -ge [version]'1.6.0')
 $policyTests = Get-Content -LiteralPath (Join-Path $project 'test_full_hive_policy.luau') -Raw
 $recoveryTests = Get-Content -LiteralPath (Join-Path $project 'test_character_recovery.luau') -Raw
@@ -70,6 +71,15 @@ if ($hasBlenderReceipt) {
 }
 $code+='local hasBlenderReceipt='+$hasBlenderReceipt.ToString().ToLowerInvariant()+'; '
 $code += 'local hasProgression='+$hasProgression.ToString().ToLowerInvariant()+'; '
+if ($hasBackground) {
+    $amulets=[regex]::Match($bundle,'local AmuletPolicy = \(function\(\)\n(.*?)\nend\)\(\)\nlocal QuestAssistPolicy',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
+    $quests=[regex]::Match($bundle,'local QuestAssistPolicy = \(function\(\)\n(.*?)\nend\)\(\)\nlocal createBackground',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
+    if (-not $amulets -or -not $quests) { throw 'Cannot locate bundled background policies' }
+    $amuletTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_amulet_policy.luau') -Raw
+    $questTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_quest_assist_policy.luau') -Raw
+    $code+='local amulets=[======['+$amulets+']======];local quests=[======['+$quests+']======];local amuletTests=[======['+$amuletTests+']======];local questTests=[======['+$questTests+']======];'
+}
+$code+='local hasBackground='+$hasBackground.ToString().ToLowerInvariant()+'; '
 $code += @'
 local main,mainError=loadstring(bundle)
 local embedded=assert(bundle:match("local StarEggSource = %[%=%=%=%=%[(.-)%]%=%=%=%=%]"))
@@ -103,13 +113,15 @@ local hatchReceiptOK,hatchReceiptResult=true,{notApplicable=true}
 if hasHatchReceipt then hatchReceiptOK,hatchReceiptResult=pcall(assert(loadstring(hatchReceiptTests))(),assert(loadstring(hatchReceipt))()) end
 local blenderReceiptOK,blenderReceiptResult=true,{notApplicable=true}
 if hasBlenderReceipt then blenderReceiptOK,blenderReceiptResult=pcall(assert(loadstring(blenderReceiptTests))(),assert(loadstring(blenderReceipt))()) end
+local amuletOK,amuletResult,questOK,questResult=true,{notApplicable=true},true,{notApplicable=true}
+if hasBackground then amuletOK,amuletResult=pcall(assert(loadstring(amuletTests))(),assert(loadstring(amulets))());questOK,questResult=pcall(assert(loadstring(questTests))(),assert(loadstring(quests))()) end
 return {allPassed=main~=nil and star~=nil and policyOK and recoveryOK and collectorOK and batchOK and starJellyOK
-    and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK and finalBabyOK and progressionOK and progressionFactsOK and fundsOK and hatchReceiptOK and blenderReceiptOK,
+    and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK and finalBabyOK and progressionOK and progressionFactsOK and fundsOK and hatchReceiptOK and blenderReceiptOK and amuletOK and questOK,
     main=main~=nil,mainError=mainError,embeddedStar=star~=nil,starError=starError,
     policy={ok=policyOK,result=policyResult},recovery={ok=recoveryOK,result=recoveryResult},collector={ok=collectorOK,result=collectorResult},batch={ok=batchOK,result=batchResult},starJelly={ok=starJellyOK,result=starJellyResult},
     starPreflight={ok=starPreflightOK,result=starPreflightResult},starProgress={ok=starProgressOK,result=starProgressResult},
     finalOccupancy={ok=finalOccupancyOK,result=finalOccupancyResult},connectedReview={ok=connectedReviewOK,result=connectedReviewResult},failsafeOnly={ok=failsafeOnlyOK,result=failsafeOnlyResult},finalBaby={ok=finalBabyOK,result=finalBabyResult},
-    progression={ok=progressionOK,result=progressionResult},progressionFacts={ok=progressionFactsOK,result=progressionFactsResult},funds={ok=fundsOK,result=fundsResult},hatchReceipt={ok=hatchReceiptOK,result=hatchReceiptResult},blenderReceipt={ok=blenderReceiptOK,result=blenderReceiptResult}}
+    progression={ok=progressionOK,result=progressionResult},progressionFacts={ok=progressionFactsOK,result=progressionFactsResult},funds={ok=fundsOK,result=fundsResult},hatchReceipt={ok=hatchReceiptOK,result=hatchReceiptResult},blenderReceipt={ok=blenderReceiptOK,result=blenderReceiptResult},amulets={ok=amuletOK,result=amuletResult},questAssist={ok=questOK,result=questResult}}
 '@
 $argsPath = Join-Path ([IO.Path]::GetTempPath()) ('bss-tests-'+[guid]::NewGuid().ToString()+'.json')
 try {

@@ -35,8 +35,8 @@ return function(P,T)
         local plan=P.plan(h,T,ctx(slots,2))
         for _,c in ipairs(h) do
             if T[c.bee.Type].Rarity=="Event" or T[c.bee.Type].Rarity=="Mythic" then
-                check(plan.protected[P.key(c)],"Protected bee released: "..c.bee.Type)
-                check(not plan.target or P.key(c)~=P.key(plan.target),"Protected bee targeted")
+                check((c.bee.Type=="Fuzzy" and not P.gifted(c)) or plan.protected[P.key(c)],"Protected bee released outside explicit Fuzzy cap: "..c.bee.Type)
+                check((c.bee.Type=="Fuzzy" and not P.gifted(c)) or not plan.target or P.key(c)~=P.key(plan.target),"Protected bee targeted outside explicit Fuzzy cap")
             end
         end
     end
@@ -173,7 +173,7 @@ return function(P,T)
         local original=task.InitialFingerprint;task.InitialFingerprint="Brave:false"
         check(not P.rollTaskSafe(task,target,base,T,q),"A changed gifted result cannot use the initial-source exception")
         task.InitialFingerprint=original;task.Rolled=true
-        check(not P.rollTaskSafe(task,target,base,T,q),"Rolled gifted-result keep semantics stay unchanged")
+        check(P.rollTaskSafe(task,target,base,T,q),"An unwanted gifted collector result can continue with four other copies and a gifted failsafe")
         task.Rolled=false;q.protected[P.key(target)]=true
         check(not P.rollTaskSafe(task,target,base,T,q),"Permanent protection still wins over a source lease")
         q.protected[P.key(target)]=nil;q.reason="convert-flexible"
@@ -259,6 +259,25 @@ return function(P,T)
         local q=P.plan(base,T,ctx(41))
         check(P.rollTaskDone(task,base[1],base,T,q),"First gifted failsafe may replace a normal at cap")
         check(q.target and q.target.bee.Type==name and not P.gifted(q.target),"Cap cleanup releases a normal after gifted upgrade")
+    end
+    check(P.slotCaps.Fuzzy==1,"Fuzzy cap is one total slot")
+    for _,slots in ipairs({25,41,44,46,50}) do
+        local base=hive({{"Fuzzy",3},{"Fuzzy",1,true},{"Baby",4},{"Music",4},{"Shy",3}})
+        local q=P.plan(base,T,ctx(slots,2));local kept,gift,safe=0,0,0
+        for _,c in ipairs(base)do if c.bee.Type=="Fuzzy"then
+            if q.keep[P.key(c)]then kept+=1;if P.gifted(c)then gift+=1 end
+            else safe+=1;check(not q.protected[P.key(c)],"Explicit Fuzzy surplus is a Mythic protection exception")end
+        end end
+        check(kept==1 and gift==1 and safe==3,"Keep one gifted Fuzzy and repair only surplus copies")
+    end
+    do
+        local base=hive({{"Hasty",1},{"Fuzzy",1}});local target=base[1]
+        local task=P.startRollTask(target,base,{stage="mid",reason="collector-fallback",mode="off",needs={}});task.Rolled=true
+        target.bee={Type="Fuzzy",Traits={}}
+        local q=P.plan(base,T,ctx(41))
+        check(not P.rollTaskDone(task,target,base,T,q)and P.rollTaskSafe(task,target,base,T,q),"Over-cap Fuzzy outcome cannot finish the active repair")
+        target.bee={Type="Fuzzy",Traits={"Gifted"}};q=P.plan(base,T,ctx(41))
+        check(P.rollTaskDone(task,target,base,T,q),"First gifted Fuzzy is retained while normal surplus becomes cleanup")
     end
     return {passed=checked}
 end

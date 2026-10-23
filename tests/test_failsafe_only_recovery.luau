@@ -30,7 +30,7 @@ return function(P,T,runtime)
         local cells,target=fixture()
         local plan=P.plan(cells,T,ctx({preserveUniqueGifted=oldOverride}))
         check(#cells==43,"Fixture matches the observed 43 occupied bees")
-        check(not plan.keep[P.key(target)] and plan.target==target,"Gifted Hasty remains a repair target despite historical diversity override")
+        check(not plan.keep[P.key(target)] and table.find(plan.fallbackCandidates,target),"Gifted Hasty remains a repair candidate despite historical diversity override")
         check(plan.collectorFallback and plan.mode=="off" and plan.reason=="collector-fallback","Normal recovery uses single collector rolls")
         check(P.refillFor(43,plan.collectorFallback)==100,"Recovery threshold is 100, not the normal 2000")
         check(P.count(cells,"Ninja")==4 and P.count(cells,"Lion")==2,"Caps remain totals, not new goals")
@@ -75,8 +75,8 @@ return function(P,T,runtime)
     local stats={Honey=794000000,UnlockedCells=43,Honeycomb=comb,Eggs={RoyalJelly=89,StarJelly=0},
         Totals={Purchases={HiveSlots=18,Eggs={RoyalJelly=75}},EggUses={Star=1}}}
     local plan,report,state,ready=make(P,T,{},stats)
-    check(report.RefillAmount==100 and report.NormalRefillAmount==2000 and report.SafeNonCollector==1,
-        "Actual runtime planner exposes one wrong gifted Hasty and 100 recovery")
+    check(report.RefillAmount==100 and report.NormalRefillAmount==2000 and report.SafeNonCollector==2,
+        "Runtime repairs gifted Hasty and the newly capped surplus Fuzzy with100 recovery")
     check(not ready(stats) and state.FullHiveJellyBatch==nil,"Saved 89 jelly cannot be seeded into admission")
     check(P.jellyCost(75,report.RefillAmount-stats.Eggs.RoyalJelly)==11000000,"Recovery top-up buys only the missing 11")
     stats.Eggs.RoyalJelly=100

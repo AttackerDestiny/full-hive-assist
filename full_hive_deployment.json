@@ -1031,17 +1031,17 @@
     "validationLimit": "Natural gear purchase/craft paths are partially observed; current Blender queues are intentionally waiting and no ticket toggle was enabled"
   },
   "currentRelease": {
-    "version": "1.6.7",
+    "version": "1.7.2",
     "bundle": "auto_full_hive_assist.luau",
-    "sha256": "8a6ae5118807b804fe6e9bb23eb7c1caffdfb12bcdfe702d17214b900bf33c9a",
-    "bytes": 256794,
-    "releasePath": "releases/v1.6.7/auto_full_hive_assist.luau",
+    "sha256": "5398f6637c8651490072451a71ca94f1a0dde5f95595256fb12dabfdb1c52af6",
+    "bytes": 284214,
+    "releasePath": "releases/v1.7.2/auto_full_hive_assist.luau",
     "deployed": true,
     "liveRuntimeVersions": {
-      "RileyCosmicguppydude": "1.6.7",
-      "Luneri427": "1.6.7"
+      "RileyCosmicguppydude": "1.7.2",
+      "Luneri427": "1.7.2"
     },
-    "liveState": "Both were post-start verified on v1.6.7; latest MCP discovery returned no clients, so no crash/reconnect inferred"
+    "liveState": "Both healthy, matchingUI, Atlas resumed; Star/Moon targets and MagicBean quest verified; Fuzzy cap1 on both"
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -1926,5 +1926,213 @@
     ],
     "validationLimit": "The supported runner passed3421 checks locally and on both connected executors before deployment. Natural post-fix Luneri state continued collector recovery without the force-slot error; Riley started normally. The latest list-clients call then returned no clients, which is not evidence of a crash. No reconnect or real retry was performed.",
     "automationChanged": false
+  },
+  "latestAmuletQuestExpansion": {
+    "version": "1.7.2",
+    "verifiedUtc": "2026-10-23T02:10:54.454326+00:00",
+    "bundle": "auto_full_hive_assist.luau",
+    "sha256": "5398f6637c8651490072451a71ca94f1a0dde5f95595256fb12dabfdb1c52af6",
+    "bytes": 284214,
+    "placeId": 1537690962,
+    "jobId": "c0345f98-4982-4e49-b013-707668d06846",
+    "checksLocal": 3490,
+    "checksPerExecutor": 3490,
+    "suites": {
+      "policy": 796,
+      "character": 91,
+      "collector": 896,
+      "batch": 325,
+      "starJelly": 543,
+      "starPreflight": 220,
+      "starProgress": 17,
+      "finalOccupancy": 10,
+      "connectedReview": 82,
+      "failsafeOnlyRecovery": 38,
+      "finalBabyQuota": 60,
+      "progression": 196,
+      "progressionFacts": 45,
+      "funds": 17,
+      "hatchReceipt": 31,
+      "blenderReceipt": 31,
+      "amulets": 45,
+      "questAssist": 47
+    },
+    "mainCompiled": true,
+    "embeddedCompiled": true,
+    "staticMarkers": 41,
+    "humanOverrides": {
+      "noAgentsForAnyTask": true,
+      "fuzzyTotalCap": 1,
+      "ninjaTotalCap": 4,
+      "lionTotalCap": 2,
+      "starJellyOnlyForMissingEight": [
+        "Bomber",
+        "Cool",
+        "Bumble",
+        "Looker",
+        "Bubble",
+        "Commander",
+        "Bucko",
+        "Frosty"
+      ],
+      "antSameTierPriority": [
+        "Blue Pollen",
+        "Critical Chance",
+        "Critical Power",
+        "Convert Rate"
+      ],
+      "silverGoldAntRequireEitherCrit": true,
+      "spendingPriority": [
+        "Gear",
+        "Star Amulet",
+        "Optional hive rolls"
+      ],
+      "questConsumablesDuringSavings": true,
+      "supremeStar10BOnly": true
+    },
+    "previousLiveFailure": {
+      "version": "1.6.7",
+      "error": ":4185: Active roll slot became a force slot; stopped before switching",
+      "bothAccountsStopped": true,
+      "pendingMutation": false,
+      "uncertainReceipt": false,
+      "rolledTaskResults": {
+        "RileyCosmicguppydude": "Gifted Frosty",
+        "Luneri427": "Gifted Bubble"
+      },
+      "diagnosis": "The old source exception allowed an unrolled surplus collector, but its post-result shield rejected an unwanted gifted collector after Rolled=true. The corrected guard preserves the exact coordinate and requires four OTHER collectors and another gifted copy."
+    },
+    "generatorReceipt": {
+      "requiresToyUseIncrement": true,
+      "requiresNewExactTypeOffer": true,
+      "supreme500BPrompt": "Only the exact verified No-button callback is invoked",
+      "counterAloneInsufficient": true
+    },
+    "accounts": [
+      {
+        "account": "RileyCosmicguppydude",
+        "clientId": "ecf53722-a449-4adb-a22d-3dce49c14167",
+        "executor": "Arceus X",
+        "version": "1.7.2",
+        "uiVersion": "v1.7.2",
+        "startedAt": 1792721064,
+        "running": true,
+        "stop": false,
+        "phase": "waiting",
+        "activity": "Waiting for at least4000RoyalJelly",
+        "atlasStopped": false,
+        "error": null,
+        "cleanupError": null,
+        "uncertainReceipt": false,
+        "pendingMutation": false,
+        "pendingReadOnly": "RetrievePlayerStats transient left unchanged",
+        "actionsSinceStart": 94,
+        "royalJellyUsedSinceStart": 6458,
+        "royalJelly": 67,
+        "starJelly": 2,
+        "fuzzyCount": 1,
+        "fuzzyBefore": 4,
+        "giftedTypesDiscovered": 32,
+        "starAmulet": {
+          "tier": "Diamond",
+          "capacity": 2,
+          "bluePollen": 0.38,
+          "pollen": 0.09
+        },
+        "moonAmulet": {
+          "capacity": 250000,
+          "honeyPerPollen": 0.06,
+          "whitePollen": 0.34
+        },
+        "starGoalComplete": true,
+        "moonGoalComplete": true,
+        "magicBeanQuest": {
+          "name": "Nature's Lessons",
+          "before": 0,
+          "after": 1,
+          "goal": 1,
+          "inventoryBefore": 68,
+          "inventoryAfter": 67,
+          "fieldAtEligibility": "Pine Tree Forest",
+          "itemReadyBefore": true,
+          "explicitManualRequestFired": false,
+          "assistExecutedOneUse": true
+        },
+        "requestedActiveQuestObjectivesRemaining": 0
+      },
+      {
+        "account": "Luneri427",
+        "clientId": "9812722d-e34a-44c6-924d-02c0de835cfe",
+        "executor": "Arceus X",
+        "version": "1.7.2",
+        "uiVersion": "v1.7.2",
+        "startedAt": 1792721062,
+        "running": true,
+        "stop": false,
+        "phase": "waiting",
+        "activity": "Waiting for at least4000RoyalJelly",
+        "atlasStopped": false,
+        "error": null,
+        "cleanupError": null,
+        "uncertainReceipt": false,
+        "pendingMutation": false,
+        "royalJelly": 40,
+        "starJelly": 0,
+        "fuzzyCount": 1,
+        "fuzzyBefore": 2,
+        "giftedTypesDiscovered": 29,
+        "starAmulet": {
+          "tier": "Gold",
+          "capacity": 1.75,
+          "bluePollen": 0.34,
+          "pollen": 0.09
+        },
+        "moonAmulet": {
+          "capacity": 250000,
+          "honeyPerPollen": 0.06,
+          "bondFromTreats": 0.06
+        },
+        "starGoalComplete": true,
+        "moonGoalComplete": true,
+        "moonGeneratorUsesStoppedAt": 36,
+        "requestedActiveQuestObjectivesRemaining": 0
+      }
+    ],
+    "deployment": {
+      "v170StartedAtBoth": 1792719852,
+      "v171StartedAt": {
+        "RileyCosmicguppydude": 1792720508,
+        "Luneri427": 1792720598
+      },
+      "v172StartedAt": {
+        "RileyCosmicguppydude": 1792721064,
+        "Luneri427": 1792721062
+      },
+      "executeCountV172PerAccount": 1,
+      "maintenanceRunningFalseObserved": true,
+      "startupDelayObserved": true,
+      "atlasReloaded": false,
+      "activeTasksAndBatchesPreserved": true,
+      "pendingOrUncertainFlagsCleared": false,
+      "savedLeftoversSeeded": false
+    },
+    "sourceEvidence": [
+      "ReplicatedStorage.Amulets.GetTypeDef",
+      "ReplicatedStorage.Gui.RewardsPopUp",
+      "ReplicatedStorage.Gui.QuestionBox",
+      "ReplicatedStorage.Quests.GetProgression",
+      "ReplicatedStorage.PlayerActives",
+      "ReplicatedStorage.Activatables.Toys",
+      "Workspace.Toys generator costs/requirements/platforms/ServerEffect"
+    ],
+    "communityReference": "Supplied Ant wiki fetch failedHTTP403; current connected game definitions were used instead",
+    "limits": "Natural Star/Moon generation and choices, generation stopping, Fuzzy cleanup, Royal Jelly continuation and one active MagicBean objective were observed. Ant/KingBeetle offers,500B prompt and every other quest path have pure/source coverage; no RNG/quest outcome or optional purchase was forced for testing. Historical rejected transport fixtures remain excluded.",
+    "automation": {
+      "existingId": "full-hive-assist-monitor",
+      "statusPreserved": "PAUSED",
+      "cadenceMinutesPreserved": 30,
+      "targetPreserved": true,
+      "promptUpdatedForNoAgentsAndLatestRules": true
+    }
   }
 }

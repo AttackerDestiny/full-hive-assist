@@ -262,7 +262,7 @@ return function(P,T,runtime)
             local state={FullHiveRollTask=task}
             q,report=make(P,T,state,snapshot)
             check(not q.collectorFallback and q.reason=="convert-flexible","Star Jelly prevents intermediate upgrade result from entering recovery")
-            check(q.target.x==target.x and q.target.y==target.y and report.StarJellyUpgrade,"Star Jelly upgrade keeps original coordinate")
+            check(q.target.x==target.x and q.target.y==target.y and not report.StarJellyUpgrade and #report.StarJellyMissing>0,"Missing failsafes keep the Star Jelly-funded coordinate without optional upgrade admission")
             snapshot.Eggs.StarJelly=0
             q,report=make(P,T,state,snapshot)
             check(q.collectorFallback,"Exhausted Star Jelly with no funded Royal Jelly permits existing repair")
