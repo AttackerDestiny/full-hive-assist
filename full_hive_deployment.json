@@ -1031,17 +1031,17 @@
     "validationLimit": "Natural gear purchase/craft paths are partially observed; current Blender queues are intentionally waiting and no ticket toggle was enabled"
   },
   "currentRelease": {
-    "version": "1.7.7",
+    "version": "1.7.8",
     "bundle": "auto_full_hive_assist.luau",
-    "sha256": "55a720f05e9db6a30e4ec0b9637b5b82a6f7d52b7ecbd1303589e46a3ee6f9a6",
-    "bytes": 301133,
-    "releasePath": "releases/v1.7.7/auto_full_hive_assist.luau",
+    "sha256": "6c09024e146fda7ca317e259e9f90f05f2fb43777ef78f6b1cb7db679e425d6f",
+    "bytes": 301651,
+    "releasePath": "releases/v1.7.8/auto_full_hive_assist.luau",
     "deployed": true,
     "liveRuntimeVersions": {
-      "Luneri427": "1.7.7",
+      "Luneri427": "1.7.8",
       "RileyCosmicguppydude": null
     },
-    "liveState": "Luneri1.7.7 startup/UI/wait/Atlas verified. Riley unavailable, not tested/upgraded; historical Riley1.7.6 evidence is not a current verification."
+    "liveState": "Luneri running with matching UI, Atlas resumed and no errors. Fire eligibility verified by read-only planner over actual hive; cleanup deferred by ticket funding. Riley unavailable/untouched."
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -2625,6 +2625,101 @@
       "cadenceMinutesPreserved": 30,
       "targetPreserved": true,
       "latestRulesSaved": true
+    }
+  },
+  "latestFirePlaceholderRetirement": {
+    "version": "1.7.8",
+    "verifiedUtc": "2026-10-23T10:14:54.296717+00:00",
+    "sha256": "6c09024e146fda7ca317e259e9f90f05f2fb43777ef78f6b1cb7db679e425d6f",
+    "bytes": 301651,
+    "humanRule": {
+      "quest": "Star Journey 2",
+      "objective": "Collect Tokens",
+      "tag": "Red Boost",
+      "goal": 5000,
+      "retireWholeShyFirePlaceholderGroup": true,
+      "ordinaryKeepOneGiftedShy": true,
+      "normalAndGiftedFireSafeAfterCompletion": true,
+      "priorRulesUntilVerifiedCompletion": true,
+      "soleGiftedFireStarPrerequisitePreserved": true,
+      "resourcePriorityUnchanged": true
+    },
+    "readOnlyLivePlan": {
+      "account": "Luneri427",
+      "completedQuestHistoryVerified": true,
+      "fireCellsSafe": [
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          3
+        ]
+      ],
+      "giftedShyKept": [
+        2,
+        7
+      ],
+      "nextEligibleTarget": [
+        3,
+        2
+      ],
+      "noSpendSent": true
+    },
+    "validation": {
+      "offlineChecks": 4022,
+      "luneriConnectedIsolatedChecks": 4022,
+      "addedPolicyChecks": 75,
+      "policyChecks": 1100,
+      "mainCompiled": true,
+      "embeddedCompiled": true,
+      "markers": 41,
+      "blockedTransportFixturesExcluded": true,
+      "rileyTested": false
+    },
+    "account": {
+      "name": "Luneri427",
+      "userId": 11780133534,
+      "clientId": "c3540fc2-bfdd-4616-b810-27029f273757",
+      "jobId": "42d1c71b-ec7b-419e-a1a6-5e652092441d",
+      "placeId": 1537690962,
+      "executor": "Arceus X",
+      "version": "1.7.8",
+      "uiVersion": "v1.7.8",
+      "startedAt": 1792750333,
+      "running": true,
+      "stop": false,
+      "phase": "waiting",
+      "activity": "saving-diamond-tickets",
+      "error": null,
+      "cleanupError": null,
+      "pending": false,
+      "uncertainReceipt": false,
+      "atlasStopped": false,
+      "actions": 0,
+      "royalJellyUsed": 0,
+      "royalJelly": 86,
+      "starJelly": 1,
+      "honey": 8285216161,
+      "ticketDeficit": 303,
+      "ticketFundingHoney": 18615693000
+    },
+    "deployment": {
+      "runningFalseObservedBeforeReplacement": true,
+      "executeCount": 1,
+      "startupDelayObserved": true,
+      "atlasReloaded": false,
+      "pendingCleared": false,
+      "leftoversSeeded": false,
+      "rileyActions": 0
+    },
+    "limits": "Actual hive planner preview and startup/wait/Atlas state verified. Physical Fire replacement remains deferred by higher-priority ticket funding; no manual roll or keep override was used. New retired-result/Star Fire cases have isolated coverage.",
+    "automation": {
+      "statusPreserved": "PAUSED",
+      "cadenceMinutesPreserved": 30,
+      "targetPreserved": true,
+      "newOverrideSaved": true
     }
   }
 }

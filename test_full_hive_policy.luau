@@ -346,9 +346,9 @@ return function(P,T)
         local context=ctx(44);context.jelly=0;context.honey=600000000;context.collectorFallback=true
         context.questRetired={Ninja=true,Shy=true}
         local q=P.plan(base,T,context)
-        check(q.keep[P.key(target)]and q.collectorFallback,"Live Fire result is useful when retiring normal Shy leaves a red placeholder vacancy")
-        check(P.rollTaskDone(task,target,base,T,q),"Exhausted fixed task accepts an existing useful placeholder during repair transition")
-        check(not P.rollTaskSafe(task,target,base,T,q),"Accepted Fire is preserved instead of throwing a force-slot error")
+        check(not q.keep[P.key(target)]and q.collectorFallback,"Completed RedBoost objective also retires the Fire placeholder")
+        check(not P.rollTaskDone(task,target,base,T,q),"An exhausted fixed task cannot accept retired Fire")
+        check(P.rollTaskSafe(task,target,base,T,q),"Retired Fire continues safely on the same coordinate")
         target.bee={Type="Hasty",Traits={}}
         q=P.plan(base,T,context)
         check(not P.rollTaskDone(task,target,base,T,q)and P.rollTaskSafe(task,target,base,T,q),"Unlisted outcomes still continue the same repair coordinate")
@@ -368,6 +368,48 @@ return function(P,T)
         check(P.rollTaskSafe(task,spicy,base,T,q),"Authorized Mythic coordinate passes the actual last-moment task guard")
         context.starReleased=nil;q=P.plan(base,T,context)
         check(not P.rollTaskSafe(task,spicy,base,T,q),"Lost pressure authorization restores the permanent guard")
+    end
+    for _,slots in ipairs({25,35,41,43,44,46,50})do
+        local base=hive({{"Fire",2},{"Fire",2,true},{"Shy",1,true},{"Shy",2},{"Baby",4},{"Music",4},{"Bubble",4},{"Frosty",4}})
+        local context=ctx(slots,2);context.questRetired={Shy=true}
+        local q=P.plan(base,T,context)
+        local shy=0;local fire=0
+        for _,c in ipairs(base)do
+            if c.bee.Type=="Fire"then
+                check(not q.keep[P.key(c)]and not q.protected[P.key(c)],"Every retired normal/gifted Fire is safe at "..slots)
+                fire+=1
+            elseif c.bee.Type=="Shy"and q.keep[P.key(c)]then shy+=1;check(P.gifted(c),"Only gifted Shy is retained")end
+        end
+        check(fire==4 and shy==1,"Red group collapses to exactly one gifted Shy after completion")
+        if slots<46 then check(q.target and q.target.bee.Type=="Fire","Retired Fire cleanup precedes flexible collector conversions")end
+        context.collectorFallback=true;context.honey=0;q=P.plan(base,T,context)
+        if slots>=35 then check(q.collectorFallback,"Retired Fire qualifies for genuine100-jelly repair")end
+    end
+    for _,gift in ipairs({false,true})do
+        for _,reason in ipairs({"collector-fallback","gifted-collector-fallback","fixed-targets","convert-flexible"})do
+            local base=hive({{"Hasty",1},{"Shy",1,true}});local target=base[1]
+            local task=P.startRollTask(target,base,{stage="mid",reason=reason,mode="off",needs={{name="Fire",amount=1,gifted=gift}}})
+            task.Rolled=true;target.bee={Type="Fire",Traits=gift and{"Gifted"}or{}}
+            local context=ctx(41);context.questRetired={Shy=true};local q=P.plan(base,T,context)
+            check(not P.rollTaskDone(task,target,base,T,q),"Retired Fire cannot satisfy even an old Fire task goal")
+            check(P.rollTaskSafe(task,target,base,T,q),"Retired Fire remains on its active roll coordinate")
+        end
+    end
+    do
+        local base=hive({{"Fire",2},{"Shy",1,true},{"Baby",4},{"Music",4},{"Bubble",4},{"Frosty",4},{"Brave",1}})
+        for _,retired in ipairs({{}, {Ninja=true}, {Shy=false}})do
+            local context=ctx(41);context.questRetired=retired;local q=P.plan(base,T,context)
+            check(q.keep[P.key(base[1])]and q.keep[P.key(base[2])],"Before RedBoost completion, three-slot red placeholders are unchanged")
+        end
+        local context=ctx(44);context.questRetired={Shy=true};context.starPrepare=true
+        local q=P.plan(base,T,context);local needed=false
+        for _,need in ipairs(q.needs)do if need.name=="Fire"and need.gifted then needed=true end end
+        check(needed,"Actual Star Egg preparation still needs Gifted Fire")
+        local task=P.startRollTask(base[1],base,q);task.Rolled=true
+        base[1].bee={Type="Fire",Traits={"Gifted"}};q=P.plan(base,T,context)
+        check(P.rollTaskDone(task,base[1],base,T,q)and not P.rollTaskSafe(task,base[1],base,T,q),"Sole needed Gifted Fire remains a Star prerequisite")
+        base[2].bee={Type="Fire",Traits={"Gifted"}};q=P.plan(base,T,context)
+        check(not P.rollTaskDone(task,base[2],base,T,q)and P.rollTaskSafe(task,base[2],base,T,q),"Extra Gifted Fire never consumes another Star prerequisite slot")
     end
     return {passed=checked}
 end

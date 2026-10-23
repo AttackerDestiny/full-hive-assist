@@ -168,6 +168,8 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     if not task.Rolled then return false end
     local name = cell.bee.Type
     local gifted = P.gifted(cell)
+    if name=="Fire"and(plan.questRetired or{}).Shy
+        and not(plan.starPrepare and gifted and P.count(cells,name,true)==1 and plan.keep[P.key(cell)])then return false end
     -- Completed token objectives retire every normal copy and all duplicate
     -- gifted copies. Stale task goals cannot turn them back into keeps.
     if(plan.questRetired or{})[name]and(not gifted or P.count(cells,name,true)>1)then return false end
@@ -244,6 +246,9 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
     local done = P.rollTaskDone(task, cell, cells, types, plan)
     if done then return false end
     local name = cell.bee.Type
+    if name=="Fire"and(plan.questRetired or{}).Shy then
+        return not(plan.starPrepare and P.gifted(cell)and P.count(cells,name,true)==1 and plan.keep[P.key(cell)])
+    end
     if(plan.questRetired or{})[name]then return not P.gifted(cell)or P.count(cells,name,true)>1 end
     local limit = P.giftedLimit(name, plan.stage, plan.babyGoal)
     -- Fixed goals can consume a planner-selected surplus gifted collector.
@@ -405,7 +410,7 @@ function P.plan(cells, types, ctx)
                 for _, c in ipairs(cells) do
                     local exactDuplicate = pass and P.exactGifted[name] and P.count(cells, name, true) >= 1
                     if red < 3 and c.bee and c.bee.Type == name and P.gifted(c) == pass
-                        and not(name=="Shy"and questRetired.Shy)
+                        and not questRetired.Shy
                         and not keep[P.key(c)] and not exactDuplicate then
                         keep[P.key(c)], red = true, red + 1
                     end
@@ -467,6 +472,11 @@ function P.plan(cells, types, ctx)
         end
     end
     local excess = {}
+    if questRetired.Shy then
+        for _,c in ipairs(cells)do
+            if c.bee and c.bee.Type=="Fire"and not keep[P.key(c)]then excess[P.key(c)]=true end
+        end
+    end
     for name,cap in pairs(slotCaps) do
         local ranked={}
         for _,c in ipairs(cells) do if c.bee and c.bee.Type==name then ranked[#ranked+1]=c end end

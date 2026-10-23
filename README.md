@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.7.8:** Completing Star Journey2's5000RedBoost objective now retires the Fire placeholders as well as normal Shy. Ordinary planning retains only one gifted Shy from that group. A sole gifted Fire remains required during actual Star Egg preparation. Cleanup follows the existing resource priorities.
+
 **v1.7.7:** Adds the authorized fallback for Star preparation blocked by Mythics: keep one Fuzzy and reduce Tadpole/Buoyant only when needed, preserving two each where possible and at least one each. Other Mythics give way first; Events and prerequisite gifted bees stay protected. Also funds missing Diamond Eggs with honey through actual fixed ticket packs, followed by the Ticket Tent's one-egg option.
 
 **v1.7.6:** Includes the40% Star requirement and quest-dependent Ninja/Shy retirement. Also fixes the observed exhausted-batch transition where an existing useful Fire placeholder was rejected after normal Shy reservations retired.
