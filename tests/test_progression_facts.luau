@@ -25,6 +25,7 @@ return function(factory,Policy)
                 and s.Totals.Purchases.Eggs[pack.Type] then return nil end
             if pack.Category=="HiveSlot" then return {Category="Honey",Amount=3000000} end
             if pack.Type=="Diamond" then return {Category="Eggs",Type="Ticket",Amount=400} end
+            if pack.Type=="Ticket"then return {Category="Honey",Amount=Policy.ticketCost(s.Totals.Purchases.Eggs.Ticket or 0,pack.Amount)}end
             if pack.Type=="Gumdrops" then return {Category="Eggs",Type="Ticket",Amount=pack.Amount/3} end
             return {Category="Honey",Amount=pack.Type=="RoyalJelly" and pack.Amount*1000000 or 100}
         end
@@ -44,7 +45,7 @@ return function(factory,Policy)
         local shops=node("Shops","Folder",{shop("GearShop",top),shop("EggDispenser",{item("Basic","Eggs")}),
             shop("JellyDispenser",{item("RoyalJelly","Eggs",1),item("RoyalJelly","Eggs",10)}),
             shop("GumdropDispenser",{item("Gumdrops","Eggs",3),item("Gumdrops","Eggs",30),item("Gumdrops","Eggs",300)}),
-            shop("TicketShop",{item("Diamond","Eggs")})})
+            shop("TicketShop",{item("Diamond","Eggs")}),shop("TicketDispenser",{item("Ticket","Eggs",1),item("Ticket","Eggs",10),item("Ticket","Eggs",100)})})
         local defs={Oil={Time=300,AutoCompletePerTicket=1,Ingredients={{Category="Eggs",Type="SunflowerSeed",Amount=50},{Category="Eggs",Type="RoyalJelly",Amount=10}},Requirements={}}}
         local cells=node("Cells","Folder",{})
         local deps={Policy=Policy,Packages=packages,Recipes={Get=function(id) return defs[id] end},
@@ -90,6 +91,8 @@ return function(factory,Policy)
         check(f.occupied==0 and f.capacity==25 and f.craft==false,"Sparse starter facts stay distinct from capacity")
         check(c.basicEgg.cost.Honey==100 and c.hiveSlot.cost.Honey==3000000,"Verified shop package costs normalize")
         check(c.purchases.Diamond.cost.Ticket==400,"Diamond price comes from package metadata")
+        check(#c.packs.Ticket==3 and c.ticketPurchased==0,"Only observed fixed ticket options and actual purchase counters are emitted")
+        check(c.packs.Ticket[1].shop.Name=="TicketDispenser"and c.packs.Ticket[1].cost.Honey==100000,"Ticket pack binds its physical vendor and current cost")
         check(c.basicEgg.part~=nil,"Shop movement uses a verified vendor floor or terrain part")
         check(#c.packs.Gumdrops==3 and #c.packs.RoyalJelly==2,"Only physical fixed pack options are emitted")
         check(c.recipes.Oil.ingredients.RoyalJelly==10 and c.recipes.Oil.time==300,"Verified recipe ingredients and time normalize")

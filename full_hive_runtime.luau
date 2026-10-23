@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.7.6"
+local SCRIPT_VERSION = "1.7.7"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -167,6 +167,11 @@ local function invokeRequest(remote, receiptBefore, ...)
         elseif remote.Name=="ItemPackageEvent" and type(args[2])=="table" then
             request.Item,request.Amount=args[2].Type,args[2].Amount
             request.Category=args[2].Category
+            if request.Category=="Eggs"and request.Item=="Ticket"then
+                local before=Cache:Get()
+                request.TicketBefore={Honey=before.Honey,Inventory=before.Eggs.Ticket or 0,
+                    Purchased=((((before.Totals or{}).Purchases or{}).Eggs or{}).Ticket or 0)}
+            end
         elseif remote.Name=="BlenderCommand" then
             request.Kind=args[1]
             local order=type(args[2])=="table" and args[2] or (Cache:Get().BlenderState or {})
@@ -544,6 +549,21 @@ local function plan(s)
     local cells,slots=scan(s)
     local ctx=context(s,slots)
     local p=Policy.plan(cells,Types,ctx)
+    -- The exception activates only when the actual Star handoff is funded,
+    -- has a verified egg budget and still has a missing gifted Mythic outcome.
+    local starEligible=slots>=44 and ctx.starUsed<2 and(s.Eggs.Star or 0)>0
+        and(s.Honey or 0)>=(Config.StarEggHoney or 100000000000)
+    local starCoverage=starEligible and StarState.coverage(cells,Types)
+    if starEligible and StarState.budget(s,2)>0 and #starCoverage.missingMythics>0
+        and Policy.count(cells,"Basic",true)>0 then
+        ctx.starPrepare=true
+        p=Policy.plan(cells,Types,ctx)
+        local safe={};for _,c in ipairs(p.candidates)do safe[Policy.key(c)]=true end
+        local space=StarState.slotPressure(cells,Types,safe,#starCoverage.missing+1)
+        ctx.starReleased=space.shortfall==0 and space.released or{}
+        p=Policy.plan(cells,Types,ctx)
+        Report.StarSlotPressure={Needed=space.needed,Shortfall=space.shortfall,Released=space.released}
+    else Report.StarSlotPressure=nil end
     if ctx.collectorFallback and #p.fallbackCandidates==0 then
         ctx.collectorFallback=false
         p=Policy.plan(cells,Types,ctx)
@@ -1338,13 +1358,14 @@ local function makeUI()
                 end
             end
             if #counts>0 then lines[#lines+1]=table.concat(counts,", ") end
-            if pg.FundsRequired and pg.MissingRJ then
+            if pg.FundsRequired and(pg.MissingRJ or pg.RequiredTickets)then
                 local function money(n)
                     if n>=1000000000 then return string.format("%.2fB",n/1000000000) end
                     if n>=1000000 then return string.format("%.1fM",n/1000000) end
                     return tostring(math.floor(n))
                 end
-                lines[#lines+1]="Need "..pg.MissingRJ.." jelly | Honey "..money(pg.Honey or 0).."/"..money(pg.FundsRequired)
+                local missing=pg.RequiredTickets and(pg.RequiredTickets.." tickets")or(pg.MissingRJ.." jelly")
+                lines[#lines+1]="Need "..missing.." | Honey "..money(pg.Honey or 0).."/"..money(pg.FundsRequired)
             end
             local blender=Report.Blender
             if blender and blender.Recipe then

@@ -42,6 +42,44 @@ function Progress.budget(stats,limit)
     if remaining==0 then return 0,"two-recorded-uses" end
     return math.min(remaining,inventory,math.max(0,limit or 2))
 end
+-- Narrow user-authorized exception for a blocked, funded Star Egg workflow.
+-- Return only the extra coordinates needed; never release an Event, the sole
+-- Fuzzy, or the last Tadpole/Buoyant. Prefer normal copies before gifted.
+function Progress.slotPressure(cells,types,safe,requiredSlots)
+    assert(integer(requiredSlots),"Invalid Star preparation slot demand")
+    local released,groups,available={},{},0
+    for _,c in ipairs(cells)do
+        local k=c.x..","..c.y
+        if safe[k]then available+=1 end
+        if c.bee and types[c.bee.Type].Rarity=="Mythic"then
+            local name=c.bee.Type;groups[name]=groups[name]or{};groups[name][#groups[name]+1]=c
+        end
+    end
+    local shortage=math.max(0,requiredSlots-available)
+    local original=shortage
+    local function gifted(c)return table.find(c.bee.Traits or{},"Gifted")~=nil end
+    for _,list in pairs(groups)do table.sort(list,function(a,b)
+        if gifted(a)~=gifted(b)then return gifted(a)end
+        if a.y~=b.y then return a.y<b.y end;return a.x<b.x
+    end)end
+    local function release(c)
+        local k=c.x..","..c.y
+        if shortage>0 and not safe[k]and not released[k]then released[k]=true;shortage-=1 end
+    end
+    -- Other Mythics give way first, including extra Fuzzy after its first copy.
+    local names={};for name in pairs(groups)do if name~="Tadpole"and name~="Buoyant"then names[#names+1]=name end end
+    table.sort(names)
+    for _,name in ipairs(names)do local list=groups[name]
+        for i=#list,name=="Fuzzy"and 2 or 1,-1 do release(list[i])end
+    end
+    -- Keep two each when that is enough; only then release a second copy.
+    for _,minimum in ipairs({2,1})do
+        for _,name in ipairs({"Tadpole","Buoyant"})do local list=groups[name]or{}
+            for i=#list,minimum+1,-1 do release(list[i])end
+        end
+    end
+    return {released=released,required=requiredSlots,safe=available,shortfall=shortage,needed=original}
+end
 function Progress.read(stats)
     local completed = stats.Quests and stats.Quests.Completed
     if type(completed) ~= "table" then return {known=false, ready=false} end

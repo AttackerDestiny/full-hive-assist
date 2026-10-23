@@ -484,6 +484,13 @@ function P.plan(cells, types, ctx)
             for _,c in ipairs(ranked)do if not keep[P.key(c)]then excess[P.key(c)]=true end end
         end
     end
+    -- Only the host's freshly funded Star workflow may authorize this narrow
+    -- Mythic exception. Never release other rarities through this map.
+    for _,c in ipairs(cells)do
+        if(ctx.starReleased or{})[P.key(c)]and c.bee and types[c.bee.Type].Rarity=="Mythic"then
+            keep[P.key(c)],protected[P.key(c)]=nil,nil
+        end
+    end
     local candidates, conversion = {}, {}
     for _, c in ipairs(cells) do
         if c.bee and not keep[P.key(c)] then candidates[#candidates+1] = c end
@@ -497,6 +504,8 @@ function P.plan(cells, types, ctx)
         return 4
     end
     table.sort(candidates, function(a,b)
+        local ar,br=(ctx.starReleased or{})[P.key(a)]==true,(ctx.starReleased or{})[P.key(b)]==true
+        if ar~=br then return not ar end -- Existing safe slots before Mythic exceptions.
         local ae,be=excess[P.key(a)]==true,excess[P.key(b)]==true
         if ae~=be then return ae end
         if priority(a) ~= priority(b) then return priority(a) < priority(b) end

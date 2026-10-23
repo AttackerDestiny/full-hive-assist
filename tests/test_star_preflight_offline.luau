@@ -111,5 +111,47 @@ return function(source, types)
         "Host Royal Jelly admission hook remains present")
     check(itemBody:find("env.FullHiveJellySpent(remaining)", 1, true) ~= nil,
         "Host Royal Jelly consumption hook remains present")
+    do
+        local function cell(name,gift,x)return{x=x,y=1,bee={Type=name,Traits=gift and{"Gifted"}or{}}}end
+        local function key(c)return c.x..","..c.y end
+        local base={cell("Tadpole",true,101),cell("Tadpole",false,102),cell("Tadpole",false,103),
+            cell("Buoyant",true,104),cell("Buoyant",false,105),cell("Buoyant",false,106),
+            cell("Fuzzy",false,107),cell("Fuzzy",true,108),cell("Spicy",false,109),cell("Vector",true,110),cell("Tabby",false,111)}
+        local safe={["109,1"]=true}
+        local space=Progress.slotPressure(base,types,safe,1)
+        check(next(space.released)==nil,"Enough existing safe capacity releases no Mythic")
+        for demand=1,10 do
+            space=Progress.slotPressure(base,types,{},demand)
+            local released,keptTad,keptBou,keptFuzzy=0,0,0,0
+            for _,c in ipairs(base)do
+                local free=space.released[key(c)]==true
+                if free then released+=1 end
+                if c.bee.Type=="Tabby"then check(not free,"Event never participates in pressure fallback")end
+                if c.bee.Type=="Tadpole"and not free then keptTad+=1 end
+                if c.bee.Type=="Buoyant"and not free then keptBou+=1 end
+                if c.bee.Type=="Fuzzy"and not free then keptFuzzy+=1;check(table.find(c.bee.Traits,"Gifted"),"One gifted Fuzzy is preferred to a normal copy")end
+            end
+            check(keptTad>=1 and keptBou>=1 and keptFuzzy==1,"At least one Tad/Buoyant and exactly one Fuzzy survive pressure")
+            check(not space.released["101,1"]and not space.released["104,1"]and not space.released["108,1"],"Gifted primary copies rank ahead of normals")
+            check(released==math.min(demand,7)and space.shortfall==math.max(0,demand-7),"Only needed extras are released; impossible shortage remains explicit")
+            if demand<=3 then check(keptTad==3 and keptBou==3,"Other Mythics and extra Fuzzy precede Tad/Buoyant")end
+            if demand==5 then check(keptTad==2 and keptBou==2,"Keep two Tad/Buoyant when that is sufficient")end
+            if demand==6 then check(keptTad==1 and keptBou==2,"Release only one second copy when one extra slot is needed")end
+        end
+        local blocked=hive();table.remove(blocked,2)
+        for _,c in ipairs(base)do blocked[#blocked+1]=c end
+        P.starPressureEnabled=true
+        local choice=P.choose(blocked,function(c)return P.prepSafe(c,blocked,types)end)
+        check(choice and types[choice.bee.Type].Rarity=="Mythic","Blocked Star preparation gains an explicitly authorized Mythic candidate")
+        local ordinary=cell("Brave",false,112);blocked[#blocked+1]=ordinary
+        check(not P.prepSafe(base[9],blocked,types),"A normal safe slot delays Mythic release")
+        check(P.prepSafe(ordinary,blocked,types),"Existing normal slot remains the first route")
+        local impossible=hive();table.remove(impossible,2)
+        for i,name in ipairs({"Tadpole","Buoyant","Fuzzy"})do impossible[#impossible+1]=cell(name,true,120+i)end
+        check(not P.choose(impossible,function(c)return P.prepSafe(c,impossible,types)end),"If one Tad/Buoyant/Fuzzy each still cannot fit, preserve them and stop")
+        P.starPressureEnabled=false
+        check(not P.prepSafe(base[9],blocked,types),"Outside active Star preparation Mythics remain protected")
+        rejects(function()Progress.slotPressure(base,types,{},-1)end,"Invalid pressure demand fails closed")
+    end
     return {passed=passed}
 end

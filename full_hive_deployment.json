@@ -1031,17 +1031,17 @@
     "validationLimit": "Natural gear purchase/craft paths are partially observed; current Blender queues are intentionally waiting and no ticket toggle was enabled"
   },
   "currentRelease": {
-    "version": "1.7.6",
+    "version": "1.7.7",
     "bundle": "auto_full_hive_assist.luau",
-    "sha256": "91b1890b999500fd0604c17128b6cb2d7ddfc2d7dcd603ee06fe0fb9da93c77f",
-    "bytes": 289386,
-    "releasePath": "releases/v1.7.6/auto_full_hive_assist.luau",
+    "sha256": "55a720f05e9db6a30e4ec0b9637b5b82a6f7d52b7ecbd1303589e46a3ee6f9a6",
+    "bytes": 301133,
+    "releasePath": "releases/v1.7.7/auto_full_hive_assist.luau",
     "deployed": true,
     "liveRuntimeVersions": {
-      "RileyCosmicguppydude": "1.7.6",
-      "Luneri427": "1.7.6"
+      "Luneri427": "1.7.7",
+      "RileyCosmicguppydude": null
     },
-    "liveState": "Last verified1.7.6 on both; current runtime unavailable: no executor clients and both Android control endpoints refuse connections. No crash or game state claim."
+    "liveState": "Luneri1.7.7 startup/UI/wait/Atlas verified. Riley unavailable, not tested/upgraded; historical Riley1.7.6 evidence is not a current verification."
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -2508,5 +2508,123 @@
     "requiredUserAction": "On each phone open Cloudphone Control and Start remote server until Remote server: running",
     "nextStep": "Check fresh screen/foreground and Alt1, rediscover identities and reconcile server-backed hive/inventory/amulets/receipts before any authorized recovery or loader",
     "automationChanged": false
+  },
+  "latestStarPressureAndDiamondTickets": {
+    "version": "1.7.7",
+    "verifiedUtc": "2026-10-23T09:50:05.630183+00:00",
+    "sha256": "55a720f05e9db6a30e4ec0b9637b5b82a6f7d52b7ecbd1303589e46a3ee6f9a6",
+    "bytes": 301133,
+    "starPressure": {
+      "eligibleFundedStarWorkflowOnly": true,
+      "ordinarySafeSlotsFirst": true,
+      "otherMythicsBeforeTadBuoyant": true,
+      "fuzzyTotalRetained": 1,
+      "preferGifted": true,
+      "tadBuoyantKeepTwoIfEnough": true,
+      "tadBuoyantMinimumEach": 1,
+      "releaseOnlyNeededExtras": true,
+      "eventsAlwaysProtected": true,
+      "impossibleFitStops": true,
+      "freshSelectedCoordinateCheck": true,
+      "otherPermanentBaselinesVerified": true,
+      "ordinaryAndPostEggRulesUnchanged": true
+    },
+    "diamondRoute": {
+      "forNextGearDeficitOnly": true,
+      "ownedTicketsFirst": true,
+      "fundOneEggRemainingTicketDeficit": true,
+      "ticketFixedOptions": [
+        1,
+        10,
+        100,
+        500
+      ],
+      "diamondFixedAmount": 1,
+      "diamondPriceTickets": 400,
+      "customAmounts": false,
+      "repriceEveryPack": true,
+      "verifyInventoryAndPurchaseCounter": true,
+      "preRequestCopiedTicketBaseline": true,
+      "stopWhenEnoughEggs": true,
+      "atlasPauseAlignPositionNoclipNearby": true
+    },
+    "fireAnswer": "Two normalFire plus one giftedShy fill the existing three-slot red placeholder group; no Fire rule was changed.",
+    "validation": {
+      "offlineChecks": 3947,
+      "luneriConnectedIsolatedChecks": 3947,
+      "rileyTested": false,
+      "suites": {
+        "policy": 1025,
+        "character": 154,
+        "collector": 896,
+        "batch": 325,
+        "starJelly": 543,
+        "starPreflight": 282,
+        "occupancy": 10,
+        "starProgress": 17,
+        "connectedReview": 82,
+        "failsafeOnly": 38,
+        "finalBaby": 60,
+        "progression": 231,
+        "facts": 47,
+        "funds": 17,
+        "hatch": 31,
+        "blender": 31,
+        "amulet": 88,
+        "quest": 70
+      },
+      "mainCompiled": true,
+      "embeddedCompiled": true,
+      "markers": 41,
+      "historicalBlockedTransportFixturesExcluded": true
+    },
+    "account": {
+      "name": "Luneri427",
+      "userId": 11780133534,
+      "clientId": "c3540fc2-bfdd-4616-b810-27029f273757",
+      "jobId": "42d1c71b-ec7b-419e-a1a6-5e652092441d",
+      "placeId": 1537690962,
+      "executor": "Arceus X",
+      "version": "1.7.7",
+      "uiVersion": "v1.7.7",
+      "startedAt": 1792748788,
+      "running": true,
+      "stop": false,
+      "phase": "waiting",
+      "reason": "saving-diamond-tickets",
+      "requiredTickets": 305,
+      "fundsRequired": 18789475000,
+      "honey": 6995511666,
+      "royalJelly": 85,
+      "starJelly": 1,
+      "actions": 0,
+      "error": null,
+      "cleanupError": null,
+      "pending": false,
+      "uncertainReceipt": false,
+      "atlasStopped": false
+    },
+    "deployment": {
+      "runningFalseBeforeReplacementObserved": true,
+      "executeCount": 1,
+      "startupDelayObserved": true,
+      "atlasReloaded": false,
+      "flagsCleared": false,
+      "leftoversSeeded": false,
+      "rileyActions": 0
+    },
+    "evidence": [
+      "Workspace.Shops.TicketDispenser physical options and floor",
+      "Workspace.Shops.TicketShop Diamond1 metadata",
+      "ReplicatedStorage.ItemPackages.Eggs.GetCost ticket curve",
+      "Actual current ticket purchase count500 and fixed pack quotes"
+    ],
+    "limits": "Natural funding plan/startup/Atlas release verified on Luneri. No new ticket purchase, DiamondEgg spend or Mythic-pressure roll was forced; those new execution paths have isolated/source coverage. Riley unavailable.",
+    "automation": {
+      "statusPreserved": "PAUSED",
+      "cadenceMinutesPreserved": 30,
+      "targetPreserved": true,
+      "latestRulesSaved": true
+    }
   }
 }

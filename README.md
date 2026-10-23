@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.7.7:** Adds the authorized fallback for Star preparation blocked by Mythics: keep one Fuzzy and reduce Tadpole/Buoyant only when needed, preserving two each where possible and at least one each. Other Mythics give way first; Events and prerequisite gifted bees stay protected. Also funds missing Diamond Eggs with honey through actual fixed ticket packs, followed by the Ticket Tent's one-egg option.
+
 **v1.7.6:** Includes the40% Star requirement and quest-dependent Ninja/Shy retirement. Also fixes the observed exhausted-batch transition where an existing useful Fire placeholder was rejected after normal Shy reservations retired.
 
 **v1.7.5:** After Star Journey1's2500Haste objective, normal Ninja and gifted duplicates become safe replacement slots; Star Journey2's5000RedBoost objective does the same for Shy. Exactly one gifted copy of each stays reserved, including Star Egg preparation. Verified objective progress or completed-quest history is required; unknown progress preserves the prior rules. Includes v1.7.4's40% Gold/Diamond Star minimum.

@@ -353,5 +353,21 @@ return function(P,T)
         q=P.plan(base,T,context)
         check(not P.rollTaskDone(task,target,base,T,q)and P.rollTaskSafe(task,target,base,T,q),"Unlisted outcomes still continue the same repair coordinate")
     end
+    do
+        local base=hive({{"Spicy",1},{"Tadpole",2},{"Buoyant",2},{"Fuzzy",1,true},{"Tabby",1,true},{"Basic",1,true},{"Brave",1}})
+        local spicy,tad,tabby,basic=base[1],base[2],base[7],base[8]
+        local context=ctx(44);context.starPrepare=true
+        local original=P.plan(base,T,context)
+        check(original.protected[P.key(spicy)]and original.protected[P.key(tad)],"Ordinary Star preparation still protects Mythics without a pressure exception")
+        context.starReleased={[P.key(spicy)]=true,[P.key(tabby)]=true,[P.key(basic)]=true}
+        local q=P.plan(base,T,context)
+        check(not q.keep[P.key(spicy)]and not q.protected[P.key(spicy)],"The exact host-authorized Mythic slot becomes a preparation candidate")
+        check(q.protected[P.key(tad)]and q.protected[P.key(tabby)]and q.keep[P.key(basic)],"Pressure never releases another Mythic, an Event or a gifted prerequisite")
+        check(q.candidates[1]~=spicy,"Existing ordinary safe slots precede the Mythic exception")
+        local task=P.startRollTask(spicy,base,q)
+        check(P.rollTaskSafe(task,spicy,base,T,q),"Authorized Mythic coordinate passes the actual last-moment task guard")
+        context.starReleased=nil;q=P.plan(base,T,context)
+        check(not P.rollTaskSafe(task,spicy,base,T,q),"Lost pressure authorization restores the permanent guard")
+    end
     return {passed=checked}
 end

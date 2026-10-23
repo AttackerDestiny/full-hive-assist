@@ -238,7 +238,7 @@ return function(deps)
             end
         end
         -- Normalize physical fixed packs; no synthetic custom request amounts.
-        for _,spec in ipairs({{"RoyalJelly","JellyDispenser","Honey"},{"Gumdrops","GumdropDispenser","Ticket"}}) do
+        for _,spec in ipairs({{"RoyalJelly","JellyDispenser","Honey"},{"Gumdrops","GumdropDispenser","Ticket"},{"Ticket","TicketDispenser","Honey"}}) do
             catalog.packs[spec[1]]={}
             for _,entry in ipairs(index[spec[1]] or {}) do
                 if entry.shopName==spec[2] and entry.package.Amount<=1000000 then
@@ -253,6 +253,7 @@ return function(deps)
         if type(purchases)=="table" and (purchases.RoyalJelly==nil or integer(purchases.RoyalJelly)) then
             catalog.royalJellyPricing={purchased=purchases.RoyalJelly or 0,baseHoney=250000,stepHoney=10000,maxHoney=1000000}
         end
+        if type(purchases)=="table"and(purchases.Ticket==nil or integer(purchases.Ticket))then catalog.ticketPurchased=purchases.Ticket or 0 end
         for _,spec in ipairs({{"Basic","EggDispenser","basicEgg","Honey"},{"Diamond","TicketShop","Diamond","Ticket"}}) do
             for _,entry in ipairs(index[spec[1]] or {}) do
                 if entry.shopName==spec[2] and entry.package.Amount==1 then

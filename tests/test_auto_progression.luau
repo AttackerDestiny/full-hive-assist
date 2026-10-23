@@ -367,5 +367,36 @@ return function(P)
         check(m.queuedItems.Oil==1 and not m.missingItems.SunflowerSeed,"Queued nested Oil satisfies only its own future parent demand")
         check(m.nextCraft.item=="Enzymes" and m.crafts[#m.crafts].item=="TropicalDrink" and not m.crafts[#m.crafts].ready,"Queued nested output is not consumable before collection")
     end
+    do
+        local function ticketCatalog(bought)
+            local c=catalog("Clippers",5000000000,{Diamond=1})
+            c.purchases={Diamond={amount=1,cost={Ticket=400}}};c.ticketPurchased=bought;c.packs={Ticket={}}
+            for _,n in ipairs({1,10,100})do c.packs.Ticket[#c.packs.Ticket+1]={id="ticket"..n,amount=n,cost={Honey=P.ticketCost(bought,n)}}end
+            return c
+        end
+        check(P.ticketCost(500,1)==38847000 and P.ticketCost(500,100)==4566725000,"Ticket curve matches current game quotes")
+        for _,bought in ipairs({0,498,500,49999,50000})do
+            local f=facts();f.inventory.Ticket=95;local c=ticketCatalog(bought)
+            local total=assert(P.ticketCost(bought,305));f.honey=total-1
+            local r=P.plan(f,c)
+            check(r.action.reason=="saving-diamond-tickets"and not r.optionalHiveAllowed,"Full remaining one-egg ticket cost must be funded first")
+            check(r.requiredTickets==305 and r.fundsRequired==total,"Report exposes the exact one-egg deficit and honey requirement")
+            f.honey=total;r=P.plan(f,c)
+            check(r.action.item=="Ticket"and r.action.amount==100 and r.action.kind=="purchase-pack","Funded route chooses a real100-ticket option")
+            f.inventory.Ticket=395;f.honey=P.ticketCost(bought,5);r=P.plan(f,c)
+            check(r.action.amount==1 and r.action.item=="Ticket","Five-ticket deficit uses1-ticket requests, never a custom5")
+            f.inventory.Ticket=400;r=P.plan(f,c)
+            check(r.action.kind=="purchase-material"and r.action.item=="Diamond","Owned tickets buy the egg without buying extra tickets")
+            f.inventory.Diamond=1;r=P.plan(f,c)
+            check(r.action.reason=="saving-gear-honey"or r.action.kind=="buy-gear","Enough eggs stops ticket acquisition and moves to the gear honey phase")
+        end
+        local f=facts();f.inventory.Ticket=95;local c=ticketCatalog(500)
+        c.packs.Ticket[1].cost.Honey+=1;f.inventory.Ticket=399
+        check(P.plan(f,c).action.reason=="inconsistent-ticket-price","Changed actual ticket quote blocks the modeled route")
+        c=ticketCatalog(500);c.ticketPurchased=nil
+        check(P.plan(f,c).action.reason=="unknown-ticket-funding-cost","Unknown purchase counter cannot price future packs")
+        check(P.pack("Ticket",5,{{amount=5,cost={Honey=1}}})==nil,"Custom ticket amount rejected")
+        check(P.ticketCost(-1,1)==nil and P.ticketCost(99999,2)==nil,"Invalid or over-limit ticket counters fail closed")
+    end
     return {passed=passed}
 end

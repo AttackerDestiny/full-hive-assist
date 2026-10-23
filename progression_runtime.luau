@@ -11,7 +11,7 @@ return function(H)
             ReservedItems=decision.reservedItems,MissingItems=decision.missingItems,
             CostReservations=decision.costReservations,OptionalHiveAllowed=decision.optionalHiveAllowed,
             Status=decision.status,PlanterCatchup=decision.planterCatchup,FundsRequired=decision.fundsRequired,
-            RequiredRJ=decision.requiredRJ,MissingRJ=decision.missingRJ,Honey=facts.honey}
+            RequiredRJ=decision.requiredRJ,MissingRJ=decision.missingRJ,RequiredTickets=decision.requiredTickets,Honey=facts.honey}
         local craft=facts.craft
         report.Blender=craft and {Recipe=craft.item,Count=craft.count,ElapsedSeconds=craft.elapsedSeconds,
             TotalSeconds=craft.totalSeconds,RemainingSeconds=craft.remainingSeconds,Complete=craft.ready,
@@ -105,6 +105,11 @@ return function(H)
             assert((((fresh.Totals or {}).Purchases or {}).HiveSlots or 0)==beforePurchased+1,"Hive slot counter uncertain")
         elseif package.Category=="Eggs" then
             assert((fresh.Eggs[package.Type] or 0)-beforeAmount==package.Amount,"Purchased item delta uncertain")
+            if package.Type=="Ticket"then
+                local old=assert(receipt.TicketBefore,"Ticket purchase baseline missing")
+                local bought=((((fresh.Totals or{}).Purchases or{}).Eggs or{}).Ticket or 0)
+                assert(bought==old.Purchased+package.Amount,"Ticket purchase counter uncertain; no retry")
+            end
         else
             assert(H.Packages.PlayerHas(package,fresh),"Gear ownership not confirmed")
             -- Verified gear PurchaseEffect equips the purchased item.

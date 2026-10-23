@@ -455,6 +455,44 @@ function Progress.budget(stats,limit)
     if remaining==0 then return 0,"two-recorded-uses" end
     return math.min(remaining,inventory,math.max(0,limit or 2))
 end
+-- Narrow user-authorized exception for a blocked, funded Star Egg workflow.
+-- Return only the extra coordinates needed; never release an Event, the sole
+-- Fuzzy, or the last Tadpole/Buoyant. Prefer normal copies before gifted.
+function Progress.slotPressure(cells,types,safe,requiredSlots)
+    assert(integer(requiredSlots),"Invalid Star preparation slot demand")
+    local released,groups,available={},{},0
+    for _,c in ipairs(cells)do
+        local k=c.x..","..c.y
+        if safe[k]then available+=1 end
+        if c.bee and types[c.bee.Type].Rarity=="Mythic"then
+            local name=c.bee.Type;groups[name]=groups[name]or{};groups[name][#groups[name]+1]=c
+        end
+    end
+    local shortage=math.max(0,requiredSlots-available)
+    local original=shortage
+    local function gifted(c)return table.find(c.bee.Traits or{},"Gifted")~=nil end
+    for _,list in pairs(groups)do table.sort(list,function(a,b)
+        if gifted(a)~=gifted(b)then return gifted(a)end
+        if a.y~=b.y then return a.y<b.y end;return a.x<b.x
+    end)end
+    local function release(c)
+        local k=c.x..","..c.y
+        if shortage>0 and not safe[k]and not released[k]then released[k]=true;shortage-=1 end
+    end
+    -- Other Mythics give way first, including extra Fuzzy after its first copy.
+    local names={};for name in pairs(groups)do if name~="Tadpole"and name~="Buoyant"then names[#names+1]=name end end
+    table.sort(names)
+    for _,name in ipairs(names)do local list=groups[name]
+        for i=#list,name=="Fuzzy"and 2 or 1,-1 do release(list[i])end
+    end
+    -- Keep two each when that is enough; only then release a second copy.
+    for _,minimum in ipairs({2,1})do
+        for _,name in ipairs({"Tadpole","Buoyant"})do local list=groups[name]or{}
+            for i=#list,minimum+1,-1 do release(list[i])end
+        end
+    end
+    return {released=released,required=requiredSlots,safe=available,shortfall=shortage,needed=original}
+end
 function Progress.read(stats)
     local completed = stats.Quests and stats.Quests.Completed
     if type(completed) ~= "table" then return {known=false, ready=false} end
@@ -544,6 +582,9 @@ function Policy.stageMissing(cells, types, includeLegendary)
     return missing
 end
 function Policy.starSafe(cell, cells, types, required)
+    if cell.bee and types[cell.bee.Type].Rarity=="Mythic"then
+        return Policy.starSpace(cells,types).released[key(cell)]==true
+    end
     if Policy.permanent(cell, types) or Policy.flexible(cell) then return false end
     local missing, counts = Policy.missing(cells, required)
     -- Preserve the four-slot Baby/Music fallback even while gifted targets are
@@ -558,13 +599,29 @@ function Policy.starSafe(cell, cells, types, required)
     end
     return true
 end
-function Policy.prepSafe(cell, cells, types)
+local function ordinaryPrepSafe(cell, cells, types)
     if not cell.bee or Policy.permanent(cell, types) or Policy.flexible(cell) then return false end
     if cell.bee.Type == "Baby" or cell.bee.Type == "Music" then
         if Policy.honeyPlan(cells, types).keep[key(cell)] then return false end
     end
     if not isGifted(cell.bee) then return true end
     return (Policy.countGifted(cells)[cell.bee.Type] or 0) > 1
+end
+function Policy.starSpace(cells,types)
+    if not Policy.starPressureEnabled then return{released={}}end
+    local coverage=StarProgress.coverage(cells,types)
+    if #coverage.missingMythics==0 then return{released={}}end
+    local safe={};for _,c in ipairs(cells)do if ordinaryPrepSafe(c,cells,types)then safe[key(c)]=true end end
+    if next(safe)then return{released={}}end -- Use existing safe slots first.
+    local space=StarProgress.slotPressure(cells,types,safe,#coverage.missing+1)
+    if space.shortfall>0 then space.released={}end -- Do not spend toward an impossible fit.
+    return space
+end
+function Policy.prepSafe(cell,cells,types)
+    if cell.bee and types[cell.bee.Type].Rarity=="Mythic"then
+        return Policy.starSpace(cells,types).released[key(cell)]==true
+    end
+    return ordinaryPrepSafe(cell,cells,types)
 end
 function Policy.honeyPlan(cells, types)
     local keep, needs, candidates = {}, {}, {}
@@ -1040,6 +1097,14 @@ local function useItem(target, item, phase)
         if cell.x == target.x and cell.y == target.y then current = cell break end
     end
     assert(current and isSafe(current, cells, phase), "Target became protected; stopping")
+    if(phase=="prepare"or phase=="eggs")and current.bee and Types[current.bee.Type].Rarity=="Mythic"then
+        local space=Policy.starSpace(cells,Types)
+        assert(space.released[key(current)],"Mythic pressure permission changed before spending")
+        -- Original baseline was verified above. Only this freshly authorized
+        -- coordinate can change in this request; every other baseline remains.
+        permanentBaseline[key(current)]=nil
+        Report.StarSlotPressure={Needed=space.needed,Shortfall=space.shortfall,Target={X=current.x,Y=current.y,Type=current.bee.Type}}
+    end
     assert((item == "Star" and phase == "eggs") or (item == "RoyalJelly" and phase ~= "eggs"),
         "Item/phase mismatch")
     local before = stats.Eggs[item] or 0
@@ -1126,6 +1191,7 @@ if eggBudget > 0 then
         return deferStars("all-gifted-mythics-present")
     end
     Report.Phase = "prepare"
+    Policy.starPressureEnabled=true
     while true do
         stopped()
         stats, cells, counts, missing = updateReport()
@@ -1167,6 +1233,7 @@ if not progress.ready then
     return
 end
 Policy.postEgg = true
+Policy.starPressureEnabled=false
 -- Only the post-egg phase may release non-target gifted Legendaries.
 Report.Phase = "rebuild"
 rebuilding = true

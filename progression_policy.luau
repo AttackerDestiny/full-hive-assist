@@ -137,7 +137,7 @@ end
 -- may exceed a deficit (for example 3 Gumdrops for 1 missing); no custom amount.
 function P.pack(item,deficit,packs)
     if not integer(deficit) or deficit==0 then return nil,"invalid-pack-deficit" end
-    if item~="RoyalJelly" and item~="Gumdrops" then return nil,"unsupported-pack-item" end
+    if item~="RoyalJelly" and item~="Gumdrops" and item~="Ticket"then return nil,"unsupported-pack-item" end
     if type(packs)~="table" or #packs==0 then return nil,"unknown-packs:"..item end
     local below,above
     for _,pack in ipairs(packs) do
@@ -149,6 +149,9 @@ function P.pack(item,deficit,packs)
             if not tickets or pack.cost.Ticket~=tickets or (pack.cost.Honey or 0)~=0 then
                 return nil,"invalid-gumdrop-pack"
             end
+        elseif item=="Ticket"then
+            if not({[1]=true,[10]=true,[100]=true,[500]=true})[pack.amount]
+                or not pack.cost.Honey or pack.cost.Honey<=0 or(pack.cost.Ticket or 0)~=0 then return nil,"invalid-ticket-pack"end
         elseif not pack.cost.Honey or pack.cost.Honey==0 or (pack.cost.Ticket or 0)~=0 then
             return nil,"invalid-jelly-dispenser-pack"
         elseif not ({[1]=true,[10]=true,[100]=true,[1000]=true,[10000]=true,[100000]=true,[1000000]=true})[pack.amount] then
@@ -217,6 +220,17 @@ function P.materialCosts(missing,catalog)
         end
     end
     return costs,nil,complete
+end
+-- Verified ItemPackages.Eggs.GetCost curve. Compare every actual fixed-pack
+-- quote with this model before admission; unknown/changed prices fail closed.
+function P.ticketCost(purchased,amount)
+    if not integer(purchased)or not integer(amount)or amount>400 or purchased+amount>100000 then return nil end
+    local total=0
+    for i=purchased+1,purchased+amount do
+        total+=i>50000 and math.floor((i-50000)^1.85)*10000000+100000000000
+            or math.floor((i-1)^(i<500 and 1.2 or 1.7))*1000+100000
+    end
+    return total
 end
 -- Recursive reservation consumes each owned unit once across ALL next-gear
 -- requirements. Missing outputs do not become virtual owned inventory. Only a
@@ -522,6 +536,23 @@ local function plan(facts,catalog)
             local allowed,purchaseCondition=conditionState(purchase.conditions,facts)
             if not allowed then return wait(purchaseCondition or "diamond-egg-condition",base) end
             local ok,reason=afford(purchase.cost,facts.honey,read,base.reserveHoney,base.reservedItems)
+            if not ok and reason=="waiting-currency:Ticket"and catalog.packs and catalog.packs.Ticket
+                and #catalog.packs.Ticket>0 then
+                local needed=(purchase.cost.Ticket or 0)+(base.reservedItems.Ticket or 0)-(read("Ticket")or 0)
+                local bought=catalog.ticketPurchased
+                local cost=P.ticketCost(bought,needed)
+                if cost==nil then return wait("unknown-ticket-funding-cost",base)end
+                base.optionalHiveAllowed=false;base.requiredTickets=needed;base.fundsRequired=cost+base.reserveHoney
+                local pack,why=P.pack("Ticket",needed,catalog.packs.Ticket)
+                if not pack or pack.amount>needed then return wait(why or"no-exact-fixed-ticket-pack",base)end
+                -- A smaller verified pack is required near the final deficit.
+                local permitted,condition=conditionState(pack.conditions,facts)
+                if not permitted then return wait(condition or"ticket-pack-condition",base)end
+                if P.ticketCost(bought,pack.amount)~=pack.cost.Honey then return wait("inconsistent-ticket-price",base)end
+                if facts.honey<base.fundsRequired then return wait("saving-diamond-tickets",base)end
+                base.action={kind="purchase-pack",item="Ticket",amount=pack.amount,packId=pack.id,cost=copy(pack.cost),forItem="Diamond"}
+                return base
+            end
             if not ok then local pending=wait(reason,base);pending.action.parallelHive=true;pending.action.ParallelHive=true;return pending end
             base.action=parallelAction({kind="purchase-material",item=item,amount=1,cost=copy(purchase.cost)}); return base
         end
@@ -551,6 +582,7 @@ function P.describe(result,facts)
     local reason=action.reason or result.reason
     local label=labels[action.kind] or (reason=="blender-busy" and "Blender running; hive continues")
         or (reason=="saving-crafting-jelly" and "Saving honey for crafting jelly")
+        or (reason=="saving-diamond-tickets"and"Saving honey for Diamond Egg tickets")
         or (phase=="saving-gear-honey" and "Saving honey for gear") or "Waiting for materials or requirements"
     local rows={}
     for _,item in ipairs(orderedKeys(result.gearItems or {})) do
@@ -563,7 +595,7 @@ function P.describe(result,facts)
     end
     return {phase=phase,label=label,reason=reason,targetGear=result.gear,reserveHoney=result.reserveHoney or 0,
         parallelHive=action.parallelHive==true,materials=rows,nextCraft=result.nextCraft,
-        fundsRequired=result.fundsRequired,requiredRJ=result.requiredRJ,missingRJ=result.missingRJ}
+        fundsRequired=result.fundsRequired,requiredRJ=result.requiredRJ,missingRJ=result.missingRJ,requiredTickets=result.requiredTickets}
 end
 function P.plan(facts,catalog)
     local result=plan(facts,catalog)
