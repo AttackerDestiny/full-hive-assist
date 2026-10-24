@@ -1041,7 +1041,7 @@
       "Luneri427": "1.7.9",
       "RileyCosmicguppydude": null
     },
-    "liveState": "Luneri resumed normal hive actions and waiting on1.7.9, matching UI, Atlas resumed, no current error/pending/uncertain state. Riley unavailable and untouched."
+    "liveState": "Luneri re-executed by explicit human request in a fresh session;1.7.9 runtime/UI and Atlas resumed verified, waiting at10000entry with saved jelly. Riley unavailable/untouched."
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -2821,5 +2821,63 @@
       "targetPreserved": true,
       "newRecoveryRuleSaved": true
     }
+  },
+  "latestManualAtlasAssistExecution": {
+    "verifiedUtc": "2026-10-24T10:20:14.151143+00:00",
+    "trigger": "Human explicitly requested re-execute Atlas and assist",
+    "account": "Luneri427",
+    "userId": 11780133534,
+    "clientId": "b91f4e5c-ae2e-4d7b-88b6-f7488bd6c3c6",
+    "executor": "Arceus X",
+    "placeId": 1537690962,
+    "jobId": "eefcc390-7e49-44c6-859f-224c2fee5067",
+    "before": {
+      "atlasControls": 0,
+      "assistAbsent": true,
+      "pendingOrUncertain": false,
+      "taskBatchBasicLockAbsent": true,
+      "occupied": 44,
+      "capacity": 44,
+      "royalJelly": 305,
+      "starJelly": 5,
+      "basicEggs": 0,
+      "starEggs": 1,
+      "honey": 3320171544,
+      "incomingAmuletsEmpty": true
+    },
+    "atlas": {
+      "exactAuthorizedLoaderUsed": true,
+      "executeCount": 1,
+      "controlVerified": true,
+      "stoppedAfterStartup": false
+    },
+    "assist": {
+      "version": "1.7.9",
+      "sha256": "04b8a4c32161399c106521da5b5048abb6ef04493e473baac9246c58a6f6e21e",
+      "bytes": 304081,
+      "executeCount": 1,
+      "startedAt": 1792837112,
+      "startupDelayObserved": true,
+      "uiVersion": "v1.7.9",
+      "running": true,
+      "stop": false,
+      "phase": "waiting",
+      "activity": "Waiting for at least10000RoyalJelly to start a batch",
+      "error": null,
+      "cleanupError": null,
+      "pending": false,
+      "uncertainReceipt": false,
+      "actions": 0,
+      "royalJellyUsed": 0
+    },
+    "flagsCleared": false,
+    "spendReplayed": false,
+    "leftoverAdmissionSeeded": false,
+    "phoneOrServerJoinAction": false,
+    "rileyActions": 0,
+    "sourceChanged": false,
+    "testsRerun": false,
+    "automationChanged": false,
+    "validationLimit": "Unchanged previously tested release startup/UI/Atlas coordination verified on Luneri only; no new spending path forced or Riley validation claimed."
   }
 }
