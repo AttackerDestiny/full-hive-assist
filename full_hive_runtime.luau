@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.7.8"
+local SCRIPT_VERSION = "1.7.9"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -153,6 +153,7 @@ local function initializeModules()
         OsTime=loadModule(waitForChild(RS,"OsTime"))
     end
 end
+local STATS_READ_TIMEOUT = {}
 local function invokeRequest(remote, receiptBefore, ...)
     checkStop()
     assert(not env.FullHivePending and not env.AutoHivePendingRequest, "Server request already pending")
@@ -189,6 +190,10 @@ local function invokeRequest(remote, receiptBefore, ...)
     end)
     local deadline=os.clock()+(remote.Name=="ConstructHiveCellFromEgg" and 180 or 45)
     while not done and os.clock()<deadline do task.wait(0.1) end
+    if not done and not mutation then
+        Report.StatsReadFailure={Name=request.Name,Started=request.Started,At=os.time()}
+        error(STATS_READ_TIMEOUT,0) -- The original read retains its pending flag.
+    end
     assert(done,"Uncertain server response; no retry: "..remote.Name)
     assert(ok,"Server request failed; no retry: "..tostring(values))
     return table.unpack(values,1,values.n)
@@ -1208,9 +1213,41 @@ end
 -- A stop button affects both the main assist and the existing Star Egg handoff.
 local function runWithCharacterRecovery()
     local movementRecoveryUsed=false
+    local statsRecoveryUsed=false
     while true do
         local ok,err=pcall(run)
         if ok then return end
+        if err==STATS_READ_TIMEOUT then
+            local request=env.FullHivePending
+            local readPending=request==nil or(type(request)=="table"and request.Name=="RetrievePlayerStats")
+            assert(not statsRecoveryUsed,"Player stats read timed out again; stopped without replaying any spend")
+            assert(readPending and not env.AutoHivePendingRequest and not env.FullHiveUncertain
+                and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning,
+                "Player stats read timed out with an unresolved workflow; pending state preserved")
+            release()
+            assert(not env.FullHiveAtlasOwned,"Atlas release failed during stats recovery")
+            statsRecoveryUsed=true
+            Report.StatsReadRecoveries=(Report.StatsReadRecoveries or 0)+1
+            Report.Phase="waiting-stats-read";Report.Activity="Waiting for the previous stats read to finish"
+            -- Never overlap the original request or clear its flag. Only its
+            -- completion callback may release it. A stuck read stops after60s.
+            for _=1,240 do
+                checkStop()
+                assert(not env.AutoHivePendingRequest and not env.FullHiveUncertain
+                    and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning,
+                    "Workflow changed during stats recovery; pending state preserved")
+                if not env.FullHivePending then break end
+                assert(env.FullHivePending==request,"Pending request changed during stats recovery")
+                task.wait(0.25)
+            end
+            assert(not env.FullHivePending,"Previous stats read is still pending; no overlapping retry")
+            checkStop()
+            assert(not env.AutoHivePendingRequest and not env.FullHiveUncertain
+                and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning,
+                "Workflow changed after stats recovery; pending state preserved")
+            Report.Phase="stats-recovered";Report.Activity="Refreshing player stats before continuing"
+            continue
+        end
         -- Never replay an uncertain request or an embedded Star Egg workflow.
         local movementTimeout=err==MOVEMENT_TIMEOUT
         local message=movementTimeout and "Movement timed out; no action sent from the failed movement" or err

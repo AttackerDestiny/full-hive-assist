@@ -2,8 +2,8 @@
 return function(runtime)
     local helpers=assert(runtime:match("(local CHARACTER_UNAVAILABLE = {}.-)\nlocal function distance"),"Character helpers missing")
     local recovery=assert(runtime:match("(local function runWithCharacterRecovery%(%)%s.-)\nlocal function makeUI"),"Recovery loop missing")
-    local factory=assert(loadstring("return function(player,env,Report,run,release,checkStop,task)\n"..helpers.."\n"..recovery..
-        "\nreturn runWithCharacterRecovery,root,characterRoot,CHARACTER_UNAVAILABLE,MOVEMENT_TIMEOUT\nend"))()
+    local factory=assert(loadstring("return function(player,env,Report,run,release,checkStop,task)\nlocal STATS_READ_TIMEOUT={}\n"..helpers.."\n"..recovery..
+        "\nreturn runWithCharacterRecovery,root,characterRoot,CHARACTER_UNAVAILABLE,MOVEMENT_TIMEOUT,STATS_READ_TIMEOUT\nend"))()
     local checked=0
     local function check(value,message) assert(value,message); checked+=1 end
     local function character(health,hasRoot)
@@ -97,6 +97,55 @@ return function(runtime)
             check(releases==0,"Recovery does not intercept "..flag)
             check(err==(flag=="other-error" and "Uncertain server response; no retry" or token),"Original failure propagates")
         end
+    end
+    -- Scheduler-only stats recovery tests. No transport wrapper or remote is
+    -- run: the rejected historical transport fixture remains excluded.
+    for _,failure in ipairs({"resolved","late-read","stuck","twice","mutation-pending","uncertain",
+        "star-pending","star-running","child-running","request-replaced","uncertain-during-wait","stop","release-failure"})do
+        local read={Name="RetrievePlayerStats"};local lease={x=4,y=8};local batch={Amount=4000}
+        local env={FullHiveRollTask=lease,FullHiveJellyBatch=batch,FullHiveAtlasOwned=true}
+        if failure=="late-read"or failure=="stuck"or failure=="request-replaced"or failure=="uncertain-during-wait"then env.FullHivePending=read end
+        if failure=="mutation-pending"then env.FullHivePending={Name="ItemPackageEvent"}end
+        if failure=="uncertain"then env.FullHiveUncertain={Unresolved=true}end
+        if failure=="star-pending"then env.AutoHivePendingRequest={Unresolved=true}end
+        if failure=="star-running"then env.FullHiveStarRunning=true end
+        if failure=="child-running"then env.AutoGiftedStarRunning=true end
+        local report={Actions=19,RoyalJellyUsed=285,StatsReadFailure={Name="RetrievePlayerStats"}}
+        local runs,releases,waits=0,0,0;local token
+        local loop,_,_,_,_,sentinel=factory({Character=character(100,true)},env,report,function()
+            runs+=1
+            if runs==1 or failure=="twice"then error(token,0)end
+            check(report.Phase=="stats-recovered"and not env.FullHivePending,"Fresh planning waits until original stats request completes")
+        end,function()releases+=1;env.FullHiveAtlasOwned=failure=="release-failure"end,
+        function()if failure=="stop"then error("Stopped by user",0)end end,
+        {wait=function()
+            waits+=1
+            if waits==1 or waits==240 then
+                check(releases==1 and not env.FullHiveAtlasOwned,"Atlas is released before waiting on a late stats read")
+                check(env.FullHivePending==read,"The original pending read is not cleared by recovery")
+            end
+            if failure=="late-read"and waits==3 then env.FullHivePending=nil end -- Simulated completion callback.
+            if failure=="request-replaced"then env.FullHivePending={Name="ItemPackageEvent"}end
+            if failure=="uncertain-during-wait"then env.FullHiveUncertain={Unresolved=true}end
+        end})
+        token=sentinel;local ok,err=pcall(loop)
+        if failure=="resolved"or failure=="late-read"then
+            check(ok and runs==2 and releases==1,"Stats timeout recovers after resolution")
+            check(waits==(failure=="late-read"and 3 or 0)and report.StatsReadRecoveries==1,"One bounded read recovery is reported")
+        elseif failure=="twice"then
+            check(not ok and runs==2 and releases==1,"A second stats timeout stops")
+            check(tostring(err):find("timed out again",1,true)~=nil,"Repeated stats failure is readable")
+        elseif failure=="stuck"then
+            check(not ok and runs==1 and waits==240 and env.FullHivePending==read,"Stuck stats read stops without clearing or overlapping it")
+        elseif failure=="request-replaced"or failure=="uncertain-during-wait"then
+            check(not ok and runs==1 and waits==1,"A changed workflow cannot slip through the recovery wait")
+        elseif failure=="stop"or failure=="release-failure"then
+            check(not ok and runs==1 and waits==0 and releases==1,"Human stop or failed Atlas release prevents read retry")
+        else
+            check(not ok and runs==1 and waits==0 and releases==0,"Any unresolved mutation or Star workflow blocks read recovery")
+        end
+        check(env.FullHiveRollTask==lease and env.FullHiveJellyBatch==batch,"Read recovery preserves task/admission identity")
+        check(report.Actions==19 and report.RoyalJellyUsed==285,"Read recovery preserves spending counters")
     end
     -- Run the actual movement function against fake Instances/services. Killing
     -- the fake character during Tween:Play must restore collisions/constraints.

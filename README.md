@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.7.9:** Fixes the observed terminal stop after a player-stats read timeout. It waits for the original read to resolve, resumes Atlas, and replans once without replaying a spend. Pending mutations, uncertain receipts, stuck reads and repeated timeouts remain protected stops.
+
 **v1.7.8:** Completing Star Journey2's5000RedBoost objective now retires the Fire placeholders as well as normal Shy. Ordinary planning retains only one gifted Shy from that group. A sole gifted Fire remains required during actual Star Egg preparation. Cleanup follows the existing resource priorities.
 
 **v1.7.7:** Adds the authorized fallback for Star preparation blocked by Mythics: keep one Fuzzy and reduce Tadpole/Buoyant only when needed, preserving two each where possible and at least one each. Other Mythics give way first; Events and prerequisite gifted bees stay protected. Also funds missing Diamond Eggs with honey through actual fixed ticket packs, followed by the Ticket Tent's one-egg option.

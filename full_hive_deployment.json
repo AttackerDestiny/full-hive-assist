@@ -1031,17 +1031,17 @@
     "validationLimit": "Natural gear purchase/craft paths are partially observed; current Blender queues are intentionally waiting and no ticket toggle was enabled"
   },
   "currentRelease": {
-    "version": "1.7.8",
+    "version": "1.7.9",
     "bundle": "auto_full_hive_assist.luau",
-    "sha256": "6c09024e146fda7ca317e259e9f90f05f2fb43777ef78f6b1cb7db679e425d6f",
-    "bytes": 301651,
-    "releasePath": "releases/v1.7.8/auto_full_hive_assist.luau",
+    "sha256": "04b8a4c32161399c106521da5b5048abb6ef04493e473baac9246c58a6f6e21e",
+    "bytes": 304081,
+    "releasePath": "releases/v1.7.9/auto_full_hive_assist.luau",
     "deployed": true,
     "liveRuntimeVersions": {
-      "Luneri427": "1.7.8",
+      "Luneri427": "1.7.9",
       "RileyCosmicguppydude": null
     },
-    "liveState": "Luneri running with matching UI, Atlas resumed and no errors. Fire eligibility verified by read-only planner over actual hive; cleanup deferred by ticket funding. Riley unavailable/untouched."
+    "liveState": "Luneri resumed normal hive actions and waiting on1.7.9, matching UI, Atlas resumed, no current error/pending/uncertain state. Riley unavailable and untouched."
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
@@ -2720,6 +2720,106 @@
       "cadenceMinutesPreserved": 30,
       "targetPreserved": true,
       "newOverrideSaved": true
+    }
+  },
+  "latestStatsReadRecovery": {
+    "version": "1.7.9",
+    "verifiedUtc": "2026-10-24T10:12:36.739210+00:00",
+    "sha256": "04b8a4c32161399c106521da5b5048abb6ef04493e473baac9246c58a6f6e21e",
+    "bytes": 304081,
+    "originalFailure": {
+      "version": "1.7.8",
+      "startedAt": 1792750333,
+      "error": ":4441: Uncertain server response; no retry: RetrievePlayerStats",
+      "consoleConfirmed": true,
+      "readResolvedBeforeInspection": true,
+      "mutationPending": false,
+      "uncertainReceipt": false,
+      "atlasStopped": false,
+      "occupied": 44,
+      "capacity": 44,
+      "royalJelly": 301,
+      "starJelly": 5,
+      "ticket": 327,
+      "honey": 6933362288
+    },
+    "fix": {
+      "privateTokenOnlyForTimedOutStatsRead": true,
+      "originalReadDeadlineSecondsUnchanged": 45,
+      "additionalReadCompletionWaitSeconds": 60,
+      "maximumRecoveriesPerExecution": 1,
+      "releaseAtlasBeforeWait": true,
+      "pendingReadClearedOnlyByOriginalCallback": true,
+      "noOverlappingRetry": true,
+      "freshPlanningBeforeAction": true,
+      "taskAdmissionCountersPreserved": true,
+      "uncertainMutationOrStarBlocks": true,
+      "secondTimeoutOrStuckRequestStops": true,
+      "stopOrReleaseFailureBlocks": true
+    },
+    "validation": {
+      "offlineChecks": 4076,
+      "luneriConnectedIsolatedChecks": 4076,
+      "addedSchedulerAssertions": 54,
+      "recoveryChecks": 208,
+      "mainCompiled": true,
+      "embeddedCompiled": true,
+      "compatibilityMarkers": 41,
+      "historicalRejectedTransportFixtureExcluded": true,
+      "transportNotRecreated": true,
+      "rileyTested": false
+    },
+    "account": {
+      "name": "Luneri427",
+      "userId": 11780133534,
+      "clientId": "c3540fc2-bfdd-4616-b810-27029f273757",
+      "placeId": 1537690962,
+      "jobId": "42d1c71b-ec7b-419e-a1a6-5e652092441d",
+      "executor": "Arceus X",
+      "version": "1.7.9",
+      "uiVersion": "v1.7.9",
+      "startedAt": 1792836585,
+      "running": true,
+      "stop": false,
+      "phase": "waiting",
+      "activity": "Waiting for at least4000RoyalJelly to start a batch",
+      "error": null,
+      "cleanupError": null,
+      "pending": false,
+      "uncertainReceipt": false,
+      "atlasStopped": false,
+      "actions": 43,
+      "royalJellyUsed": 3695,
+      "royalJellySaved": 305,
+      "starJellySaved": 5,
+      "honey": 3262245940,
+      "lastResult": {
+        "x": 3,
+        "y": 7,
+        "type": "Buoyant",
+        "gifted": false,
+        "consumed": 81
+      },
+      "task": null,
+      "batch": null,
+      "statsRecoveryNaturallyTriggered": false
+    },
+    "deployment": {
+      "oldInstanceStoppedObserved": true,
+      "noUnresolvedStateBeforeExecution": true,
+      "executeCount": 1,
+      "startupDelayObserved": true,
+      "atlasReloaded": false,
+      "flagsCleared": false,
+      "leftoversSeeded": false,
+      "rileyActions": 0
+    },
+    "limits": "The observed original read timeout had already resolved at inspection. New recovery scheduler paths have isolated coverage without any transport fixture; no live timeout was forced. Normal startup, travel, purchases, rolls, protected Buoyant stop, saved leftovers and Atlas resume were naturally observed on Luneri. Riley unavailable.",
+    "automation": {
+      "statusPreserved": "PAUSED",
+      "cadenceMinutesPreserved": 30,
+      "targetPreserved": true,
+      "newRecoveryRuleSaved": true
     }
   }
 }
