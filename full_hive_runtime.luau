@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.7.9"
+local SCRIPT_VERSION = "1.8.0"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1278,12 +1278,89 @@ local function runWithCharacterRecovery()
         Report.Activity="Refreshing hive data before continuing"
     end
 end
-local function makeUI()
+local function makeStatusGui()
     local pg=waitForChild(player,"PlayerGui")
     local old=pg:FindFirstChild("FullHiveStatus"); if old then old:Destroy() end
     local parent=uiParent()
     old=parent:FindFirstChild("FullHiveStatus"); if old then old:Destroy() end
     local gui=Instance.new("ScreenGui"); gui.Name="FullHiveStatus"; gui.ResetOnSpawn=false; gui.DisplayOrder=10000; gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; gui.Parent=parent
+    return gui,parent
+end
+local function readUIStatus()
+    local c=Report.Counts or {}
+    local progress=Report.Stage=="early" and string.format("Baby %d/4 | Music %d/4 | Shy %d/3",c.Baby or 0,c.Music or 0,c.Shy or 0)
+        or string.format("Actions %d | Jelly used %d",Report.Actions,Report.RoyalJellyUsed)
+    local active=Report.ActiveTarget
+    if active then
+        progress=string.format("Slot (%d,%d) | %s",active.X,active.Y,
+            Report.CollectorFallback and (active.Reason=="gifted-collector-fallback" and "100-jelly gifted recovery" or "100-jelly collector recovery") or active.Reason)
+    end
+    local pg=Report.Progression or {}
+    local status=pg.Status or {}
+    local title=pg.Gear and ("Target: "..pg.Gear) or "Gear route complete"
+    local lines={title}
+    lines[#lines+1]=status.label or pg.Reason or pg.Action or "Inspecting gear"
+    local counts={}
+    local names={BlueExtract="Blue Extract",RedExtract="Red Extract",ComfortingVial="Comforting Vial"}
+    for _,row in ipairs(status.materials or {}) do
+        if (row.actual or 0)<row.required then
+            local count=(names[row.item] or row.item).." "..tostring(row.actual or 0).."/"..row.required
+            if (row.queued or 0)>0 then count=count.." (+"..row.queued.." crafting)" end
+            counts[#counts+1]=count
+        end
+    end
+    if #counts>0 then lines[#lines+1]=table.concat(counts,", ") end
+    if pg.FundsRequired and(pg.MissingRJ or pg.RequiredTickets)then
+        local function money(n)
+            if n>=1000000000 then return string.format("%.2fB",n/1000000000) end
+            if n>=1000000 then return string.format("%.1fM",n/1000000) end
+            return tostring(math.floor(n))
+        end
+        local missing=pg.RequiredTickets and(pg.RequiredTickets.." tickets")or(pg.MissingRJ.." jelly")
+        lines[#lines+1]="Need "..missing.." | Honey "..money(pg.Honey or 0).."/"..money(pg.FundsRequired)
+    end
+    local blender=Report.Blender
+    if blender and blender.Recipe then
+        lines[#lines+1]="Blender: "..blender.Recipe.." x"..tostring(blender.Count).." | "
+            ..(blender.Complete and "ready to collect" or math.ceil(blender.RemainingSeconds or 0).."s left")
+    end
+    local bg=Report.Background or {}
+    local slots=tostring(Report.Slots or "?").." slots"
+    local jelly=tostring(Report.RoyalJelly or 0).." jelly"
+    local refill=tostring(Report.RefillAmount or "-").." / refill"
+    return {
+        phase=string.upper((Report.Stage or "inspect").."  |  "..(Report.Phase or "starting")),
+        activity=tostring(Report.Error or Report.CleanupError or Report.Activity or Report.Phase),
+        progress=progress,gear=table.concat(lines,"\n"),
+        background="Amulets: "..tostring(bg.Amulet or "Inspecting").."\nQuest assist: "..tostring(bg.Quest or "Inspecting"),
+        slots=slots,jelly=jelly,refill=refill,metrics=slots.."  |  "..jelly.."  |  "..refill,
+        finished=not env.FullHiveRunning,
+    }
+end
+local function watchUI(gui,render)
+    task.spawn(function()
+        while gui.Parent do
+            local state=readUIStatus()
+            render(state)
+            if state.finished then break end
+            task.wait(0.75)
+        end
+    end)
+end
+local function stopAssist()
+    env.FullHiveStop=true
+    if env.FullHiveStarRunning then env.AutoGiftedStarStop=true end
+end
+local function setBlenderTickets(enabled)
+    Config.UseBlenderTickets=enabled
+    env.FullHiveConfig=env.FullHiveConfig or {}
+    env.FullHiveConfig.UseBlenderTickets=enabled
+end
+local function hiveSnapshot()
+    if not Cache or not Types then return nil end
+    return Cache:Get(),Types,Report.ActiveTarget
+end
+local function makeNativeUI(gui)
     local make=FeatherTheme.make
     local frame=make("Frame","StatusPanel",gui,{Size=UDim2.fromOffset(350,418),Position=UDim2.fromOffset(18,80)})
     FeatherTheme.panel(frame)
@@ -1340,9 +1417,7 @@ local function makeUI()
     blenderTicketButton.Size=UDim2.fromOffset(150,18); blenderTicketButton.Position=UDim2.fromOffset(18,278)
     blenderTicketButton.Text="Blender tickets: OFF"; blenderTicketButton.Parent=frame; FeatherTheme.button(blenderTicketButton,false)
     blenderTicketButton.Activated:Connect(function()
-        Config.UseBlenderTickets=not Config.UseBlenderTickets
-        env.FullHiveConfig=env.FullHiveConfig or {}
-        env.FullHiveConfig.UseBlenderTickets=Config.UseBlenderTickets
+        setBlenderTickets(not Config.UseBlenderTickets)
         blenderTicketButton.Text="Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF")
     end)
     local backgroundText=make("TextLabel","BackgroundStatus",frame,{Position=UDim2.fromOffset(18,302),Size=UDim2.new(1,-36,0,60),
@@ -1353,74 +1428,47 @@ local function makeUI()
     viewButton.Text="View hive"; viewButton.Parent=frame; FeatherTheme.button(viewButton,true)
     local button=Instance.new("TextButton"); button.Name="StopAssistButton"; button.Size=UDim2.new(0.5,-23,0,32); button.Position=UDim2.new(0.5,5,1,-48)
     button.Text="Stop assist"; button.Parent=frame; FeatherTheme.button(button,false)
-    local function stopAssist()
-        env.FullHiveStop=true
-        if env.FullHiveStarRunning then env.AutoGiftedStarStop=true end
-    end
     button.Activated:Connect(stopAssist)
-    createHiveView(gui,frame,viewButton,function()
-        if not Cache or not Types then return nil end
-        return Cache:Get(),Types,Report.ActiveTarget
-    end)
+    createHiveView(gui,frame,viewButton,hiveSnapshot)
     local function setText(label,value)
         if label.Text~=value then label.Text=value end
     end
-    task.spawn(function()
-        repeat
-            if frame.Visible then
-            local c=Report.Counts or {}
-            local progress=Report.Stage=="early" and string.format("Baby %d/4 | Music %d/4 | Shy %d/3",c.Baby or 0,c.Music or 0,c.Shy or 0)
-                or string.format("Actions %d | Jelly used %d",Report.Actions,Report.RoyalJellyUsed)
-            local active=Report.ActiveTarget
-            if active then
-                progress=string.format("Slot (%d,%d) | %s",active.X,active.Y,
-                    Report.CollectorFallback and (active.Reason=="gifted-collector-fallback" and "100-jelly gifted recovery" or "100-jelly collector recovery") or active.Reason)
-            end
-            setText(phase,string.upper((Report.Stage or "inspect").."  |  "..(Report.Phase or "starting")))
-            phase.TextColor3=Report.Error and Color3.fromRGB(255,176,192) or Color3.fromRGB(164,214,255)
-            setText(text,Report.Error or Report.CleanupError or Report.Activity or Report.Phase)
-            setText(progressText,progress)
-            local pg=Report.Progression or {}
-            local status=pg.Status or {}
-            local title=pg.Gear and ("Target: "..pg.Gear) or "Gear route complete"
-            local lines={title}
-            lines[#lines+1]=status.label or pg.Reason or pg.Action or "Inspecting gear"
-            local counts={}
-            local names={BlueExtract="Blue Extract",RedExtract="Red Extract",ComfortingVial="Comforting Vial"}
-            for _,row in ipairs(status.materials or {}) do
-                if (row.actual or 0)<row.required then
-                    local count=(names[row.item] or row.item).." "..tostring(row.actual or 0).."/"..row.required
-                    if (row.queued or 0)>0 then count=count.." (+"..row.queued.." crafting)" end
-                    counts[#counts+1]=count
-                end
-            end
-            if #counts>0 then lines[#lines+1]=table.concat(counts,", ") end
-            if pg.FundsRequired and(pg.MissingRJ or pg.RequiredTickets)then
-                local function money(n)
-                    if n>=1000000000 then return string.format("%.2fB",n/1000000000) end
-                    if n>=1000000 then return string.format("%.1fM",n/1000000) end
-                    return tostring(math.floor(n))
-                end
-                local missing=pg.RequiredTickets and(pg.RequiredTickets.." tickets")or(pg.MissingRJ.." jelly")
-                lines[#lines+1]="Need "..missing.." | Honey "..money(pg.Honey or 0).."/"..money(pg.FundsRequired)
-            end
-            local blender=Report.Blender
-            if blender and blender.Recipe then
-                lines[#lines+1]="Blender: "..blender.Recipe.." x"..tostring(blender.Count).." | "
-                    ..(blender.Complete and "ready to collect" or math.ceil(blender.RemainingSeconds or 0).."s left")
-            end
-            setText(progressionText,table.concat(lines,"\n"))
-            setText(blenderTicketButton,"Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF"))
-            local bg=Report.Background or{}
-            setText(backgroundText,"Amulets: "..tostring(bg.Amulet or"Inspecting").."\nQuest assist: "..tostring(bg.Quest or"Inspecting"))
-            setText(slotsMetric,tostring(Report.Slots or "?").." slots")
-            setText(jellyMetric,tostring(Report.RoyalJelly or 0).." jelly")
-            setText(refillMetric,tostring(Report.RefillAmount or "-").." / refill")
-            end
-            task.wait(0.75)
-        until not gui.Parent or not env.FullHiveRunning
-        if gui.Parent then phase.Text=string.upper(Report.Phase or "finished"); text.Text=Report.Error or "Assist finished"; button.Text="Finished" end
+    watchUI(gui,function(state)
+        setText(phase,state.phase)
+        phase.TextColor3=Report.Error and Color3.fromRGB(255,176,192) or Color3.fromRGB(164,214,255)
+        setText(text,state.activity)
+        setText(progressText,state.progress)
+        setText(progressionText,state.gear)
+        setText(backgroundText,state.background)
+        setText(slotsMetric,state.slots)
+        setText(jellyMetric,state.jelly)
+        setText(refillMetric,state.refill)
+        setText(blenderTicketButton,"Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF"))
+        if state.finished then button.Text="Finished" end
     end)
+end
+local function makeUI()
+    local gui,parent=makeStatusGui()
+    local openHive
+    local wind,windError=FeatherWindUI.mount(parent,gui,SCRIPT_VERSION,{
+        viewHive=function() if openHive then openHive() end end,
+        stop=stopAssist,
+        ticketsEnabled=function() return Config.UseBlenderTickets end,
+        setTickets=setBlenderTickets,
+    })
+    if wind then
+        gui:SetAttribute("FeatherRenderer","WindUI")
+        openHive=createHiveView(gui,wind.showWindow,nil,hiveSnapshot)
+        FeatherWindUI.mountToggle(parent,gui,wind.syncVisibility)
+        watchUI(gui,wind.render)
+    else
+        Report.UIWarning=windError
+        gui:SetAttribute("FeatherRenderer","Native")
+        warn("[Full Hive] WindUI unavailable; using the native panel: "..windError)
+        makeNativeUI(gui)
+        FeatherWindUI.mountToggle(parent,gui)
+    end
+    gui:SetAttribute("FeatherVersion",SCRIPT_VERSION)
 end
 local ok,err=xpcall(function()
     if not waitForStartupDelay() then return end

@@ -128,15 +128,21 @@ return function(gui,statusFrame,viewButton,snapshot)
         local ok=pcall(render)
         if not ok then summary.Text="Hive data unavailable; retrying..." end
     end
-    viewButton.Activated:Connect(function()
-        overlay.Visible=true; statusFrame.Visible=false
+    local function showStatus(shown)
+        if type(statusFrame)=="function" then statusFrame(shown)
+        else statusFrame.Visible=shown end
+    end
+    local function open()
+        overlay.Visible=true; showStatus(false)
         lastFingerprint=nil;fit(); refreshView()
-    end)
-    close.Activated:Connect(function() overlay.Visible=false; statusFrame.Visible=true end)
+    end
+    if viewButton then viewButton.Activated:Connect(open) end
+    close.Activated:Connect(function() overlay.Visible=false; showStatus(true) end)
     task.spawn(function()
         while gui.Parent do
-            if overlay.Visible then refreshView() end
+            if gui.Enabled and overlay.Visible then refreshView() end
             task.wait(1)
         end
     end)
+    return open
 end

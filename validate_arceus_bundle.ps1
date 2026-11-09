@@ -55,6 +55,14 @@ $required = @(
 foreach ($needle in $required) {
     if (-not $bundle.Contains($needle)) { throw "Compatibility marker missing: $needle" }
 }
+if ([version]$version -ge [version]'1.8.0') {
+    foreach ($needle in @('local function loadFeatherWindUI(staging)','wind:CreateWindow','FeatherVisibilityButton','local m=createFeatherWindIcons()')) {
+        if (-not $bundle.Contains($needle)) { throw "WindUI integration marker missing: $needle" }
+    }
+    if ($bundle.Contains('https://raw.githubusercontent.com/Footagesus/Icons/main/Main-v2.lua')) {
+        throw 'WindUI icon loader must use the bundled catalogue'
+    }
+}
 if ($bundle -match 'getgenv\(\)\.FullHive') { throw 'Raw getgenv hook remains in embedded Star Egg source' }
 if ($bundle -match 'local env = getgenv\(\)') { throw 'Un guarded getgenv remains' }
 if ($bundle.Contains('state[1]')) { throw 'Unguarded Atlas state indexing reintroduced' }

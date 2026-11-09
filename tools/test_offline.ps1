@@ -22,7 +22,8 @@ try {
     $code+='local P=compile('+(Literal 'full_hive_policy.luau')+')()'+"`n"
     $code+='local T=compile('+(Literal 'tests/offline_bee_types.luau')+')()'+"`n"
     $code+='local runtime='+(Literal 'full_hive_runtime.luau')+"`n"
-    $code+='local bundle='+(Literal 'auto_full_hive_assist.luau')+"`n"
+    $bundle=Literal 'auto_full_hive_assist.luau'
+    $code+='local bundle='+$bundle+"`n"
     $code+='local starSource=assert(bundle:match("local StarEggSource = %[%=%=%=%=%[(.-)%]%=%=%=%=%]")); compile(bundle); compile(starSource)'+"`n"
     $code+='local total=0'+"`n"
     $code+='local Progression=compile('+(Literal 'progression_policy.luau')+')();local Facts=compile('+(Literal 'progression_facts.luau')+')()'+"`n"
@@ -33,6 +34,9 @@ try {
     foreach ($suite in $Suites) {
         $args=if ($suite -eq 'test_character_recovery.luau') {'runtime'} elseif ($suite -eq 'test_jelly_batch.luau') {'runtime,P,T'} elseif ($suite -eq 'tests/test_star_preflight_offline.luau') {'starSource,T'} elseif ($suite -eq 'tests/test_star_progress_offline.luau') {'starSource'} elseif ($suite -eq 'tests/test_connected_review_offline.luau') {'P,T,starSource'} elseif ($suite -eq 'tests/test_auto_progression.luau') {'Progression'} elseif ($suite -eq 'tests/test_progression_facts.luau') {'Facts,Progression'} elseif ($suite -eq 'tests/test_progression_funds.luau') {'Funds'} elseif ($suite -eq 'tests/test_progression_hatch_receipt.luau') {'HatchReceipt'} elseif ($suite -eq 'tests/test_progression_blender_receipt.luau') {'BlenderReceipt'} elseif ($suite -eq 'tests/test_amulet_policy.luau') {'Amulets'} elseif ($suite -eq 'tests/test_quest_assist_policy.luau') {'QuestAssist'} else {'P,T,runtime'}
         $code+='do local test=compile('+(Literal $suite)+')();local result=test('+$args+'); total+=result.passed;print("'+$suite+'",result.passed) end'+"`n"
+    }
+    if ($bundle -match 'local function loadFeatherWindUI\(staging\)') {
+        $code+='do local test=compile('+(Literal 'tests/test_feather_wind_ui.luau')+')();local result=test('+(Literal 'feather_wind_ui.luau')+'); total+=result.passed;print("tests/test_feather_wind_ui.luau",result.passed) end'+"`n"
     }
     $code+='print("OFFLINE PASS",total)'+"`n"
     [IO.File]::WriteAllText($taskScript,$code,[Text.UTF8Encoding]::new($false))

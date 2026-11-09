@@ -1,0 +1,121 @@
+-- Feather's UI adapter. Its only game-facing operations are the callbacks
+-- supplied by the host for the existing controls and cached hive snapshot.
+local UI={}
+local featherImage="rbxassetid://91872927606406"
+
+function UI.visibility(overlay,onVisibility,button)
+    local shown=true
+    local function setShown(value)
+        shown=value
+        overlay.Enabled=value
+        if onVisibility then onVisibility() end
+        button:SetAttribute("FeatherVisible",value)
+        button.BackgroundColor3=value and Color3.fromRGB(24,27,29) or Color3.fromRGB(35,42,54)
+    end
+    button.Activated:Connect(function() setShown(not shown) end)
+    setShown(true)
+    return setShown
+end
+
+function UI.mountToggle(parent,overlay,onVisibility)
+    local make=FeatherTheme.make
+    local gui=make("ScreenGui","FeatherVisibility",parent,{
+        ResetOnSpawn=false,IgnoreGuiInset=true,ScreenInsets=Enum.ScreenInsets.None,DisplayOrder=10002})
+    local button=make("ImageButton","FeatherVisibilityButton",gui,{
+        AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),
+        Size=UDim2.fromOffset(52,52),BorderSizePixel=0,Image="",Active=true})
+    make("UICorner","Circle",button,{CornerRadius=UDim.new(1,0)})
+    make("UIStroke","Rim",button,{Color=Color3.fromRGB(66,74,81),Transparency=0.5,Thickness=1})
+    make("ImageLabel","FeatherIcon",button,{
+        AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),Size=UDim2.fromOffset(28,28),
+        BackgroundTransparency=1,Image=featherImage,ImageColor3=Color3.fromRGB(205,213,222)})
+    UI.visibility(overlay,onVisibility,button)
+    overlay.Destroying:Connect(function() gui:Destroy() end)
+    return button
+end
+
+function UI.mount(parent,overlay,version,callbacks)
+    local stage=Instance.new("Folder")
+    stage.Name="FeatherWindUIStaging"
+    local wind,window
+    local layers={}
+    local function cleanup()
+        if window then window.Destroyed=true end
+        if wind and wind.Creator then wind.Creator.DisconnectAll() end
+        for _,layer in ipairs(layers) do layer:Destroy() end
+        if stage then stage:Destroy(); stage=nil end
+    end
+    local ok,result=pcall(function()
+        wind=loadFeatherWindUI(stage)
+        layers={wind.ScreenGui,wind.NotificationGui,wind.DropdownGui,wind.TooltipGui}
+        local visible=false
+        local function syncVisibility()
+            for _,layer in ipairs(layers) do layer.Enabled=visible and overlay.Enabled end
+        end
+        local function showWindow(value)
+            visible=value
+            syncVisibility()
+        end
+        window=wind:CreateWindow({
+            Title="Feather",Icon="feather",IconThemed=true,Author="Atlas Hive Assist  •  v"..version,
+            Theme="Dark",Size=UDim2.fromOffset(500,350),MinSize=Vector2.new(500,350),
+            SideBarWidth=132,Resizable=false,HideSearchBar=true,ScrollBarEnabled=true,
+            OpenButton={Enabled=false},
+        })
+        window:DisableTopbarButtons({"Minimize","Close","Fullscreen"})
+        local overview=window:Tab({Title="Overview",Icon="activity"})
+        local progression=window:Tab({Title="Progression",Icon="hexagon"})
+        local controls=window:Tab({Title="Controls",Icon="settings"})
+        local status=overview:Paragraph({Title="Starting",Desc="Preparing progression..."})
+        local hive=overview:Paragraph({Title="Hive",Desc="Waiting for hive data..."})
+        local gear=progression:Paragraph({Title="Gear and Blender",Desc="Inspecting gear..."})
+        local background=progression:Paragraph({Title="Amulets and quests",Desc="Inspecting..."})
+        overview:Button({Title="View hive",Icon="eye",Callback=function() callbacks.viewHive() end})
+        local tickets=controls:Toggle({Title="Blender tickets",Icon="hammer",
+            Desc="Allow tickets to speed up Blender crafting.",Value=callbacks.ticketsEnabled(),
+            Callback=callbacks.setTickets})
+        local stop=controls:Button({Title="Stop assist",Icon="square",Callback=callbacks.stop})
+        -- The viewer sits in its own layer. Its close button restores the window.
+        local camera=workspace.CurrentCamera
+        if camera and (camera.ViewportSize.X>=1100 or camera.ViewportSize.Y>=800) then
+            window.Position=camera.ViewportSize.X>=1100 and UDim2.fromScale(0.25,0.5)
+                or UDim2.fromScale(0.5,0.25)
+            window.UIElements.Main.Position=window.Position
+        end
+        local names={"FeatherWindWindow","FeatherWindNotifications","FeatherWindDropdowns","FeatherWindTooltips"}
+        for index,layer in ipairs(layers) do
+            layer.Name=names[index]
+            layer.DisplayOrder=9995+index
+        end
+        wind:SetParent(parent)
+        stage:Destroy(); stage=nil
+        showWindow(true)
+        overlay.Destroying:Connect(cleanup)
+        local last={}
+        local function update(element,method,key,value)
+            if last[key]==value then return end
+            last[key]=value
+            element[method](element,value)
+        end
+        return {
+            showWindow=showWindow,
+            syncVisibility=syncVisibility,
+            render=function(state)
+                update(status,"SetTitle","phase",state.phase)
+                update(status,"SetDesc","activity",state.activity)
+                update(hive,"SetDesc","hive",state.metrics.."\n"..state.progress)
+                update(gear,"SetDesc","gear",state.gear)
+                update(background,"SetDesc","background",state.background)
+                if state.finished and not last.finished then
+                    last.finished=true
+                    tickets:Lock()
+                    stop:Lock()
+                end
+            end,
+        }
+    end)
+    if ok then return result end
+    cleanup()
+    return nil,tostring(result)
+end
+return UI

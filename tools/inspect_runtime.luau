@@ -49,12 +49,20 @@ if gui then
     local label=gui:FindFirstChildWhichIsA("TextLabel",true)
     result.StatusText=label and label.Text
     local panel=gui:FindFirstChild("StatusPanel")
-    if panel then
+    if gui:GetAttribute("FeatherRenderer")=="WindUI" then
+        local window=parent:FindFirstChild("FeatherWindWindow")
+        local toggleGui=parent:FindFirstChild("FeatherVisibility")
+        local toggle=toggleGui and toggleGui:FindFirstChild("FeatherVisibilityButton")
+        result.UI={Brand="Feather",Renderer="WindUI",Version="v"..tostring(gui:GetAttribute("FeatherVersion")),
+            HasViewHiveButton=gui:FindFirstChild("HiveOverlay")~=nil,StatusVisible=window and window.Enabled,
+            HasVisibilityButton=toggle~=nil,FeatherVisible=toggle and toggle:GetAttribute("FeatherVisible")}
+    elseif panel then
         local brand=panel:FindFirstChild("FeatherBrand")
         local version=panel:FindFirstChild("VersionBadge")
         local view=panel:FindFirstChild("ViewHiveButton")
         result.UI={Brand=brand and brand.BrandTitle.Text,Version=version and version.Text,
-            HasViewHiveButton=view~=nil,StatusVisible=panel.Visible}
+            HasViewHiveButton=view~=nil,StatusVisible=gui.Enabled and panel.Visible,
+            Renderer=gui:GetAttribute("FeatherRenderer")}
     end
 end
 return result
