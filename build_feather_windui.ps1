@@ -29,8 +29,9 @@ end
 $wind = Replace-Once $wind $bootstrap 'local m=createFeatherWindIcons()'
 $wind = Replace-Once $wind 'local d=b(game:GetService"ReplicatedStorage":WaitForChild("GetIcons",99999):InvokeServer())' 'local d={} -- unused upstream icon fallback; never call a game remote'
 # Track the global input and drag handlers in WindUI's existing cleanup list.
-$wind = Replace-Once $wind 'an.InputBegan:Connect(function(ap,aq)' 'as.AddSignal(an.InputBegan,function(ap,aq)'
-$wind = Replace-Once $wind 'an.InputEnded:Connect(function(ap,aq)' 'as.AddSignal(an.InputEnded,function(ap,aq)'
+# The local alias `as` is declared after these hooks in the upstream bundle.
+$wind = Replace-Once $wind 'an.InputBegan:Connect(function(ap,aq)' 'aa.Creator.AddSignal(an.InputBegan,function(ap,aq)'
+$wind = Replace-Once $wind 'an.InputEnded:Connect(function(ap,aq)' 'aa.Creator.AddSignal(an.InputEnded,function(ap,aq)'
 $wind = Replace-Once $wind 'e.InputChanged:Connect(function(M)' 'r.AddSignal(e.InputChanged,function(M)'
 $wind = Replace-Once $wind 'e.InputEnded:Connect(function(M)' 'r.AddSignal(e.InputEnded,function(M)'
 $cleanup = @'

@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.8.1:** Moves the round Feather toggle to the top center, inside the device's safe area. Fixes a WindUI startup error that caused v1.8.0 to use the native panel.
+
 **v1.8.0:** Feather now uses [WindUI](https://footagesus.github.io/WindUI-Docs/) for its Overview, Progression and Controls tabs. Tap the round feather in the center of the screen to hide or restore the interface without stopping the assist. The read-only **View hive** grid, **Blender tickets** toggle and **Stop assist** remain available. If WindUI cannot start, Feather falls back to the native panel with the same visibility button.
 
 **v1.7.9:** Fixes the observed terminal stop after a player-stats read timeout. It waits for the original read to resolve, resumes Atlas, and replans once without replaying a spend. Pending mutations, uncertain receipts, stuck reads and repeated timeouts remain protected stops.
