@@ -6,38 +6,48 @@ return function(gui,statusFrame,viewButton,snapshot)
         item.Parent=parent
         return item
     end
+    -- Match the bundled WindUI Dark palette while keeping the custom hive grid.
+    local text=Color3.fromHex("#ffffff")
+    local muted=Color3.fromHex("#a1a1a1")
+    local surface=Color3.fromHex("#18181b")
     local overlay=make("TextButton","HiveOverlay",gui,{
-        Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.fromRGB(8,11,16),
-        BackgroundTransparency=0.15,BorderSizePixel=0,Text="",AutoButtonColor=false,
+        Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(0,0,0),
+        BackgroundTransparency=0.48,BorderSizePixel=0,Text="",AutoButtonColor=false,
         Modal=true,Visible=false,ZIndex=20})
     local panel=make("Frame","HivePanel",overlay,{
         AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),
-        Size=UDim2.fromOffset(360,620),BackgroundColor3=Color3.fromRGB(23,27,31),
+        Size=UDim2.fromOffset(360,620),BackgroundColor3=Color3.fromHex("#101010"),
         BorderSizePixel=0,ZIndex=21})
-    FeatherTheme.panel(panel)
+    make("UICorner","Corner",panel,{CornerRadius=UDim.new(0,16)})
+    make("UIStroke","Outline",panel,{Color=text,Transparency=0.88,Thickness=1})
     local scale=make("UIScale","ResponsiveScale",panel,{Scale=1})
-    FeatherTheme.brand(panel,UDim2.fromOffset(18,10),22)
+    make("ImageLabel","FeatherIcon",panel,{Position=UDim2.fromOffset(18,16),Size=UDim2.fromOffset(22,22),
+        BackgroundTransparency=1,Image=FeatherTheme.featherIcon,ImageColor3=Color3.fromHex("#a1a1aa"),ZIndex=22})
+    make("TextLabel","BrandTitle",panel,{Position=UDim2.fromOffset(49,14),Size=UDim2.fromOffset(125,26),
+        BackgroundTransparency=1,Text="Feather",Font=Enum.Font.GothamMedium,TextSize=17,
+        TextColor3=text,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=22})
     make("TextLabel","ViewLabel",panel,{Position=UDim2.new(1,-112,0,20),Size=UDim2.fromOffset(94,18),
         BackgroundTransparency=1,Text="YOUR HIVE",Font=Enum.Font.GothamBold,TextSize=11,
-        TextColor3=Color3.fromRGB(158,192,235),TextXAlignment=Enum.TextXAlignment.Right,ZIndex=22})
+        TextColor3=muted,TextXAlignment=Enum.TextXAlignment.Right,ZIndex=22})
     local summary=make("TextLabel","Summary",panel,{Position=UDim2.fromOffset(18,40),Size=UDim2.new(1,-36,0,20),
         BackgroundTransparency=1,Text="Waiting for hive data...",Font=Enum.Font.Gotham,TextSize=13,
-        TextColor3=Color3.fromRGB(166,180,197),TextXAlignment=Enum.TextXAlignment.Left,ZIndex=22})
+        TextColor3=muted,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=22})
     FeatherTheme.draggable(panel,64,30)
     local scroll=make("ScrollingFrame","HiveScroll",panel,{Position=UDim2.fromOffset(18,70),
-        Size=UDim2.new(1,-36,1,-140),BackgroundTransparency=1,BorderSizePixel=0,
-        ScrollBarThickness=4,ScrollBarImageColor3=Color3.fromRGB(98,117,141),
+        Size=UDim2.new(1,-36,1,-140),BackgroundColor3=surface,BorderSizePixel=0,
+        ScrollBarThickness=4,ScrollBarImageColor3=muted,
         CanvasSize=UDim2.fromOffset(0,0),ScrollingDirection=Enum.ScrollingDirection.Y,ZIndex=22})
+    make("UICorner","Corner",scroll,{CornerRadius=UDim.new(0,12)})
     local grid=make("Frame","HiveGrid",scroll,{AnchorPoint=Vector2.new(0.5,0),
         Position=UDim2.new(0.5,0,0,6),Size=UDim2.fromOffset(232,0),BackgroundTransparency=1,ZIndex=23})
     local detail=make("TextLabel","BeeDetails",panel,{Position=UDim2.new(0,12,1,-66),Size=UDim2.new(1,-24,0,22),
         BackgroundTransparency=1,Text="Tap a bee for details",Font=Enum.Font.Gotham,TextSize=12,
-        TextColor3=Color3.fromRGB(196,208,224),TextTruncate=Enum.TextTruncate.AtEnd,ZIndex=22})
+        TextColor3=muted,TextTruncate=Enum.TextTruncate.AtEnd,ZIndex=22})
     local close=make("TextButton","CloseHiveButton",panel,{AnchorPoint=Vector2.new(0.5,1),
         Position=UDim2.new(0.5,0,1,-10),Size=UDim2.fromOffset(120,30),
-        BackgroundColor3=Color3.fromRGB(58,66,76),BorderSizePixel=0,Text="Close",
-        Font=Enum.Font.GothamBold,TextSize=14,TextColor3=Color3.new(1,1,1),ZIndex=22})
-    FeatherTheme.button(close,true)
+        BackgroundColor3=Color3.fromHex("#2a2a2c"),BorderSizePixel=0,Text="Close",
+        Font=Enum.Font.GothamMedium,TextSize=14,TextColor3=text,ZIndex=22})
+    make("UICorner","Corner",close,{CornerRadius=UDim.new(0,10)})
     local function fit()
         local size=overlay.AbsoluteSize
         if size.X>24 and size.Y>24 then scale.Scale=math.min(1,(size.X-24)/360,(size.Y-24)/620) end

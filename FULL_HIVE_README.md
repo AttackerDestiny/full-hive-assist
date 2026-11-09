@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.8.2:** Use **Controls → Assist enabled** to pause or resume the same instance. Feather releases Atlas at a safe checkpoint and retains the current hive task and counters. The read-only hive grid uses WindUI's dark colors and Lucide feather icon.
+
 **v1.6.4 current:** Pesticide Planter follows Petal Belt before Coconut Canister. At36+ hive capacity, missing Candy, Red Clay, Blue Clay and Tacky Planters become catch-up targets ahead of ordinary gear. Purchased/deployed planters are skipped independently using their permanent ownership ledger.
 
 **v1.6.2 current:** Fixes Riley's doubled gear-price admission, Luneri's next-recipe funding order and rotated-pad movement. Material status distinguishes owned output from queued Blender output; partial jelly for the next recipe is protected until that order starts. Natural connected verification confirms Riley owns/equips Diamond Drenchers and Luneri is crafting231 Blue Extract from19 owned. Both run v1.6.2 after3,287 isolated checks per executor.

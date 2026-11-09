@@ -3,7 +3,7 @@ return function(runtime,Policy,Types)
     local source=assert(runtime:match("(local function jellyBatchReady%(s%).-)\nlocal function find%(cells,cell%)"))
     local active=assert(runtime:match("(local function activeJellyBatch%(s%).-)\nlocal function context"))
     local refillSource=assert(runtime:match("(local function refill%(%)%s.-)\nlocal function eventAction"))
-    local factory=assert(loadstring('return function(env,Report,player,game,hive,Policy,Config,refresh,plan,buy,move,hiveFloor,checkStop,royalJellyPurchases)\nlocal lateStarted=false\n'..
+    local factory=assert(loadstring('return function(env,Report,player,game,hive,Policy,Config,refresh,plan,buy,move,hiveFloor,checkStop,royalJellyPurchases)\nlocal lateStarted=false; local pauseCheckpoint=checkStop\n'..
         active..'\n'..source..'\n'..refillSource..'\nreturn jellyBatchReady,jellyBatchSpent,refill\nend'))()
     local passed=0
     local function check(v,message) assert(v,message); passed+=1 end

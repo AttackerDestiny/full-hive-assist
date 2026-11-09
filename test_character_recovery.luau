@@ -2,10 +2,49 @@
 return function(runtime)
     local helpers=assert(runtime:match("(local CHARACTER_UNAVAILABLE = {}.-)\nlocal function distance"),"Character helpers missing")
     local recovery=assert(runtime:match("(local function runWithCharacterRecovery%(%)%s.-)\nlocal function makeUI"),"Recovery loop missing")
-    local factory=assert(loadstring("return function(player,env,Report,run,release,checkStop,task)\nlocal STATS_READ_TIMEOUT={}\n"..helpers.."\n"..recovery..
-        "\nreturn runWithCharacterRecovery,root,characterRoot,CHARACTER_UNAVAILABLE,MOVEMENT_TIMEOUT,STATS_READ_TIMEOUT\nend"))()
+    local factory=assert(loadstring("return function(player,env,Report,run,release,checkStop,task)\nlocal STATS_READ_TIMEOUT={}\nlocal PAUSE_REQUESTED={}\n"..helpers.."\n"..recovery..
+        "\nreturn runWithCharacterRecovery,root,characterRoot,CHARACTER_UNAVAILABLE,MOVEMENT_TIMEOUT,STATS_READ_TIMEOUT,PAUSE_REQUESTED\nend"))()
     local checked=0
     local function check(value,message) assert(value,message); checked+=1 end
+    if runtime:find("err==PAUSE_REQUESTED",1,true) then
+        for _,scenario in ipairs({"resume","stop","pending","uncertain","cleanup"}) do
+            local lease,batch,basic={},{},{}
+            local env={FullHiveRollTask=lease,FullHiveJellyBatch=batch,FullHiveBasicLock=basic,FullHiveAtlasOwned=true}
+            local report={PauseRequested=true,Actions=13}
+            local runs,releases,waits=0,0,0
+            local pause
+            local loop,_,_,_,_,_,token=factory({},env,report,function()
+                runs+=1
+                if runs==1 then error(pause,0) end
+            end,function()
+                releases+=1
+                env.FullHiveAtlasOwned=false
+                if scenario=="cleanup" then report.CleanupError="test cleanup failure" end
+            end,function()
+                if env.FullHiveStop then error("test hard stop",0) end
+            end,{wait=function()
+                waits+=1
+                assert(report.Phase=="paused" and not env.FullHiveAtlasOwned and runs==1)
+                if scenario=="stop" then env.FullHiveStop=true else report.PauseRequested=false end
+            end})
+            pause=token
+            if scenario=="pending" then env.FullHivePending={} end
+            if scenario=="uncertain" then env.FullHiveUncertain={} end
+            local ok=pcall(loop)
+            check(releases==1,"Pause releases Atlas once")
+            check(env.FullHiveRollTask==lease and env.FullHiveJellyBatch==batch
+                and env.FullHiveBasicLock==basic and report.Actions==13,"Pause preserves work and counters")
+            if scenario=="resume" then
+                check(ok and waits==1 and runs==2 and report.Phase=="resuming","Resume re-enters planning without loading a new instance")
+            elseif scenario=="stop" then
+                check(not ok and waits==1 and runs==1,"External stop still terminates a paused assist")
+            else
+                check(not ok and waits==0 and runs==1,"Unsafe cleanup or unresolved work prevents resume")
+                check(scenario~="pending" or env.FullHivePending,"Pending request preserved")
+                check(scenario~="uncertain" or env.FullHiveUncertain,"Uncertain request preserved")
+            end
+        end
+    end
     local function character(health,hasRoot)
         local r=hasRoot and {Parent=true} or nil
         return {FindFirstChildOfClass=function() return health and {Health=health} end,

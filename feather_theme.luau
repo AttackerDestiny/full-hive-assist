@@ -1,5 +1,6 @@
 -- Native GUI styling and feather sticker; no downloaded/custom assets needed.
 local Theme={}
+Theme.featherIcon="rbxassetid://91872927606406" -- Bundled WindUI Lucide feather.
 function Theme.make(class,name,parent,properties)
     local item=Instance.new(class); item.Name=name
     for key,value in pairs(properties or {}) do item[key]=value end

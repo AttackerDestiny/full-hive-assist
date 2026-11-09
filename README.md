@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.8.2:** The **Controls → Assist enabled** switch pauses and resumes Feather in place. Pausing takes effect at a safe checkpoint after the current action or Star Egg workflow settles, releases Atlas, and preserves the active hive task. The hive viewer now uses WindUI's dark palette and Lucide feather icon.
+
 **v1.8.1:** Moves the round Feather toggle to the top center, inside the device's safe area. Fixes a WindUI startup error that caused v1.8.0 to use the native panel.
 
 **v1.8.0:** Feather now uses [WindUI](https://footagesus.github.io/WindUI-Docs/) for its Overview, Progression and Controls tabs. Tap the round feather in the center of the screen to hide or restore the interface without stopping the assist. The read-only **View hive** grid, **Blender tickets** toggle and **Stop assist** remain available. If WindUI cannot start, Feather falls back to the native panel with the same visibility button.
@@ -67,7 +69,7 @@ Zero-to-fifty acquisition is not yet autonomous: Atlas/manual actions still hatc
 
 **v1.3.5 refill fix:** Recovery affordability uses only the Royal Jelly still missing from the normal target, including the initial legendary entry target. Buying the first pack of a larger refill no longer switches an affordable top-up into 100-jelly recovery. Active repair still persists until completed; normal admission and saved-leftover rules remain unchanged.
 
-The in-game interface is **Feather**, with a feather sticker, navy/violet styling, live status and inventory badges, and **View hive** beside **Stop assist**. Both the status panel and expanded hive viewer adapt to the screen size. The feather is drawn with native Roblox UI elements, so no asset upload or executor file support is required.
+The in-game interface is **Feather**, with a WindUI status window and a matching dark hive viewer. Use the top-center feather icon to hide or restore the UI, or **Assist enabled** in Controls to pause and resume the assist.
 
 Click **View hive** in the status panel to open the larger live hive view. It shows bee icons in hive order, levels, gifted stars and the active roll slot. Tap a bee for its name/coordinate; **Close** returns to the status panel. The viewer reads the existing client cache and does not pause Atlas or send game requests.
 

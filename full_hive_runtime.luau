@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.1"
+local SCRIPT_VERSION = "1.8.2"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -103,6 +103,8 @@ env.FullHiveRunning, env.FullHiveStop = true, false
 env.FullHiveVersion = SCRIPT_VERSION
 env.FullHivePreviousReport = env.FullHiveReport
 local Report = {Version=SCRIPT_VERSION, Phase="starting", Actions=0, RoyalJellyUsed=0, DryRun=Config.DryRun,StartedAt=os.time()}
+Report.PauseRequested=env.FullHiveStartPaused==true
+env.FullHiveStartPaused=nil -- One-time handoff for maintenance of a paused/stopped session.
 env.FullHiveReport = Report
 local Players, RS = game:GetService("Players"), game:GetService("ReplicatedStorage")
 local player, Events, Cache, Types, EggTypes
@@ -120,8 +122,16 @@ if env.FullHiveJellyBatch and not env.FullHiveJellyBatch.Recovery and not rollTa
 end
 local nextFlexible
 local stoppedByUser = false
+local PAUSE_REQUESTED = {}
 local function checkStop()
     if env.FullHiveStop then stoppedByUser=true; error("Stopped by user",0) end
+end
+local function pauseCheckpoint()
+    checkStop()
+    -- Embedded Star Egg work must finish its own receipt reconciliation.
+    if Report.PauseRequested and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning then
+        error(PAUSE_REQUESTED,0)
+    end
 end
 local function waitForChild(parent,name)
     local deadline=os.clock()+30
@@ -877,7 +887,7 @@ local function refill()
     if Report.RefillMode=="legendary-entry" then pack=math.max(pack,10000) end
     Report.Activity="Refilling Royal Jelly to "..target.." before starting a batch"
     while true do
-        checkStop(); s=refresh(); plan(s)
+        pauseCheckpoint(); s=refresh(); plan(s)
         if Report.RefillAmount~=target or (Report.CollectorFallback==true)~=fallback then return false end
         inventory=s.Eggs.RoyalJelly or 0
         if inventory>=target then break end
@@ -994,7 +1004,7 @@ local function giftedBasic(s,cells,p)
         if basicLock.BasicBatchPurchased < basicLock.BasicBatchTarget then
             if not Config.AutoPurchase then return false end
             while basicLock.BasicBatchPurchased < basicLock.BasicBatchTarget do
-                checkStop()
+                pauseCheckpoint()
                 local current=refresh()
                 if (current.Honey or 0)-Config.HoneyReserve < 10000000 then return false end
                 -- Each request is exactly one Basic Egg. buy() verifies the
@@ -1128,9 +1138,10 @@ local function waitForStartupDelay()
 end
 local function run()
     assert(Report.AtlasReady,"Startup delay must finish before starting")
+    pauseCheckpoint()
     local s=refresh()
     while not env.FullHiveStop do
-        checkStop()
+        pauseCheckpoint()
         if Report.Actions>=Config.MaxActions or Report.RoyalJellyUsed>=Config.MaxRoyalJellies then break end
         s=Cache:Get()
         if not hive() then waitFor("Waiting for Atlas to claim a hive"); s=refresh(); continue end
@@ -1210,13 +1221,32 @@ local function run()
     end
     Report.Phase=env.FullHiveStop and "stopped" or "limit-reached"
 end
--- A stop button affects both the main assist and the existing Star Egg handoff.
 local function runWithCharacterRecovery()
     local movementRecoveryUsed=false
     local statsRecoveryUsed=false
     while true do
         local ok,err=pcall(run)
         if ok then return end
+        if err==PAUSE_REQUESTED then
+            release()
+            local function assertSafe()
+                assert(not env.FullHivePending and not env.AutoHivePendingRequest
+                    and not env.FullHiveUncertain and not env.AutoHiveUncertain
+                    and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning
+                    and not env.FullHiveAtlasOwned and not Report.CleanupError,
+                    "Pause/resume blocked by unresolved work or cleanup failure")
+            end
+            assertSafe()
+            Report.Phase="paused"; Report.Activity="Assist paused. Use Controls to resume."
+            while Report.PauseRequested do
+                checkStop()
+                task.wait(0.25)
+            end
+            checkStop()
+            assertSafe()
+            Report.Phase="resuming"; Report.Activity="Refreshing player stats before continuing"
+            continue
+        end
         if err==STATS_READ_TIMEOUT then
             local request=env.FullHivePending
             local readPending=request==nil or(type(request)=="table"and request.Name=="RetrievePlayerStats")
@@ -1330,11 +1360,14 @@ local function readUIStatus()
     local refill=tostring(Report.RefillAmount or "-").." / refill"
     return {
         phase=string.upper((Report.Stage or "inspect").."  |  "..(Report.Phase or "starting")),
-        activity=tostring(Report.Error or Report.CleanupError or Report.Activity or Report.Phase),
+        activity=tostring(Report.Error or Report.CleanupError
+            or (Report.PauseRequested and Report.Phase~="paused" and env.FullHiveRunning and "Pausing after the current action...")
+            or Report.Activity or Report.Phase),
         progress=progress,gear=table.concat(lines,"\n"),
         background="Amulets: "..tostring(bg.Amulet or "Inspecting").."\nQuest assist: "..tostring(bg.Quest or "Inspecting"),
         slots=slots,jelly=jelly,refill=refill,metrics=slots.."  |  "..jelly.."  |  "..refill,
         finished=not env.FullHiveRunning,
+        enabled=not Report.PauseRequested and env.FullHiveRunning,
     }
 end
 local function watchUI(gui,render)
@@ -1347,9 +1380,10 @@ local function watchUI(gui,render)
         end
     end)
 end
-local function stopAssist()
-    env.FullHiveStop=true
-    if env.FullHiveStarRunning then env.AutoGiftedStarStop=true end
+local function setAssistEnabled(enabled)
+    if env.FullHiveRunning and not env.FullHiveStop then
+        Report.PauseRequested=not enabled
+    end
 end
 local function setBlenderTickets(enabled)
     Config.UseBlenderTickets=enabled
@@ -1427,8 +1461,8 @@ local function makeNativeUI(gui)
     viewButton.Size=UDim2.new(0.5,-23,0,32); viewButton.Position=UDim2.new(0,18,1,-48)
     viewButton.Text="View hive"; viewButton.Parent=frame; FeatherTheme.button(viewButton,true)
     local button=Instance.new("TextButton"); button.Name="StopAssistButton"; button.Size=UDim2.new(0.5,-23,0,32); button.Position=UDim2.new(0.5,5,1,-48)
-    button.Text="Stop assist"; button.Parent=frame; FeatherTheme.button(button,false)
-    button.Activated:Connect(stopAssist)
+    button.Text=Report.PauseRequested and "Resume assist" or "Pause assist"; button.Parent=frame; FeatherTheme.button(button,false)
+    button.Activated:Connect(function() setAssistEnabled(Report.PauseRequested==true) end)
     createHiveView(gui,frame,viewButton,hiveSnapshot)
     local function setText(label,value)
         if label.Text~=value then label.Text=value end
@@ -1444,7 +1478,7 @@ local function makeNativeUI(gui)
         setText(jellyMetric,state.jelly)
         setText(refillMetric,state.refill)
         setText(blenderTicketButton,"Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF"))
-        if state.finished then button.Text="Finished" end
+        setText(button,state.finished and "Finished" or state.enabled and "Pause assist" or "Resume assist")
     end)
 end
 local function makeUI()
@@ -1452,7 +1486,8 @@ local function makeUI()
     local openHive
     local wind,windError=FeatherWindUI.mount(parent,gui,SCRIPT_VERSION,{
         viewHive=function() if openHive then openHive() end end,
-        stop=stopAssist,
+        assistEnabled=function() return not Report.PauseRequested end,
+        setAssistEnabled=setAssistEnabled,
         ticketsEnabled=function() return Config.UseBlenderTickets end,
         setTickets=setBlenderTickets,
     })

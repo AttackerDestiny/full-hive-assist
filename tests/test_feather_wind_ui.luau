@@ -45,11 +45,13 @@ return function(adapter)
     local parent,overlay,button=instance(),instance(),instance()
     local stop,view,tickets=0,0,true
     local mounted=assert(UI.mount(parent,overlay,"test",{
-        viewHive=function() view+=1 end,stop=function() stop+=1 end,
+        viewHive=function() view+=1 end,assistEnabled=function() return false end,
+        setAssistEnabled=function(enabled) stop+=enabled and -1 or 1 end,
         ticketsEnabled=function() return tickets end,setTickets=function(v) tickets=v end,
     }))
     local ticketRow=registered["Controls/Toggle/Blender tickets"]
-    local stopRow=registered["Controls/Button/Stop assist"]
+    local stopRow=registered["Controls/Toggle/Assist enabled"]
+    check(stopRow.config.Value==false,"Preserves the initial paused state")
     check(wind.config.Title=="Feather" and wind.config.Icon=="feather" and not wind.config.OpenButton.Enabled,"Uses the Feather WindUI window")
     check(wind.parent==parent and lastStage.destroyed and ticketRow.config.Value,"Parents only the owned layers and preserves the existing setting")
     UI.visibility(overlay,mounted.syncVisibility,button)
@@ -66,12 +68,15 @@ return function(adapter)
     mounted.showWindow(true)
     check(wind.ScreenGui.Enabled and stop==0 and tickets,"Returning from the hive restores only the window")
     ticketRow.config.Callback(false)
-    stopRow.config.Callback()
+    stopRow.config.Callback(false)
     check(not tickets and stop==1,"Existing controls still dispatch their callbacks")
     local state={phase="WAITING",activity="Farming",metrics="41 slots",progress="No rolls",gear="Tacky Planter",background="Amulets"}
     mounted.render(state)
     local status=registered["Overview/Paragraph/Starting"]
     check(status.title=="WAITING" and status.desc=="Farming","Shows live report values")
+    check(not stopRow.locked,"Pause does not disable the resume control")
+    stopRow.config.Callback(true)
+    check(stop==0,"Toggle can resume the assist")
     state.finished=true
     mounted.render(state)
     check(status.updates==2 and stopRow.locked and ticketRow.locked,"Skips unchanged text and locks controls after stop")

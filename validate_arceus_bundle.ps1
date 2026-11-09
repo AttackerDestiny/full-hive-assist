@@ -17,7 +17,6 @@ $required = @(
     'FeatherTheme.brand(frame',
     'local function descendants(root, className)',
     'local function findText(root, text)',
-    'button.Activated:Connect(stopAssist)',
     'local function loadModule(module)',
     'Native GuiButton activation is the reliable path on Arceus Android.',
     'BasicBatchTarget=10',
@@ -52,6 +51,9 @@ $required = @(
     '"all-gifted-mythics-present"'
     'Basic continuation identity needs reconciliation'
 )
+if ([version]$version -ge [version]'1.8.2') {
+    $required += @('local function setAssistEnabled(enabled)','Title="Assist enabled"','err==PAUSE_REQUESTED')
+} else { $required += 'button.Activated:Connect(stopAssist)' }
 foreach ($needle in $required) {
     if (-not $bundle.Contains($needle)) { throw "Compatibility marker missing: $needle" }
 }

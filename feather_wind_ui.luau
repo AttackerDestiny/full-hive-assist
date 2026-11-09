@@ -1,7 +1,6 @@
 -- Feather's UI adapter. Its only game-facing operations are the callbacks
 -- supplied by the host for the existing controls and cached hive snapshot.
 local UI={}
-local featherImage="rbxassetid://91872927606406"
 
 function UI.visibility(overlay,onVisibility,button)
     local shown=true
@@ -28,7 +27,7 @@ function UI.mountToggle(parent,overlay,onVisibility)
     make("UIStroke","Rim",button,{Color=Color3.fromRGB(66,74,81),Transparency=0.5,Thickness=1})
     make("ImageLabel","FeatherIcon",button,{
         AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),Size=UDim2.fromOffset(28,28),
-        BackgroundTransparency=1,Image=featherImage,ImageColor3=Color3.fromRGB(205,213,222)})
+        BackgroundTransparency=1,Image=FeatherTheme.featherIcon,ImageColor3=Color3.fromRGB(205,213,222)})
     UI.visibility(overlay,onVisibility,button)
     overlay.Destroying:Connect(function() gui:Destroy() end)
     return button
@@ -74,7 +73,9 @@ function UI.mount(parent,overlay,version,callbacks)
         local tickets=controls:Toggle({Title="Blender tickets",Icon="hammer",
             Desc="Allow tickets to speed up Blender crafting.",Value=callbacks.ticketsEnabled(),
             Callback=callbacks.setTickets})
-        local stop=controls:Button({Title="Stop assist",Icon="square",Callback=callbacks.stop})
+        local assist=controls:Toggle({Title="Assist enabled",Icon="activity",Value=callbacks.assistEnabled(),
+            Desc="Turn off to pause. Turn on to resume.",
+            Callback=callbacks.setAssistEnabled})
         -- The viewer sits in its own layer. Its close button restores the window.
         local camera=workspace.CurrentCamera
         if camera and (camera.ViewportSize.X>=1100 or camera.ViewportSize.Y>=800) then
@@ -109,7 +110,7 @@ function UI.mount(parent,overlay,version,callbacks)
                 if state.finished and not last.finished then
                     last.finished=true
                     tickets:Lock()
-                    stop:Lock()
+                    assist:Lock()
                 end
             end,
         }
