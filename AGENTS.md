@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- Latest human spending priority, November 18 / v1.8.5: gear first, filling missing hive slots second, qualified rolling third. Reserve the planned gear honey before optional egg purchases or rolls; an egg more expensive than the planned gear must not consume its funds. Ready gear takes its turn before hatching, including starter hives. Already-owned eggs may hatch during funding waits. Preserve required hive gates, material reservations and serialized request guards. This supersedes v1.8.4's unrestricted gear-honey wait behavior.
+
 - Latest human override, November 18: hatching and qualified bee rolling must continue in the background while gear and other automation run. Bootstrap the first bee before gear funding, yield from gear/Star Amulet honey waits, serialize all requests and preserve recipe jelly reservations and uncertain receipts. This supersedes older blanket blocks on hive work during gear or Star honey saving.
 
 - Latest human requirement, November 18: after each application change, automatically run relevant tests, safely re-execute the tested bundle on the intended connected clients and verify the affected behavior. Preserve pending requests and intentional pause/stop state.

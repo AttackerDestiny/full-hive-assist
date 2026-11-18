@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.8.5:** Spending priority is gear, filling empty hive slots, then bee rolling. Protect the planned gear's honey before egg purchases or rolling; already-owned eggs can hatch during a funding wait. A newly affordable gear purchase also cancels a lower-priority growth decision before spending.
+
 **v1.8.4:** Hatch the first bee before starter gear funding. Gear and Star Amulet honey waits allow background hatching and qualified rolls. Ready purchases retain priority, requests remain serialized, and crafting jelly stays protected.
 
 **v1.8.3:** Starter accounts with a complete snapshot and no Codes field can begin code redemption. Redemption receipts accept both supported code-history formats. The feather toggle sits lower below the top HUD.

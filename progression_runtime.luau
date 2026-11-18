@@ -253,7 +253,11 @@ return function(H)
         local function replan(fresh)
             local f,c=H.buildFacts(fresh)
             local current=P.plan(f,c)
-            local d={action=P.growth(f,c,target,H.Config.HoneyReserve,current.reservedItems)}
+            if current.action.kind=="buy-gear" then
+                return {action={kind="wait",reason="gear-ready"}},f,c
+            end
+            local reserve=math.max(H.Config.HoneyReserve,current.reserveHoney or 0)
+            local d={action=P.growth(f,c,target,reserve,current.reservedItems)}
             return d,f,c
         end
         local d,f,c=replan(s)

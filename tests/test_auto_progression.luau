@@ -23,13 +23,18 @@ return function(P)
         local f=facts();f.occupied=0;f.honey=0;f.inventory.Basic=1;f.emptyCell={x=1,y=1,verified=true}
         local c=catalog("Clippers",100,{})
         local r=P.plan(f,c)
-        check(r.action.kind=="hatch-basic" and r.action.x==1,"First existing egg hatches before gear funding")
-        f.inventory.Basic=0;f.honey=100;c.basicEgg={cost={Honey=100}}
-        check(P.plan(f,c).action.kind=="buy-basic-egg","Empty starter hive buys one affordable egg")
-        f.honey=99
-        check(P.plan(f,c).action.kind=="wait","First egg never buys without enough honey")
-        f.emptyCell=nil;f.honey=100
-        check(P.plan(f,c).action.reason=="need-verified-empty-cell","Starter hatch still requires a verified empty coordinate")
+        check(r.action.reason=="saving-gear-honey" and not r.optionalHiveAllowed,"Empty starter hive retains gear funding priority")
+        check(P.growth(f,c,1,r.reserveHoney,r.reservedItems).kind=="hatch-basic","Owned egg can hatch without spending gear funds")
+        f.inventory.Basic=0;f.honey=100;c.basicEgg={cost={Honey=1000}}
+        check(P.plan(f,c).action.kind=="buy-gear","Affordable gear precedes a more expensive next egg")
+        f.honey=99;r=P.plan(f,c)
+        check(P.growth(f,c,1,r.reserveHoney,r.reservedItems).kind=="wait","Egg cannot consume planned gear savings")
+        f.honey=1099
+        check(P.growth(f,c,1,100,{}).kind=="wait","Egg purchase needs full cost above the gear reservation")
+        f.honey=1100
+        check(P.growth(f,c,1,100,{}).kind=="buy-basic-egg","Egg may use funds above the full gear reservation")
+        f.emptyCell=nil
+        check(P.growth(f,c,1,100,{}).reason=="need-verified-empty-cell","Hatching still requires a verified empty coordinate")
     end
     do
         local f=facts();f.redeemedCodes.Wax=false
@@ -128,7 +133,7 @@ return function(P)
         check(ready.action.kind=="craft" and ready.action.parallelHive==true and ready.optionalHiveAllowed==true,"Material craft phase remains parallel")
         f.inventory.BlueExtract=2
         local gear=P.plan(f,catalog("Clippers",100,{BlueExtract=2}))
-        check(gear.action.kind=="wait" and gear.action.reason=="saving-gear-honey" and gear.optionalHiveAllowed==true and gear.action.parallelHive and gear.reserveHoney==100,"Gear funding yields to background hive work")
+        check(gear.action.kind=="wait" and gear.action.reason=="saving-gear-honey" and gear.optionalHiveAllowed==false and not gear.action.parallelHive and gear.reserveHoney==100,"Gear savings precede optional hive purchases and rolls")
         f.craft={item="Oil",count=7,ready=false,speedupEnabled=false,remainingUnits=2,tickets=20,startTime=500}
         local disabled=P.plan(f,catalog("Clippers",100,{BlueExtract=2}))
         check(disabled.action.kind=="wait" and disabled.action.reason=="blender-busy","Blender ticket speedup is disabled by default")
@@ -278,7 +283,7 @@ return function(P)
         check(P.plan(f,catalog("Clippers",5000000000,{BlueExtract=250,Oil=150})).action.kind=="collect-craft","Ready output collects before remaining gear materials")
         f.craft=false;f.inventory.BlueExtract=250;f.inventory.Oil=150;f.honey=1
         r=P.plan(f,catalog("Clippers",5000000000,{BlueExtract=250,Oil=150}))
-        check(r.action.reason=="saving-gear-honey" and r.optionalHiveAllowed and r.action.parallelHive and r.reserveHoney==5000000000,"Completed materials retain gear goal while allowing background hive work")
+        check(r.action.reason=="saving-gear-honey" and not r.optionalHiveAllowed and r.reserveHoney==5000000000,"Completed materials reserve the planned gear price before hive spending")
     end
     do
         local f=facts();f.inventory.Blueberry=50;f.inventory.SunflowerSeed=500;f.honey=5
