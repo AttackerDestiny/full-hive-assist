@@ -8,6 +8,7 @@ P.trueSingles = {"Basic", "Bumble", "Cool", "Looker", "Bubble", "Commander", "Bu
 P.exactGifted = {Basic=true, Bumble=true, Cool=true, Looker=true, Bomber=true,
     Commander=true, Bucko=true, Carpenter=true, Demon=true, Lion=true,
     Diamond=true, Ninja=true, Shy=true}
+function P.singleJelly(cells) return #cells>0 and #cells<30 end
 function P.gifted(c) return c.bee and table.find(c.bee.Traits or {}, "Gifted") ~= nil end
 function P.key(c) return c.x .. "," .. c.y end
 function P.count(cells, name, giftedOnly)
@@ -541,6 +542,13 @@ function P.plan(cells, types, ctx)
             if candidates[1] then break end
         end
     end
+    if P.singleJelly(cells) then
+        for i,c in ipairs(candidates) do
+            if c.bee.Type=="Basic" and not P.gifted(c) then
+                candidates[1],candidates[i]=c,candidates[1];break
+            end
+        end
+    end
     local fallbackCandidates = {}
     for _, c in ipairs(candidates) do
         if not P.isUsableCollector(c,cells,{questRetired=questRetired}) then fallbackCandidates[#fallbackCandidates + 1] = c end
@@ -591,6 +599,7 @@ function P.plan(cells, types, ctx)
     -- At 44+, the 10k entry condition gates legendary work, not early repairs.
     if waitingLate and #needs == 0 and reason ~= "convert-flexible" and reason ~= "slot-cap" and not collectorFallback then target = nil end
     local growth=P.growth(cells,ctx.slots,ctx.eggs)
+    if P.singleJelly(cells) then mode="off" end
     if ctx.enforceGrowth and not growth.CanReroll then target=nil; reason="hive-growth" end
     local capacityStatus=P.capacityStatus(cells,keep,needs,ctx.slots)
     return {stage=stage, keep=keep, protected=protected, temporary=temporary, needs=needs, candidates=candidates,

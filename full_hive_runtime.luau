@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.6"
+local SCRIPT_VERSION = "1.8.7"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -649,12 +649,24 @@ local function plan(s)
         Report.RefillAmount=math.max(10000,Report.RefillAmount)
         Report.RefillMode="legendary-entry"
     end
+    if Policy.singleJelly(cells) then
+        p.mode="off"
+        Report.RefillAmount=1;Report.RefillMode="single-jelly"
+    end
     p._cells=cells
     return p,cells,slots
 end
 local function jellyBatchReady(s)
     local inventory=s.Eggs.RoyalJelly or 0
+    if type(s.Honeycomb)=="table" and Policy.singleJelly(scan(s)) then
+        env.FullHiveJellyBatch=nil;Report.JellyBatch=nil
+        return inventory>0
+    end
     local target=Report.RefillAmount
+    if Report.RefillMode=="single-jelly" then
+        plan(s);target=Report.RefillAmount
+        if target==1 then return false end
+    end
     local recovery=Report.CollectorFallback==true
     local h=hive()
     local batch=env.FullHiveJellyBatch
@@ -782,6 +794,10 @@ local function spend(cell,item,validate,expectedTask)
         if not jellyBatchReady(s) then return false end -- No request sent; refill/replan.
         assert(Report.RoyalJellyUsed<Config.MaxRoyalJellies,"Royal Jelly limit reached")
         local settings=s.Settings or {}
+        if Policy.singleJelly(cells) and (settings.RollToGifted or settings.RollToLegendary
+            or settings.RollToMythic or settings.RollToMutation) then
+            mode("off");return false
+        end
         -- Recheck fresh inventory after movement: an incidental gift can make
         -- a previously bounded bulk roll exceed the remaining test budget.
         if before>Config.MaxRoyalJellies-Report.RoyalJellyUsed
@@ -800,7 +816,7 @@ local function spend(cell,item,validate,expectedTask)
     if eggUses then Cache:Set({"Totals","EggUses"},eggUses) end
     local consumed=before-remaining
     assert(consumed>=1 and consumed<=before,"Unknown item consumption")
-    if item~="RoyalJelly" then assert(consumed==1,"Unexpected item consumption") end
+    if item~="RoyalJelly" or Policy.singleJelly(cells) then assert(consumed==1,"Unexpected item consumption") end
     Report.Actions=Report.Actions+1
     if item=="RoyalJelly" then
         Report.RoyalJellyUsed=Report.RoyalJellyUsed+consumed

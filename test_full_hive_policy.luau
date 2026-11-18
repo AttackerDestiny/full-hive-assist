@@ -418,5 +418,21 @@ return function(P,T)
         check(q.growth.Empty==25-count and q.growth.CanReroll==(count>0),"Empty capacity does not block an occupied starter target")
         check(count==0 and q.target==nil or count>0 and q.target~=nil and not q.protected[P.key(q.target)],"Only safe occupied cells may roll while hatching waits")
     end
+    do
+        local cells={{x=1,y=1,bee={Type="Brave",Traits={}}},
+            {x=2,y=1,bee={Type="Basic",Traits={"Gifted"}}},
+            {x=3,y=1,bee={Type="Basic",Traits={}}},
+            {x=4,y=1,bee={Type="Tabby",Traits={}}}}
+        local q=P.plan(cells,T,{slots=40,starUsed=0,jelly=1,enforceGrowth=true})
+        check(P.singleJelly(cells) and q.mode=="off","Below30 occupied bees uses normal rolls even at larger capacity")
+        check(q.target and P.key(q.target)=="3,1","Eligible normal Basic precedes other safe candidates")
+        check(q.keep["2,1"]and q.protected["4,1"],"Basic preference preserves Gifted Basic and Event protection")
+        local lease=P.startRollTask(q.target,cells,q);lease.Rolled=true
+        cells[3].bee={Type="Brave",Traits={}}
+        q=P.plan(cells,T,{slots=40,starUsed=0,jelly=1,enforceGrowth=true})
+        check(not P.rollTaskDone(lease,cells[3],cells,T,q) and P.rollTaskSafe(lease,cells[3],cells,T,q),"Intermediate result retains its unfinished Basic coordinate")
+        for i=5,30 do cells[i]={x=i,y=1,bee={Type="Tabby",Traits={}}}end
+        check(not P.singleJelly(cells),"Exactly30 occupied bees restores the usual batch path")
+    end
     return {passed=checked}
 end
