@@ -179,7 +179,12 @@ return function(factory,Policy)
     do
         local deps,s=fixture();deps.Uncertain=function() return {Item="RoyalJelly"} end
         check(factory(deps)(s).uncertain,"Unresolved host transaction blocks the pure planner")
-        s.Codes.wax="ambiguous"
+        s.Codes=nil
+        local starter=factory(deps)(s)
+        check(starter.codesKnown and starter.redeemedCodes.Wax==false,"Complete starter snapshot with omitted Codes admits first redemption")
+        s.Honeycomb=nil
+        check(not factory(deps)(s).codesKnown,"Partial snapshot with omitted Codes stays unknown")
+        s.Codes={wax="ambiguous"}
         check(not factory(deps)(s).codesKnown,"Malformed code record cannot be treated as unredeemed")
     end
     do

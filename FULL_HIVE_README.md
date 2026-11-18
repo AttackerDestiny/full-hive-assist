@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.8.3:** Starter accounts with a complete snapshot and no Codes field can begin code redemption. Redemption receipts accept both supported code-history formats. The feather toggle sits lower below the top HUD.
+
 **v1.8.2:** Use **Controls → Assist enabled** to pause or resume the same instance. Feather releases Atlas at a safe checkpoint and retains the current hive task and counters. The read-only hive grid uses WindUI's dark colors and Lucide feather icon.
 
 **v1.6.4 current:** Pesticide Planter follows Petal Belt before Coconut Canister. At36+ hive capacity, missing Candy, Red Clay, Blue Clay and Tacky Planters become catch-up targets ahead of ordinary gear. Purchased/deployed planters are skipped independently using their permanent ownership ledger.

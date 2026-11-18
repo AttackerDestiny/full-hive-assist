@@ -164,9 +164,15 @@ return function(deps)
             redeemedCodes={},inventoryKnown=type(s.Eggs)=="table",codesKnown=type(s.Codes)=="table",craft=nil}
         local catalog={gear={},recipes={},useSuppliedRecipes=false,packs={},purchases={},sources={}}
         if type(s.Eggs)=="table" then for id,n in pairs(s.Eggs) do facts.inventory[id]=n end end
-        if type(s.Codes)=="table" then
+        -- Starter saves omit Codes until their first redemption. Only accept
+        -- that omission from a complete player snapshot, never partial data.
+        local codes=s.Codes
+        if codes==nil and facts.honey~=nil and facts.inventoryKnown and type(s.Honeycomb)=="table" then
+            codes={}
+        end
+        if type(codes)=="table" then
             local redeemed,validCodes={},true
-            for key,v in pairs(s.Codes) do
+            for key,v in pairs(codes) do
                 if type(key)=="number" and integer(key) and key>0 and type(v)=="string" then
                     redeemed[string.lower(v)]=true
                 elseif type(key)=="string" and type(v)=="boolean" then

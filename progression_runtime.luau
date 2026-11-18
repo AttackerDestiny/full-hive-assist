@@ -47,7 +47,10 @@ return function(H)
         return H.hiveFloor()
     end
     local function codeHas(s,code)
-        for _,v in ipairs(s.Codes or {}) do if type(v)=="string" and v:lower()==code:lower() then return true end end
+        for k,v in pairs(s.Codes or {}) do
+            if type(v)=="string" and v:lower()==code:lower()
+                or type(k)=="string" and k:lower()==code:lower() and v==true then return true end
+        end
         return false
     end
     local function finishReceipt(before,s,receipt)

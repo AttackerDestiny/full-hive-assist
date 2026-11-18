@@ -21,7 +21,7 @@ function UI.mountToggle(parent,overlay,onVisibility)
     local gui=make("ScreenGui","FeatherVisibility",parent,{
         ResetOnSpawn=false,ScreenInsets=Enum.ScreenInsets.DeviceSafeInsets,DisplayOrder=10002})
     local button=make("ImageButton","FeatherVisibilityButton",gui,{
-        AnchorPoint=Vector2.new(0.5,0),Position=UDim2.new(0.5,0,0,8),
+        AnchorPoint=Vector2.new(0.5,0),Position=UDim2.new(0.5,0,0,48),
         Size=UDim2.fromOffset(52,52),BorderSizePixel=0,Image="",Active=true})
     make("UICorner","Circle",button,{CornerRadius=UDim.new(1,0)})
     make("UIStroke","Rim",button,{Color=Color3.fromRGB(66,74,81),Transparency=0.5,Thickness=1})
