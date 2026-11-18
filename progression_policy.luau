@@ -565,7 +565,11 @@ local function plan(facts,catalog)
     base.materialPhase=false
     base.reserveHoney=gear.honey+(facts.honeyReserve or 0)
     if not met then return wait("waiting-condition:"..tostring(condition),base) end
-    if facts.honey<base.reserveHoney then return wait("saving-gear-honey",base) end
+    if facts.honey<base.reserveHoney then
+        base.optionalHiveAllowed=true
+        local pending=wait("saving-gear-honey",base)
+        parallelAction(pending.action);return pending
+    end
     base.action={kind="buy-gear",gear=nextGear.id,honey=gear.honey,items=copy(gear.items)}
     return base
 end

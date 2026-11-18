@@ -63,7 +63,7 @@ function P.growth(cells, capacity, eggs)
     local action=empty>0 and ((eggs and (eggs.Basic or 0)>0) and "hatch-owned-basic" or "acquire-basic-egg")
         or (capacity<50 and "expand-capacity" or "optimize-hive")
     return {Occupied=occupied,Capacity=capacity,Empty=empty,Action=action,
-        CanReroll=occupied>=25,AutomaticAcquisition=false}
+        CanReroll=occupied>0,AutomaticAcquisition=false}
 end
 function P.basicSlotSafe(lock, cell, plan)
     return cell and cell.bee and P.key(cell)==P.key(lock)

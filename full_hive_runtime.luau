@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.5"
+local SCRIPT_VERSION = "1.8.6"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -529,6 +529,14 @@ local function progressionToyPart(name)
     return part and part:IsA("BasePart") and part or nil
 end
 
+local function hiveHoneyReserve(s)
+    local reserve=Config.HoneyReserve
+    if progression then
+        local decision=progression.inspect(s)
+        reserve=math.max(reserve,decision.reserveHoney or 0)
+    end
+    return reserve
+end
 local function activeJellyBatch(s)
     local batch=env.FullHiveJellyBatch
     local h=hive()
@@ -540,7 +548,7 @@ local function context(s,slots)
     local stage=Policy.stage({slots=slots,starUsed=starEggUses(s)})
     local jelly=s.Eggs.RoyalJelly or 0
     local bought=s.Totals and s.Totals.Purchases and s.Totals.Purchases.Eggs or {}
-    local usable=math.max(0,(s.Honey or 0)-Config.HoneyReserve)
+    local usable=math.max(0,(s.Honey or 0)-hiveHoneyReserve(s))
     local used=starEggUses(s)
     local normalRefill=Policy.refill(slots)
     if slots>=44 and not lateStarted then normalRefill=math.max(10000,normalRefill) end
@@ -851,7 +859,7 @@ local function buy(item,amount,shop,inventoryCeiling)
         if before>=inventoryCeiling then return false end
         while amount>inventoryCeiling-before do amount=amount/10 end
     end
-    local usable=math.max(0,(s.Honey or 0)-Config.HoneyReserve)
+    local usable=math.max(0,(s.Honey or 0)-hiveHoneyReserve(s))
     if item=="RoyalJelly" then
         plan(s)
         if inventoryCeiling~=Report.RefillAmount or usable<Policy.jellyCost(royalJellyPurchases(s),inventoryCeiling-before) then return false end
@@ -880,7 +888,7 @@ local function refill()
     local target=Report.RefillAmount
     local inventory=s.Eggs.RoyalJelly or 0
     local missing=target-inventory
-    if not Config.AutoPurchase or (s.Honey or 0)-Config.HoneyReserve
+    if not Config.AutoPurchase or (s.Honey or 0)-hiveHoneyReserve(s)
         <Policy.jellyCost(royalJellyPurchases(s),missing) then return false end
     local fallback=Report.CollectorFallback==true
     local _,pack=Policy.refillFor(slots,fallback)
@@ -897,7 +905,7 @@ local function refill()
         local amount=pack
         while amount>missing do amount=amount/10 end
         local cost=Policy.jellyCost(royalJellyPurchases(s),amount)
-        if s.Honey-Config.HoneyReserve<cost then return false end
+        if s.Honey-hiveHoneyReserve(s)<cost then return false end
         if buy("RoyalJelly",amount,"JellyDispenser",target)==false then return false end
     end
     local ready=jellyBatchReady(s)
@@ -1006,7 +1014,7 @@ local function giftedBasic(s,cells,p)
             while basicLock.BasicBatchPurchased < basicLock.BasicBatchTarget do
                 pauseCheckpoint()
                 local current=refresh()
-                if (current.Honey or 0)-Config.HoneyReserve < 10000000 then return false end
+                if (current.Honey or 0)-hiveHoneyReserve(current) < 10000000 then return false end
                 -- Each request is exactly one Basic Egg. buy() verifies the
                 -- inventory delta before this count advances, and we remain
                 -- at the shop until all ten verified purchases finish.
@@ -1063,7 +1071,8 @@ end
 local function useStarScript(s)
     acquire(); move(hiveFloor())
     s=refresh()
-    if progression and not progression.allowsHive(s) then release();return false end
+    if progression and (not progression.allowsHive(s)
+        or hiveHoneyReserve(s)>Config.HoneyReserve) then release();return false end
     local cells=scan(s)
     if not starReady(s,cells) then release();return false end
     local used=starEggUses(s)
@@ -1172,10 +1181,12 @@ local function run()
         Report.SafeSlots=#p.candidates
         Report.NextTarget=p.target and {X=p.target.x,Y=p.target.y,Type=p.target.bee.Type} or nil
         if Config.DryRun then Report.Phase="dry-run"; return end
-        if not Report.Growth.CanReroll then
+        if Report.Growth.Empty>0 then
             if progression and progression.grow(s,math.min(50,math.max(25,slots))) then s=refresh();continue end
-            waitFor("Fill empty hive cells before rerolling: "..#cells.." bees / "..slots.." slots (Atlas or manual hatching)")
-            s=refresh(); continue
+            if not Report.Growth.CanReroll then
+                waitFor("Waiting for an affordable Basic Egg to hatch the first bee")
+                s=refresh();continue
+            end
         end
         if p.complete then
             if background and(Config.AutoAmulets or Config.AutoQuestAssist)then
@@ -1198,7 +1209,7 @@ local function run()
         if not p.target then
             if progression and not rollTask and not basicLock and progression.grow(s,math.min(50,slots+1)) then s=refresh();continue end
             local reason=p.stage=="final" and p.growth.Empty>0
-                and ("Waiting to fill "..p.growth.Empty.." empty hive cells (Atlas or manual hatching)")
+                and ("Checking funds to fill "..p.growth.Empty.." empty hive cells; current bees are held")
                 or p.capacityStatus.Conflict and ("Kept bees and current targets require at least "
                     ..p.capacityStatus.Minimum.." cells; capacity is "..slots)
                 or "Targets held; waiting for Atlas, inventory, or Star Egg prerequisites"

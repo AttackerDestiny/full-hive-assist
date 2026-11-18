@@ -411,5 +411,12 @@ return function(P,T)
         base[2].bee={Type="Fire",Traits={"Gifted"}};q=P.plan(base,T,context)
         check(not P.rollTaskDone(task,base[2],base,T,q)and P.rollTaskSafe(task,base[2],base,T,q),"Extra Gifted Fire never consumes another Star prerequisite slot")
     end
+    for count=0,24 do
+        local cells={}
+        for i=1,count do cells[i]={x=i,y=1,bee={Type="Brave",Traits={}}}end
+        local q=P.plan(cells,T,{slots=25,starUsed=0,jelly=1000,lateStarted=true,enforceGrowth=true})
+        check(q.growth.Empty==25-count and q.growth.CanReroll==(count>0),"Empty capacity does not block an occupied starter target")
+        check(count==0 and q.target==nil or count>0 and q.target~=nil and not q.protected[P.key(q.target)],"Only safe occupied cells may roll while hatching waits")
+    end
     return {passed=checked}
 end

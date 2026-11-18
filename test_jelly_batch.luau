@@ -2,12 +2,13 @@
 return function(runtime,Policy,Types)
     local source=assert(runtime:match("(local function jellyBatchReady%(s%).-)\nlocal function find%(cells,cell%)"))
     local active=assert(runtime:match("(local function activeJellyBatch%(s%).-)\nlocal function context"))
+    local reserve=assert(runtime:match("(local function hiveHoneyReserve%(s%).-)\nlocal function activeJellyBatch"))
     local refillSource=assert(runtime:match("(local function refill%(%)%s.-)\nlocal function eventAction"))
-    local factory=assert(loadstring('return function(env,Report,player,game,hive,Policy,Config,refresh,plan,buy,move,hiveFloor,checkStop,royalJellyPurchases)\nlocal lateStarted=false; local pauseCheckpoint=checkStop\n'..
-        active..'\n'..source..'\n'..refillSource..'\nreturn jellyBatchReady,jellyBatchSpent,refill\nend'))()
+    local factory=assert(loadstring('return function(env,Report,player,game,hive,Policy,Config,refresh,plan,buy,move,hiveFloor,checkStop,royalJellyPurchases,progression)\nlocal lateStarted=false; local pauseCheckpoint=checkStop\n'..
+        reserve..'\n'..active..'\n'..source..'\n'..refillSource..'\nreturn jellyBatchReady,jellyBatchSpent,refill\nend'))()
     local passed=0
     local function check(v,message) assert(v,message); passed+=1 end
-    local function fixture(target,inventory)
+    local function fixture(target,inventory,gearReserve)
         local env={}; local report={RefillAmount=target,CollectorFallback=false}
         local s={Eggs={RoyalJelly=inventory},Honey=1e15,Totals={Purchases={Eggs={RoyalJelly=75}}}}
         local purchases={}; local config={AutoPurchase=true,HoneyReserve=0}
@@ -17,8 +18,17 @@ return function(runtime,Policy,Types)
                 check(amount==1 or amount==10 or amount==100 or amount==1000 or amount==10000 or amount==100000,'Only supported pack amounts')
                 check(s.Eggs.RoyalJelly+amount<=ceiling,'Top-up never overbuys')
                 purchases[#purchases+1]=amount; s.Eggs.RoyalJelly+=amount
-            end,function() end,function() end,function() end,function() return 75 end)
+            end,function() end,function() end,function() end,function() return 75 end,
+            gearReserve and {inspect=function()return {reserveHoney=gearReserve}end,
+                allowsHive=function()return true end})
         return env,report,s,ready,spent,refill,purchases,config
+    end
+    do
+        local _,_,s,_,_,refill,purchases=fixture(100,0,100000000)
+        s.Honey=100000000
+        check(not refill() and #purchases==0,"Refill cannot spend the planned gear reserve")
+        s.Honey+=Policy.jellyCost(75,100)
+        check(refill() and #purchases>0,"Refill may use the exact surplus above gear funds")
     end
     for _,target in ipairs({100,200,600,1000,2000,4000,10000,100000,200000,400000,500000}) do
         for _,inventory in ipairs({0,1,target-1,target,target+1}) do

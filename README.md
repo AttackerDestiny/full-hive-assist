@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.8.6:** Empty hive slots no longer block rolling on safe occupied cells. Each turn checks ready gear, affordable hatching, then qualified rolling. Gear honey stays reserved, including during jelly refills and Gifted Basic purchases. Existing jelly can qualify while gear honey is being saved; the original batch thresholds and keep rules still apply.
+
 **v1.8.5:** Spending priority is gear, filling empty hive slots, then bee rolling. Protect the planned gear's honey before egg purchases or rolling; already-owned eggs can hatch during a funding wait. A newly affordable gear purchase also cancels a lower-priority growth decision before spending.
 
 **v1.8.4:** Hatch the first bee before starter gear funding. Gear and Star Amulet honey waits allow background hatching and qualified rolls. Ready purchases retain priority, requests remain serialized, and crafting jelly stays protected.
