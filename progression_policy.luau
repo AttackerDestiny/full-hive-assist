@@ -367,6 +367,11 @@ local function plan(facts,catalog)
         or facts.occupied>facts.capacity then return wait("unknown-hive-counts",base) end
     local inventory,inventoryError=inventoryReader(facts)
     if not inventory then return wait(inventoryError,base) end
+    -- A starter hive needs a bee to farm while its other goals are funded.
+    if facts.occupied==0 then
+        base.action=P.growth(facts,catalog,1,facts.honeyReserve or 0,{})
+        return base
+    end
     local nextGear,why=P.nextGear(facts)
     if nextGear==nil then return wait(why,base) end
     local craftAction
@@ -559,13 +564,19 @@ local function plan(facts,catalog)
     end
     if firstMissing then local pending=wait("waiting-material:"..firstMissing,base);pending.action.parallelHive=true;pending.action.ParallelHive=true;return pending end
     if #materials.crafts>0 then local pending=wait("waiting-craft-inputs",base);pending.action.parallelHive=true;pending.action.ParallelHive=true;return pending end
-    -- All material deficits are resolved. From this point the gear price is a
-    -- hard reservation and optional hive spending must stop.
-    base.optionalHiveAllowed=false
+    -- Ready gear still acts first. Funding waits yield to background hive work.
+    base.optionalHiveAllowed=true
     base.materialPhase=false
     base.reserveHoney=gear.honey+(facts.honeyReserve or 0)
-    if not met then return wait("waiting-condition:"..tostring(condition),base) end
-    if facts.honey<base.reserveHoney then return wait("saving-gear-honey",base) end
+    if not met then
+        local pending=wait("waiting-condition:"..tostring(condition),base)
+        parallelAction(pending.action);return pending
+    end
+    if facts.honey<base.reserveHoney then
+        local pending=wait("saving-gear-honey",base)
+        parallelAction(pending.action);return pending
+    end
+    base.optionalHiveAllowed=false
     base.action={kind="buy-gear",gear=nextGear.id,honey=gear.honey,items=copy(gear.items)}
     return base
 end

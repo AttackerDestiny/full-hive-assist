@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.8.4:** Hatch the first bee before starter gear funding. Gear and Star Amulet honey waits allow background hatching and qualified rolls. Ready purchases retain priority, requests remain serialized, and crafting jelly stays protected.
+
 **v1.8.3:** Starter accounts with a complete snapshot and no Codes field can begin code redemption. Redemption receipts accept both supported code-history formats. The feather toggle sits lower below the top HUD.
 
 **v1.8.2:** The **Controls → Assist enabled** switch pauses and resumes Feather in place. Pausing takes effect at a safe checkpoint after the current action or Star Egg workflow settles, releases Atlas, and preserves the active hive task. The hive viewer now uses WindUI's dark palette and Lucide feather icon.

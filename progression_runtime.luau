@@ -244,12 +244,16 @@ return function(H)
     function R.step(s)
         if not H.Config.AutoProgression then return false end
         local d,f,c=read(s)
+        if d.action.kind=="wait" and type(d.action.reason)=="string"
+            and d.action.reason:match("^saving%-") and f.occupied and f.capacity
+            and f.occupied<f.capacity and R.grow(s,f.capacity) then return true end
         return R.perform(d,s,f,c,read)
     end
     function R.grow(s,target)
         local function replan(fresh)
             local f,c=H.buildFacts(fresh)
-            local d={action=P.growth(f,c,target,H.Config.HoneyReserve,{})}
+            local current=P.plan(f,c)
+            local d={action=P.growth(f,c,target,H.Config.HoneyReserve,current.reservedItems)}
             return d,f,c
         end
         local d,f,c=replan(s)

@@ -251,7 +251,7 @@ return function(H)
     function R.allowsHive(s)
         if H.Config.AutoAmulets==false then return true end
         local target=A.starTarget(type(s.DiscGiftTypes)=="table"and #s.DiscGiftTypes or nil,(s.Amulets or{}).Star)
-        return target==nil
+        return target==nil or s.Honey<target.price+H.Config.HoneyReserve
     end
     function R.step(s)
         if pending()then return false end
@@ -269,7 +269,7 @@ return function(H)
                 if s.Honey>=target.price+H.Config.HoneyReserve then
                     if generate(target.name,s,{category="Honey",amount=target.price})then return true end
                 end
-                H.release();return true,"Saving honey for "..target.name
+                H.release();return false
             end
             -- Reserve active Hive Minded Bias food before Moon generation.
             for _,a in ipairs(quests)do if a.mode=="feed"and H.Config.AutoQuestAssist and assistQuest(a,s)then return true end end

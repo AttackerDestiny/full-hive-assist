@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- Latest human override, November 18: hatching and qualified bee rolling must continue in the background while gear and other automation run. Bootstrap the first bee before gear funding, yield from gear/Star Amulet honey waits, serialize all requests and preserve recipe jelly reservations and uncertain receipts. This supersedes older blanket blocks on hive work during gear or Star honey saving.
+
 - Latest human requirement, November 18: after each application change, automatically run relevant tests, safely re-execute the tested bundle on the intended connected clients and verify the affected behavior. Preserve pending requests and intentional pause/stop state.
 
 - v1.7.9 stats-read recovery: only RetrievePlayerStats timeout uses the private read token. Release Atlas and wait up to60additional seconds for the original request's own completion callback; never clear its flag or overlap another request. With no uncertainty/Star workflow, restart fresh planning once per execution, preserving tasks, admission and counters. A second timeout, stuck/changed request, stop or failed release remains terminal. Mutation timeouts and reads awaiting mutation reconciliation never get this retry.
