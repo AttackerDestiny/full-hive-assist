@@ -101,7 +101,16 @@ return function(P)
         local r=P.plan(f,catalog("Basic Sprinkler",100,{}))
         check(r.gear=="Basic Sprinkler" and r.action.kind=="buy-gear","Normalized stronger gear never triggers Jar/Boots/Bubble Wand retrograde purchases")
     end
-    for _,gate in ipairs({25,34,35,36}) do
+    do
+        local f=facts();ownedThrough(f,"Basic Sprinkler");f.occupied=22
+        local c=catalog("Basic Sprinkler",1111111)
+        c.gear["Basic Sprinkler"].conditions={"sprinkler-badges"}
+        f.conditions["sprinkler-badges"]=true
+        check(P.plan(f,c).action.kind=="buy-gear","An affordable Basic Sprinkler takes priority at 22 occupied bees")
+        f.conditions["sprinkler-badges"]=false
+        check(P.plan(f,c).action.kind=="wait","Removing the hive gate still requires the game's badges")
+    end
+    for _,gate in ipairs({34,35,36}) do
         local name
         for _,stage in ipairs(P.stages) do if stage.gate==gate then name=stage.gear[1];break end end
         local f=facts();ownedThrough(f,name);f.occupied=gate-1;f.capacity=math.max(25,gate)

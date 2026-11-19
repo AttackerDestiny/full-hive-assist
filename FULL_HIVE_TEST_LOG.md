@@ -989,3 +989,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Gear target shows the selected item, current honey versus its purchase price, and owned versus required materials. It shows the missing amounts and lists queued Blender output separately from owned materials. Quotes can appear while a hive gate still blocks the purchase.
 - Bundle validation and 4,343 offline checks passed. Bundle SHA-256 59c49a53489b3f69228b6706245b77e4b92900d3f97539153e652992d9bd2635.
 - Four Delta clients appeared at discovery, then MCP returned no connected clients during both rollout attempts. No execution or live UI rendering was confirmed.
+
+## v1.8.28 — Unlock the Basic Sprinkler gear group before 25 bees
+
+- Removed Feather's 25-occupied-bee gate for Basic Sprinkler through Mondo Belt Bag. The in-game gear requirements and the existing gear order apply.
+- Bundle validation and 4,342 offline checks passed. Bundle SHA-256 39992bb88a16e3672e5e8aeb46b92f2f197a36266ee19dd68907361e7d3f3d98.
+- Verified startup on all six Quack clients. QuackAltear5 StartedAt 1795099798 selected buy-gear for Basic Sprinkler below 25 bees. The flight ended before sending a request because there was no clear line to the Badge Guild. Atlas resumed and the game showed the guild gate was already open.
