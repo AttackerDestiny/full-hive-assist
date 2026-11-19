@@ -22,8 +22,6 @@ $required = @(
     'BasicBatchTarget=10',
     'buy("Basic",1,"EggDispenser")',
     'assertAtlasPaused()',
-    'local function waitForStartupDelay()',
-    'StartupDelaySeconds=60',
     'Policy.startRollTask(p.target,p._cells,p)',
     'Policy.refillFor(slots,fallback)',
     'if item=="RoyalJelly" and not (jellyBatchReady(s) or refill()) then',
@@ -78,7 +76,10 @@ $gateOrder = @'
     runWithCharacterRecovery()
 '@ -replace "`r`n", "`n"
 if ([version]$version -ge [version]'1.6.0') { $gateOrder=$gateOrder.Replace("    initializeModules()`n","    initializeModules()`n    initializeProgression()`n") }
-if ([version]$version -ge [version]'1.8.15') {
+if ([version]$version -ge [version]'1.8.16') {
+    $gateOrder=$gateOrder.Replace("    if not waitForStartupDelay() then return end`n","")
+    if ($bundle.Contains('waitForStartupDelay') -or $bundle.Contains('StartupDelaySeconds=60')) { throw 'Fixed startup delay was reintroduced' }
+} elseif ([version]$version -ge [version]'1.8.15') {
     $gateOrder=$gateOrder.Replace("    if not waitForStartupDelay() then return end`n","").Replace("    makeUI()`n","    makeUI()`n    if not waitForStartupDelay() then return end`n")
 }
 if (-not ($bundle.Replace("`r`n", "`n")).Contains($gateOrder)) { throw 'Startup UI and gameplay order is incorrect' }

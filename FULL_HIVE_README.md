@@ -69,7 +69,7 @@ Run Atlas first, then use `start.luau` to fetch the current main-branch bundle o
 
 The public launcher downloads the bundle without GitHub authentication.
 
-The assist now waits a fixed **60 seconds** after auto-execution before loading hive modules or requesting player stats. You can auto-execute both scripts together; the assist remains in `startup-delay` during that minute.
+Feather opens when the player UI is available and initializes game modules immediately. If Atlas is still loading, gameplay waits for its controls.
 
 The bundle was rebuilt after the previous interrupted build left a three-byte `mak` file. The current generated file starts with `-- Full Hive Assist for Atlas / Arceus X Android / Potassium` and is written atomically by `build_full_hive.ps1`; the builder rejects truncated output below 50,000 characters.
 
@@ -82,7 +82,7 @@ Arceus compatibility changes include:
 - Atlas control discovery that accepts `getconnections` plus either `debug.getupvalues` or global `getupvalues`, with `firesignal`, direct handler, and `GuiButton:Activate()` fallbacks.
 - A configurable `AtlasInitiallyStopped` flag for executors that expose the Atlas button but no callback/upvalue inspection. Leave it `false` when Atlas starts with Stop Everything off; set it `true` when it starts on.
 - Android touch handling through `GuiButton.Activated`, a high-display-order status panel, and a mobile-safe top position.
-- `WaitForChild`/identity-aware loading for slow Android joins, fixed 60-second startup delay, atomic bundle generation, and a one-argument compile fallback for mobile `loadstring` wrappers.
+- `WaitForChild`/identity-aware loading for slow Android joins, readiness-based startup, atomic bundle generation, and a one-argument compile fallback for mobile `loadstring` wrappers.
 
 Use the following optional prelude before executing the bundle when Arceus does not expose `getgenv` (the bundle itself also falls back to `_G`):
 
@@ -142,7 +142,7 @@ Event eggs already owned are hatched without buying another. Vicious can be skip
 
 Movement uses a tweened AlignPosition constraint and temporary noclip. Collision properties and movement objects are restored after movement or interruption. Purchases and hive item requests require a nearby character. Uncertain responses stop the script without retrying a potentially completed purchase or roll.
 
-Roll tasks are coordinate leases. A selected slot stays active until its objective is satisfied, a needed failsafe or valid collector result is obtained, or permanent protection makes further rolling invalid. The status panel reports the active coordinate and recovery mode. Startup waits a fixed 60 seconds before loading hive modules or retrieving stats, then uses the visible Atlas control with executor fallbacks.
+Roll tasks are coordinate leases. A selected slot stays active until its objective is satisfied, a needed failsafe or valid collector result is obtained, or permanent protection makes further rolling invalid. The status panel reports the active coordinate and recovery mode. Feather starts without a fixed timer and uses the visible Atlas control when gameplay is ready.
 
 ## Validation on October 18, 2026
 

@@ -917,3 +917,8 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 
 - The public launcher does not require Atlas. The previous bundle waited 60 seconds before building Feather's window, then attempted an Atlas pause during setup. The window now opens when the player UI is available. The gameplay loop waits visibly for Atlas controls and verifies the pause when an action needs it.
 - The loader compiled and 4,279 offline checks plus 43 bundle markers passed. Live MCP client IDs repeatedly became invalid during initial probes. Bundle SHA-256 6b0a66573f90f3528accb8551f4048f0b039e836ddf650ef274957bc2c085843.
+
+## v1.8.16 — Remove the fixed startup timer
+
+- Feather opens when the player UI is available and initializes immediately. It waits for Atlas controls only when gameplay requires them. Older configurations may still include StartupDelaySeconds and that setting is ignored.
+- Passed 4,279 offline checks and bundle validation. No clients were connected at test time. Bundle SHA-256 81258f6c954cb8f392e595ca9e99540ec304d79c221baf3a7b173be9a7ab9451.

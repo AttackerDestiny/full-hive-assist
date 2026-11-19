@@ -6,7 +6,7 @@ Run the public launcher:
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/start.luau"))()
 ```
 
-The launcher downloads `core.luau` from `main`. Feather opens as soon as the player UI is available. Gameplay starts after the startup delay and waits for Atlas controls if needed.
+The launcher downloads `core.luau` from `main`. Feather opens as soon as the player UI is available, and gameplay starts when the game and Atlas controls are ready.
 
 Edit the Luau source modules and rebuild the bundle from PowerShell:
 

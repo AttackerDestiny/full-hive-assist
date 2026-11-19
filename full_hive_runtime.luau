@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.15"
+local SCRIPT_VERSION = "1.8.16"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -86,9 +86,14 @@ end
 local Config = {DryRun=false, PollSeconds=3, Speed=65, NearDistance=16,
     MaxActions=math.huge, MaxRoyalJellies=math.huge, AutoPurchase=true,
     HoneyReserve=0, RollDelay=0.3, StarEggHoney=100000000000,
-    AtlasInitiallyStopped=false, StartupDelaySeconds=60, PreserveUniqueGifted=false, AutoProgression=true,
+    AtlasInitiallyStopped=false, PreserveUniqueGifted=false, AutoProgression=true,
     UseBlenderTickets=false, AutoAmulets=true, AutoQuestAssist=true}
-for k,v in pairs(env.FullHiveConfig or {}) do assert(Config[k] ~= nil, "Unknown config: "..k); Config[k]=v end
+for k,v in pairs(env.FullHiveConfig or {}) do
+    if k~="StartupDelaySeconds" then
+        assert(Config[k] ~= nil, "Unknown config: "..k)
+        Config[k]=v
+    end
+end
 -- Retain the old option for config compatibility; ordinary keeps must still
 -- follow the user's failsafe/force lists even if an old override was true.
 Config.PreserveUniqueGifted=false
@@ -1193,22 +1198,7 @@ local function waitFor(reason)
     Report.Phase="waiting"; Report.Activity=reason
     release(); task.wait(Config.PollSeconds)
 end
-local function waitForStartupDelay()
-    local duration=math.max(0,tonumber(Config.StartupDelaySeconds) or 60)
-    Report.Phase="startup-delay"
-    Report.Activity=string.format("Waiting %d seconds before starting hive assist",duration)
-    Report.AtlasReady=false
-    local deadline=os.clock()+duration
-    while os.clock()<deadline do
-        checkStop()
-        task.wait(math.min(0.25,math.max(0,deadline-os.clock())))
-    end
-    Report.AtlasReady=true
-    Report.AtlasReadiness="fixed-delay"
-    return true
-end
 local function run()
-    assert(Report.AtlasReady,"Startup delay must finish before starting")
     pauseCheckpoint()
     local s=refresh()
     while not env.FullHiveStop do
@@ -1592,7 +1582,6 @@ end
 local ok,err=xpcall(function()
     initializePlayer()
     makeUI()
-    if not waitForStartupDelay() then return end
     initializeModules()
     initializeProgression()
     runWithCharacterRecovery()
