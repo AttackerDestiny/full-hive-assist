@@ -922,3 +922,8 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 
 - Feather opens when the player UI is available and initializes immediately. It waits for Atlas controls only when gameplay requires them. Older configurations may still include StartupDelaySeconds and that setting is ignored.
 - Passed 4,279 offline checks and bundle validation. No clients were connected at test time. Bundle SHA-256 81258f6c954cb8f392e595ca9e99540ec304d79c221baf3a7b173be9a7ab9451.
+
+## v1.8.17 — Resume normal single-jelly rolls after Basic cleanup
+
+- Below 30 occupied bees, normal Basic targets still take priority. After the last normal Basic changes, finish that task and select eligible targets using the usual keep rules, spending one Royal Jelly per roll with roll-to flags off. The 30-bee batch boundary remains in place.
+- All 4,280 offline checks and bundle validation passed. Bundle SHA-256 adfc874e85eb68a0774285a4fb3b599f8f74f2dc51c26dbebde4b4e795180417.

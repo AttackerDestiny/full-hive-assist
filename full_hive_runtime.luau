@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.16"
+local SCRIPT_VERSION = "1.8.17"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1259,12 +1259,12 @@ local function run()
         end
         local item=Policy.rollItem(cells,s.Eggs,p,rollTask)
         env.FullHiveStarted=true
-        if basicLock and not p.basicOnly then
+        if basicLock and not p.starter then
             if giftedBasic(s,cells,p) then continue end
             if basicLock then waitFor("Waiting for honey or jelly for the locked Basic slot"); s=refresh(); continue end
         end
         -- A current slot finishes before another hive task claims a slot.
-        if not rollTask and not p.basicOnly then
+        if not rollTask and not p.starter then
             if eventAction(s,cells,p) then continue end
             if giftedBasic(s,cells,p) then continue end
             if starReady(s,cells) then Report.Phase="star-eggs"; useStarScript(s); continue end
@@ -1275,7 +1275,7 @@ local function run()
                 and ("Checking funds to fill "..p.growth.Empty.." empty hive cells; current bees are held")
                 or p.capacityStatus.Conflict and ("Kept bees and current targets require at least "
                     ..p.capacityStatus.Minimum.." cells; capacity is "..slots)
-                or (p.basicOnly and p.reason) or "Targets held; waiting for Atlas, inventory, or Star Egg prerequisites"
+                or "Targets held; waiting for Atlas, inventory, or Star Egg prerequisites"
             waitFor(reason); s=refresh(); continue
         end
         if item=="RoyalJelly" and not (jellyBatchReady(s) or refill()) then

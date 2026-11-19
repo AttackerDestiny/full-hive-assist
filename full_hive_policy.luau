@@ -12,6 +12,7 @@ function P.singleJelly(cells) return #cells>0 and #cells<30 end
 local function normalBasic(cell)
     return cell and cell.bee and cell.bee.Type=="Basic" and not P.gifted(cell)
 end
+local starterBasicReason="Replacing normal Basic Bee"
 function P.gifted(c) return c.bee and table.find(c.bee.Traits or {}, "Gifted") ~= nil end
 function P.key(c) return c.x .. "," .. c.y end
 function P.count(cells, name, giftedOnly)
@@ -112,7 +113,7 @@ function P.starJellyUpgrade(plan,task)
     return not P.gifted(target) and (target.bee.Type=="Bubble" or target.bee.Type=="Frosty")
 end
 function P.rollItem(cells,eggs,plan,task)
-    if plan and plan.basicOnly then return "RoyalJelly" end
+    if plan and plan.starter then return "RoyalJelly" end
     if (eggs.StarJelly or 0)>0 and #P.starJellyMissing(cells)>0 then return "StarJelly" end
     return "RoyalJelly"
 end
@@ -167,7 +168,8 @@ end
 -- The task belongs to one coordinate. Candidate sorting never ends a task.
 function P.rollTaskDone(task, cell, cells, types, plan)
     if not cell or not cell.bee then return true, "slot-unavailable" end
-    if plan.basicOnly and not normalBasic(cell) then return true,"starter-bee-kept" end
+    if plan.starter and not normalBasic(cell)
+        and (plan.basicOnly or task.Reason==starterBasicReason) then return true,"starter-bee-kept" end
     if cell.bee.Type=="Fuzzy"and P.count(cells,"Fuzzy")>1
         and not(P.gifted(cell)and P.count(cells,"Fuzzy",true)==1)then return false end
     if (plan.protected or {})[P.key(cell)] then return true, "protected-result" end
@@ -611,19 +613,21 @@ function P.plan(cells, types, ctx)
     -- At 44+, the 10k entry condition gates legendary work, not early repairs.
     if waitingLate and #needs == 0 and reason ~= "convert-flexible" and reason ~= "slot-cap" and not collectorFallback then target = nil end
     local growth=P.growth(cells,ctx.slots,ctx.eggs)
-    local basicOnly=ctx.enforceGrowth and P.singleJelly(cells)
-    if basicOnly then
-        target=nil
+    local starter=ctx.enforceGrowth and P.singleJelly(cells)
+    local basicOnly=false
+    if starter then
         for _,candidate in ipairs(candidates) do
-            if normalBasic(candidate) and not keep[P.key(candidate)] then target=candidate;break end
+            if normalBasic(candidate) and not keep[P.key(candidate)] then
+                target,reason,basicOnly=candidate,starterBasicReason,true
+                break
+            end
         end
-        reason=target and "Replacing normal Basic Bee" or "Waiting for a normal Basic Bee to replace"
     end
     if P.singleJelly(cells) then mode="off" end
     if ctx.enforceGrowth and not growth.CanReroll then target=nil; reason="hive-growth" end
     local capacityStatus=P.capacityStatus(cells,keep,needs,ctx.slots)
     return {stage=stage, keep=keep, protected=protected, temporary=temporary, needs=needs, candidates=candidates,
-        questRetired=questRetired,basicOnly=basicOnly,
+        questRetired=questRetired,basicOnly=basicOnly,starter=starter,
         growth=growth,capacityStatus=capacityStatus,starPrepare=ctx.starPrepare==true and not post,
         fallbackCandidates=fallbackCandidates, collectorFallback=not basicOnly and collectorFallback and #fallbackCandidates>0,
         recoveryGifted=recoveryMode=="gifted",

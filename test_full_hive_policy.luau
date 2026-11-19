@@ -433,7 +433,8 @@ return function(P,T)
         cells[3].bee={Type="Brave",Traits={}}
         q=P.plan(cells,T,{slots=40,starUsed=0,jelly=1,enforceGrowth=true})
         check(P.rollTaskDone(lease,cells[3],cells,T,q) and not P.rollTaskSafe(lease,cells[3],cells,T,q),"Every non-Basic starter result closes the task")
-        check(q.target==nil,"No qualified Basic means no rolling")
+        check(not q.basicOnly and q.target and q.mode=="off","After the last normal Basic, continue with eligible one-jelly rolls")
+        check(q.target.bee.Type=="Brave" and P.rollItem(cells,{StarJelly=1},q)=="RoyalJelly","Post-Basic rolls use Royal Jelly and preserve Gifted Basic and Events")
         for i=5,30 do cells[i]={x=i,y=1,bee={Type="Tabby",Traits={}}}end
         check(not P.singleJelly(cells),"Exactly30 occupied bees restores the usual batch path")
     end

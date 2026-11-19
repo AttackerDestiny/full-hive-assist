@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- v1.8.17: Below 30 occupied bees, prioritize finishing normal Basic cleanup. Once no eligible normal Basic remains, continue normal one-Royal-Jelly rolls on eligible cells with all roll-to flags off and the usual keep rules.
+
 - v1.8.14: Below 30 occupied bees, replace only normal Basic Bees with one Royal Jelly per request and all roll-to flags off. Keep every other result until the ordinary 30-bee policy resumes. Hatch owned Basic, Silver and Gold Eggs into verified empty cells. Reserve one Gold Egg only for an active donation quest and buy one from Ticket Tent if that quest needs it and inventory is empty.
 
 - Latest human override, November 18 / v1.8.7: below30 occupied bees, any positive Royal Jelly inventory can perform a normal single-jelly roll with every roll-to flag OFF; prefer eligible normal Basic Bees for new tasks. Use occupied count, not capacity. Restore ordinary batch admission at30 bees and recheck the boundary before spending. Preserve Gifted Basic/Event/Mythic/force/failsafe keeps, the same active coordinate, material/gear reservations and uncertain receipts.
