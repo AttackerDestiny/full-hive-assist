@@ -995,3 +995,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Removed Feather's 25-occupied-bee gate for Basic Sprinkler through Mondo Belt Bag. The in-game gear requirements and the existing gear order apply.
 - Bundle validation and 4,342 offline checks passed. Bundle SHA-256 39992bb88a16e3672e5e8aeb46b92f2f197a36266ee19dd68907361e7d3f3d98.
 - Verified startup on all six Quack clients. QuackAltear5 StartedAt 1795099798 selected buy-gear for Basic Sprinkler below 25 bees. The flight ended before sending a request because there was no clear line to the Badge Guild. Atlas resumed and the game showed the guild gate was already open.
+
+## v1.8.29 — Walk to the Badge Guild sprinkler shop
+
+- Live probes confirmed that the Badge Guild floor center had no walking route from QuackAltear5's position, while the west side and north/south approaches had valid paths. Feather now tries those approaches and verifies the game's Guild gate and grounded shop arrival.
+- Bundle validation and 4,353 offline checks passed. Bundle SHA-256 d6cb60a3f9b84d905322e41bb142d6a70050fb0dc3748ae6d8688fbaa45cd0ee.
+- Verified buy/equip receipt for Basic Sprinkler on QuackAltear5 (StartedAt 1795099914) at 22 bees, with EquippedSprinkler=Basic Sprinkler and Candy Planter selected next. QuackAltear2 (StartedAt 1795099916) arrived via route 4 and also received its verified purchase. Both receipts time 1795099931. QuackAltear1 and QuackAltear06 exhausted approaches from their origins and released Atlas without spending. QuackAltear3 was running and waiting for a hive claim. QuackAltear4 execution was requested but startup was not confirmed during rollout.

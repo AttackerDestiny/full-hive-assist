@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.28"
+local SCRIPT_VERSION = "1.8.29"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -512,7 +512,9 @@ local function move(part)
             end
             if not waypoints then
                 local destination=Report.Movement.Destination
-                if destination=="Workspace.Shops.ProShop.Terrain" or destination=="Workspace.Map.Ground.BlueHQShopFloor" then
+                local guild=destination=="Workspace.Badge Guild.Walls.Floor"
+                local checkFloor=guild or destination=="Workspace.Map.Ground.BlueHQShopFloor"
+                if checkFloor or destination=="Workspace.Shops.ProShop.Terrain" then
                     -- The shop volume can extend above the actual floor.
                     -- Use the navigable floor and restore collisions for normal walking.
                     cleanup()
@@ -526,8 +528,8 @@ local function move(part)
                     local movement=Report.Movement
                     movement.Method="shop-path"
                     local rejected={}
-                    local function onBlueShopFloor()
-                        if destination~="Workspace.Map.Ground.BlueHQShopFloor" or distance(part)>5 then return false end
+                    local function onShopFloor()
+                        if not checkFloor or distance(part)>5 then return false end
                         local localPosition=part.CFrame:PointToObjectSpace(r.Position)
                         if math.abs(localPosition.X)>part.Size.X/2 or math.abs(localPosition.Z)>part.Size.Z/2 then return false end
                         return workspace:Raycast(r.Position,Vector3.new(0,-5,0),params)~=nil
@@ -537,8 +539,9 @@ local function move(part)
                         if characterRoot()~=r then error(CHARACTER_UNAVAILABLE,0) end
                         assertAtlasPaused()
                     end
-                    for index,offset in ipairs({Vector3.zero,Vector3.new(-8,0,0),Vector3.new(8,0,0),
-                        Vector3.new(0,0,-8),Vector3.new(0,0,8)}) do
+                    local side,depth=guild and 12 or 8,guild and 36 or 8
+                    for index,offset in ipairs({Vector3.zero,Vector3.new(-side,0,0),Vector3.new(side,0,0),
+                        Vector3.new(0,0,-depth),Vector3.new(0,0,depth)}) do
                         checkWalk()
                         local hit=workspace:Raycast(target+offset-Vector3.new(0,2,0),Vector3.new(0,-(2*height+16),0),params)
                         if not hit then continue end
@@ -583,7 +586,7 @@ local function move(part)
                             repeat
                                 checkWalk()
                                 movement.Distance=(r.Position-groundTarget).Magnitude
-                                if onBlueShopFloor() then return end
+                                if onShopFloor() then return end
                                 delta=r.Position-step.Position
                                 if delta.X^2+delta.Z^2<=horizontalLimit^2 and math.abs(delta.Y)<=verticalLimit then break end
                                 if os.clock()>=deadline then
@@ -878,10 +881,12 @@ local function initializeProgression()
     atlasFarmOnly=createAtlasProgressionControl({core=game:GetService("CoreGui"),
         upvalues=reader,connections=getconnections,activate=activate})
     local lastGateRefresh
+    local shopGates={BlueHQ="Blue HQ Gate",BadgeBearersGuild="Badge Build Gate"}
     local function shopAccess(shop,s)
-        if shop~="BlueHQ" then return nil end
+        local gateName=shopGates[shop]
+        if not gateName then return nil end
         local gates=workspace:FindFirstChild("Gates")
-        local gate=gates and gates:FindFirstChild("Blue HQ Gate")
+        local gate=gates and gates:FindFirstChild(gateName)
         local requirements=gate and gate:FindFirstChild("Requirements")
         local door=gate and gate:FindFirstChild("Door")
         if not requirements or not door or not door:IsA("BasePart")
