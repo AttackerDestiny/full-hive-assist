@@ -946,3 +946,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Failed trips now release Atlas and wait 2, 10, 30, then at most 60 seconds for repeat failures at the same destination. The next attempt refreshes data and plans from the current location. If a request is unresolved or Atlas restoration fails, the existing safety stop still applies. The movement retry does not replay any item request.
 - Bundle validation and 4,301 offline checks passed, including repeated travel waits and preservation of unresolved state. Bundle SHA-256 9a900cea23a3feef5ae64e2f93de0949adb2da088b3e5e45892189b17182d593.
 - Verified v1.8.20 startup on all six Quack accounts. QuackAltear2 switched from a terminal Pro Shop error to waiting-movement with 2-second then 30-second retries. QuackAltear06 switched from a terminal Blue HQ error to waiting-movement with a 10-second retry. Atlas was released with no item request pending during these waits. Arrival and purchase at the affected shops were not observed.
+
+## v1.8.21 — Walkable fallback for Pro Shop and Blue HQ
+
+- Live path probes found routes to the physical shop floors. Pro Shop's logical volume extends above the floor, and the earlier flight target was above the walkable shop. Blue HQ also has a route to the floor through the map.
+- When flight has no clear route to either shop, Feather finds the physical floor below the target, restores collision and walks the verified path. Arrival still goes through the existing proximity and fresh purchase checks.
+- Bundle validation and 4,310 offline checks passed, including the shop fallback and movement cleanup. Bundle SHA-256 d7d41debf5e820983423f2a9c35f452a5f2d49d92194b263e0154fec6147c7f8.

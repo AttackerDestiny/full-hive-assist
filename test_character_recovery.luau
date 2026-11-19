@@ -191,10 +191,10 @@ return function(runtime)
     local movement=assert(runtime:match("(local function move%(part%).-)\nlocal function setSettings"))
     local movementFactory=assert(loadstring("return function(player,game,workspace,Instance,descendants,Report,clock)\n"..
         "local os={clock=clock or os.clock,time=os.time}\n"..
-        "local Config={Speed=65}; local cleanupMove; local function acquire() end; local function checkStop() end; local function assertAtlasPaused() end\n"..
+        "local Config={Speed=65}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance() return 20 end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route","shop-path"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -204,6 +204,17 @@ return function(runtime)
         local added,fencePart=part(true),part(false)
         local destroyed,cancelled,disconnected=0,false,0
         local goals={}
+        local walking=failure=="shop-path"
+        local walked,walkStopped=0,false
+        if walking then
+            local humanoid={Health=100,Parent=c}
+            function humanoid:MoveTo(point)
+                check(obstacle.CanCollide,"Shop path walks with collisions restored")
+                walked+=1;r.Position=point
+            end
+            function humanoid:Move() walkStopped=true end
+            c.FindFirstChildOfClass=function() return humanoid end
+        end
         local callbacks={}
         local function signal(name)
             return {Connect=function(_,callback)
@@ -214,6 +225,13 @@ return function(runtime)
         c.DescendantAdded=signal("characterAdded")
         local fences={DescendantAdded=signal("fenceAdded")}
         local services={
+            PathfindingService={CreatePath=function()
+                return {Status=Enum.PathStatus.Success,ComputeAsync=function(_,_,goal)
+                    check(goal.Y==2.5,"Walk target uses the physical floor")
+                end,GetWaypoints=function()
+                    return {{Position=Vector3.new(10,0,0)},{Position=Vector3.new(20,0,0),Action=Enum.PathWaypointAction.Jump}}
+                end,Destroy=function()end}
+            end},
             RunService={Stepped=signal("stepped")},
             TweenService={Create=function(_,_,_,goal)
                 goals[#goals+1]=goal.Position
@@ -245,6 +263,7 @@ return function(runtime)
         local map={FindFirstChild=function(_,name) if name=="Fences" then return fences end end}
         local fakeWorkspace={FindFirstChild=function(_,name) if name=="Map" then return map end end,
             Raycast=function(_,origin,direction)
+                if walking then return {Position=Vector3.new(20,0,0)} end
                 if failure=="no-route" then return {} end
                 if failure=="lateral" and origin.Y==0 and (direction.Y<10 or direction.X==0) then return {} end
                 if failure=="obstructed" and origin.Y==0 and direction.X~=0 then return {} end
@@ -257,9 +276,12 @@ return function(runtime)
         local rotated=failure=="rotated-pad"
         local part={Name="Test",Position=Vector3.new(20,0,0),Size=rotated and Vector3.new(0.32,22,22) or Vector3.new(4,1,4),
             CFrame={RightVector=Vector3.new(0,rotated and -1 or 0,0),UpVector=Vector3.new(0,rotated and 0 or 1,0),LookVector=Vector3.new(0,0,-1)},
-            GetFullName=function() return "Verified.Test.Pad" end,IsA=function() return true end}
+            GetFullName=function() return walking and "Workspace.Shops.ProShop.Terrain" or "Verified.Test.Pad" end,IsA=function() return true end}
         local ok,err=pcall(move,part)
-        if failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" then check(ok,"Successful movement completes")
+        if walking then
+            check(ok and #goals==0 and walked==2 and walkStopped,"Blocked shop flight uses the route and stops walking on cleanup")
+            check(report.Movement.Arrived and report.Movement.Method=="shop-path","Shop approach records verified arrival")
+        elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" then check(ok,"Successful movement completes")
         elseif failure=="no-route" then
             check(not ok and err==timeoutToken and #goals==0,"No clear route stops before moving")
             check(report.Movement.Failure=="No clear route","Blocked route is reported")
@@ -270,7 +292,7 @@ return function(runtime)
             check(not ok and err=="Fake tween "..(failure=="play-error" and "play" or "setup").." failed",
                 "Movement preserves tween failure on "..failure)
         else check(not ok and err==token,"Movement detects character "..failure..": "..tostring(err)) end
-        check((failure=="setup-error" or failure=="no-route" or cancelled) and disconnected==3 and destroyed==2,
+        check((failure=="setup-error" or failure=="no-route" or walking or cancelled) and disconnected==3 and destroyed==2,
             "Movement objects and all signals removed on "..failure)
         check(obstacle.CanCollide==true and not noncollidable.CanCollide and pendingCleanup()==nil,
             "Original true and false collisions restored on "..failure)
