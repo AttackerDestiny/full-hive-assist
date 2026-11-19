@@ -194,7 +194,7 @@ return function(runtime)
         "local Config={Speed=65}; local cleanupMove; local function acquire() end; local function checkStop() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance() return 20 end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -203,6 +203,7 @@ return function(runtime)
         local player={Character=c}; local obstacle,noncollidable=part(true),part(false)
         local added,fencePart=part(true),part(false)
         local destroyed,cancelled,disconnected=0,false,0
+        local goals={}
         local callbacks={}
         local function signal(name)
             return {Connect=function(_,callback)
@@ -215,6 +216,7 @@ return function(runtime)
         local services={
             RunService={Stepped=signal("stepped")},
             TweenService={Create=function(_,_,_,goal)
+                goals[#goals+1]=goal.Position
                 if failure=="rotated-pad" then
                     check(math.abs(goal.Position.Y-3.16)<0.0001,"Rotated pad approaches world surface rather than local tall axis")
                 end
@@ -233,7 +235,7 @@ return function(runtime)
                     if failure=="replacement" then player.Character=character(100,true)
                     elseif failure=="detached" then r.Parent=nil
                     elseif failure=="play-error" then error("Fake tween play failed",0)
-                    elseif failure=="success" or failure=="rotated-pad" then r.Position=goal.Position
+                    elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" then r.Position=goal.Position
                     elseif failure=="timeout"then return
                     else c.FindFirstChildOfClass=function() return {Health=0} end end
                 end}
@@ -241,7 +243,10 @@ return function(runtime)
         }
         local fakeGame={GetService=function(_,name) return assert(services[name],name) end}
         local map={FindFirstChild=function(_,name) if name=="Fences" then return fences end end}
-        local fakeWorkspace={FindFirstChild=function(_,name) if name=="Map" then return map end end}
+        local fakeWorkspace={FindFirstChild=function(_,name) if name=="Map" then return map end end,
+            Raycast=function(_,origin,direction)
+                if failure=="obstructed" and origin.Y==0 and direction.X~=0 then return {} end
+            end}
         local fakeInstance={new=function() return {Destroy=function() destroyed+=1 end} end}
         local calls=0;local report={}
         local move,token,pendingCleanup,timeoutToken=movementFactory(player,fakeGame,fakeWorkspace,fakeInstance,
@@ -252,7 +257,7 @@ return function(runtime)
             CFrame={RightVector=Vector3.new(0,rotated and -1 or 0,0),UpVector=Vector3.new(0,rotated and 0 or 1,0),LookVector=Vector3.new(0,0,-1)},
             GetFullName=function() return "Verified.Test.Pad" end,IsA=function() return true end}
         local ok,err=pcall(move,part)
-        if failure=="success" or failure=="rotated-pad" then check(ok,"Successful movement completes")
+        if failure=="success" or failure=="rotated-pad" or failure=="obstructed" then check(ok,"Successful movement completes")
         elseif failure=="timeout"then
             check(not ok and err==timeoutToken,"Movement timeout uses its private token")
             check(report.Movement.Failure=="Movement timed out"and report.Movement.Position~=nil,"Timed out movement records position and destination")
@@ -267,6 +272,10 @@ return function(runtime)
         check(added.CanCollide==true and not fencePart.CanCollide,
             "New part collisions restored on "..failure)
         check(next(callbacks)==nil,"No descendant or Stepped listeners survive "..failure)
+        if failure=="obstructed" then
+            check(#goals==3 and goals[1].X==0 and goals[1].Y>24 and goals[2].Y==goals[1].Y
+                and goals[2].X==20 and goals[3].Y==3.5,"Blocked routes climb, cross, and descend to the verified pad")
+        end
     end
     return {passed=checked}
 end

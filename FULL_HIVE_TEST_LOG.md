@@ -882,3 +882,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - The connected regression suite and 43 bundle validation markers passed. Five focused fixture checks passed for both state formats, already-off state, and ambiguous or missing state. A read-only live check verified all 16 monitored Atlas rows off.
 - QuackAltear2 executed v1.8.8 once with StartedAt 1795053450. It passed startup, verified all 16 Atlas spender rows, and continued into movement with no pending request or switch error at inspection. Bundle SHA-256 2ce3c8fc1c3671ca370c395800d767d19317d978d165b63a4ef0f6144ccf7096.
 - Follow-up on QuackAltear2: Atlas switch verification remained successful. A later, separate movement timeout stopped Feather after its existing bounded recovery. Atlas ownership was released and no request remained pending. QuackAltear4 listed in discovery but timed out on post-fix probes.
+
+## v1.8.9 — Route around solid obstacles on the way to a verified pad
+
+- QuackAltear4 stopped after two movement timeouts to the Egg Dispenser pad with zero actions. A live raycast from the recorded stall position to the pad intersected the Gumball Machine target. Atlas ownership was released after the timeout.
+- If a direct route is obstructed, Feather checks a climb, overhead traverse and descent against collidable geometry. The existing movement cleanup and proximity check still run before spending.
+- Bundle validation and the connected regression suite passed, including the simulated blocked-route detour. SHA-256 e59a02418b627aafadb5c65ed14d04b40dceecd09fc379662bc554b2de8a0880.
