@@ -216,7 +216,11 @@ return function(runtime)
             function humanoid:MoveTo(point)
                 check(obstacle.CanCollide,"Shop path walks with collisions restored")
                 walked+=1
-                if not alternate or walked>1 then r.Position=point end
+                if alternate and walked==2 then
+                    r.Position=point+Vector3.new(3.5,6,0)
+                elseif not alternate or walked>1 then
+                    r.Position=point
+                end
             end
             function humanoid:Move() walkStopped=true end
             c.FindFirstChildOfClass=function() return humanoid end

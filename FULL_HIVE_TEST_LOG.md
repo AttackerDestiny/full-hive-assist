@@ -958,3 +958,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - v1.8.21 repeatedly stalled on foot at Pro Shop and Blue HQ. v1.8.22 checks up to five floor approaches, rejects routes through a previously stalled waypoint and releases Atlas when the options run out.
 - Passed 4,326 offline checks and bundle validation. Bundle SHA-256 7186764bc6030ff6db120d970fb4f459345145bb9ae28e961df881ae746a8578.
 - Both target clients confirmed v1.8.22, StartedAt 1795093277 (QuackAltear2) and 1795093289 (QuackAltear06) in job 32a74d5f-1dcb-4e9e-8e1e-1be9d7bc597f. Pro Shop stalled at waypoint 38 within 1 horizontal stud but 6 studs above the walking waypoint. Blue HQ took approach 2 and stalled 3.6 horizontal studs from waypoint 3. Both exhausted their routes and released Atlas with no pending request or purchase.
+
+## v1.8.23 — Handle intermediate slopes and corners
+
+- Verified the wider intermediate waypoint tolerance while preserving the final proximity guard. Bundle validation and 4,326 offline checks passed. Bundle SHA-256 a5434c5268362748fcea2044d6882d17799928258f57b70e531baae39e1441f2.
+- Verified v1.8.23 on all six Quack Delta clients. QuackAltear2 StartedAt 1795093354 reached Pro Shop, completed all 114 walking waypoints and received the verified Hiking Boots purchase/equip receipt at 1795093370. Honey decreased by 2,200,000. Atlas resumed with no pending request.
+- QuackAltear06 StartedAt 1795093362 tried distinct Blue HQ routes and released Atlas without sending a request. A live ray hit the Blue HQ Gate door. The gate's own requirements specify four discovered Blue bee types and StatReqs.Check on the current server-backed cache returned false.
