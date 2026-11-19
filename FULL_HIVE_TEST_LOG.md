@@ -888,3 +888,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - QuackAltear4 stopped after two movement timeouts to the Egg Dispenser pad with zero actions. A live raycast from the recorded stall position to the pad intersected the Gumball Machine target. Atlas ownership was released after the timeout.
 - If a direct route is obstructed, Feather checks a climb, overhead traverse and descent against collidable geometry. The existing movement cleanup and proximity check still run before spending.
 - Bundle validation and the connected regression suite passed, including the simulated blocked-route detour. SHA-256 e59a02418b627aafadb5c65ed14d04b40dceecd09fc379662bc554b2de8a0880.
+
+## v1.8.11 — Verify Atlas pause and defer gear with missing materials
+
+- The v1.8.9 detour alone still timed out live. The current Atlas Stop Everything callback stores its boolean at index 4. The older reader missed it and accepted activation without verifying the actual state. Feather now reads both observed callback formats and synchronizes against the actual switch.
+- Live v1.8.10 verified true pause during movement and false pause after action. QuackAltear4 arrived at the hive after an overhead detour and hatched a Basic Egg, StartedAt 1795055211. QuackAltear3 bought Helmet, StartedAt 1795055208. QuackAltear4 awaited Moon Charms for Helmet.
+- Gear with a verified material deficit can yield to an affordable verified later purchase when the current material work is waiting. Preserve materials reserved for the deferred item and re-evaluate the original priority on every pass. The connected regression suite and static bundle validation passed for v1.8.11. Bundle SHA-256 62ea1ab4a020909ce3e709b9e33b45843854aa0d90e358b1726508b7435e2500.

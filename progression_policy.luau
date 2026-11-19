@@ -94,12 +94,12 @@ local function parallelAction(action)
     action.ParallelHive=true
     return action
 end
-function P.nextGear(facts)
+function P.nextGear(facts,deferred)
     if integer(facts.capacity) and facts.capacity>=36 then
         for _,gear in ipairs(P.planterCatchup) do
             local owned=flag(facts.ownedGear,gear,facts.ownedGearKnown)
             if owned==nil then return nil,"unknown-ownership:"..gear end
-            if not owned then
+            if not owned and not (deferred and deferred[gear]) then
                 local stageIndex
                 for i,stage in ipairs(P.stages) do for _,name in ipairs(stage.gear) do
                     if name==gear then stageIndex=i;break end
@@ -112,7 +112,9 @@ function P.nextGear(facts)
         for _,gear in ipairs(stage.gear) do
             local owned=flag(facts.ownedGear,gear,facts.ownedGearKnown)
             if owned==nil then return nil,"unknown-ownership:"..gear end
-            if not owned then return {id=gear,stage=stageIndex,gate=stage.gate} end
+            if not owned and not (deferred and deferred[gear]) then
+                return {id=gear,stage=stageIndex,gate=stage.gate}
+            end
         end
     end
     return false
@@ -603,6 +605,39 @@ function P.describe(result,facts)
 end
 function P.plan(facts,catalog)
     local result=plan(facts,catalog)
+    if result.gear and result.action.kind=="wait" and result.materialDemand
+        and next(result.materialDemand) and (next(result.missingItems) or next(result.queuedItems or {})) then
+        local deferred={[result.gear]=true}
+        local read=inventoryReader(facts)
+        while read do
+            local candidate=P.nextGear(facts,deferred)
+            if not candidate then break end
+            deferred[candidate.id]=true
+            local gear=(catalog.gear or {})[candidate.id]
+            if candidate.gate<=facts.occupied and candidate.gate<=facts.capacity
+                and type(gear)=="table" and integer(gear.honey) and type(gear.items)=="table"
+                and conditionState(gear.conditions,facts)==true then
+                local affordable=facts.honey>=gear.honey+(facts.honeyReserve or 0)
+                for item,amount in pairs(gear.items) do
+                    local available=read(item)
+                    if not integer(amount) or available==nil or available<(result.reservedItems[item] or 0)+amount then
+                        affordable=false;break
+                    end
+                end
+                if affordable then
+                    result.deferredGear=result.gear
+                    result.gear=candidate.id
+                    result.stage=candidate.stage
+                    result.gearItems=copy(gear.items)
+                    result.action={kind="buy-gear",gear=candidate.id,honey=gear.honey,items=copy(gear.items)}
+                    result.optionalHiveAllowed=false
+                    result.reserveHoney=gear.honey+(facts.honeyReserve or 0)
+                    result.materialPhase=false
+                    break
+                end
+            end
+        end
+    end
     result.status=P.describe(result,type(facts)=="table" and facts or {})
     return result
 end

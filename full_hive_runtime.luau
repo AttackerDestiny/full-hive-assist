@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.9"
+local SCRIPT_VERSION = "1.8.11"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -278,7 +278,7 @@ local function atlasToggle()
     local cached=atlasPauseControl
     if cached and cached.Button.Parent and cached.Label.Parent==cached.Button
         and cached.Label.Text=="Stop Everything" and cached.Button:IsDescendantOf(coreGui)
-        and type(cached.State[1])=="boolean" then
+        and type(rawget(cached.State.Cell,cached.State.Key))=="boolean" then
         return cached.Button,cached.State,cached.Callback
     end
     atlasPauseControl=nil
@@ -302,8 +302,19 @@ local function atlasToggle()
                         local okUp, u=pcall(upvalueReader, c.Function)
                         if okUp and type(u) == "table" then
                             local state
+                            local bound=false
+                            for _,value in pairs(u) do if value==b then bound=true;break end end
                             for _,value in pairs(u) do
-                                if type(value)=="table" and type(value[1])=="boolean" then state=value; break end
+                                if type(value)=="table" then
+                                    local key=type(rawget(value,1))=="boolean" and 1
+                                        or bound and type(rawget(value,4))=="boolean" and 4
+                                    if key then
+                                        if state and (state.Cell~=value or state.Key~=key) then
+                                            error("Ambiguous Atlas Stop Everything state",0)
+                                        end
+                                        state={Cell=value,Key=key}
+                                    end
+                                end
                             end
                             if state then
                                 atlasPauseControl={Button=b,Label=label,State=state,Callback=c.Function}
@@ -322,15 +333,18 @@ local function atlasToggle()
 end
 local atlasState
 local function readAtlasState(cell)
-    if type(cell) == "table" and type(cell[1]) == "boolean" then return cell[1] end
+    if cell then
+        local value=rawget(cell.Cell,cell.Key)
+        if type(value)=="boolean" then return value end
+    end
 end
 local function atlasControl(timeout)
     local deadline=os.clock()+(timeout or 30)
     local lastError
     repeat
         local ok,b,cell,callback=pcall(atlasToggle)
-        if ok and b then return b,cell,callback end
-        lastError=b
+        if ok and b and (cell or type(getconnections)~="function") then return b,cell,callback end
+        lastError=ok and "Switch callback state is unreadable" or b
         task.wait(0.25)
     until os.clock()>=deadline
     error("Atlas Stop Everything was not ready: "..tostring(lastError),0)
@@ -347,7 +361,9 @@ local function setAtlas(value)
     if current==nil then current=atlasState end
     if current==nil then current=Config.AtlasInitiallyStopped end
     if current~=value then
-        assert(activate(b,callback),"Could not activate Atlas Stop Everything on this executor")
+        local ok
+        if callback then ok=pcall(callback) else ok=activate(b,callback) end
+        assert(ok,"Could not activate Atlas Stop Everything on this executor")
         atlasState=value
     end
     local untilTime=os.clock()+4

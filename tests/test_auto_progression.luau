@@ -415,5 +415,18 @@ return function(P)
         check(P.pack("Ticket",5,{{amount=5,cost={Honey=1}}})==nil,"Custom ticket amount rejected")
         check(P.ticketCost(-1,1)==nil and P.ticketCost(99999,2)==nil,"Invalid or over-limit ticket counters fail closed")
     end
+    do
+        local f=facts()
+        ownedThrough(f,"Helmet")
+        f.honey=100000;f.inventory.MoonCharm=1
+        local c=catalog("Helmet",30000,{MoonCharm=5})
+        c.gear["Super-Scooper"]={honey=40000,items={}}
+        local r=P.plan(f,c)
+        check(r.action.kind=="buy-gear" and r.gear=="Super-Scooper" and r.deferredGear=="Helmet","Missing materials defer Helmet for an affordable upgrade")
+        c.gear["Super-Scooper"].items={MoonCharm=1}
+        check(P.plan(f,c).action.kind=="wait","Deferred gear retains its reserved materials")
+        f.inventory.MoonCharm=5
+        check(P.plan(f,c).action.gear=="Helmet","Previously deferred gear regains priority when funded")
+    end
     return {passed=passed}
 end

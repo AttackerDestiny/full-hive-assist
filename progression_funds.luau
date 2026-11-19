@@ -27,6 +27,9 @@ function F.check(action,decision,cost,stats,userReserve)
         local owned=currency=="Honey" and stats.Honey or (stats.Eggs[currency] or 0)
         if not amount(owned) then return false,"unknown-purchase-balance:"..currency end
         if currency=="Honey" then owned-=reserve end
+        if currency~="Honey" and action.kind=="buy-gear" and decision and decision.deferredGear then
+            owned-=((decision.reservedItems or {})[currency] or 0)
+        end
         if owned<n then return false,"waiting-purchase-funds:"..currency end
     end
     return true
