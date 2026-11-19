@@ -194,7 +194,7 @@ return function(runtime)
         "local Config={Speed=65}; local cleanupMove; local function acquire() end; local function checkStop() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance() return 20 end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -235,7 +235,7 @@ return function(runtime)
                     if failure=="replacement" then player.Character=character(100,true)
                     elseif failure=="detached" then r.Parent=nil
                     elseif failure=="play-error" then error("Fake tween play failed",0)
-                    elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" then r.Position=goal.Position
+                    elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" then r.Position=goal.Position
                     elseif failure=="timeout"then return
                     else c.FindFirstChildOfClass=function() return {Health=0} end end
                 end}
@@ -245,6 +245,8 @@ return function(runtime)
         local map={FindFirstChild=function(_,name) if name=="Fences" then return fences end end}
         local fakeWorkspace={FindFirstChild=function(_,name) if name=="Map" then return map end end,
             Raycast=function(_,origin,direction)
+                if failure=="no-route" then return {} end
+                if failure=="lateral" and origin.Y==0 and (direction.Y<10 or direction.X==0) then return {} end
                 if failure=="obstructed" and origin.Y==0 and direction.X~=0 then return {} end
             end}
         local fakeInstance={new=function() return {Destroy=function() destroyed+=1 end} end}
@@ -257,7 +259,10 @@ return function(runtime)
             CFrame={RightVector=Vector3.new(0,rotated and -1 or 0,0),UpVector=Vector3.new(0,rotated and 0 or 1,0),LookVector=Vector3.new(0,0,-1)},
             GetFullName=function() return "Verified.Test.Pad" end,IsA=function() return true end}
         local ok,err=pcall(move,part)
-        if failure=="success" or failure=="rotated-pad" or failure=="obstructed" then check(ok,"Successful movement completes")
+        if failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" then check(ok,"Successful movement completes")
+        elseif failure=="no-route" then
+            check(not ok and err==timeoutToken and #goals==0,"No clear route stops before moving")
+            check(report.Movement.Failure=="No clear route","Blocked route is reported")
         elseif failure=="timeout"then
             check(not ok and err==timeoutToken,"Movement timeout uses its private token")
             check(report.Movement.Failure=="Movement timed out"and report.Movement.Position~=nil,"Timed out movement records position and destination")
@@ -265,7 +270,7 @@ return function(runtime)
             check(not ok and err=="Fake tween "..(failure=="play-error" and "play" or "setup").." failed",
                 "Movement preserves tween failure on "..failure)
         else check(not ok and err==token,"Movement detects character "..failure..": "..tostring(err)) end
-        check((failure=="setup-error" or cancelled) and disconnected==3 and destroyed==2,
+        check((failure=="setup-error" or failure=="no-route" or cancelled) and disconnected==3 and destroyed==2,
             "Movement objects and all signals removed on "..failure)
         check(obstacle.CanCollide==true and not noncollidable.CanCollide and pendingCleanup()==nil,
             "Original true and false collisions restored on "..failure)
@@ -275,6 +280,9 @@ return function(runtime)
         if failure=="obstructed" then
             check(#goals==3 and goals[1].X==0 and goals[1].Y>24 and goals[2].Y==goals[1].Y
                 and goals[2].X==20 and goals[3].Y==3.5,"Blocked routes climb, cross, and descend to the verified pad")
+        end
+        if failure=="lateral" then
+            check(#goals==3 and goals[1].X~=0 and goals[3].X==20,"Blocked vertical climb uses a clear angled climb")
         end
     end
     return {passed=checked}

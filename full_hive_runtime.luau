@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.18"
+local SCRIPT_VERSION = "1.8.19"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -469,15 +469,48 @@ local function move(part)
         local start=r.Position
         local waypoints={target}
         if blocked(start,target) then
-            for _,clearance in ipairs({24,48,72}) do
+            waypoints=nil
+            local function overhead(clearance,offsets)
                 local height=math.max(start.Y,target.Y)+clearance
-                local lift=Vector3.new(start.X,height,start.Z)
-                local above=Vector3.new(target.X,height,target.Z)
-                if not blocked(start,lift) and not blocked(lift,above) and not blocked(above,target) then
-                    waypoints={lift,above,target}
-                    Report.Movement.DetourHeight=height
-                    break
+                local entries,exits={},{}
+                for _,offset in ipairs(offsets) do
+                    local lift=Vector3.new(start.X,height,start.Z)+offset
+                    local above=Vector3.new(target.X,height,target.Z)+offset
+                    if not blocked(start,lift) then entries[#entries+1]=lift end
+                    if not blocked(above,target) then exits[#exits+1]=above end
                 end
+                for _,lift in ipairs(entries) do
+                    for _,above in ipairs(exits) do
+                        if not blocked(lift,above) then
+                            Report.Movement.DetourHeight=height
+                            return {lift,above,target}
+                        end
+                    end
+                end
+            end
+            for _,clearance in ipairs({24,48,72}) do
+                waypoints=overhead(clearance,{Vector3.zero})
+                if waypoints then break end
+            end
+            if not waypoints then
+                -- Try angled climbs and approaches when a roof or cliff
+                -- blocks the direct climb, overhead leg or descent.
+                local offsets={Vector3.zero}
+                for _,width in ipairs({24,48,96}) do
+                    offsets[#offsets+1]=Vector3.new(width,0,0)
+                    offsets[#offsets+1]=Vector3.new(-width,0,0)
+                    offsets[#offsets+1]=Vector3.new(0,0,width)
+                    offsets[#offsets+1]=Vector3.new(0,0,-width)
+                end
+                for _,clearance in ipairs({24,48,72,120}) do
+                    waypoints=overhead(clearance,offsets)
+                    if waypoints then break end
+                end
+            end
+            if not waypoints then
+                Report.Movement.Failure="No clear route"
+                Report.Movement.Position=tostring(start)
+                error(MOVEMENT_TIMEOUT,0)
             end
         end
         local tweenService=game:GetService("TweenService")
@@ -1358,6 +1391,9 @@ local function runWithCharacterRecovery()
         if (err~=CHARACTER_UNAVAILABLE and not movementTimeout) or env.FullHivePending or env.AutoHivePendingRequest
             or env.FullHiveUncertain or env.FullHiveStarRunning or env.AutoGiftedStarRunning then error(message,0) end
         if movementTimeout and movementRecoveryUsed then
+            if Report.Movement and Report.Movement.Failure=="No clear route" then
+                error("No clear route to "..Report.Movement.Destination.."; no item request sent",0)
+            end
             error("Movement timed out again; stopped without retrying an item request",0)
         end
         release()
@@ -1368,7 +1404,8 @@ local function runWithCharacterRecovery()
             movementRecoveryUsed=true
             Report.MovementRecoveries=(Report.MovementRecoveries or 0)+1
             Report.LastMovementFailure=Report.Movement
-            Report.Phase="recovering-movement"; Report.Activity="Movement timed out; refreshing before one safe recovery"
+            local failure=Report.Movement and Report.Movement.Failure or "Movement timed out"
+            Report.Phase="recovering-movement"; Report.Activity=failure.."; refreshing before one safe recovery"
             for _=1,8 do checkStop(); task.wait(0.25) end
         else
             Report.RespawnRecoveries=(Report.RespawnRecoveries or 0)+1

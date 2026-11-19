@@ -933,3 +933,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - v1.8.17 post-start reports confirmed one-jelly rolls on non-Basic targets below 30 bees across the six Quack accounts. QuackAltear1 later kept a Commander but still held its completed roll task, so Feather stopped and released Atlas.
 - When starter rolling produces a kept result and the normal safety checks disallow another roll on that cell, finish the task. This check leaves valid duplicate cleanup and the existing mature policy in place. The Commander regression and all 4,281 offline checks passed. Bundle SHA-256 19d694b9e8e0aa49265f9b04e1e191f92b26b8be5a0bd4b150582726324dc5c5.
 - Verified v1.8.18 after startup on all six Delta clients. QuackAltear1 recovered from the Commander stop, selected Rascal and used four Royal Jellies with roll mode off. Its last roll consumed one. QuackAltear4 selected Rage at 17 bees and its last roll also consumed one. Both then released Atlas with no unresolved request.
+
+## v1.8.19 — Route around blocked climbs and descents
+
+- QuackAltear06 previously timed out twice en route to Blue HQ. The direct route ray hit Cricket Hill, and the overhead routes encountered terrain or walls. Atlas resumed without a purchase.
+- Feather now checks lateral approaches when a straight overhead route is blocked. When no route passes the collision checks, it skips the blocked trip and releases Atlas during the existing bounded recovery. The proximity guard and request reconciliation remain in force.
+- Passed 4,302 offline checks and bundle validation. The live route probe timed out through MCP. Bundle SHA-256 d73ce46dd67fa1051f7aec526bef0baf436f78e0e19209de555328932b695905.
