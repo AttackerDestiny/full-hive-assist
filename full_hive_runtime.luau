@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.17"
+local SCRIPT_VERSION = "1.8.18"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -655,7 +655,7 @@ local function plan(s)
         local h=hive()
         local invalid=rollTask.Version~=2 or rollTask.Owner~=player.UserId or rollTask.Hive~=(h and h.Name)
             or rollTask.Job~=game.JobId
-        local done,why
+        local done,why,safe
         if not invalid and p.collectorFallback and current and Policy.isUsableCollector(current,cells,p)
             and not Policy.isRecoveryTask(rollTask) then
             done,why=true,"collector-held-during-recovery"
@@ -665,7 +665,7 @@ local function plan(s)
             -- must adopt recovery mode before its next request.
             rollTask.Mode,rollTask.Reason=Policy.recoveryMode(ctx.honey)
         end
-        if not invalid and not done then done,why=Policy.rollTaskDone(rollTask,current,cells,Types,p) end
+        if not invalid and not done then done,why,safe=Policy.reconcileRollTask(rollTask,current,cells,Types,p) end
         if invalid or done then
             Report.LastCompletedTarget={X=rollTask.x,Y=rollTask.y,Reason=invalid and "hive-or-stage-changed" or why}
             if invalid or not Policy.isRecoveryTask(rollTask) then
@@ -673,7 +673,7 @@ local function plan(s)
             end
             rollTask=nil; env.FullHiveRollTask=nil; Report.ActiveTarget=nil
         else
-            assert(Policy.rollTaskSafe(rollTask,current,cells,Types,p),"Active roll slot became a force slot; stopped before switching")
+            assert(safe,"Active roll slot became a force slot; stopped before switching")
             p.target=current
             p.reason=rollTask.Reason
             p.mode=rollTask.Mode

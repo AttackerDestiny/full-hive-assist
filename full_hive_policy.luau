@@ -302,6 +302,15 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
     end
     return not plan.keep[P.key(cell)]
 end
+function P.reconcileRollTask(task, cell, cells, types, plan)
+    local done,reason=P.rollTaskDone(task,cell,cells,types,plan)
+    if done then return true,reason end
+    if P.rollTaskSafe(task,cell,cells,types,plan) then return false,nil,true end
+    if plan.starter and task.Rolled and plan.keep[P.key(cell)] then
+        return true,"starter-bee-kept"
+    end
+    return false
+end
 function P.stage(ctx)
     if ctx.slots >= 50 and ctx.starUsed >= 2 then return "final" end
     if ctx.slots >= 46 and ctx.starUsed >= 2 then return "blue" end

@@ -452,5 +452,17 @@ return function(P,T)
         check(not P.rollTaskSafe(task,target,base,T,plan),"Keep the reserved "..name.." after closing the task")
         check(plan.target and P.key(plan.target)~=P.key(target),"Next task can choose another Basic Bee")
     end
+    do
+        local cells=hive({{"Commander",3},{"Looker",1},{"Brave",1}})
+        local context={slots=25,starUsed=0,enforceGrowth=true}
+        local plan=P.plan(cells,T,context)
+        local task=P.startRollTask(cells[4],cells,plan)
+        task.InitialTotal.Music=1
+        task.Rolled=true
+        cells[4].bee={Type="Commander",Traits={}}
+        plan=P.plan(cells,T,context)
+        local done,reason,safe=P.reconcileRollTask(task,cells[4],cells,T,plan)
+        check(done and reason=="starter-bee-kept" and not safe,"A freshly kept starter placeholder ends a stale fixed task safely")
+    end
     return {passed=checked}
 end

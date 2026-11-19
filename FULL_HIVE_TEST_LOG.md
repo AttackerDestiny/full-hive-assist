@@ -927,3 +927,8 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 
 - Below 30 occupied bees, normal Basic targets still take priority. After the last normal Basic changes, finish that task and select eligible targets using the usual keep rules, spending one Royal Jelly per roll with roll-to flags off. The 30-bee batch boundary remains in place.
 - All 4,280 offline checks and bundle validation passed. Bundle SHA-256 adfc874e85eb68a0774285a4fb3b599f8f74f2dc51c26dbebde4b4e795180417.
+
+## v1.8.18 — Release starter roll tasks on kept results
+
+- v1.8.17 post-start reports confirmed one-jelly rolls on non-Basic targets below 30 bees across the six Quack accounts. QuackAltear1 later kept a Commander but still held its completed roll task, so Feather stopped and released Atlas.
+- When starter rolling produces a kept result and the normal safety checks disallow another roll on that cell, finish the task. This check leaves valid duplicate cleanup and the existing mature policy in place. The Commander regression and all 4,281 offline checks passed. Bundle SHA-256 19d694b9e8e0aa49265f9b04e1e191f92b26b8be5a0bd4b150582726324dc5c5.
