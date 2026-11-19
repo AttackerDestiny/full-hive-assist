@@ -214,7 +214,11 @@ return function(deps)
                 local owned=knownOwnership(entry.package,s)
                 if facts.ownedGear[id]==true then owned=true end
                 facts.ownedGear[id]=owned
-                if not owned then catalog.gear[id]=descriptor(entry,s,facts,id,"Honey") end
+                if not owned then
+                    local gear=descriptor(entry,s,facts,id,"Honey")
+                    if gear and deps.ShopAccess then gear.shopAccess=deps.ShopAccess(entry.shopName,s) end
+                    catalog.gear[id]=gear
+                end
             end
         end end
         local ownedCollectorRank,ownedSprinklerRank=0,0

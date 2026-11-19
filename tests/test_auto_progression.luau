@@ -37,6 +37,19 @@ return function(P)
         check(P.growth(f,c,1,100,{}).reason=="need-verified-empty-cell","Hatching still requires a verified empty coordinate")
     end
     do
+        local f=facts();ownedThrough(f,"Bubble Wand");f.occupied=16
+        local c=catalog("Bubble Wand",3000000)
+        c.gear["Bubble Wand"].shopName="BlueHQ"
+        c.gear["Bubble Wand"].shopAccess=false
+        local blocked=P.plan(f,c)
+        check(blocked.action.reason=="waiting-shop-access:BlueHQ" and blocked.action.parallelHive,
+            "Closed shop waits without monopolizing hive work")
+        check(blocked.optionalHiveAllowed and blocked.reserveHoney==3000000,
+            "Closed shop preserves the gear budget")
+        c.gear["Bubble Wand"].shopAccess=true
+        check(P.plan(f,c).action.kind=="buy-gear","Gear resumes priority as soon as the shop opens")
+    end
+    do
         local f=facts();f.redeemedCodes.Wax=false
         local r=P.plan(f,{})
         check(r.action.kind=="redeem-code" and r.action.code=="Wax","Codes precede purchases")

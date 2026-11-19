@@ -574,6 +574,11 @@ local function plan(facts,catalog)
     base.optionalHiveAllowed=false
     base.materialPhase=false
     base.reserveHoney=gear.honey+(facts.honeyReserve or 0)
+    if gear.shopAccess==false then
+        base.optionalHiveAllowed=true
+        local pending=wait("waiting-shop-access:"..gear.shopName,base)
+        parallelAction(pending.action);return pending
+    end
     if not met then return wait("waiting-condition:"..tostring(condition),base) end
     if facts.honey<base.reserveHoney then
         base.optionalHiveAllowed=true
@@ -623,7 +628,7 @@ function P.plan(facts,catalog)
             deferred[candidate.id]=true
             local gear=(catalog.gear or {})[candidate.id]
             if candidate.gate<=facts.occupied and candidate.gate<=facts.capacity
-                and type(gear)=="table" and integer(gear.honey) and type(gear.items)=="table"
+                and type(gear)=="table" and gear.shopAccess~=false and integer(gear.honey) and type(gear.items)=="table"
                 and conditionState(gear.conditions,facts)==true then
                 local affordable=facts.honey>=gear.honey+(facts.honeyReserve or 0)
                 for item,amount in pairs(gear.items) do

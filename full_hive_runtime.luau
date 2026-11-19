@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.23"
+local SCRIPT_VERSION = "1.8.24"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -870,11 +870,21 @@ local function initializeProgression()
     assert(type(reader)=="function" and type(getconnections)=="function","Atlas spending controls cannot be verified on this executor")
     atlasFarmOnly=createAtlasProgressionControl({core=game:GetService("CoreGui"),
         upvalues=reader,connections=getconnections,activate=activate})
+    local function shopAccess(shop,s)
+        if shop~="BlueHQ" then return nil end
+        local gates=workspace:FindFirstChild("Gates")
+        local gate=gates and gates:FindFirstChild("Blue HQ Gate")
+        local requirements=gate and gate:FindFirstChild("Requirements")
+        local door=gate and gate:FindFirstChild("Door")
+        return requirements~=nil and door~=nil and door:IsA("BasePart")
+            and not door.CanCollide and Reqs.Check(s,loadModule(requirements))==true
+    end
     local makeFacts=createProgressionFacts({
         Policy=ProgressionPolicy,Packages=Packages,Recipes=Recipes,Reqs=Reqs,
         Accessories=Accessories,CellTools=CellTools,OsTime=OsTime,Shops=workspace:FindFirstChild("Shops"),
         Hive=hive,HoneyReserve=Config.HoneyReserve,UseBlenderTickets=function() return Config.UseBlenderTickets end,
         Uncertain=function() return env.FullHiveUncertain end,
+        ShopAccess=shopAccess,
     })
     local buffTiles=loadModule(waitForChild(waitForChild(waitForChild(RS,"Gui"),"TileDisplay"),"BuffTile"))
     local function nectarSeconds(name)

@@ -964,3 +964,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Verified the wider intermediate waypoint tolerance while preserving the final proximity guard. Bundle validation and 4,326 offline checks passed. Bundle SHA-256 a5434c5268362748fcea2044d6882d17799928258f57b70e531baae39e1441f2.
 - Verified v1.8.23 on all six Quack Delta clients. QuackAltear2 StartedAt 1795093354 reached Pro Shop, completed all 114 walking waypoints and received the verified Hiking Boots purchase/equip receipt at 1795093370. Honey decreased by 2,200,000. Atlas resumed with no pending request.
 - QuackAltear06 StartedAt 1795093362 tried distinct Blue HQ routes and released Atlas without sending a request. A live ray hit the Blue HQ Gate door. The gate's own requirements specify four discovered Blue bee types and StatReqs.Check on the current server-backed cache returned false.
+
+## v1.8.24 — Wait for verified Blue HQ access
+
+- Feather reads the game's own gate requirements and current door state before planning Blue HQ gear. While waiting, it reserves the planned gear's honey and allows normal hive work.
+- Bundle validation and 4,329 offline checks passed. Bundle SHA-256 17d4e567717eff4ed9e4eacf8feb61617a36b1c17e2ec31e76b38939a02d7594.
+- Verified runtime startup on all six Quack Delta clients. On QuackAltear06 (StartedAt 1795093616), the live game requirement checks passed for three discovered Blue types and failed for four. The door was closed. The planner deferred Bubble Wand with waiting-shop-access:BlueHQ, held a 3,500,000 honey reserve and allowed hive work. The live session proceeded with the ordinary Moon Amulet action instead of attempting the closed shop.
