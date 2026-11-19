@@ -59,21 +59,21 @@ return function(runtime)
         local runs,releases,waits=0,0,0;local token
         local loop,_,_,_,sentinel=factory({Character=character(100,true)},env,report,function()
             runs+=1
-            if runs==1 or failure=="twice"then error(token,0)end
+            if runs==1 or (failure=="twice" and runs==2)then error(token,0)end
             check(report.Phase=="movement-recovered","Retry refreshes planning after movement cleanup")
         end,function()releases+=1;env.FullHiveAtlasOwned=failure=="release-failure"end,
         function()if failure=="stop"then error("Stopped by user",0)end end,
         {wait=function()
             waits+=1
-            check(releases==1 and not env.FullHiveAtlasOwned,"Atlas is resumed before movement recovery wait")
+            check(releases==runs and not env.FullHiveAtlasOwned,"Atlas is resumed before each movement recovery wait")
         end})
         token=sentinel;local ok,err=pcall(loop)
         if failure=="once"then
-            check(ok and runs==2 and waits==8,"One unsent movement timeout recovers once")
+            check(ok and runs==2 and waits==2,"One unsent movement timeout can recover after a short wait")
             check(report.LastMovementFailure==report.Movement and report.MovementRecoveries==1,"Movement failure evidence survives")
         elseif failure=="twice"then
-            check(not ok and runs==2 and releases==1 and waits==8,"Second timeout stops; recovery is bounded")
-            check(tostring(err):find("Movement timed out again",1,true)~=nil,"Repeated timeout has a readable error")
+            check(ok and runs==3 and releases==2 and waits==12,"Repeated travel failures recover with increasing delays")
+            check(report.MovementRecoveries==2,"Both movement failures are recorded")
         elseif failure=="stop"or failure=="release-failure"then
             check(not ok and runs==1 and releases==1 and waits==0,"Stop or failed Atlas release blocks recovery")
         else

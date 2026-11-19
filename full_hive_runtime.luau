@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.19"
+local SCRIPT_VERSION = "1.8.20"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -411,7 +411,10 @@ local function move(part)
     if typeof(part)=="Vector3" then error("Full Hive movement requires a verified destination part") end
     assert(part and part:IsA("BasePart"),"Invalid movement destination")
     Report.Activity="Moving to "..part.Name
-    if distance(part)<=5 then return end
+    if distance(part)<=5 then
+        Report.LastMovementArrival=part:GetFullName()
+        return
+    end
     local r=root()
     -- Hive and Blender pads are rotated: local Size.Y is not their world height.
     local cf,size=part.CFrame,part.Size
@@ -541,6 +544,7 @@ local function move(part)
     if not ok then error(err,0) end
     near(part)
     Report.Movement.Arrived=true
+    Report.LastMovementArrival=Report.Movement.Destination
     Report.Movement.Distance=(target-r.Position).Magnitude
 end
 local function setSettings(desired)
@@ -1329,7 +1333,7 @@ local function run()
     Report.Phase=env.FullHiveStop and "stopped" or "limit-reached"
 end
 local function runWithCharacterRecovery()
-    local movementRecoveryUsed=false
+    local movementRetries={}
     local statsRecoveryUsed=false
     while true do
         local ok,err=pcall(run)
@@ -1389,24 +1393,33 @@ local function runWithCharacterRecovery()
         local movementTimeout=err==MOVEMENT_TIMEOUT
         local message=movementTimeout and "Movement timed out; no action sent from the failed movement" or err
         if (err~=CHARACTER_UNAVAILABLE and not movementTimeout) or env.FullHivePending or env.AutoHivePendingRequest
-            or env.FullHiveUncertain or env.FullHiveStarRunning or env.AutoGiftedStarRunning then error(message,0) end
-        if movementTimeout and movementRecoveryUsed then
-            if Report.Movement and Report.Movement.Failure=="No clear route" then
-                error("No clear route to "..Report.Movement.Destination.."; no item request sent",0)
-            end
-            error("Movement timed out again; stopped without retrying an item request",0)
-        end
+            or env.FullHiveUncertain or env.AutoHiveUncertain
+            or env.FullHiveStarRunning or env.AutoGiftedStarRunning then error(message,0) end
         release()
         assert(not env.FullHiveAtlasOwned,"Atlas release failed during character recovery")
         if movementTimeout then
-            -- Only the unsent movement is recoverable. Restart planning once,
-            -- keeping the coordinate, batch and all receipt state unchanged.
-            movementRecoveryUsed=true
+            assert(not Report.CleanupError,"Movement cleanup failed")
+            local arrived=Report.LastMovementArrival
+            if arrived then movementRetries[arrived]=nil end
+            Report.LastMovementArrival=nil
+            local movement=Report.Movement or {}
+            local destination=movement.Destination or "destination"
+            local attempts=math.min(4,(movementRetries[destination] or 0)+1)
+            movementRetries[destination]=attempts
+            local delay=({2,10,30,60})[attempts]
             Report.MovementRecoveries=(Report.MovementRecoveries or 0)+1
             Report.LastMovementFailure=Report.Movement
-            local failure=Report.Movement and Report.Movement.Failure or "Movement timed out"
-            Report.Phase="recovering-movement"; Report.Activity=failure.."; refreshing before one safe recovery"
-            for _=1,8 do checkStop(); task.wait(0.25) end
+            Report.Phase="waiting-movement"
+            Report.Activity=string.format("Travel blocked at %s. Retrying in %ds",destination:match("[^.]+$") or destination,delay)
+            for _=1,delay do
+                checkStop()
+                if Report.PauseRequested then break end
+                assert(not env.FullHivePending and not env.AutoHivePendingRequest
+                    and not env.FullHiveUncertain and not env.AutoHiveUncertain
+                    and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning,
+                    "Workflow changed during travel recovery; pending state preserved")
+                task.wait(1)
+            end
         else
             Report.RespawnRecoveries=(Report.RespawnRecoveries or 0)+1
             Report.Phase="waiting-character"; Report.Activity="Waiting for the character to respawn"

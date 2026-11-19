@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- v1.8.20: An unsent trip that times out or has no clear route is a recoverable wait. Release Atlas and refresh planning after increasing per-destination delays capped at 60 seconds. This supersedes the historical one-retry limit. Unresolved requests, embedded Star workflows and failed cleanup still block recovery.
+
 - v1.8.17: Below 30 occupied bees, prioritize finishing normal Basic cleanup. Once no eligible normal Basic remains, continue normal one-Royal-Jelly rolls on eligible cells with all roll-to flags off and the usual keep rules.
 
 - v1.8.14: Below 30 occupied bees, replace only normal Basic Bees with one Royal Jelly per request and all roll-to flags off. Keep every other result until the ordinary 30-bee policy resumes. Hatch owned Basic, Silver and Gold Eggs into verified empty cells. Reserve one Gold Egg only for an active donation quest and buy one from Ticket Tent if that quest needs it and inventory is empty.

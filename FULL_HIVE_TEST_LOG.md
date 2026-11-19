@@ -939,3 +939,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - QuackAltear06 previously timed out twice en route to Blue HQ. The direct route ray hit Cricket Hill, and the overhead routes encountered terrain or walls. Atlas resumed without a purchase.
 - Feather now checks lateral approaches when a straight overhead route is blocked. When no route passes the collision checks, it skips the blocked trip and releases Atlas during the existing bounded recovery. The proximity guard and request reconciliation remain in force.
 - Passed 4,302 offline checks and bundle validation. The live route probe timed out through MCP. Bundle SHA-256 d73ce46dd67fa1051f7aec526bef0baf436f78e0e19209de555328932b695905.
+
+## v1.8.20 — Continue after repeated travel failures
+
+- Live v1.8.19 showed terminal no-route errors at Blue HQ on QuackAltear06 and Pro Shop on QuackAltear2. Both had released Atlas and neither had an unresolved request.
+- Failed trips now release Atlas and wait 2, 10, 30, then at most 60 seconds for repeat failures at the same destination. The next attempt refreshes data and plans from the current location. If a request is unresolved or Atlas restoration fails, the existing safety stop still applies. The movement retry does not replay any item request.
+- Bundle validation and 4,301 offline checks passed, including repeated travel waits and preservation of unresolved state. Bundle SHA-256 9a900cea23a3feef5ae64e2f93de0949adb2da088b3e5e45892189b17182d593.
