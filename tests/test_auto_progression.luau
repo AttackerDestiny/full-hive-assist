@@ -473,6 +473,38 @@ return function(P)
         check(P.plan(f,c).action.gear=="Helmet","Previously deferred gear regains priority when funded")
     end
     do
+        local f=facts();ownedThrough(f,"Candy Planter");f.occupied=22
+        local c=catalog("Candy Planter",5000000,{MagicBean=5,Gumdrops=30,SoftWax=5})
+        local mask="Beekeeper's Mask"
+        c.gear[mask]={honey=20000000,items={Enzymes=5,Glue=3,Glitter=1}}
+        c.packs={RoyalJelly={{id="RJ1",amount=1,cost={Honey=10}},
+            {id="RJ10",amount=10,cost={Honey=100}},{id="RJ100",amount=100,cost={Honey=1000}}}}
+        f.inventory={Pineapple=250,Gumdrops=150,MoonCharm=25,MagicBean=1}
+        local r=P.plan(f,c)
+        check(r.gear==mask and r.deferredGear=="Candy Planter" and r.action.kind=="purchase-pack",
+            "Ready non-jelly recipe ingredients advance the Mask while Candy Planter waits")
+        check(r.missingRJ==80 and r.action.amount==10 and r.reserveHoney==20000000,
+            "Funds the exact 80-jelly deficit through fixed packs while reserving the Mask price")
+        f.inventory.RoyalJelly=20
+        r=P.plan(f,c)
+        check(r.missingRJ==60 and r.action.amount==10 and r.fundsRequired==20000600,
+            "Existing jelly offsets the full recipe bill")
+        f.honey=20000599
+        check(P.plan(f,c).gear=="Candy Planter","A later recipe must fund its full jelly bill and gear price")
+        f.honey=20000600;f.inventory.Pineapple=249
+        check(P.plan(f,c).gear=="Candy Planter","Missing non-jelly ingredients prevent a fallback")
+        f.inventory.Pineapple=250;f.inventory.RoyalJelly=80;f.honey=20000000
+        r=P.plan(f,c)
+        check(r.gear==mask and r.action.kind=="craft" and r.action.item=="Enzymes","Fully funded fallback starts crafting")
+        f.inventory.Enzymes=5;f.inventory.Pineapple=0;f.inventory.RoyalJelly=30
+        check(P.plan(f,c).action.item=="Glue","Replans with the remaining ingredients after crafting Enzymes")
+        f.inventory.Glue=3;f.inventory.Gumdrops=0;f.inventory.RoyalJelly=0
+        check(P.plan(f,c).action.item=="Glitter","Uses the shared Magic Bean to finish the fallback recipe")
+        f.inventory.Glitter=1;f.inventory.MoonCharm=0;f.inventory.MagicBean=0
+        r=P.plan(f,c)
+        check(r.action.kind=="buy-gear" and r.gear==mask,"Ready crafted materials lead to the Mask purchase")
+    end
+    do
         local f=facts()
         f.occupied=24;f.emptyCell={x=1,y=1,verified=true}
         f.inventory={Silver=1,Gold=1}

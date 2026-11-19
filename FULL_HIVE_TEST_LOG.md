@@ -1019,3 +1019,10 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Missing Soft Wax and Hard Wax remain material deficits. Gear preparation cannot queue either recipe or plan their ingredients, including when another recipe needs the wax. Owned wax and any verified existing Blender order still count through the normal inventory and receipt rules.
 - Bundle validation and 4,372 offline checks passed. Bundle SHA-256 4b0337f786a3633d678c98f94b8a568380b227b2f3f43bc1bc5cfac113e26bd8.
 - Verified v1.8.32 running on all six Quack accounts. StartedAt: QuackAltear2/06 1795101361, QuackAltear1/3/5 1795101365, QuackAltear4 1795101369. Candy Planter appeared with a Soft Wax deficit on five accounts, with the gear planner waiting and hive work continuing. Hard Wax behavior was covered offline.
+
+## v1.8.33 — Prepare a later gear item while the current one waits
+
+- When the ordered target is waiting on materials, the planner checks later eligible gear. It can fund and craft a later item's recipe when all non-jelly ingredients are owned and the gear price plus the full verified jelly deficit are affordable. Fixed Royal Jelly packs are repriced after each receipt.
+- Allow shared recipe ingredients from a temporarily deferred target, including the Candy Planter Magic Bean and Gumdrops in the user's Mask example. The existing protection for shared direct gear costs remains. Soft Wax and Hard Wax still cannot be crafted.
+- Bundle validation and 4,381 offline checks passed. The regression covers 80 jelly from zero, 60 from 20, insufficient honey, insufficient Pineapple, crafting Enzymes/Glue/Glitter, and the resulting Mask purchase decision. Bundle SHA-256 3191f9f5b998fb387c1782c6c48a0e3763de759187193e3ada6001142593beab.
+- Verified v1.8.33 running live on all six Quack clients (StartedAt 1795101998 for 2/5, 1795102005 for 06, 1795102009 for 1/3/4). All were still on Candy Planter. QuackAltear5's live honey was 241987, below the 20M Mask price. The complete fallback was exercised offline, with no live Mask spend observed.
