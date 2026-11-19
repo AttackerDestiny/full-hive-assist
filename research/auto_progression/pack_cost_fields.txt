@@ -1,2 +1,0 @@
-[client=e5c85afe-ac5a-4f64-8aa7-d744a5d1e047 place=Bee Swarm Simulator job=1fe68220-9be0-4875-af59-673f64606f2d]
-{{hiveSlotNext={cost={Category="Honey",Amount=9296140310},unlocked=43,purchased=18},condenserRequirements={{Type="Have Bees",Amount=35}},GumdropType={},gumdropFloor={path="Workspace.Decorations.Misc.GumdropMachine.round peace",position="70.41152954101562, 18.113197326660156, 37.6580924987793"},DiamondType={TicketCost=400},topStatKeys={"EquippedCollector","Collectors","ItemTimes"}},n=1}

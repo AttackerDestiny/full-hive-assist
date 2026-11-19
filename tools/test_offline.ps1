@@ -22,7 +22,7 @@ try {
     $code+='local P=compile('+(Literal 'full_hive_policy.luau')+')()'+"`n"
     $code+='local T=compile('+(Literal 'tests/offline_bee_types.luau')+')()'+"`n"
     $code+='local runtime='+(Literal 'full_hive_runtime.luau')+"`n"
-    $bundle=Literal 'auto_full_hive_assist.luau'
+    $bundle=Literal 'core.luau'
     $code+='local bundle='+$bundle+"`n"
     $code+='local starSource=assert(bundle:match("local StarEggSource = %[%=%=%=%=%[(.-)%]%=%=%=%=%]")); compile(bundle); compile(starSource)'+"`n"
     $code+='local total=0'+"`n"

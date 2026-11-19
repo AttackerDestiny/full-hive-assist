@@ -1,7 +1,7 @@
 param([Parameter(Mandatory=$true)][string]$ClientId,[string]$BundlePath,[switch]$CheckFinalBabyQuota)
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
-if (-not $BundlePath) { $BundlePath=Join-Path $project 'auto_full_hive_assist.luau' }
+if (-not $BundlePath) { $BundlePath=Join-Path $project 'core.luau' }
 $bundle = (Get-Content -LiteralPath $BundlePath -Raw).Replace("`r`n","`n")
 $policyMatch=[regex]::Match($bundle,'local Policy = \(function\(\)\n(.*?)\nend\)\(\)\nlocal StarState',[Text.RegularExpressions.RegexOptions]::Singleline)
 if (-not $policyMatch.Success) { throw 'Cannot locate bundled policy' }

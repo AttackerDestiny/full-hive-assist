@@ -1,5 +1,5 @@
 # Generated release artifacts must retain their recorded SHA-256 bytes.
-/auto_full_hive_assist.luau -text whitespace=cr-at-eol
+/core.luau -text whitespace=cr-at-eol
 /releases/v1.5.0/auto_full_hive_assist.luau -text whitespace=cr-at-eol
 /releases/v1.5.1/auto_full_hive_assist.luau -text whitespace=cr-at-eol
 /releases/v1.6.0/auto_full_hive_assist.luau -text whitespace=cr-at-eol
@@ -24,7 +24,6 @@
 /releases/v1.8.1/auto_full_hive_assist.luau -text whitespace=cr-at-eol
 /releases/v1.8.2/auto_full_hive_assist.luau -text whitespace=cr-at-eol
 /vendor/windui/main.lua -text whitespace=cr-at-eol,-blank-at-eol
-/candidates/v1.5.2/auto_full_hive_assist.luau -text whitespace=cr-at-eol
 /releases/v1.8.3/auto_full_hive_assist.luau -text whitespace=cr-at-eol
 /releases/v1.8.4/auto_full_hive_assist.luau -text whitespace=cr-at-eol
 /releases/v1.8.5/auto_full_hive_assist.luau -text whitespace=cr-at-eol
