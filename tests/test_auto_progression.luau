@@ -221,7 +221,7 @@ return function(P)
         check(m.reservedItems.RoyalJelly==10 and m.missingItems.RoyalJelly==10,"Shared inventory cannot fund two recipes twice")
         check(#m.crafts==2 and m.crafts[1].ready and not m.crafts[2].ready,"Only actually funded recipe is ready")
     end
-    for _,item in ipairs({"Gumdrops","MoonCharm","StarJelly","MagicBean"}) do
+    for _,item in ipairs({"Gumdrops","MoonCharm","StarJelly","MagicBean","SoftWax","HardWax"}) do
         local f=facts();local c=catalog("Clippers",0,{[item]=1})
         c.recipes={[item]={yield=1,ingredients={Pineapple=1}}};f.inventory.Pineapple=100
         local r=P.plan(f,c)
@@ -231,6 +231,18 @@ return function(P)
             f.conditions.ready=true
             check(P.plan(f,c).action.kind=="wait","Wait-only material cannot be acquired from an alternate source: "..item)
         end
+    end
+    do
+        local f=facts();f.inventory.SoftWax=3;f.inventory.Enzymes=8
+        f.inventory.Bitterberry=33;f.inventory.Neonberry=25;f.inventory.RoyalJelly=5500
+        local c=catalog("Clippers",0,{CausticWax=1})
+        local r=P.plan(f,c)
+        check(r.action.kind=="wait" and r.missingItems.HardWax==5 and r.reservedItems.SoftWax==nil,
+            "A Caustic Wax recipe waits for Hard Wax without funding or scheduling its recipe")
+        f.inventory.HardWax=5
+        r=P.plan(f,c)
+        check(r.action.kind=="craft" and r.action.item=="CausticWax",
+            "Owned Hard Wax can still be used in an otherwise allowed gear recipe")
     end
     do
         local pack=assert(P.pack("Gumdrops",1,{{id="one",amount=3,cost={Ticket=1}},{id="ten",amount=30,cost={Ticket=10}}}))

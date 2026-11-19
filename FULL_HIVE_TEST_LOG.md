@@ -1013,3 +1013,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Regular route now goes Basic Sprinkler, Candy Planter, Beekeeper's Mask, Beekeeper's Boots, Mondo Belt Bag, Blue Clay Planter, Red Clay Planter. The existing 36-slot planter catch-up remains a separate priority.
 - Bundle validation and 4,368 offline checks passed, including the exact seven-item order at 22 occupied bees. Bundle SHA-256 52a7a2ef216daeb74c321af50bd26dfe3eeb907ee43280bb883122d90af58556.
 - Verified v1.8.31 running on all six Quack clients after maintenance reload. StartedAt: QuackAltear2 1795100313, QuackAltear3/4/5 1795100312, QuackAltear1/06 1795100316. Five were on Candy Planter and QuackAltear3 was waiting for a hive claim. The later handoff after Candy Planter was exercised offline.
+
+## v1.8.32 — Stop crafting Soft Wax and Hard Wax for gear
+
+- Missing Soft Wax and Hard Wax remain material deficits. Gear preparation cannot queue either recipe or plan their ingredients, including when another recipe needs the wax. Owned wax and any verified existing Blender order still count through the normal inventory and receipt rules.
+- Bundle validation and 4,372 offline checks passed. Bundle SHA-256 4b0337f786a3633d678c98f94b8a568380b227b2f3f43bc1bc5cfac113e26bd8.
+- Verified v1.8.32 running on all six Quack accounts. StartedAt: QuackAltear2/06 1795101361, QuackAltear1/3/5 1795101365, QuackAltear4 1795101369. Candy Planter appeared with a Soft Wax deficit on five accounts, with the gear planner waiting and hive work continuing. Hard Wax behavior was covered offline.

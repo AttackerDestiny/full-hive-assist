@@ -18,7 +18,7 @@ P.stages = {
 -- stays intact below that capacity; this catch-up intentionally puts Red
 -- before Blue in the order given by the newer instruction.
 P.planterCatchup={"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}
-P.bannedCraft = {Gumdrops=true, MoonCharm=true, StarJelly=true}
+P.bannedCraft = {Gumdrops=true, MoonCharm=true, StarJelly=true, SoftWax=true, HardWax=true}
 P.waitOnly = {MoonCharm=true, StarJelly=true, MagicBean=true}
 P.recipeOrder = {"BlueExtract", "RedExtract", "Enzymes", "Oil", "Glue", "TropicalDrink", "Glitter",
     "PurplePotion", "SoftWax", "HardWax", "SwirledWax", "CausticWax"}
