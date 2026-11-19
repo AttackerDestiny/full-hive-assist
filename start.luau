@@ -1,5 +1,5 @@
 -- Full Hive Assist loader v1.2.0. Loads the current main-branch bundle.
--- Load Atlas separately first. Existing FullHiveConfig options are preserved.
+-- Feather's UI can open before Atlas. Existing FullHiveConfig options are preserved.
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local function ready()
     if env.FullHiveRunning then
@@ -19,7 +19,7 @@ local compile = loadstring or load
 assert(type(compile) == "function", "Executor does not expose loadstring/load")
 local url = "https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/core.luau"
 local ok, source = pcall(function() return game:HttpGet(url) end)
-assert(ok, "Cannot download the current bundle from GitHub")
+assert(ok, "Cannot download the current bundle from GitHub: " .. tostring(source))
 local header = "-- Full Hive Assist for Atlas / Arceus X Android / Potassium."
 assert(type(source) == "string" and source:sub(1, #header) == header,
     "Downloaded content is not the Full Hive Assist bundle")

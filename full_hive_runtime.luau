@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.14"
+local SCRIPT_VERSION = "1.8.15"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -149,7 +149,7 @@ local function initializePlayer()
     player=Players.LocalPlayer
 end
 local function initializeModules()
-    Report.Phase="loading-modules"; Report.Activity="Atlas ready; loading hive data"
+    Report.Phase="loading-modules"; Report.Activity="Loading hive data"
     Events=waitForChild(RS,"Events")
     Cache=loadModule(waitForChild(RS,"ClientStatCache"))
     Types=loadModule(waitForChild(RS,"BeeTypes")):GetTypes()
@@ -742,7 +742,6 @@ local function initializeProgression()
     assert(type(reader)=="function" and type(getconnections)=="function","Atlas spending controls cannot be verified on this executor")
     atlasFarmOnly=createAtlasProgressionControl({core=game:GetService("CoreGui"),
         upvalues=reader,connections=getconnections,activate=activate})
-    if Config.AutoProgression and not Config.DryRun then acquire();release() end
     local makeFacts=createProgressionFacts({
         Policy=ProgressionPolicy,Packages=Packages,Recipes=Recipes,Reqs=Reqs,
         Accessories=Accessories,CellTools=CellTools,OsTime=OsTime,Shops=workspace:FindFirstChild("Shops"),
@@ -1216,6 +1215,13 @@ local function run()
         pauseCheckpoint()
         if Report.Actions>=Config.MaxActions or Report.RoyalJellyUsed>=Config.MaxRoyalJellies then break end
         s=Cache:Get()
+        if not Config.DryRun then
+            local available,button,state=pcall(atlasToggle)
+            if not available or not button or (not state and type(getconnections)=="function") then
+                waitFor("Waiting for Atlas controls to start gameplay")
+                continue
+            end
+        end
         if not hive() then waitFor("Waiting for Atlas to claim a hive"); s=refresh(); continue end
         if background and Config.AutoAmulets and background.offers(s) then s=refresh();continue end
         if background and background.consumables(s)then s=refresh();continue end
@@ -1584,9 +1590,9 @@ local function makeUI()
     gui:SetAttribute("FeatherVersion",SCRIPT_VERSION)
 end
 local ok,err=xpcall(function()
-    if not waitForStartupDelay() then return end
     initializePlayer()
     makeUI()
+    if not waitForStartupDelay() then return end
     initializeModules()
     initializeProgression()
     runWithCharacterRecovery()

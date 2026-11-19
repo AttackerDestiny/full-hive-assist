@@ -1,12 +1,12 @@
 # Feather
 
-Load Atlas first, then run the public launcher:
+Run the public launcher:
 
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/start.luau"))()
 ```
 
-The launcher downloads `core.luau` from `main`. It preserves your configuration and checks for a running instance or unresolved requests before starting.
+The launcher downloads `core.luau` from `main`. Feather opens as soon as the player UI is available. Gameplay starts after the startup delay and waits for Atlas controls if needed.
 
 Edit the Luau source modules and rebuild the bundle from PowerShell:
 

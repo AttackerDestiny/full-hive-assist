@@ -912,3 +912,8 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Bundle validation and connected regressions passed, including Silver and Gold selection and receipts, protection for the quest egg, the Basic-only target and keeping its results. Bundle SHA-256 bd1e5ce52604431f0a8408d920fe10ea91decb28d8cf760208d6878c6aa8cbe2.
 
 - Live v1.8.14 post-start checks succeeded on all six accounts. QuackAltear5, StartedAt 1795058381, went from 16 to 18 bees and from one Silver and one Gold Egg to zero of each. Its Gold hatch receipt was verified and Atlas resumed. The older Cool result closed as starter-bee-kept and the next target was a normal Basic. QuackAltear2 also verified a Silver hatch and kept its Bomber result. The Ticket Tent quest purchase was not triggered during these checks.
+
+## v1.8.15 — Show Feather before the startup delay and Atlas
+
+- The public launcher does not require Atlas. The previous bundle waited 60 seconds before building Feather's window, then attempted an Atlas pause during setup. The window now opens when the player UI is available. The gameplay loop waits visibly for Atlas controls and verifies the pause when an action needs it.
+- The loader compiled and 4,279 offline checks plus 43 bundle markers passed. Live MCP client IDs repeatedly became invalid during initial probes. Bundle SHA-256 6b0a66573f90f3528accb8551f4048f0b039e836ddf650ef274957bc2c085843.
