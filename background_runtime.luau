@@ -120,6 +120,12 @@ return function(H)
         return list
     end
     local function questActions(s)return Q.actions(questFacts(s))end
+    function R.goldEggReserve(s)
+        for _,action in ipairs(questActions(s)) do
+            if action.item=="Gold" and action.mode=="own" then return 1 end
+        end
+        return 0
+    end
     function R.hiveRetirements(s)
         local completed=(s.Quests or{}).Completed
         local retired,evidence=Q.hiveRetirements({},completed)
@@ -248,6 +254,14 @@ return function(H)
         for _,a in ipairs(questActions(s))do if Q.duringSaving(a)and assistQuest(a,s)then return true end end
         return false
     end
+    function R.questGold(s)
+        if pending() or H.Config.DryRun or not H.Config.AutoQuestAssist
+            or not H.Config.AutoPurchase or (s.Eggs.Gold or 0)>0 then return false end
+        for _,action in ipairs(questActions(s)) do
+            if action.item=="Gold" and action.mode=="own" then return assistQuest(action,s) end
+        end
+        return false
+    end
     function R.allowsHive(s)
         if H.Config.AutoAmulets==false then return true end
         local target=A.starTarget(type(s.DiscGiftTypes)=="table"and #s.DiscGiftTypes or nil,(s.Amulets or{}).Star)
@@ -277,7 +291,9 @@ return function(H)
                 if generate("Moon Amulet Generator",s,{category="Eggs",amount=100})then return true end
             end
         end
-        if H.Config.AutoQuestAssist then for _,a in ipairs(quests)do if assistQuest(a,s)then return true end end end
+        if H.Config.AutoQuestAssist then
+            for _,a in ipairs(quests)do if a.mode~="own" and assistQuest(a,s)then return true end end
+        end
         return false
     end
     return R

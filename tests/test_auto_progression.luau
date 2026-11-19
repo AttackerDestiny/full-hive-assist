@@ -428,5 +428,17 @@ return function(P)
         f.inventory.MoonCharm=5
         check(P.plan(f,c).action.gear=="Helmet","Previously deferred gear regains priority when funded")
     end
+    do
+        local f=facts()
+        f.occupied=24;f.emptyCell={x=1,y=1,verified=true}
+        f.inventory={Silver=1,Gold=1}
+        check(P.growth(f,{},25).item=="Silver","Hatch an owned Silver Egg in an empty slot")
+        f.inventory.Silver=0
+        check(P.growth(f,{},25).item=="Gold","Hatch an unreserved Gold Egg in an empty slot")
+        f.questGoldReserve=1
+        check(P.growth(f,{},25).kind=="wait","Keep a Gold Egg reserved for donation")
+        f.inventory.Gold=2
+        check(P.growth(f,{},25).item=="Gold","A spare Gold Egg remains eligible")
+    end
     return {passed=passed}
 end

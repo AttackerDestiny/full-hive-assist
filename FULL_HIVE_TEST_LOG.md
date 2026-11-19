@@ -904,3 +904,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 
 - Installed v1.8.12 on all six Quack clients and confirmed matching post-start reports. QuackAltear1, 2, 4 and 5 reported force-quota-result, with a new rolling operation after closing the kept cell. QuackAltear3 had already advanced to another completed placeholder result and continued rolling.
 - QuackAltear06 StartedAt 1795056447. The first Pro Shop attempt still timed out and released Atlas. The built-in retry reached the shop and verified the Compressor purchase at 1795056553. Honey moved from 1,481,359 to 1,321,359, matching its 160,000 cost. Next planned gear is Electro-Magnet.
+
+## v1.8.14 — Hatch owned eggs and replace normal Basics below 30 bees
+
+- Below 30 occupied bees, Feather targets only normal Basic Bees and spends one Royal Jelly per request with roll-to flags disabled. Any result other than another normal Basic closes that cell's task. Qualified ordinary batch behavior returns at 30 occupied bees.
+- Empty-slot growth can hatch owned Basic, Silver and Gold Eggs. Each receipt verifies the selected egg's inventory decrease and the new bee while preserving existing bee identities. One Gold Egg is reserved only while the donation quest needs it. Quest assistance can buy the egg from the Ticket Tent when none is owned.
+- Bundle validation and connected regressions passed, including Silver and Gold selection and receipts, protection for the quest egg, the Basic-only target and keeping its results. Bundle SHA-256 bd1e5ce52604431f0a8408d920fe10ea91decb28d8cf760208d6878c6aa8cbe2.

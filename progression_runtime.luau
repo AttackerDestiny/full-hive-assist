@@ -175,16 +175,16 @@ return function(H)
         assert(not (s.Honeycomb["x"..a.x] or {})["y"..a.y],"Hatch cell is already occupied")
         -- Stats/cache tables may change while InvokeServer yields. Capture all
         -- receipt baselines first and retain them with the uncertain request.
-        local before,why=H.HatchReceipt.capture(s,a.x,a.y)
+        local before,why=H.HatchReceipt.capture(s,a.x,a.y,a.item)
         assert(before,why)
-        local remaining,accepted,comb=H.invokeHatch(before,a.x,a.y)
+        local remaining,accepted,comb=H.invokeHatch(before,a.x,a.y,a.item)
         local receipt=env.FullHiveUncertain
         receipt.HatchResponse={Remaining=remaining,Accepted=accepted,HasComb=type(comb)=="table"}
         local fresh=H.refresh()
         local reconciled,reason=H.HatchReceipt.validate(before,
             {remaining=remaining,accepted=accepted,comb=comb},fresh)
         assert(reconciled,"Hatch result uncertain: "..tostring(reason))
-        receipt.Kind="hatch-basic";receipt.Item="Basic";receipt.Amount=1
+        receipt.Kind=a.kind;receipt.Item=a.item;receipt.Amount=1
         return finishReceipt(s,fresh,receipt)
     end
     function R.perform(decision,s,facts,catalog,replan)
@@ -221,7 +221,7 @@ return function(H)
         elseif action.kind=="craft" then craft(action,c,s)
         elseif action.kind=="collect-craft" then collect(action,s)
         elseif action.kind=="speedup-blender" then speedup(action,s)
-        elseif action.kind=="hatch-basic" then hatch(action,s,f)
+        elseif action.kind=="hatch-basic" or action.kind=="hatch-egg" then hatch(action,s,f)
         elseif action.kind=="acquire-material" then
             local source=c.sources[action.item]
             assert(source and source.kind=="nectar-vial","Unverified material claim interface")

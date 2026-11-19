@@ -320,12 +320,20 @@ function P.growth(facts,catalog,target,reserveHoney,reservedItems)
     end
     if not integer(facts.honey) then return {kind="wait",reason="unknown-honey"} end
     if facts.occupied>=target and facts.capacity>=target then return {kind="gate-ready"} end
+    local ownedEgg
+    for _,item in ipairs({"Basic","Silver","Gold"}) do
+        local amount=read(item)
+        if amount==nil then return {kind="wait",reason="unknown-inventory:"..item} end
+        local reserve=(reservedItems[item] or 0)
+        if item=="Gold" then reserve=math.max(reserve,facts.questGoldReserve or 0) end
+        if amount>reserve then ownedEgg=item;break end
+    end
     local empty=facts.emptyCell
     if facts.occupied<facts.capacity then
         if type(empty)~="table" or empty.verified~=true or not integer(empty.x) or empty.x==0
             or not integer(empty.y) or empty.y==0 then return {kind="wait",reason="need-verified-empty-cell"} end
-        local basic=read("Basic"); if basic==nil then return {kind="wait",reason="unknown-inventory:Basic"} end
-        if basic>(reservedItems.Basic or 0) then return {kind="hatch-basic",item="Basic",amount=1,x=empty.x,y=empty.y} end
+        if ownedEgg then return {kind=ownedEgg=="Basic" and "hatch-basic" or "hatch-egg",
+            item=ownedEgg,amount=1,x=empty.x,y=empty.y} end
         local price=catalog.basicEgg
         if type(price)~="table" or not validCost(price.cost) then return {kind="wait",reason="unknown-basic-egg-cost"} end
         local permitted,condition=conditionState(price.conditions,facts)
@@ -336,14 +344,14 @@ function P.growth(facts,catalog,target,reserveHoney,reservedItems)
     end
     local slot,egg=catalog.hiveSlot,catalog.basicEgg
     if facts.capacity>=50 then return {kind="wait",reason="hive-capacity-limit"} end
-    if type(slot)~="table" or type(egg)~="table" or not validCost(slot.cost) or not validCost(egg.cost) then
+    if type(slot)~="table" or not validCost(slot.cost)
+        or (not ownedEgg and (type(egg)~="table" or not validCost(egg.cost))) then
         return {kind="wait",reason="unknown-slot-and-egg-cost"}
     end
     local permitted,why=conditionState(slot.conditions,facts)
     if not permitted then return {kind="wait",reason=why or "hive-slot-condition"} end
-    local basic=read("Basic");if basic==nil then return {kind="wait",reason="unknown-inventory:Basic"} end
     local total=copy(slot.cost)
-    if basic<=(reservedItems.Basic or 0) then
+    if not ownedEgg then
         local eggPermitted,eggCondition=conditionState(egg.conditions,facts)
         if not eggPermitted then return {kind="wait",reason=eggCondition or "basic-egg-condition"} end
         for item,n in pairs(egg.cost) do add(total,item,n) end

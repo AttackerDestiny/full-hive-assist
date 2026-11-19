@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.12"
+local SCRIPT_VERSION = "1.8.14"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -758,6 +758,9 @@ local function initializeProgression()
     end
     local function buildFacts(s)
         local facts,catalog=makeFacts(s)
+        if background and (s.Eggs.Gold or 0)>0 then
+            facts.questGoldReserve=background.goldEggReserve(s)
+        end
         catalog.blenderSpeedUp={perTicket=1}
         for _,nectar in ipairs({"Comforting","Refreshing"}) do
             local item=nectar.."Vial"
@@ -778,8 +781,8 @@ local function initializeProgression()
         env=env,Report=Report,Config=Config,Events=Events,
         Packages=Packages,Recipes=Recipes,Reqs=Reqs,buildFacts=buildFacts,nectarSeconds=nectarSeconds,OsTime=OsTime,
         checkStop=checkStop,refresh=refresh,invoke=invoke,move=move,near=near,release=release,
-        invokeHatch=function(before,x,y)
-            return invokeRequest(Events.ConstructHiveCellFromEgg,before,x,y,"Basic",1,false)
+        invokeHatch=function(before,x,y,item)
+            return invokeRequest(Events.ConstructHiveCellFromEgg,before,x,y,item,1,false)
         end,
         invokeSpeedup=function(before)
             return invokeRequest(Events.BlenderCommand,before,"SpeedUpOrder")
@@ -1220,11 +1223,15 @@ local function run()
             local did,why=progression.step(s)
             if did then
                 if Config.DryRun then Report.Phase="dry-run";return end
-                if why then waitFor(why) end
+                if why then
+                    if background and background.questGold(s) then s=refresh();continue end
+                    waitFor(why)
+                end
                 s=refresh(); continue
             end
         end
         if background then
+            if background.questGold(s) then s=refresh();continue end
             local did,why=background.step(s)
             if did then if why then waitFor(why)end;s=refresh();continue end
         end
@@ -1256,12 +1263,12 @@ local function run()
         end
         local item=Policy.rollItem(cells,s.Eggs,p,rollTask)
         env.FullHiveStarted=true
-        if basicLock then
+        if basicLock and not p.basicOnly then
             if giftedBasic(s,cells,p) then continue end
             if basicLock then waitFor("Waiting for honey or jelly for the locked Basic slot"); s=refresh(); continue end
         end
         -- A current slot finishes before another hive task claims a slot.
-        if not rollTask then
+        if not rollTask and not p.basicOnly then
             if eventAction(s,cells,p) then continue end
             if giftedBasic(s,cells,p) then continue end
             if starReady(s,cells) then Report.Phase="star-eggs"; useStarScript(s); continue end
@@ -1272,7 +1279,7 @@ local function run()
                 and ("Checking funds to fill "..p.growth.Empty.." empty hive cells; current bees are held")
                 or p.capacityStatus.Conflict and ("Kept bees and current targets require at least "
                     ..p.capacityStatus.Minimum.." cells; capacity is "..slots)
-                or "Targets held; waiting for Atlas, inventory, or Star Egg prerequisites"
+                or (p.basicOnly and p.reason) or "Targets held; waiting for Atlas, inventory, or Star Egg prerequisites"
             waitFor(reason); s=refresh(); continue
         end
         if item=="RoyalJelly" and not (jellyBatchReady(s) or refill()) then

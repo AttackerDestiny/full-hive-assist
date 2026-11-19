@@ -19,7 +19,7 @@ return function(R)
     s.Eggs.Basic=0;s.UnlockedCells=50
     s.Honeycomb.x1.y1.Type="Brave";s.Honeycomb.x1.y1.Lvl=1
     s.Honeycomb.x1.y1.Traits.Mutation.Amount=99
-    check(before.Basic==1 and before.Capacity==26 and before.Count==1,"Capture retains scalar pre-request values")
+    check(before.Item=="Basic" and before.Inventory==1 and before.Capacity==26 and before.Count==1,"Capture retains scalar pre-request values")
     check(before.Cells["1,1"].Type=="Cool" and before.Cells["1,1"].Lvl==8
         and before.Cells["1,1"].Traits.Mutation.Amount==1,"Capture copies nested trait and bee identity")
     check(R.validate(before,response,fresh),"Successful zero-remaining hatch reconciles despite source mutation")
@@ -65,5 +65,14 @@ return function(R)
     local noRoom=state(1);noRoom.UnlockedCells=1
     check(R.capture(noRoom,4,9)==nil,"Invalid unlocked capacity cannot be captured")
     check(not R.validate(nil,response,fresh),"Missing snapshot fails closed")
+    for _,item in ipairs({"Silver","Gold"}) do
+        local s=state(1);s.Eggs[item]=1
+        local before=assert(R.capture(s,4,9,item))
+        local response,after=result(s)
+        after.Eggs.Basic=1
+        check(not R.validate(before,response,after),"The selected "..item.." egg must be consumed")
+        after.Eggs[item]=nil
+        check(R.validate(before,response,after),"A sparse zero count reconciles for "..item)
+    end
     return {passed=passed}
 end

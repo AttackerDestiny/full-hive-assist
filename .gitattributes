@@ -33,3 +33,4 @@
 /releases/v1.8.9/core.luau -text whitespace=cr-at-eol
 /releases/v1.8.11/core.luau -text whitespace=cr-at-eol
 /releases/v1.8.12/core.luau -text whitespace=cr-at-eol
+/releases/v1.8.14/core.luau -text whitespace=cr-at-eol

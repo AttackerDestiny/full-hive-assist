@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- v1.8.14: Below 30 occupied bees, replace only normal Basic Bees with one Royal Jelly per request and all roll-to flags off. Keep every other result until the ordinary 30-bee policy resumes. Hatch owned Basic, Silver and Gold Eggs into verified empty cells. Reserve one Gold Egg only for an active donation quest and buy one from Ticket Tent if that quest needs it and inventory is empty.
+
 - Latest human override, November 18 / v1.8.7: below30 occupied bees, any positive Royal Jelly inventory can perform a normal single-jelly roll with every roll-to flag OFF; prefer eligible normal Basic Bees for new tasks. Use occupied count, not capacity. Restore ordinary batch admission at30 bees and recheck the boundary before spending. Preserve Gifted Basic/Event/Mythic/force/failsafe keeps, the same active coordinate, material/gear reservations and uncertain receipts.
 
 - Latest human clarification, November 18 / v1.8.6: missing hive cells must not impose a full-hive or25-bee gate on rolling. Schedule ready gear first, affordable hatching second and safe qualified rolling third on each turn; when hatching cannot proceed, existing occupied cells may roll. Retain honey reserves for planned gear in every hive purchase path and preserve exact batch qualification, active coordinates, keeps and uncertain receipts. Gear honey saving may yield to existing-jelly rolls. This supersedes earlier blocks on all rolls while slots are missing or gear honey is below its reserve.

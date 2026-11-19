@@ -3,6 +3,7 @@
 -- validate(snapshot,{remaining=...,accepted=...,comb=...},freshStats) -> boolean,reason.
 -- Call capture BEFORE a yielding request; never clear an uncertain receipt on false.
 local R={}
+local supported={Basic=true,Silver=true,Gold=true}
 local function integer(n)
     return type(n)=="number" and n>=0 and n<math.huge and n%1==0
 end
@@ -68,17 +69,19 @@ local function capacity(stats)
     if not integer(unlocked) or unlocked<25+bought or unlocked>50 then return nil end
     return unlocked
 end
-function R.capture(stats,x,y)
+function R.capture(stats,x,y,item)
+    item=item or "Basic"
+    if not supported[item] then return nil,"unsupported-hatch-egg" end
     if type(stats)~="table" or type(stats.Eggs)~="table" then return nil,"unknown-hatch-stats" end
     if not integer(x) or x==0 or not integer(y) or y==0 then return nil,"invalid-hatch-coordinate" end
-    local basic=stats.Eggs.Basic
-    if not integer(basic) or basic<1 then return nil,"unknown-or-empty-basic-inventory" end
+    local inventory=stats.Eggs[item]
+    if not integer(inventory) or inventory<1 then return nil,"unknown-or-empty-egg-inventory" end
     local cells,count=scan(stats.Honeycomb)
     local unlocked=capacity(stats)
     if not cells or not unlocked or count>=unlocked then return nil,"invalid-hatch-capacity" end
     local key=x..","..y
     if cells[key] then return nil,"hatch-cell-occupied" end
-    return {Basic=basic,Capacity=unlocked,Count=count,Cells=cells,Target=key}
+    return {Item=item,Inventory=inventory,Capacity=unlocked,Count=count,Cells=cells,Target=key}
 end
 local function validComb(before,comb)
     local cells,count=scan(comb)
@@ -89,17 +92,20 @@ local function validComb(before,comb)
     return cells
 end
 function R.validate(before,response,fresh)
-    if type(before)~="table" or not integer(before.Basic) or before.Basic<1
+    if type(before)~="table" then return false,"invalid-hatch-snapshot" end
+    local item=before.Item or "Basic"
+    local inventory=before.Inventory or (item=="Basic" and before.Basic)
+    if not supported[item] or not integer(inventory) or inventory<1
         or not integer(before.Capacity) or not integer(before.Count)
         or type(before.Cells)~="table" or type(before.Target)~="string" then return false,"invalid-hatch-snapshot" end
     if type(response)~="table" or response.accepted~=true or not integer(response.remaining)
-        or response.remaining~=before.Basic-1 then return false,"hatch-response-uncertain" end
+        or response.remaining~=inventory-1 then return false,"hatch-response-uncertain" end
     local returned,reason=validComb(before,response.comb)
     if not returned then return false,reason end
     if type(fresh)~="table" or type(fresh.Eggs)~="table" then return false,"unknown-hatch-readback" end
-    local basic=fresh.Eggs.Basic
-    if basic==nil then basic=0 end -- The server can omit a depleted inventory key.
-    if not integer(basic) or basic~=response.remaining then return false,"hatch-basic-delta-uncertain" end
+    local remaining=fresh.Eggs[item]
+    if remaining==nil then remaining=0 end -- The server can omit a depleted inventory key.
+    if not integer(remaining) or remaining~=response.remaining then return false,"hatch-inventory-delta-uncertain" end
     if capacity(fresh)~=before.Capacity then return false,"hatch-capacity-changed" end
     local current,why=validComb(before,fresh.Honeycomb)
     if not current then return false,why end
