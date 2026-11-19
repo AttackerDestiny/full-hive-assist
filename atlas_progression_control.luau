@@ -19,6 +19,36 @@ return function(H)
         local ok,u=pcall(H.upvalues,callback)
         return ok and type(u)=="table" and u or nil
     end
+    local function switchState(upvalues,label)
+        local keys,hasLabel={},false
+        for _,value in pairs(upvalues) do
+            if value==label then
+                hasLabel=true
+            elseif type(value)=="string" then
+                keys[value]=true
+            end
+        end
+        local cell,key
+        for _,value in pairs(upvalues) do
+            if type(value)=="table" then
+                for candidate in pairs(hasLabel and keys or {}) do
+                    if type(rawget(value,candidate))=="boolean" then
+                        if cell and (cell~=value or key~=candidate) then return nil end
+                        cell,key=value,candidate
+                    end
+                end
+            end
+        end
+        if cell then return cell,key end
+        -- Older Atlas callbacks capture a separate one-element state table.
+        for _,value in pairs(upvalues) do
+            if type(value)=="table" and type(rawget(value,1))=="boolean" then
+                if cell and cell~=value then return nil end
+                cell=value
+            end
+        end
+        return cell,1
+    end
     local function cachedAlive()
         if not cached or clock()-cached.At>=2 then return false end
         if not cached.Window.Parent or cached.Window.Name~="Window"
@@ -31,7 +61,7 @@ return function(H)
             -- pair still belongs to that detached tab and must remain intact.
             if row.Label.Parent~=row.Button or not row.Button.Parent
                 or row.Label.Text~=row.Name or not row.Button:IsA("TextButton")
-                or type(row.Cell[1])~="boolean" then return false end
+                or type(rawget(row.Cell,row.Key))~="boolean" then return false end
         end
         return true
     end
@@ -63,13 +93,11 @@ return function(H)
                 if disabled[text.Text] and button and button:IsA("TextButton") then
                     local found
                     for _,connection in ipairs(H.connections(button.MouseButton1Click)) do
-                        for _,v in pairs(values(connection.Function) or {}) do
-                            if type(v)=="table" and type(v[1])=="boolean" then
-                                found={Name=text.Text,Label=text,Button=button,Cell=v,Callback=connection.Function}
-                                break
-                            end
+                        local cell,key=switchState(values(connection.Function) or {},text.Text)
+                        if cell then
+                            if found then return nil,"Ambiguous Atlas switch: "..text.Text end
+                            found={Name=text.Text,Label=text,Button=button,Cell=cell,Key=key,Callback=connection.Function}
                         end
-                        if found then break end
                     end
                     if not found then return nil,"Cannot verify Atlas switch: "..text.Text end
                     rows[#rows+1]=found
@@ -95,14 +123,15 @@ return function(H)
         if not rows then return false,reason end
         local result={}
         for _,row in ipairs(rows) do
-            if row.Cell[1] and apply then
+            if rawget(row.Cell,row.Key)==true and apply then
                 assert(H.activate(row.Button,row.Callback),"Cannot disable Atlas "..row.Name)
                 local deadline=os.clock()+3
-                while row.Cell[1] and os.clock()<deadline do task.wait(0.05) end
-                assert(row.Cell[1]==false,"Atlas spender switch did not synchronize: "..row.Name)
+                while rawget(row.Cell,row.Key)==true and os.clock()<deadline do task.wait(0.05) end
             end
-            result[#result+1]={Name=row.Name,Enabled=row.Cell[1]}
-            if row.Cell[1] then return false,"Atlas is spending independently: "..row.Name,result end
+            local enabled=rawget(row.Cell,row.Key)
+            if type(enabled)~="boolean" then return false,"Atlas switch state unavailable: "..row.Name,result end
+            result[#result+1]={Name=row.Name,Enabled=enabled}
+            if enabled then return false,"Atlas is spending independently: "..row.Name,result end
         end
         return true,nil,result
     end

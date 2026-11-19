@@ -1,5 +1,7 @@
 # Full Hive Assist
 
+**v1.8.8** supports the current Atlas spending switch format, including Use Coconut To Convert.
+
 **v1.8.7:** With fewer than30 occupied bees, use any available Royal Jelly for normal one-jelly requests with all roll-to flags off. Prefer eligible normal Basic Bees for new tasks, preserving keeps and active coordinates. At30 bees the normal batch requirement returns. Gear honey remains reserved.
 
 **v1.8.6:** Empty hive slots no longer block rolling on safe occupied cells. Each turn checks ready gear, affordable hatching, then qualified rolling. Gear honey stays reserved, including during jelly refills and Gifted Basic purchases. Existing jelly can qualify while gear honey is being saved; the original batch thresholds and keep rules still apply.

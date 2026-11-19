@@ -875,3 +875,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - StartedAt values: QuackAltear1 1795019587; QuackAltear06 1795019589; QuackAltear2 1795019601; QuackAltear5 1795019603; QuackAltear3 1795019605; QuackAltear4 1795019607. All reported running with7 occupied/25 capacity and refill1.
 - LIVE QuackAltear5 used2 Royal Jellies from its small inventory at normal Basic origin(1,1), last verified result Bucko consumed1, Mode off, refill mode single-jelly and RJ0. The same unfinished coordinate was retained after intermediate outcomes.
 - LIVE QuackAltear2 had an in-flight ConstructHiveCellFromEgg request at(1,1), Amount1; preserved it and later verified reconciliation: RoyalJellyUsed1, result Bomber consumed1, TargetStart Basic, RJ0, no pending/uncertain flag, all RollToGifted/Legendary/Mythic/Mutation false and no error. The actual30-bee threshold crossing remains isolated coverage, since these accounts currently have7 bees.
+
+## v1.8.8 — Atlas spending switch compatibility
+
+- Confirmed on Delta that the Coconut conversion switch was off and used a named boolean in its callback. The previous reader accepted only an indexed boolean and stopped before planning. The adapter recognizes both verified formats and rejects ambiguous or missing state. Atlas still changes switches through its own callbacks.
+- The connected regression suite and 43 bundle validation markers passed. Five focused fixture checks passed for both state formats, already-off state, and ambiguous or missing state. A read-only live check verified all 16 monitored Atlas rows off.
+- QuackAltear2 executed v1.8.8 once with StartedAt 1795053450. It passed startup, verified all 16 Atlas spender rows, and continued into movement with no pending request or switch error at inspection. Bundle SHA-256 2ce3c8fc1c3671ca370c395800d767d19317d978d165b63a4ef0f6144ccf7096.
