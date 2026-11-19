@@ -50,12 +50,13 @@ return function(runtime)
         return {FindFirstChildOfClass=function() return health and {Health=health} end,
             FindFirstChild=function() return r end},r
     end
-    for _,failure in ipairs({"once","twice","FullHivePending","AutoHivePendingRequest","FullHiveUncertain",
+    for _,failure in ipairs({"once","twice","exhausted","FullHivePending","AutoHivePendingRequest","FullHiveUncertain",
         "FullHiveStarRunning","AutoGiftedStarRunning","stop","release-failure"}) do
         local lease={x=4,y=8};local batch={Recovery=true};local basic={x=1,y=1}
         local env={FullHiveAtlasOwned=true,FullHiveRollTask=lease,FullHiveJellyBatch=batch,FullHiveBasicLock=basic}
         if failure:find("^FullHive")and failure~="FullHiveAtlasOwned"or failure:find("^Auto")then env[failure]={Unresolved=true}end
         local report={Actions=12,RoyalJellyUsed=54,Movement={Destination="Verified.Shop",Failure="Movement timed out"}}
+        if failure=="exhausted" then report.Movement.RoutesExhausted=true end
         local runs,releases,waits=0,0,0;local token
         local loop,_,_,_,sentinel=factory({Character=character(100,true)},env,report,function()
             runs+=1
@@ -74,6 +75,9 @@ return function(runtime)
         elseif failure=="twice"then
             check(ok and runs==3 and releases==2 and waits==12,"Repeated travel failures recover with increasing delays")
             check(report.MovementRecoveries==2,"Both movement failures are recorded")
+        elseif failure=="exhausted" then
+            check(not ok and runs==1 and releases==1 and waits==0 and err:find("no purchase sent",1,true),
+                "Exhausted shop approaches resume Atlas and stop without replaying")
         elseif failure=="stop"or failure=="release-failure"then
             check(not ok and runs==1 and releases==1 and waits==0,"Stop or failed Atlas release blocks recovery")
         else
@@ -191,10 +195,10 @@ return function(runtime)
     local movement=assert(runtime:match("(local function move%(part%).-)\nlocal function setSettings"))
     local movementFactory=assert(loadstring("return function(player,game,workspace,Instance,descendants,Report,clock)\n"..
         "local os={clock=clock or os.clock,time=os.time}\n"..
-        "local Config={Speed=65}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
-        helpers.."\nlocal function distance() return 20 end; local function near() end\n"..movement..
+        "local Config={Speed=65,NearDistance=16}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
+        helpers.."\nlocal function distance(part) return (player.Character:FindFirstChild().Position-part.Position).Magnitude end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route","shop-path"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route","shop-path","shop-alternate"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -204,13 +208,15 @@ return function(runtime)
         local added,fencePart=part(true),part(false)
         local destroyed,cancelled,disconnected=0,false,0
         local goals={}
-        local walking=failure=="shop-path"
-        local walked,walkStopped=0,false
+        local alternate=failure=="shop-alternate"
+        local walking=failure=="shop-path" or alternate
+        local walked,walkStopped,paths=0,false,0
         if walking then
             local humanoid={Health=100,Parent=c}
             function humanoid:MoveTo(point)
                 check(obstacle.CanCollide,"Shop path walks with collisions restored")
-                walked+=1;r.Position=point
+                walked+=1
+                if not alternate or walked>1 then r.Position=point end
             end
             function humanoid:Move() walkStopped=true end
             c.FindFirstChildOfClass=function() return humanoid end
@@ -226,10 +232,12 @@ return function(runtime)
         local fences={DescendantAdded=signal("fenceAdded")}
         local services={
             PathfindingService={CreatePath=function()
+                paths+=1
+                local first=alternate and paths>2 and Vector3.new(10,0,8) or Vector3.new(10,0,0)
                 return {Status=Enum.PathStatus.Success,ComputeAsync=function(_,_,goal)
                     check(goal.Y==2.5,"Walk target uses the physical floor")
                 end,GetWaypoints=function()
-                    return {{Position=Vector3.new(10,0,0)},{Position=Vector3.new(20,0,0),Action=Enum.PathWaypointAction.Jump}}
+                    return {{Position=first},{Position=Vector3.new(20,0,0),Action=Enum.PathWaypointAction.Jump}}
                 end,Destroy=function()end}
             end},
             RunService={Stepped=signal("stepped")},
@@ -272,15 +280,19 @@ return function(runtime)
         local calls=0;local report={}
         local move,token,pendingCleanup,timeoutToken=movementFactory(player,fakeGame,fakeWorkspace,fakeInstance,
             function(container) return container==fences and {} or {obstacle,noncollidable} end,report,
-            failure=="timeout"and function()calls+=1;return calls==1 and 0 or 30 end or nil)
+            (failure=="timeout" or alternate) and function()calls+=1;return calls*30 end or nil)
         local rotated=failure=="rotated-pad"
         local part={Name="Test",Position=Vector3.new(20,0,0),Size=rotated and Vector3.new(0.32,22,22) or Vector3.new(4,1,4),
             CFrame={RightVector=Vector3.new(0,rotated and -1 or 0,0),UpVector=Vector3.new(0,rotated and 0 or 1,0),LookVector=Vector3.new(0,0,-1)},
             GetFullName=function() return walking and "Workspace.Shops.ProShop.Terrain" or "Verified.Test.Pad" end,IsA=function() return true end}
         local ok,err=pcall(move,part)
         if walking then
-            check(ok and #goals==0 and walked==2 and walkStopped,"Blocked shop flight uses the route and stops walking on cleanup")
+            check(ok and #goals==0 and walked==(alternate and 3 or 2) and walkStopped,
+                "Blocked shop flight uses the route and stops walking on cleanup")
             check(report.Movement.Arrived and report.Movement.Method=="shop-path","Shop approach records verified arrival")
+            if alternate then
+                check(paths==3 and report.Movement.Route==3,"A stalled shop path skips a repeated waypoint and takes a different path")
+            end
         elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" then check(ok,"Successful movement completes")
         elseif failure=="no-route" then
             check(not ok and err==timeoutToken and #goals==0,"No clear route stops before moving")

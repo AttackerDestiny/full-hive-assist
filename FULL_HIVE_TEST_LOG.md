@@ -952,3 +952,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Live path probes found routes to the physical shop floors. Pro Shop's logical volume extends above the floor, and the earlier flight target was above the walkable shop. Blue HQ also has a route to the floor through the map.
 - When flight has no clear route to either shop, Feather finds the physical floor below the target, restores collision and walks the verified path. Arrival still goes through the existing proximity and fresh purchase checks.
 - Bundle validation and 4,310 offline checks passed, including the shop fallback and movement cleanup. Bundle SHA-256 d7d41debf5e820983423f2a9c35f452a5f2d49d92194b263e0154fec6147c7f8.
+
+## v1.8.22 — Try distinct shop approaches
+
+- v1.8.21 repeatedly stalled on foot at Pro Shop and Blue HQ. v1.8.22 checks up to five floor approaches, rejects routes through a previously stalled waypoint and releases Atlas when the options run out.
+- Passed 4,326 offline checks and bundle validation. Bundle SHA-256 7186764bc6030ff6db120d970fb4f459345145bb9ae28e961df881ae746a8578.
+- Both target clients confirmed v1.8.22, StartedAt 1795093277 (QuackAltear2) and 1795093289 (QuackAltear06) in job 32a74d5f-1dcb-4e9e-8e1e-1be9d7bc597f. Pro Shop stalled at waypoint 38 within 1 horizontal stud but 6 studs above the walking waypoint. Blue HQ took approach 2 and stalled 3.6 horizontal studs from waypoint 3. Both exhausted their routes and released Atlas with no pending request or purchase.
