@@ -50,15 +50,21 @@ return function(runtime)
         return {FindFirstChildOfClass=function() return health and {Health=health} end,
             FindFirstChild=function() return r end},r
     end
-    for _,failure in ipairs({"once","twice","exhausted","FullHivePending","AutoHivePendingRequest","FullHiveUncertain",
+    for _,failure in ipairs({"once","twice","exhausted","guild-exhausted","FullHivePending","AutoHivePendingRequest","FullHiveUncertain",
         "FullHiveStarRunning","AutoGiftedStarRunning","stop","release-failure"}) do
         local lease={x=4,y=8};local batch={Recovery=true};local basic={x=1,y=1}
         local env={FullHiveAtlasOwned=true,FullHiveRollTask=lease,FullHiveJellyBatch=batch,FullHiveBasicLock=basic}
         if failure:find("^FullHive")and failure~="FullHiveAtlasOwned"or failure:find("^Auto")then env[failure]={Unresolved=true}end
         local report={Actions=12,RoyalJellyUsed=54,Movement={Destination="Verified.Shop",Failure="Movement timed out"}}
         if failure=="exhausted" then report.Movement.RoutesExhausted=true end
+        local c,r=character(100,true)
+        r.Position=Vector3.zero
+        if failure=="guild-exhausted" then
+            report.Movement.Destination="Workspace.Badge Guild.Walls.Floor"
+            report.Movement.RoutesExhausted=true
+        end
         local runs,releases,waits=0,0,0;local token
-        local loop,_,_,_,sentinel=factory({Character=character(100,true)},env,report,function()
+        local loop,_,_,_,sentinel=factory({Character=c},env,report,function()
             runs+=1
             if runs==1 or (failure=="twice" and runs==2)then error(token,0)end
             check(report.Phase=="movement-recovered","Retry refreshes planning after movement cleanup")
@@ -67,6 +73,7 @@ return function(runtime)
         {wait=function()
             waits+=1
             check(releases==runs and not env.FullHiveAtlasOwned,"Atlas is resumed before each movement recovery wait")
+            if failure=="guild-exhausted" then r.Position=Vector3.new(waits*10,0,0) end
         end})
         token=sentinel;local ok,err=pcall(loop)
         if failure=="once"then
@@ -78,6 +85,9 @@ return function(runtime)
         elseif failure=="exhausted" then
             check(not ok and runs==1 and releases==1 and waits==0 and err:find("no purchase sent",1,true),
                 "Exhausted shop approaches resume Atlas and stop without replaying")
+        elseif failure=="guild-exhausted" then
+            check(ok and runs==2 and releases==1 and waits==4,
+                "An exhausted Guild route waits for Atlas to move before trying from a new origin")
         elseif failure=="stop"or failure=="release-failure"then
             check(not ok and runs==1 and releases==1 and waits==0,"Stop or failed Atlas release blocks recovery")
         else
