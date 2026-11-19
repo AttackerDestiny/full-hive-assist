@@ -976,3 +976,10 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Ordinary rolls on QuackAltear06 discovered Bubble Bee, satisfying the fourth Blue discovery. The door stayed collidable after the game's requirement check began passing.
 - Feather now calls the game's own GateManager refresh only when the current requirements pass and the door remains visibly closed. Bundle validation and 4,329 offline checks passed. Bundle SHA-256 646cac9f81bdcf2166e85705a6739ea448e5fb6afe7b4ed2c21394e87366d598.
 - QuackAltear06 StartedAt 1795093763. The door opened and the Bubble Wand resumed priority. The final attempt ended at (297.93985, 4.09803, 93.80194), inside the Blue HQ shop floor's horizontal bounds and about 2 studs above its surface. The route still waited for a later exact waypoint. It exhausted its approaches and released Atlas. No purchase or pending receipt was present.
+
+## v1.8.26 — Verify grounded arrival inside Blue HQ
+
+- A live walk passed through the open gate and reached within 2 studs of the shop floor while still trying to reach a later waypoint. Feather now accepts a grounded position within the actual floor bounds and 5 studs of the shop part. The normal proximity, fresh gear plan and server receipt checks still run.
+- Bundle validation and 4,337 offline checks passed. Bundle SHA-256 462162741635b0778d3df1f6c11d3ae5e27777293fd6f40009499578864c8c3b.
+- Verified v1.8.26 startup on all six Quack Delta clients. QuackAltear06 StartedAt 1795093893 reached Blue HQ with shop-path, Arrived=true and floor distance 2.114 studs at waypoint 16 of 20. The server-backed purchase/equip receipt confirmed Bubble Wand at 1795093897. Fresh stats showed EquippedCollector=Bubble Wand. Atlas was released and no pending or uncertain request remained.
+- Rechecked QuackAltear2 (StartedAt 1795093901) independently: Hiking Boots are still owned and equipped after the earlier verified Pro Shop purchase.

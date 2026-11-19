@@ -198,7 +198,7 @@ return function(runtime)
         "local Config={Speed=65,NearDistance=16}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance(part) return (player.Character:FindFirstChild().Position-part.Position).Magnitude end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route","shop-path","shop-alternate"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route","shop-path","shop-alternate","shop-floor-arrival"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -209,14 +209,17 @@ return function(runtime)
         local destroyed,cancelled,disconnected=0,false,0
         local goals={}
         local alternate=failure=="shop-alternate"
-        local walking=failure=="shop-path" or alternate
+        local shopFloor=failure=="shop-floor-arrival"
+        local walking=failure=="shop-path" or alternate or shopFloor
         local walked,walkStopped,paths=0,false,0
         if walking then
             local humanoid={Health=100,Parent=c}
             function humanoid:MoveTo(point)
                 check(obstacle.CanCollide,"Shop path walks with collisions restored")
                 walked+=1
-                if alternate and walked==2 then
+                if shopFloor then
+                    r.Position=Vector3.new(19,2,3)
+                elseif alternate and walked==2 then
                     r.Position=point+Vector3.new(3.5,6,0)
                 elseif not alternate or walked>1 then
                     r.Position=point
@@ -286,12 +289,18 @@ return function(runtime)
             function(container) return container==fences and {} or {obstacle,noncollidable} end,report,
             (failure=="timeout" or alternate) and function()calls+=1;return calls*30 end or nil)
         local rotated=failure=="rotated-pad"
-        local part={Name="Test",Position=Vector3.new(20,0,0),Size=rotated and Vector3.new(0.32,22,22) or Vector3.new(4,1,4),
-            CFrame={RightVector=Vector3.new(0,rotated and -1 or 0,0),UpVector=Vector3.new(0,rotated and 0 or 1,0),LookVector=Vector3.new(0,0,-1)},
-            GetFullName=function() return walking and "Workspace.Shops.ProShop.Terrain" or "Verified.Test.Pad" end,IsA=function() return true end}
+        local part={Name="Test",Position=Vector3.new(20,0,0),
+            Size=rotated and Vector3.new(0.32,22,22) or Vector3.new(8,1,8),
+            CFrame={RightVector=Vector3.new(0,rotated and -1 or 0,0),UpVector=Vector3.new(0,rotated and 0 or 1,0),LookVector=Vector3.new(0,0,-1),
+                PointToObjectSpace=function(_,point) return point-Vector3.new(20,0,0) end},
+            GetFullName=function()
+                if shopFloor then return "Workspace.Map.Ground.BlueHQShopFloor" end
+                return walking and "Workspace.Shops.ProShop.Terrain" or "Verified.Test.Pad"
+            end,IsA=function() return true end}
         local ok,err=pcall(move,part)
         if walking then
-            check(ok and #goals==0 and walked==(alternate and 3 or 2) and walkStopped,
+            local expectedWalks=shopFloor and 1 or alternate and 3 or 2
+            check(ok and #goals==0 and walked==expectedWalks and walkStopped,
                 "Blocked shop flight uses the route and stops walking on cleanup")
             check(report.Movement.Arrived and report.Movement.Method=="shop-path","Shop approach records verified arrival")
             if alternate then

@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.25"
+local SCRIPT_VERSION = "1.8.26"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -526,6 +526,12 @@ local function move(part)
                     local movement=Report.Movement
                     movement.Method="shop-path"
                     local rejected={}
+                    local function onBlueShopFloor()
+                        if destination~="Workspace.Map.Ground.BlueHQShopFloor" or distance(part)>5 then return false end
+                        local localPosition=part.CFrame:PointToObjectSpace(r.Position)
+                        if math.abs(localPosition.X)>part.Size.X/2 or math.abs(localPosition.Z)>part.Size.Z/2 then return false end
+                        return workspace:Raycast(r.Position,Vector3.new(0,-5,0),params)~=nil
+                    end
                     local function checkWalk()
                         pauseCheckpoint()
                         if characterRoot()~=r then error(CHARACTER_UNAVAILABLE,0) end
@@ -577,6 +583,7 @@ local function move(part)
                             repeat
                                 checkWalk()
                                 movement.Distance=(r.Position-groundTarget).Magnitude
+                                if onBlueShopFloor() then return end
                                 delta=r.Position-step.Position
                                 if delta.X^2+delta.Z^2<=horizontalLimit^2 and math.abs(delta.Y)<=verticalLimit then break end
                                 if os.clock()>=deadline then
