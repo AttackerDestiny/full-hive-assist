@@ -591,7 +591,7 @@ end
 -- Product-facing status uses separate actual and queued output counts. It does
 -- not call a queued Blender result inventory or label missing materials as a
 -- honey-saving phase.
-function P.describe(result,facts)
+function P.describe(result,facts,catalog)
     local action=result.action or {kind="wait",reason="unknown-action"}
     local phase=result.materialPhase and "materials" or action.kind=="buy-gear" and "gear-ready"
         or action.reason=="saving-gear-honey" and "saving-gear-honey" or action.kind
@@ -603,16 +603,23 @@ function P.describe(result,facts)
         or (reason=="saving-crafting-jelly" and "Saving honey for crafting jelly")
         or (reason=="saving-diamond-tickets"and"Saving honey for Diamond Egg tickets")
         or (phase=="saving-gear-honey" and "Saving honey for gear") or "Waiting for materials or requirements"
+    local gear=result.gear and (catalog and catalog.gear or {})[result.gear]
+    if type(gear)~="table" then gear=nil end
+    local items=gear and gear.items or result.gearItems
     local rows={}
-    for _,item in ipairs(orderedKeys(result.gearItems or {})) do
-        local required=result.gearItems[item]
+    local materialsKnown=type(items)=="table"
+    for _,item in ipairs(orderedKeys(materialsKnown and items or {})) do
+        local required=items[item]
+        if type(item)~="string" or not integer(required) then materialsKnown=false;continue end
         local actual=type(facts.inventory)=="table" and facts.inventory[item] or nil
+        if not integer(actual) then actual=nil end
         if actual==nil and facts.inventoryKnown then actual=0 end
-        local queued=(result.queuedItems or {})[item] or 0
+        local queued=not result.deferredGear and (result.queuedItems or {})[item] or 0
         rows[#rows+1]={item=item,required=required,actual=actual,queued=queued,
             deficit=actual and math.max(0,required-actual-queued) or nil}
     end
     return {phase=phase,label=label,reason=reason,targetGear=result.gear,reserveHoney=result.reserveHoney or 0,
+        gearHoney=gear and integer(gear.honey) and gear.honey or nil,gearMaterialsKnown=materialsKnown,
         parallelHive=action.parallelHive==true,materials=rows,nextCraft=result.nextCraft,
         fundsRequired=result.fundsRequired,requiredRJ=result.requiredRJ,missingRJ=result.missingRJ,requiredTickets=result.requiredTickets}
 end
@@ -651,7 +658,7 @@ function P.plan(facts,catalog)
             end
         end
     end
-    result.status=P.describe(result,type(facts)=="table" and facts or {})
+    result.status=P.describe(result,type(facts)=="table" and facts or {},type(catalog)=="table" and catalog or {})
     return result
 end
 return P

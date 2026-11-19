@@ -983,3 +983,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Bundle validation and 4,337 offline checks passed. Bundle SHA-256 462162741635b0778d3df1f6c11d3ae5e27777293fd6f40009499578864c8c3b.
 - Verified v1.8.26 startup on all six Quack Delta clients. QuackAltear06 StartedAt 1795093893 reached Blue HQ with shop-path, Arrived=true and floor distance 2.114 studs at waypoint 16 of 20. The server-backed purchase/equip receipt confirmed Bubble Wand at 1795093897. Fresh stats showed EquippedCollector=Bubble Wand. Atlas was released and no pending or uncertain request remained.
 - Rechecked QuackAltear2 (StartedAt 1795093901) independently: Hiking Boots are still owned and equipped after the earlier verified Pro Shop purchase.
+
+## v1.8.27 — Show current gear requirements in Overview
+
+- Gear target shows the selected item, current honey versus its purchase price, and owned versus required materials. It shows the missing amounts and lists queued Blender output separately from owned materials. Quotes can appear while a hive gate still blocks the purchase.
+- Bundle validation and 4,343 offline checks passed. Bundle SHA-256 59c49a53489b3f69228b6706245b77e4b92900d3f97539153e652992d9bd2635.
+- Four Delta clients appeared at discovery, then MCP returned no connected clients during both rollout attempts. No execution or live UI rendering was confirmed.

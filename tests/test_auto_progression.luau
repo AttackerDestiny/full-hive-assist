@@ -109,6 +109,8 @@ return function(P)
         f.inventory.Basic=1;f.emptyCell={verified=true,x=5,y=5}
         local r=P.plan(f,catalog(name,100,{}))
         check(r.action.kind=="hatch-basic","Occupied gate cannot be satisfied by capacity alone")
+        check(r.status.gearHoney==100 and r.status.gearMaterialsKnown,
+            "Gear cost remains visible while the hive gate blocks purchase")
         f.occupied=gate;f.capacity=gate
         check(P.plan(f,catalog(name,100,{})).action.kind=="buy-gear","Both gate counts satisfy exact boundary")
     end

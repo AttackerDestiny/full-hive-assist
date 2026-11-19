@@ -71,7 +71,20 @@ return function(adapter)
     stopRow.config.Callback(false)
     check(not tickets and stop==1,"Existing controls still dispatch their callbacks")
     local state={phase="WAITING",activity="Farming",metrics="41 slots",progress="No rolls",gear="Tacky Planter",background="Amulets"}
+    state.gearTarget=UI.describeGear({Gear="Diamond Mask",Honey=3000000000,Status={
+        gearHoney=5000000000,gearMaterialsKnown=true,materials={
+            {item="BlueExtract",actual=19,required=250,queued=200,deficit=31},
+            {item="DiamondEgg",actual=5,required=5,queued=0,deficit=0},
+        },
+    }})
     mounted.render(state)
+    local overviewGear=registered["Overview/Paragraph/Gear target"]
+    check(overviewGear.desc=="Diamond Mask\nHoney  3,000,000,000 / 5,000,000,000  (2,000,000,000 needed)"
+        .."\nBlue Extract  19 / 250  (+200 crafting)  (31 needed)\nDiamond Egg  5 / 5",
+        "Overview shows the actual balance, required honey, and material progress")
+    check(UI.describeGear({Gear="Bubble Wand",Honey=0,Status={gearHoney=3500000,gearMaterialsKnown=true}})
+        =="Bubble Wand\nHoney  0 / 3,500,000  (3,500,000 needed)\nNo materials required",
+        "An empty material list is distinct from unavailable requirements")
     local status=registered["Overview/Paragraph/Starting"]
     check(status.title=="WAITING" and status.desc=="Farming","Shows live report values")
     check(not stopRow.locked,"Pause does not disable the resume control")

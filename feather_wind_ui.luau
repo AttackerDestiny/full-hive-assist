@@ -2,6 +2,39 @@
 -- supplied by the host for the existing controls and cached hive snapshot.
 local UI={}
 
+local function amount(value)
+    local digits=string.format("%.0f",value)
+    return (digits:reverse():gsub("(%d%d%d)","%1,"):reverse():gsub("^,",""))
+end
+
+function UI.describeGear(report)
+    if not report.Gear then
+        return report.Reason=="ordered-gear-complete" and "Gear route complete" or "Inspecting gear..."
+    end
+    local status=report.Status or {}
+    local lines={report.Gear}
+    if status.gearHoney~=nil then
+        local have=report.Honey
+        local honey="Honey  "..(have and amount(have) or "?").." / "..amount(status.gearHoney)
+        if have and have<status.gearHoney then
+            honey=honey.."  ("..amount(status.gearHoney-have).." needed)"
+        end
+        lines[#lines+1]=honey
+    else
+        lines[#lines+1]="Waiting for gear cost"
+    end
+    local materials=status.materials or {}
+    if status.gearMaterialsKnown and #materials==0 then lines[#lines+1]="No materials required" end
+    for _,row in ipairs(materials) do
+        local name=row.item:gsub("(%l)(%u)","%1 %2")
+        local line=name.."  "..(row.actual and amount(row.actual) or "?").." / "..amount(row.required)
+        if row.queued>0 then line=line.."  (+"..amount(row.queued).." crafting)" end
+        if row.deficit and row.deficit>0 then line=line.."  ("..amount(row.deficit).." needed)" end
+        lines[#lines+1]=line
+    end
+    return table.concat(lines,"\n")
+end
+
 function UI.visibility(overlay,onVisibility,button)
     local shown=true
     local function setShown(value)
@@ -70,6 +103,7 @@ function UI.mount(parent,overlay,version,callbacks)
         local gear=progression:Paragraph({Title="Gear and Blender",Desc="Inspecting gear..."})
         local background=progression:Paragraph({Title="Amulets and quests",Desc="Inspecting..."})
         overview:Button({Title="View hive",Icon="eye",Callback=function() callbacks.viewHive() end})
+        local gearTarget=overview:Paragraph({Title="Gear target",Desc="Inspecting gear..."})
         local tickets=controls:Toggle({Title="Blender tickets",Icon="hammer",
             Desc="Allow tickets to speed up Blender crafting.",Value=callbacks.ticketsEnabled(),
             Callback=callbacks.setTickets})
@@ -105,6 +139,7 @@ function UI.mount(parent,overlay,version,callbacks)
                 update(status,"SetTitle","phase",state.phase)
                 update(status,"SetDesc","activity",state.activity)
                 update(hive,"SetDesc","hive",state.metrics.."\n"..state.progress)
+                update(gearTarget,"SetDesc","gearTarget",state.gearTarget)
                 update(gear,"SetDesc","gear",state.gear)
                 update(background,"SetDesc","background",state.background)
                 if state.finished and not last.finished then

@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.26"
+local SCRIPT_VERSION = "1.8.27"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1606,6 +1606,7 @@ local function readUIStatus()
             or (Report.PauseRequested and Report.Phase~="paused" and env.FullHiveRunning and "Pausing after the current action...")
             or Report.Activity or Report.Phase),
         progress=progress,gear=table.concat(lines,"\n"),
+        gearTarget=FeatherWindUI.describeGear(pg),
         background="Amulets: "..tostring(bg.Amulet or "Inspecting").."\nQuest assist: "..tostring(bg.Quest or "Inspecting"),
         slots=slots,jelly=jelly,refill=refill,metrics=slots.."  |  "..jelly.."  |  "..refill,
         finished=not env.FullHiveRunning,
