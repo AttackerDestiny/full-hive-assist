@@ -224,7 +224,11 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     local normalCaps={Baby=plan.stage=="final" and (plan.babyGoal or 4) or 4,Music=4,Shy=3,Bubble=4,Frosty=4,Ninja=2}
     local cap=normalCaps[name]
     if(plan.questRetired or{})[name]then cap=0 end
-    if (not task.Goals or #task.Goals==0) and cap and (task.InitialTotal[name] or 0)<cap and P.count(cells,name)<=cap then
+    -- Early single rolls can fill a reserved normal quota while pursuing a
+    -- different fixed goal. Treat that kept result as a completed objective.
+    local earlyKeep=plan.stage=="early" and not gifted and plan.keep[P.key(cell)]
+    if (not task.Goals or #task.Goals==0 or earlyKeep) and cap
+        and (task.InitialTotal[name] or 0)<cap and P.count(cells,name)<=cap then
         return true, "force-quota-result"
     end
     if not gifted and (plan.stage=="early" or ((P.isRecoveryTask(task)or plan.collectorFallback) and (plan.stage=="mid" or plan.stage=="late")))

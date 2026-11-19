@@ -434,5 +434,19 @@ return function(P,T)
         for i=5,30 do cells[i]={x=i,y=1,bee={Type="Tabby",Traits={}}}end
         check(not P.singleJelly(cells),"Exactly30 occupied bees restores the usual batch path")
     end
+    for _,name in ipairs({"Bubble","Frosty","Ninja"}) do
+        local base=hive({{"Basic",2}})
+        local context=ctx(25)
+        local plan=P.plan(base,T,context)
+        local target=assert(plan.target)
+        local task=P.startRollTask(target,base,plan);task.Rolled=true
+        check(task.Reason=="fixed-targets" and #task.Goals>0,"Starter task has other fixed goals")
+        target.bee={Type=name,Traits={}}
+        plan=P.plan(base,T,context)
+        local done,reason=P.rollTaskDone(task,target,base,T,plan)
+        check(plan.keep[P.key(target)] and done and reason=="force-quota-result","Kept early "..name.." completes the roll")
+        check(not P.rollTaskSafe(task,target,base,T,plan),"Keep the reserved "..name.." after closing the task")
+        check(plan.target and P.key(plan.target)~=P.key(target),"Next task can choose another Basic Bee")
+    end
     return {passed=checked}
 end
