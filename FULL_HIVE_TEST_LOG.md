@@ -1007,3 +1007,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - After the Guild approaches fail, Feather releases Atlas and waits for a different character or at least 32 studs of movement before replanning. Exhaustion does not repeat the trip from the same starting spot.
 - Bundle validation and 4,361 offline checks passed. Bundle SHA-256 35b64568c8cfba2843f010f685c7d738575c007c90a4599ad3f75de22919b6bb.
 - Verified v1.8.30 live on QuackAltear1 and QuackAltear06 (both StartedAt 1795100032), QuackAltear2 and QuackAltear4 (1795100043), and QuackAltear5 (1795100053). After the prior Guild travel stop, QuackAltear1 and QuackAltear06 bought Basic Sprinkler at 1795100046 and 1795100045 respectively. QuackAltear5 remained at 22 occupied bees with Basic Sprinkler owned and equipped and Candy Planter targeted. QuackAltear3 was unavailable for this version's rollout. Stationary-to-new-origin waiting is covered by an offline regression; a live transition through that wait was not recorded.
+
+## v1.8.31 — Buy Beekeeper gear before Clay Planters
+
+- Regular route now goes Basic Sprinkler, Candy Planter, Beekeeper's Mask, Beekeeper's Boots, Mondo Belt Bag, Blue Clay Planter, Red Clay Planter. The existing 36-slot planter catch-up remains a separate priority.
+- Bundle validation and 4,368 offline checks passed, including the exact seven-item order at 22 occupied bees. Bundle SHA-256 52a7a2ef216daeb74c321af50bd26dfe3eeb907ee43280bb883122d90af58556.
+- Verified v1.8.31 running on all six Quack clients after maintenance reload. StartedAt: QuackAltear2 1795100313, QuackAltear3/4/5 1795100312, QuackAltear1/06 1795100316. Five were on Candy Planter and QuackAltear3 was waiting for a hive claim. The later handoff after Candy Planter was exercised offline.

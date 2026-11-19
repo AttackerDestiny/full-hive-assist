@@ -58,6 +58,14 @@ return function(P)
         f.redeemedCodes.Roof=nil;f.codesKnown=false
         check(P.plan(f,{}).action.kind=="wait","Unknown code state cannot be redeemed blindly")
     end
+    do
+        local f=facts();ownedThrough(f,"Basic Sprinkler");f.occupied=22
+        for _,expected in ipairs({"Basic Sprinkler","Candy Planter","Beekeeper's Mask","Beekeeper's Boots",
+            "Mondo Belt Bag","Blue Clay Planter","Red Clay Planter"}) do
+            check(P.nextGear(f).id==expected,"Follows the requested gear order at 22 bees: "..expected)
+            f.ownedGear[expected]=true
+        end
+    end
     for stageIndex,stage in ipairs(P.stages) do
         for _,name in ipairs(stage.gear) do
             local f=facts();ownedThrough(f,name);f.occupied=50;f.capacity=50
