@@ -970,3 +970,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Feather reads the game's own gate requirements and current door state before planning Blue HQ gear. While waiting, it reserves the planned gear's honey and allows normal hive work.
 - Bundle validation and 4,329 offline checks passed. Bundle SHA-256 17d4e567717eff4ed9e4eacf8feb61617a36b1c17e2ec31e76b38939a02d7594.
 - Verified runtime startup on all six Quack Delta clients. On QuackAltear06 (StartedAt 1795093616), the live game requirement checks passed for three discovered Blue types and failed for four. The door was closed. The planner deferred Bubble Wand with waiting-shop-access:BlueHQ, held a 3,500,000 honey reserve and allowed hive work. The live session proceeded with the ordinary Moon Amulet action instead of attempting the closed shop.
+
+## v1.8.25 — Refresh the eligible Blue HQ gate
+
+- Ordinary rolls on QuackAltear06 discovered Bubble Bee, satisfying the fourth Blue discovery. The door stayed collidable after the game's requirement check began passing.
+- Feather now calls the game's own GateManager refresh only when the current requirements pass and the door remains visibly closed. Bundle validation and 4,329 offline checks passed. Bundle SHA-256 646cac9f81bdcf2166e85705a6739ea448e5fb6afe7b4ed2c21394e87366d598.
+- QuackAltear06 StartedAt 1795093763. The door opened and the Bubble Wand resumed priority. The final attempt ended at (297.93985, 4.09803, 93.80194), inside the Blue HQ shop floor's horizontal bounds and about 2 studs above its surface. The route still waited for a later exact waypoint. It exhausted its approaches and released Atlas. No purchase or pending receipt was present.

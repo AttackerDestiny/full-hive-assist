@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.24"
+local SCRIPT_VERSION = "1.8.25"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -870,14 +870,26 @@ local function initializeProgression()
     assert(type(reader)=="function" and type(getconnections)=="function","Atlas spending controls cannot be verified on this executor")
     atlasFarmOnly=createAtlasProgressionControl({core=game:GetService("CoreGui"),
         upvalues=reader,connections=getconnections,activate=activate})
+    local lastGateRefresh
     local function shopAccess(shop,s)
         if shop~="BlueHQ" then return nil end
         local gates=workspace:FindFirstChild("Gates")
         local gate=gates and gates:FindFirstChild("Blue HQ Gate")
         local requirements=gate and gate:FindFirstChild("Requirements")
         local door=gate and gate:FindFirstChild("Door")
-        return requirements~=nil and door~=nil and door:IsA("BasePart")
-            and not door.CanCollide and Reqs.Check(s,loadModule(requirements))==true
+        if not requirements or not door or not door:IsA("BasePart")
+            or Reqs.Check(s,loadModule(requirements))~=true then return false end
+        if door.CanCollide and (lastGateRefresh==nil or os.clock()-lastGateRefresh>=10)
+            and not Config.DryRun then
+            lastGateRefresh=os.clock()
+            local manager=RS:FindFirstChild("GateManager")
+            if manager then
+                -- The game's own refresh checks the current stats for every gate.
+                -- Newly discovered bees need not trigger that refresh immediately.
+                loadModule(manager).UpdateGateColors()
+            end
+        end
+        return not door.CanCollide
     end
     local makeFacts=createProgressionFacts({
         Policy=ProgressionPolicy,Packages=Packages,Recipes=Recipes,Reqs=Reqs,
