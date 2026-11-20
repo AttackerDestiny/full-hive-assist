@@ -27,11 +27,15 @@ return function(H)
         if d.saveCraftingJelly then return item=="StarJelly" and d.action.kind=="wait" end
         return d.optionalHiveAllowed==true
     end
-    function R.allowsEventPurchase(s,currency,cost)
-        if H.Config.AutoProgression==false then return true end
+    function R.eventCurrency(s,currency)
+        if H.Config.AutoProgression==false then return s.Eggs[currency] or 0 end
         local d=read(s)
-        return (d.action.kind=="wait" or d.action.kind=="hive")
-            and (s.Eggs[currency] or 0)-(d.reservedItems[currency] or 0)>=cost
+        if d.action.kind~="wait" and d.action.kind~="hive" then return nil end
+        return math.max(0,(s.Eggs[currency] or 0)-(d.reservedItems[currency] or 0))
+    end
+    function R.allowsEventPurchase(s,currency,cost)
+        local available=R.eventCurrency(s,currency)
+        return available~=nil and available>=cost
     end
     R.inspect=read
     local function same(a,b)
@@ -260,6 +264,24 @@ return function(H)
             type(d.action.reason)=="string" and d.action.reason:match("^saving%-")) and f.occupied and f.capacity
             and f.occupied<f.capacity and R.grow(s,f.capacity) then return true end
         return R.perform(d,s,f,c,read)
+    end
+    function R.hatchEvent(s,egg,bee)
+        local function replan(fresh)
+            local f,c=H.buildFacts(fresh)
+            local current=P.plan(f,c)
+            local empty=f.emptyCell
+            local ready=not H.Config.AutoProgression or current.action.kind=="wait" or current.action.kind=="hive"
+            if ready and empty and empty.verified and (fresh.Eggs[egg] or 0)>0 then
+                for _,cell in ipairs(H.scan(fresh)) do
+                    if cell.bee.Type==bee then return {action={kind="wait"}},f,c end
+                end
+                return {action={kind="hatch-egg",item=egg,x=empty.x,y=empty.y,amount=1}},f,c
+            end
+            return {action={kind="wait"}},f,c
+        end
+        local d,f,c=replan(s)
+        if d.action.kind=="wait" then return false,nil,f.emptyCell~=nil end
+        return R.perform(d,s,f,c,replan)
     end
     function R.grow(s,target)
         local function replan(fresh)

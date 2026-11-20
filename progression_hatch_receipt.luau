@@ -3,7 +3,8 @@
 -- validate(snapshot,{remaining=...,accepted=...,comb=...},freshStats) -> boolean,reason.
 -- Call capture BEFORE a yielding request; never clear an uncertain receipt on false.
 local R={}
-local supported={Basic=true,Silver=true,Gold=true}
+local supported={Basic=true,Silver=true,Gold=true,TabbyBee="Tabby",GummyBee="Gummy",
+    FestiveBee="Festive",CobaltBee="Cobalt",ViciousBee="Vicious",PuppyBee="Puppy"}
 local function integer(n)
     return type(n)=="number" and n>=0 and n<math.huge and n%1==0
 end
@@ -86,6 +87,8 @@ end
 local function validComb(before,comb)
     local cells,count=scan(comb)
     if not cells or count~=before.Count+1 or not cells[before.Target] then return nil,"hatch-occupancy-uncertain" end
+    local species=supported[before.Item]
+    if type(species)=="string" and cells[before.Target].Type~=species then return nil,"event-hatch-species-mismatch" end
     for key,record in pairs(before.Cells) do
         if not cells[key] or not sameIdentity(record,cells[key]) then return nil,"existing-bee-changed:"..key end
     end

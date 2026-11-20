@@ -2904,5 +2904,14 @@
     "offlineChecks": 4398,
     "tabbyPurchaseVerified": ["QuackAltear1", "QuackAltear2", "QuackAltear3", "QuackAltear4", "QuackAltear5", "QuackAltear06"],
     "quackAltear2": "Verified Tabby after a new approach; tickets 532 to 32"
+  },
+  "quackV1837": {
+    "version": "1.8.37",
+    "sha256": "0f6d0629f7bfe2951ea2f36323905b9cc1224e5ec281307f1d70a2d9e9f92a2e",
+    "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
+    "startedAt": {"QuackAltear1": 1795163606, "QuackAltear2": 1795163585, "QuackAltear3": 1795163586, "QuackAltear4": 1795163585, "QuackAltear5": 1795163589, "QuackAltear06": 1795163588},
+    "offlineChecks": 4404,
+    "verifiedEmptyCellTabbyHatches": 6,
+    "liveGummyPurchaseObserved": false
   }
 }

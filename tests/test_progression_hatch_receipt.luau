@@ -13,6 +13,16 @@ return function(R)
         return {accepted=true,remaining=fresh.Eggs.Basic,comb=copy(fresh.Honeycomb)},fresh
     end
     local s=state(1)
+    do
+        local event=state(0);event.Eggs.TabbyBee=1
+        local snapshot=assert(R.capture(event,4,9,"TabbyBee"))
+        local fresh=copy(event);fresh.Eggs.TabbyBee=0
+        fresh.Honeycomb.x4={y9={Type="Tabby",Traits={}}}
+        local response={accepted=true,remaining=0,comb=copy(fresh.Honeycomb)}
+        check(R.validate(snapshot,response,fresh),"An event hatch reconciles the expected species")
+        response.comb.x4.y9.Type="Basic"
+        check(not R.validate(snapshot,response,fresh),"A wrong event species cannot reconcile")
+    end
     local before=assert(R.capture(s,4,9));local response,fresh=result(s)
     -- Model replication mutating the caller's original nested tables while a
     -- request yields. The copied snapshot must retain the pre-request facts.

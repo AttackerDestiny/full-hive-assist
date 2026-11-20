@@ -19,5 +19,14 @@ return function(P,runtime)
     })
     assert(worker(stats,cells,plan) and purchases==1,"Starter Bee can buy during an active roll lease")
     assert(not worker({Eggs={Ticket=499}},cells,plan) and purchases==1,"Event buy order holds tickets for Tabby")
-    return {passed=5}
+    assert(P.eventGumdropPack(1499,1000)==nil,"Gummy holds tickets below 1500 Gumdrops")
+    assert(P.eventGumdropPack(1500,333)==nil,"Gummy waits for the full fixed-pack budget")
+    local gumdrops,tickets=1500,334
+    while gumdrops<2500 do
+        local pack=assert(P.eventGumdropPack(gumdrops,tickets))
+        assert(pack==3 or pack==30 or pack==300,"Only actual shop packs are used")
+        gumdrops+=pack;tickets-=pack/3
+    end
+    assert(gumdrops==2502 and tickets==0,"Only the smallest attainable top-up is bought")
+    return {passed=9}
 end

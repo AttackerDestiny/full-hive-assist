@@ -9,6 +9,11 @@ P.exactGifted = {Basic=true, Bumble=true, Cool=true, Looker=true, Bomber=true,
     Commander=true, Bucko=true, Carpenter=true, Demon=true, Lion=true,
     Diamond=true, Ninja=true, Shy=true}
 function P.singleJelly(cells) return #cells>0 and #cells<30 end
+function P.eventGumdropPack(gumdrops,tickets)
+    if gumdrops<1500 or gumdrops>=2500 or tickets<math.ceil((2500-gumdrops)/3) then return nil end
+    local deficit=math.ceil((2500-gumdrops)/3)*3
+    return deficit>=300 and 300 or deficit>=30 and 30 or 3
+end
 local function normalBasic(cell)
     return cell and cell.bee and cell.bee.Type=="Basic" and not P.gifted(cell)
 end
