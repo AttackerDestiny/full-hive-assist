@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.38"
+local SCRIPT_VERSION = "1.8.39"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -541,6 +541,7 @@ local function move(part)
             local guild=destination=="Workspace.Badge Guild.Walls.Floor"
             local ticketShop=destination=="Workspace.Map.Buildings.Ticket Bee Shop.Floor"
             local checkFloor=guild or ticketShop or destination=="Workspace.Map.Ground.BlueHQShopFloor"
+                or destination=="Workspace.Shops.Mountaintop.FloorPart"
             if checkFloor or destination=="Workspace.Shops.ProShop.Terrain" then
                 -- The shop volume can extend above the actual floor.
                 -- Use the navigable floor and restore collisions for normal walking.
@@ -1618,6 +1619,7 @@ local function runWithCharacterRecovery()
             Report.LastMovementFailure=Report.Movement
             local retryShop=destination=="Workspace.Badge Guild.Walls.Floor" and "Badge Guild"
                 or destination=="Workspace.Map.Buildings.Ticket Bee Shop.Floor" and "Ticket Tent"
+                or destination=="Workspace.Shops.Mountaintop.FloorPart" and "Mountaintop shop"
             local waitForNewOrigin=movement.RoutesExhausted and retryShop
             if movement.RoutesExhausted and not waitForNewOrigin then
                 error(movement.Failure.." at "..destination.."; no purchase sent",0)

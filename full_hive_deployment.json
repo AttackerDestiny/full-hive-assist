@@ -2921,5 +2921,14 @@
     "startedAt": {"QuackAltear1": 1795183721, "QuackAltear5": 1795183733, "QuackAltear06": 1795183736},
     "offlineChecks": 4418,
     "verifiedCandyPlanterPurchases": ["QuackAltear1", "QuackAltear5"]
+  },
+  "quackV1839": {
+    "version": "1.8.39",
+    "sha256": "a0082a5e1cad48b8f79be0355a7ac7da5e6d5dc731a1ab2658151a59b69cbe3f",
+    "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
+    "startedAt": {"QuackAltear1": 1795184089, "QuackAltear5": 1795184089, "QuackAltear06": 1795184088},
+    "offlineChecks": 4427,
+    "mountaintopPurchaseVerified": {"account": "QuackAltear1", "item": "Beekeeper's Boots", "at": 1795184119},
+    "deferredMaskUiVerified": true
   }
 }

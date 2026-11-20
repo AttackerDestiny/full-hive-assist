@@ -13,6 +13,7 @@ function UI.describeGear(report)
     end
     local status=report.Status or {}
     local lines={report.Gear}
+    if report.DeferredGear then lines[#lines+1]="Deferred: "..report.DeferredGear end
     if status.gearHoney~=nil then
         local have=report.Honey
         local honey="Honey  "..(have and amount(have) or "?").." / "..amount(status.gearHoney)

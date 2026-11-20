@@ -85,6 +85,9 @@ return function(adapter)
     check(UI.describeGear({Gear="Bubble Wand",Honey=0,Status={gearHoney=3500000,gearMaterialsKnown=true}})
         =="Bubble Wand\nHoney  0 / 3,500,000  (3,500,000 needed)\nNo materials required",
         "An empty material list is distinct from unavailable requirements")
+    check(UI.describeGear({Gear="Beekeeper's Boots",DeferredGear="Beekeeper's Mask"})
+        :find("Deferred: Beekeeper's Mask",1,true)~=nil,
+        "Overview explains why the selected gear differs from the ordered target")
     local status=registered["Overview/Paragraph/Starting"]
     check(status.title=="WAITING" and status.desc=="Farming","Shows live report values")
     check(not stopRow.locked,"Pause does not disable the resume control")
