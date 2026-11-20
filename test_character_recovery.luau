@@ -208,7 +208,7 @@ return function(runtime)
         "local Config={Speed=65,NearDistance=16}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance(part) return (player.Character:FindFirstChild().Position-part.Position).Magnitude end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route","shop-path","shop-alternate","shop-floor-arrival","guild-floor-arrival"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route","shop-path","shop-alternate","shop-floor-arrival","guild-floor-arrival","ticket-floor-arrival"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -220,7 +220,8 @@ return function(runtime)
         local goals={}
         local alternate=failure=="shop-alternate"
         local guild=failure=="guild-floor-arrival"
-        local shopFloor=failure=="shop-floor-arrival" or guild
+        local ticketShop=failure=="ticket-floor-arrival"
+        local shopFloor=failure=="shop-floor-arrival" or guild or ticketShop
         local walking=failure=="shop-path" or alternate or shopFloor
         local walked,walkStopped,paths=0,false,0
         if walking then
@@ -307,6 +308,7 @@ return function(runtime)
                 PointToObjectSpace=function(_,point) return point-Vector3.new(20,0,0) end},
             GetFullName=function()
                 if guild then return "Workspace.Badge Guild.Walls.Floor" end
+                if ticketShop then return "Workspace.Map.Buildings.Ticket Bee Shop.Floor" end
                 if shopFloor then return "Workspace.Map.Ground.BlueHQShopFloor" end
                 return walking and "Workspace.Shops.ProShop.Terrain" or "Verified.Test.Pad"
             end,IsA=function() return true end}

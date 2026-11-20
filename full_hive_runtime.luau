@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.35"
+local SCRIPT_VERSION = "1.8.36"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -513,7 +513,8 @@ local function move(part)
             if not waypoints then
                 local destination=Report.Movement.Destination
                 local guild=destination=="Workspace.Badge Guild.Walls.Floor"
-                local checkFloor=guild or destination=="Workspace.Map.Ground.BlueHQShopFloor"
+                local ticketShop=destination=="Workspace.Map.Buildings.Ticket Bee Shop.Floor"
+                local checkFloor=guild or ticketShop or destination=="Workspace.Map.Ground.BlueHQShopFloor"
                 if checkFloor or destination=="Workspace.Shops.ProShop.Terrain" then
                     -- The shop volume can extend above the actual floor.
                     -- Use the navigable floor and restore collisions for normal walking.
@@ -539,7 +540,7 @@ local function move(part)
                         if characterRoot()~=r then error(CHARACTER_UNAVAILABLE,0) end
                         assertAtlasPaused()
                     end
-                    local side,depth=guild and 12 or 8,guild and 36 or 8
+                    local side,depth=guild and 12 or 8,guild and 36 or ticketShop and 32 or 8
                     for index,offset in ipairs({Vector3.zero,Vector3.new(-side,0,0),Vector3.new(side,0,0),
                         Vector3.new(0,0,-depth),Vector3.new(0,0,depth)}) do
                         checkWalk()
@@ -1554,12 +1555,14 @@ local function runWithCharacterRecovery()
             local delay=({2,10,30,60})[attempts]
             Report.MovementRecoveries=(Report.MovementRecoveries or 0)+1
             Report.LastMovementFailure=Report.Movement
-            local waitForNewOrigin=movement.RoutesExhausted and destination=="Workspace.Badge Guild.Walls.Floor"
+            local retryShop=destination=="Workspace.Badge Guild.Walls.Floor" and "Badge Guild"
+                or destination=="Workspace.Map.Buildings.Ticket Bee Shop.Floor" and "Ticket Tent"
+            local waitForNewOrigin=movement.RoutesExhausted and retryShop
             if movement.RoutesExhausted and not waitForNewOrigin then
                 error(movement.Failure.." at "..destination.."; no purchase sent",0)
             end
             Report.Phase="waiting-movement"
-            Report.Activity=waitForNewOrigin and "Waiting for a new approach to the Badge Guild"
+            Report.Activity=waitForNewOrigin and ("Waiting for a new approach to the "..retryShop)
                 or string.format("Travel blocked at %s. Retrying in %ds",destination:match("[^.]+$") or destination,delay)
             local originalRoot=waitForNewOrigin and characterRoot()
             local origin=originalRoot and originalRoot.Position

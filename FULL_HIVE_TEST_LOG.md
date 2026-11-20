@@ -1038,3 +1038,10 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - All six live Quack accounts had at least 500 tickets but the starter roll path skipped Event Bee purchases. Purchases can now run below 30 occupied bees and during a roll lease. Egg placement still requires a safe slot and no active lease. Currency, ownership and gear reservations are rechecked before spending.
 - Bundle validation and 4,390 offline checks passed. Bundle SHA-256 e42ad2a447fba78a37492a866af95d36327f31f772331574a812cfa54dc6757e.
 - Verified all six Quack clients selected the Ticket Bee Shop trip on v1.8.35. StartedAt: 1/2/06 1795162950, 4/5 1795162953, 3 1795162954. All flight paths were blocked and Atlas resumed with no purchase sent.
+
+## v1.8.36 — Walk to the Ticket Tent
+
+- When the flight is obstructed, Feather walks one of the verified Ticket Bee Shop approaches and checks grounded proximity before purchasing. Exhausted approaches release Atlas and wait for a new starting position.
+- Bundle validation and 4,398 offline checks passed. Bundle SHA-256 6e2d2d552b30abd259b280ec504050766be9407d793660bf23c520647f862cfa.
+- Verified running on all six Quack clients in job 21b13cc7-411f-4d7e-a315-cfa18a38ac75. StartedAt: 4/5/06 1795163030, 1/2/3 1795163034.
+- Verified Tabby Bee receipts on QuackAltear1/3/4/5/06. Each had one Tabby egg and exactly 500 fewer tickets. QuackAltear2 still had 532 tickets, had sent no purchase request, and was waiting for a new approach with Atlas released at the verification snapshot.

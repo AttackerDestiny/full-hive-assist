@@ -2895,5 +2895,14 @@
     "offlineChecks": 4385,
     "liveStartupVerified": true,
     "liveStarJellyUnderReserveObserved": false
+  },
+  "quackV1836": {
+    "version": "1.8.36",
+    "sha256": "6e2d2d552b30abd259b280ec504050766be9407d793660bf23c520647f862cfa",
+    "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
+    "startedAt": {"QuackAltear1": 1795163034, "QuackAltear2": 1795163034, "QuackAltear3": 1795163034, "QuackAltear4": 1795163030, "QuackAltear5": 1795163030, "QuackAltear06": 1795163030},
+    "offlineChecks": 4398,
+    "tabbyPurchaseVerified": ["QuackAltear1", "QuackAltear3", "QuackAltear4", "QuackAltear5", "QuackAltear06"],
+    "quackAltear2": "Waiting for a new Ticket Tent approach at verification"
   }
 }
