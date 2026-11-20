@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.37"
+local SCRIPT_VERSION = "1.8.38"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -470,23 +470,23 @@ local function move(part)
             return workspace:Raycast(from,to-from,params)~=nil
         end
         local start=r.Position
-        local waypoints={target}
-        if blocked(start,target) then
-            waypoints=nil
+        local function flightTo(goal)
+            if not blocked(start,goal) then return {goal} end
+            local waypoints
             local function overhead(clearance,offsets)
-                local height=math.max(start.Y,target.Y)+clearance
+                local height=math.max(start.Y,goal.Y)+clearance
                 local entries,exits={},{}
                 for _,offset in ipairs(offsets) do
                     local lift=Vector3.new(start.X,height,start.Z)+offset
-                    local above=Vector3.new(target.X,height,target.Z)+offset
+                    local above=Vector3.new(goal.X,height,goal.Z)+offset
                     if not blocked(start,lift) then entries[#entries+1]=lift end
-                    if not blocked(above,target) then exits[#exits+1]=above end
+                    if not blocked(above,goal) then exits[#exits+1]=above end
                 end
                 for _,lift in ipairs(entries) do
                     for _,above in ipairs(exits) do
                         if not blocked(lift,above) then
                             Report.Movement.DetourHeight=height
-                            return {lift,above,target}
+                            return {lift,above,goal}
                         end
                     end
                 end
@@ -510,108 +510,133 @@ local function move(part)
                     if waypoints then break end
                 end
             end
-            if not waypoints then
-                local destination=Report.Movement.Destination
-                local guild=destination=="Workspace.Badge Guild.Walls.Floor"
-                local ticketShop=destination=="Workspace.Map.Buildings.Ticket Bee Shop.Floor"
-                local checkFloor=guild or ticketShop or destination=="Workspace.Map.Ground.BlueHQShopFloor"
-                if checkFloor or destination=="Workspace.Shops.ProShop.Terrain" then
-                    -- The shop volume can extend above the actual floor.
-                    -- Use the navigable floor and restore collisions for normal walking.
-                    cleanup()
-                    local humanoid=movingCharacter:FindFirstChildOfClass("Humanoid")
-                    cleanupMove=function()
-                        if r.Parent==movingCharacter and humanoid.Parent==movingCharacter then
-                            humanoid:Move(Vector3.zero,false)
-                        end
+            return waypoints
+        end
+        local destination=Report.Movement.Destination
+        local waypoints
+        if destination=="Workspace.Shops.DapperPlanterShop.Terrain" then
+            local gates=workspace:FindFirstChild("Gates")
+            local gate=gates and gates:FindFirstChild("Dapper Shop")
+            local door=gate and gate:FindFirstChild("Door")
+            if door and door:IsA("BasePart") and not door.CanCollide then
+                local forward=door.CFrame.LookVector
+                local outside=door.Position-forward*15
+                local inside=door.Position+forward*12
+                target=Vector3.new(part.Position.X,door.Position.Y,part.Position.Z)
+                if not blocked(outside,inside) and not blocked(inside,target) then
+                    waypoints=flightTo(outside)
+                    if waypoints then
+                        waypoints[#waypoints+1]=inside
+                        waypoints[#waypoints+1]=target
+                        Report.Movement.Method="dapper-entrance"
+                        Report.Movement.Target=tostring(target)
+                        Report.Activity="Moving to Dapper Bear's shop"
                     end
-                    Report.Activity="Walking to "..part.Name
-                    local movement=Report.Movement
-                    movement.Method="shop-path"
-                    local rejected={}
-                    local function onShopFloor()
-                        if not checkFloor or distance(part)>5 then return false end
-                        local localPosition=part.CFrame:PointToObjectSpace(r.Position)
-                        if math.abs(localPosition.X)>part.Size.X/2 or math.abs(localPosition.Z)>part.Size.Z/2 then return false end
-                        return workspace:Raycast(r.Position,Vector3.new(0,-5,0),params)~=nil
-                    end
-                    local function checkWalk()
-                        pauseCheckpoint()
-                        if characterRoot()~=r then error(CHARACTER_UNAVAILABLE,0) end
-                        assertAtlasPaused()
-                    end
-                    local side,depth=guild and 12 or 8,guild and 36 or ticketShop and 32 or 8
-                    for index,offset in ipairs({Vector3.zero,Vector3.new(-side,0,0),Vector3.new(side,0,0),
-                        Vector3.new(0,0,-depth),Vector3.new(0,0,depth)}) do
-                        checkWalk()
-                        local hit=workspace:Raycast(target+offset-Vector3.new(0,2,0),Vector3.new(0,-(2*height+16),0),params)
-                        if not hit then continue end
-                        local groundTarget=hit.Position+Vector3.new(0,2.5,0)
-                        local path=game:GetService("PathfindingService"):CreatePath({
-                            AgentRadius=2,AgentHeight=5,AgentCanJump=true,WaypointSpacing=8,
-                        })
-                        path:ComputeAsync(r.Position,groundTarget)
-                        local steps=path:GetWaypoints()
-                        local hasPath=path.Status==Enum.PathStatus.Success and #steps>0
-                        path:Destroy()
-                        checkWalk()
-                        if not hasPath then continue end
-                        local different=true
-                        for _,step in ipairs(steps) do
-                            for _,blockedPoint in ipairs(rejected) do
-                                if (step.Position-blockedPoint).Magnitude<=3 then different=false;break end
-                            end
-                            if not different then break end
-                        end
-                        if not different then continue end
-                        movement.Route=index
-                        movement.Target=tostring(groundTarget)
-                        movement.WaypointCount=#steps
-                        local stalled=false
-                        for waypoint,step in ipairs(steps) do
-                            checkWalk()
-                            movement.Waypoint=waypoint
-                            local delta=r.Position-step.Position
-                            -- The first waypoint is often the start projected below
-                            -- the character. The next segment leads off that surface.
-                            if waypoint==1 and #steps>1 and delta.X^2+delta.Z^2<=2.5^2 then continue end
-                            humanoid:MoveTo(step.Position)
-                            if step.Action==Enum.PathWaypointAction.Jump then humanoid.Jump=true end
-                            -- A path waypoint describes the floor, while the root
-                            -- stays above it. Leave extra room on intermediate
-                            -- slopes and corners and verify the final stop tightly.
-                            local final=waypoint==#steps
-                            local horizontalLimit=final and 2.5 or 4.5
-                            local verticalLimit=final and 5 or 8
-                            local deadline=os.clock()+5
-                            repeat
-                                checkWalk()
-                                movement.Distance=(r.Position-groundTarget).Magnitude
-                                if onShopFloor() then return end
-                                delta=r.Position-step.Position
-                                if delta.X^2+delta.Z^2<=horizontalLimit^2 and math.abs(delta.Y)<=verticalLimit then break end
-                                if os.clock()>=deadline then
-                                    rejected[#rejected+1]=step.Position
-                                    movement.StalledAt=tostring(step.Position)
-                                    movement.Position=tostring(r.Position)
-                                    humanoid:Move(Vector3.zero,false)
-                                    stalled=true
-                                    break
-                                end
-                                task.wait()
-                            until false
-                            if stalled then break end
-                        end
-                        if not stalled and distance(part)<=Config.NearDistance then return end
-                    end
-                    movement.Failure="No distinct walkable shop approach worked"
-                    movement.RoutesExhausted=true
-                    error(MOVEMENT_TIMEOUT,0)
                 end
-                Report.Movement.Failure="No clear route"
-                Report.Movement.Position=tostring(start)
+            end
+        else
+            waypoints=flightTo(target)
+        end
+        if not waypoints then
+            local guild=destination=="Workspace.Badge Guild.Walls.Floor"
+            local ticketShop=destination=="Workspace.Map.Buildings.Ticket Bee Shop.Floor"
+            local checkFloor=guild or ticketShop or destination=="Workspace.Map.Ground.BlueHQShopFloor"
+            if checkFloor or destination=="Workspace.Shops.ProShop.Terrain" then
+                -- The shop volume can extend above the actual floor.
+                -- Use the navigable floor and restore collisions for normal walking.
+                cleanup()
+                local humanoid=movingCharacter:FindFirstChildOfClass("Humanoid")
+                cleanupMove=function()
+                    if r.Parent==movingCharacter and humanoid.Parent==movingCharacter then
+                        humanoid:Move(Vector3.zero,false)
+                    end
+                end
+                Report.Activity="Walking to "..part.Name
+                local movement=Report.Movement
+                movement.Method="shop-path"
+                local rejected={}
+                local function onShopFloor()
+                    if not checkFloor or distance(part)>5 then return false end
+                    local localPosition=part.CFrame:PointToObjectSpace(r.Position)
+                    if math.abs(localPosition.X)>part.Size.X/2 or math.abs(localPosition.Z)>part.Size.Z/2 then return false end
+                    return workspace:Raycast(r.Position,Vector3.new(0,-5,0),params)~=nil
+                end
+                local function checkWalk()
+                    pauseCheckpoint()
+                    if characterRoot()~=r then error(CHARACTER_UNAVAILABLE,0) end
+                    assertAtlasPaused()
+                end
+                local side,depth=guild and 12 or 8,guild and 36 or ticketShop and 32 or 8
+                for index,offset in ipairs({Vector3.zero,Vector3.new(-side,0,0),Vector3.new(side,0,0),
+                    Vector3.new(0,0,-depth),Vector3.new(0,0,depth)}) do
+                    checkWalk()
+                    local hit=workspace:Raycast(target+offset-Vector3.new(0,2,0),Vector3.new(0,-(2*height+16),0),params)
+                    if not hit then continue end
+                    local groundTarget=hit.Position+Vector3.new(0,2.5,0)
+                    local path=game:GetService("PathfindingService"):CreatePath({
+                        AgentRadius=2,AgentHeight=5,AgentCanJump=true,WaypointSpacing=8,
+                    })
+                    path:ComputeAsync(r.Position,groundTarget)
+                    local steps=path:GetWaypoints()
+                    local hasPath=path.Status==Enum.PathStatus.Success and #steps>0
+                    path:Destroy()
+                    checkWalk()
+                    if not hasPath then continue end
+                    local different=true
+                    for _,step in ipairs(steps) do
+                        for _,blockedPoint in ipairs(rejected) do
+                            if (step.Position-blockedPoint).Magnitude<=3 then different=false;break end
+                        end
+                        if not different then break end
+                    end
+                    if not different then continue end
+                    movement.Route=index
+                    movement.Target=tostring(groundTarget)
+                    movement.WaypointCount=#steps
+                    local stalled=false
+                    for waypoint,step in ipairs(steps) do
+                        checkWalk()
+                        movement.Waypoint=waypoint
+                        local delta=r.Position-step.Position
+                        -- The first waypoint is often the start projected below
+                        -- the character. The next segment leads off that surface.
+                        if waypoint==1 and #steps>1 and delta.X^2+delta.Z^2<=2.5^2 then continue end
+                        humanoid:MoveTo(step.Position)
+                        if step.Action==Enum.PathWaypointAction.Jump then humanoid.Jump=true end
+                        -- A path waypoint describes the floor, while the root
+                        -- stays above it. Leave extra room on intermediate
+                        -- slopes and corners and verify the final stop tightly.
+                        local final=waypoint==#steps
+                        local horizontalLimit=final and 2.5 or 4.5
+                        local verticalLimit=final and 5 or 8
+                        local deadline=os.clock()+5
+                        repeat
+                            checkWalk()
+                            movement.Distance=(r.Position-groundTarget).Magnitude
+                            if onShopFloor() then return end
+                            delta=r.Position-step.Position
+                            if delta.X^2+delta.Z^2<=horizontalLimit^2 and math.abs(delta.Y)<=verticalLimit then break end
+                            if os.clock()>=deadline then
+                                rejected[#rejected+1]=step.Position
+                                movement.StalledAt=tostring(step.Position)
+                                movement.Position=tostring(r.Position)
+                                humanoid:Move(Vector3.zero,false)
+                                stalled=true
+                                break
+                            end
+                            task.wait()
+                        until false
+                        if stalled then break end
+                    end
+                    if not stalled and distance(part)<=Config.NearDistance then return end
+                end
+                movement.Failure="No distinct walkable shop approach worked"
+                movement.RoutesExhausted=true
                 error(MOVEMENT_TIMEOUT,0)
             end
+            Report.Movement.Failure="No clear route"
+            Report.Movement.Position=tostring(start)
+            error(MOVEMENT_TIMEOUT,0)
         end
         local tweenService=game:GetService("TweenService")
         for i,point in ipairs(waypoints) do
@@ -882,7 +907,7 @@ local function initializeProgression()
     atlasFarmOnly=createAtlasProgressionControl({core=game:GetService("CoreGui"),
         upvalues=reader,connections=getconnections,activate=activate})
     local lastGateRefresh
-    local shopGates={BlueHQ="Blue HQ Gate",BadgeBearersGuild="Badge Build Gate"}
+    local shopGates={BlueHQ="Blue HQ Gate",BadgeBearersGuild="Badge Build Gate",DapperPlanterShop="Dapper Shop"}
     local function shopAccess(shop,s)
         local gateName=shopGates[shop]
         if not gateName then return nil end

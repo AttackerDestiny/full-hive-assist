@@ -1058,3 +1058,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 
 - v1.8.37 had stopped following its second stats-read timeout while a Bronze Ant Amulet offer was cached. The user authorized recovery. Verified job 21b13cc7-411f-4d7e-a315-cfa18a38ac75, Delta, no intentional pause/stop, and no pending or uncertain request before executing the unchanged bundle once.
 - New StartedAt 1795172865. Verified an accept receipt at 1795172868, Bronze Ant Amulet equipped, no incoming offer and no uncertain receipt. The equipped Bronze had +30% Convert Rate, +3% White Pollen and +4% Red Pollen; the cached offer in the earlier inspection had different modifiers.
+
+## v1.8.38 — Enter Dapper Bear's shop through its doorway
+
+- The reported Terrain wait pointed to DapperPlanterShop.Terrain. The old flight aimed above the interior. Live rays found a clear entry from outside the open Dapper Shop gate and a clear path from the doorway to the shop volume at door height.
+- Dapper travel now uses the verified open doorway and the game-backed access requirements. Existing proximity and purchase receipts still apply. Bundle validation and 4,418 offline checks passed. Bundle SHA-256 b00e56bc4a84bee399a1e575b29cd85d6c2582752589893b7dc9b4cc0e5ad868.
+- Running v1.8.38 verified on QuackAltear1 (StartedAt 1795183721), QuackAltear5 (1795183733) and QuackAltear06 (1795183736), job 21b13cc7-411f-4d7e-a315-cfa18a38ac75. QuackAltear1 and QuackAltear5 reached the shop and bought one Candy Planter each at 1795183744 and 1795183746. Fresh inventory and purchase ledger confirmed both, with no uncertain receipt. QuackAltear06 was waiting for Jelly Beans. QuackAltear2/3/4 did not provide a verified rollout. QuackAltear1 later reported a separate Mountaintop trip obstruction.

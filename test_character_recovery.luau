@@ -208,7 +208,7 @@ return function(runtime)
         "local Config={Speed=65,NearDistance=16}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance(part) return (player.Character:FindFirstChild().Position-part.Position).Magnitude end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route","shop-path","shop-alternate","shop-floor-arrival","guild-floor-arrival","ticket-floor-arrival"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route","shop-path","shop-alternate","shop-floor-arrival","guild-floor-arrival","ticket-floor-arrival","dapper-entrance"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -221,6 +221,7 @@ return function(runtime)
         local alternate=failure=="shop-alternate"
         local guild=failure=="guild-floor-arrival"
         local ticketShop=failure=="ticket-floor-arrival"
+        local dapper=failure=="dapper-entrance"
         local shopFloor=failure=="shop-floor-arrival" or guild or ticketShop
         local walking=failure=="shop-path" or alternate or shopFloor
         local walked,walkStopped,paths=0,false,0
@@ -281,7 +282,7 @@ return function(runtime)
                     if failure=="replacement" then player.Character=character(100,true)
                     elseif failure=="detached" then r.Parent=nil
                     elseif failure=="play-error" then error("Fake tween play failed",0)
-                    elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" then r.Position=goal.Position
+                    elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" or dapper then r.Position=goal.Position
                     elseif failure=="timeout"then return
                     else c.FindFirstChildOfClass=function() return {Health=0} end end
                 end}
@@ -289,7 +290,16 @@ return function(runtime)
         }
         local fakeGame={GetService=function(_,name) return assert(services[name],name) end}
         local map={FindFirstChild=function(_,name) if name=="Fences" then return fences end end}
-        local fakeWorkspace={FindFirstChild=function(_,name) if name=="Map" then return map end end,
+        local door={Position=Vector3.new(15,4,0),CFrame={LookVector=Vector3.new(1,0,0)},
+            CanCollide=false,IsA=function(_,class) return class=="BasePart" end}
+        local fakeWorkspace={FindFirstChild=function(_,name)
+            if name=="Map" then return map end
+            if dapper and name=="Gates" then
+                return {FindFirstChild=function(_,gate)
+                    if gate=="Dapper Shop" then return {FindFirstChild=function() return door end} end
+                end}
+            end
+        end,
             Raycast=function(_,origin,direction)
                 if walking then return {Position=Vector3.new(guild and origin.X or 20,0,0)} end
                 if failure=="no-route" then return {} end
@@ -309,6 +319,7 @@ return function(runtime)
             GetFullName=function()
                 if guild then return "Workspace.Badge Guild.Walls.Floor" end
                 if ticketShop then return "Workspace.Map.Buildings.Ticket Bee Shop.Floor" end
+                if dapper then return "Workspace.Shops.DapperPlanterShop.Terrain" end
                 if shopFloor then return "Workspace.Map.Ground.BlueHQShopFloor" end
                 return walking and "Workspace.Shops.ProShop.Terrain" or "Verified.Test.Pad"
             end,IsA=function() return true end}
@@ -322,6 +333,10 @@ return function(runtime)
                 check(paths==3 and report.Movement.Route==3,"A stalled shop path skips a repeated waypoint and takes a different path")
             end
             if guild then check(report.Movement.Route==2,"Badge Guild reaches the floor from a different approach") end
+        elseif dapper then
+            check(ok and report.Movement.Method=="dapper-entrance" and #goals==3
+                and goals[1].X==0 and goals[2].X==27 and goals[3].Y==4,
+                "Dapper travel approaches the open door and aims inside at door height")
         elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" then check(ok,"Successful movement completes")
         elseif failure=="no-route" then
             check(not ok and err==timeoutToken and #goals==0,"No clear route stops before moving")

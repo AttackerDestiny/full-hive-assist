@@ -2913,5 +2913,13 @@
     "offlineChecks": 4404,
     "verifiedEmptyCellTabbyHatches": 6,
     "liveGummyPurchaseObserved": false
+  },
+  "quackV1838": {
+    "version": "1.8.38",
+    "sha256": "b00e56bc4a84bee399a1e575b29cd85d6c2582752589893b7dc9b4cc0e5ad868",
+    "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
+    "startedAt": {"QuackAltear1": 1795183721, "QuackAltear5": 1795183733, "QuackAltear06": 1795183736},
+    "offlineChecks": 4418,
+    "verifiedCandyPlanterPurchases": ["QuackAltear1", "QuackAltear5"]
   }
 }
