@@ -38,6 +38,7 @@ try {
     if ($bundle -match 'local function loadFeatherWindUI\(staging\)') {
         $code+='do local test=compile('+(Literal 'tests/test_feather_wind_ui.luau')+')();local result=test('+(Literal 'feather_wind_ui.luau')+'); total+=result.passed;print("tests/test_feather_wind_ui.luau",result.passed) end'+"`n"
     }
+    $code+='do local test=compile('+(Literal 'tests/test_event_purchase.luau')+')();local result=test(P,runtime); total+=result.passed;print("tests/test_event_purchase.luau",result.passed) end'+"`n"
     $code+='print("OFFLINE PASS",total)'+"`n"
     [IO.File]::WriteAllText($taskScript,$code,[Text.UTF8Encoding]::new($false))
     & $LuauPath $taskScript

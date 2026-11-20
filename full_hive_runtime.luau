@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.34"
+local SCRIPT_VERSION = "1.8.35"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1072,11 +1072,13 @@ fixedShopPackage=function(item,amount,shopName)
     end
     error("No verified fixed shop option: "..item.." x"..amount,0)
 end
-local function buy(item,amount,shop,inventoryCeiling)
+local function buy(item,amount,shop,inventoryCeiling,validatePurchase)
     assert(Config.AutoPurchase,"Purchasing disabled")
     acquire(); move(shopFloor(shop)); near(shopFloor(shop))
     local s=refresh()
-    if progression and not progression.allowsHive(s) then return false end
+    if validatePurchase then
+        if not validatePurchase(s) then release();return false end
+    elseif progression and not progression.allowsHive(s) then release();return false end
     if background and not background.allowsHive(s) then release();return false end
     local before=s.Eggs[item] or 0
     if inventoryCeiling then
@@ -1139,8 +1141,11 @@ end
 local function eventAction(s,cells,p)
     local function safe(c) return not p.keep[Policy.key(c)] and not p.protected[Policy.key(c)] end
     local target
-    for _,c in ipairs(p.candidates) do if safe(c) then target=c; break end end
-    if not target then for _,c in ipairs(cells) do if p.temporary[Policy.key(c)] then target=c; break end end end
+    local canPlace=not rollTask and not basicLock
+    if canPlace then
+        for _,c in ipairs(p.candidates) do if safe(c) then target=c; break end end
+        if not target then for _,c in ipairs(cells) do if p.temporary[Policy.key(c)] then target=c; break end end end
+    end
     local normalEvent
     for _,name in ipairs({"Tabby","Vicious","Festive","Cobalt","Puppy","Gummy"}) do
         for _,c in ipairs(cells) do
@@ -1148,10 +1153,11 @@ local function eventAction(s,cells,p)
         end
         if normalEvent then break end
     end
-    if normalEvent and (s.Eggs.StarTreat or 0)>0 then
+    if canPlace and normalEvent and (s.Eggs.StarTreat or 0)>0 then
         mode("off")
-        spend(normalEvent,"StarTreat",function(c) return Types[c.bee.Type].Rarity=="Event" and not Policy.gifted(c) end)
-        return true
+        if spend(normalEvent,"StarTreat",function(c) return Types[c.bee.Type].Rarity=="Event" and not Policy.gifted(c) end)~=false then
+            return true
+        end
     end
     local order={"Tabby","Festive","Cobalt","Vicious","Puppy"}
     for _,name in ipairs(order) do
@@ -1159,32 +1165,44 @@ local function eventAction(s,cells,p)
         if Policy.count(cells,name)==0 then
             if (s.Eggs[egg] or 0)>0 and target then
                 mode("off")
-                spend(target,egg,function(c,_,fresh)
-                    return (not fresh.keep[Policy.key(c)] and not fresh.protected[Policy.key(c)]) or fresh.temporary[Policy.key(c)]
-                end)
-                return true
+                if spend(target,egg,function(c,freshCells,fresh,freshStats)
+                    return (freshStats.Eggs[egg] or 0)>0 and Policy.count(freshCells,name)==0
+                        and ((not fresh.keep[Policy.key(c)] and not fresh.protected[Policy.key(c)]) or fresh.temporary[Policy.key(c)])
+                end)~=false then return true end
             end
             -- Jelly ownership indicates a previously acquired unique bee; do not rebuy it.
             local owned=(s.Eggs[egg] or 0)>0 or (s.Eggs[egg.."Jelly"] or 0)>0
-            if not owned and target and Config.AutoPurchase then
+            if not owned and Config.AutoPurchase then
+                local function canBuy(fresh,currency,cost)
+                    return (fresh.Eggs[currency] or 0)>=cost and (fresh.Eggs[egg] or 0)==0
+                        and (fresh.Eggs[egg.."Jelly"] or 0)==0 and Policy.count(scan(fresh),name)==0
+                        and (not progression or progression.allowsEventPurchase(fresh,currency,cost))
+                end
                 if name=="Vicious" then
-                    if (s.Eggs.Stinger or 0)>=250 then
+                    if canBuy(s,"Stinger",250) then
                         local toys=assert(workspace:FindFirstChild("Toys"),"Toys not loaded")
                         local toy=assert(toys:FindFirstChild("Vicious Bee Claimer"),"Vicious claimer not loaded")
                         move(toy.Platform); near(toy.Platform)
                         s=refresh()
-                        if progression and not progression.allowsHive(s) then return false end
-                        if (s.Eggs.Stinger or 0)<250 then return false end
+                        if not canBuy(s,"Stinger",250) then release();return false end
                         assert(Report.Actions<Config.MaxActions,"Action limit reached")
+                        assert(not env.FullHivePending and not env.AutoHivePendingRequest and not env.FullHiveUncertain,
+                            "Unresolved request before the Vicious Bee claim")
+                        local receipt={Name="ToyEvent",Kind="claim-event-bee",Item=egg,Amount=1,Started=os.clock()}
+                        env.FullHiveUncertain=receipt
                         Events.ToyEvent:FireServer(toy.Name)
                         local deadline=os.clock()+8
                         repeat task.wait(0.25); s=refresh() until (s.Eggs.ViciousBee or 0)>0 or os.clock()>deadline
                         assert((s.Eggs.ViciousBee or 0)>0,"Vicious purchase uncertain; no retry")
+                        env.FullHiveUncertain=nil
+                        Report.LastPurchase={Item=egg,Amount=1}
                         Report.Actions=Report.Actions+1; return true
                     end
                 else
                     local cost=assert(EggTypes.Get(egg).TicketCost,"Unknown ticket cost")
-                    if (s.Eggs.Ticket or 0)>=cost then return buy(egg,1,"TicketShop")~=false end
+                    if canBuy(s,"Ticket",cost) then
+                        return buy(egg,1,"TicketShop",nil,function(fresh) return canBuy(fresh,"Ticket",cost) end)~=false
+                    end
                     -- Save tickets for the next bee; only Vicious can be skipped.
                     return false
                 end
@@ -1377,6 +1395,8 @@ local function run()
             if did then
                 if Config.DryRun then Report.Phase="dry-run";return end
                 if why then
+                    local eventPlan,eventCells=plan(s)
+                    if eventAction(s,eventCells,eventPlan) then s=refresh();continue end
                     if background and background.questGold(s) then s=refresh();continue end
                     waitFor(why)
                 end
@@ -1408,6 +1428,7 @@ local function run()
                 s=refresh();continue
             end
         end
+        if eventAction(s,cells,p) then s=refresh();continue end
         if p.complete then
             if background and(Config.AutoAmulets or Config.AutoQuestAssist)then
                 waitFor("Hive complete; monitoring amulets and active quests");s=refresh();continue
@@ -1427,7 +1448,6 @@ local function run()
         end
         -- A current slot finishes before another hive task claims a slot.
         if not rollTask and not p.starter and not savingCraftingJelly then
-            if eventAction(s,cells,p) then continue end
             if giftedBasic(s,cells,p) then continue end
             if starReady(s,cells) then Report.Phase="star-eggs"; useStarScript(s); continue end
         end

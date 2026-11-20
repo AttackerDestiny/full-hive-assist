@@ -27,6 +27,12 @@ return function(H)
         if d.saveCraftingJelly then return item=="StarJelly" and d.action.kind=="wait" end
         return d.optionalHiveAllowed==true
     end
+    function R.allowsEventPurchase(s,currency,cost)
+        if H.Config.AutoProgression==false then return true end
+        local d=read(s)
+        return (d.action.kind=="wait" or d.action.kind=="hive")
+            and (s.Eggs[currency] or 0)-(d.reservedItems[currency] or 0)>=cost
+    end
     R.inspect=read
     local function same(a,b)
         for _,k in ipairs({"kind","gear","item","amount","code","x","y","sourceId","packId","tickets","remainingUnits","orderCount","orderStartTime"}) do

@@ -1032,3 +1032,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - A later target with enough non-jelly ingredients and a verified jelly route now reserves its Royal Jelly even before the gear and full deficit are affordable, including while an earlier recipe is in the Blender. Royal Jelly rolls wait. Eligible Star Jelly remains available during the crafting wait and can replace a selected, unprotected normal Basic.
 - Bundle validation and 4,385 offline checks passed. Bundle SHA-256 4fd3bd8b313bf240ba97879c01f12a5fead053ec32663b0e237346347fe853a8.
 - Verified v1.8.34 running on all six Quack clients in job 21b13cc7-411f-4d7e-a315-cfa18a38ac75. StartedAt: QuackAltear1/06 1795162657, QuackAltear5 1795162665, QuackAltear2 1795162703, QuackAltear3 1795162735, QuackAltear4 1795162743. The reserve trigger was false on all six at verification; no live Star Jelly roll under the reserve was observed.
+
+## v1.8.35 — Let starter hives buy Event Bees
+
+- All six live Quack accounts had at least 500 tickets but the starter roll path skipped Event Bee purchases. Purchases can now run below 30 occupied bees and during a roll lease. Egg placement still requires a safe slot and no active lease. Currency, ownership and gear reservations are rechecked before spending.
+- Bundle validation and 4,390 offline checks passed. Bundle SHA-256 e42ad2a447fba78a37492a866af95d36327f31f772331574a812cfa54dc6757e.
+- Verified all six Quack clients selected the Ticket Bee Shop trip on v1.8.35. StartedAt: 1/2/06 1795162950, 4/5 1795162953, 3 1795162954. All flight paths were blocked and Atlas resumed with no purchase sent.
