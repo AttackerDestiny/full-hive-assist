@@ -1045,3 +1045,4 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Bundle validation and 4,398 offline checks passed. Bundle SHA-256 6e2d2d552b30abd259b280ec504050766be9407d793660bf23c520647f862cfa.
 - Verified running on all six Quack clients in job 21b13cc7-411f-4d7e-a315-cfa18a38ac75. StartedAt: 4/5/06 1795163030, 1/2/3 1795163034.
 - Verified Tabby Bee receipts on QuackAltear1/3/4/5/06. Each had one Tabby egg and exactly 500 fewer tickets. QuackAltear2 still had 532 tickets, had sent no purchase request, and was waiting for a new approach with Atlas released at the verification snapshot.
+- Follow-up confirmed QuackAltear2 reached the Ticket Bee Shop on its next approach, bought one Tabby egg for 500 tickets (532 to 32), and released Atlas with no pending request. Tabby purchase verified on all six Quack clients.
