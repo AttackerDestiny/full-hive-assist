@@ -1053,3 +1053,8 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Event order is Tabby, Gummy, Festive, Cobalt, Vicious, Puppy. The live Gummy claimer lists 2,500 Gumdrops. The live dispenser lists 3, 30 and 300 Gumdrops for 1, 10 and 100 tickets respectively. Feather tops up only from at least 1,500 usable Gumdrops and with enough unreserved tickets for the full top-up. Gummy and Vicious may be skipped.
 - Bundle validation and 4,404 offline checks passed. Bundle SHA-256 0f6d0629f7bfe2951ea2f36323905b9cc1224e5ec281307f1d70a2d9e9f92a2e.
 - Verified v1.8.37 and one Tabby hatch into an empty cell on all six Quack accounts. StartedAt: 1 1795163606, 2/4 1795163585, 3 1795163586, 5 1795163589, 06 1795163588. Each readback showed Tabby present, egg inventory zero and occupancy increased by one. No account met the 1,500 Gumdrop threshold, so Gummy funding and claiming were not observed live.
+
+## QuackAltear1 — Bronze Ant Amulet recovery
+
+- v1.8.37 had stopped following its second stats-read timeout while a Bronze Ant Amulet offer was cached. The user authorized recovery. Verified job 21b13cc7-411f-4d7e-a315-cfa18a38ac75, Delta, no intentional pause/stop, and no pending or uncertain request before executing the unchanged bundle once.
+- New StartedAt 1795172865. Verified an accept receipt at 1795172868, Bronze Ant Amulet equipped, no incoming offer and no uncertain receipt. The equipped Bronze had +30% Convert Rate, +3% White Pollen and +4% Red Pollen; the cached offer in the earlier inspection had different modifiers.
