@@ -26,6 +26,15 @@ return function(P,T,runtime)
     local all=fixture()
     check(#P.starJellyMissing(all)==0,"Eight gifted failsafes complete the goal")
     check(P.count(all,"Basic",true)==0 and P.rollItem(all,{StarJelly=50,RoyalJelly=2000})=="RoyalJelly","Missing Gifted Basic does not consume Star Jelly")
+    do
+        local basic={x=9,y=1,bee={Type="Basic",Traits={}}}
+        local plan={target=basic,starter=true,protected={}}
+        check(P.rollItem(all,{StarJelly=1},plan)=="StarJelly","A selected normal Basic allows Star Jelly even after the eight failsafes")
+        plan.protected[P.key(basic)]=true
+        check(P.rollItem(all,{StarJelly=1},plan)=="RoyalJelly","Protected Basic is excluded from the Star Jelly exception")
+        plan.protected={};basic.bee.Traits={"Gifted"}
+        check(P.rollItem(all,{StarJelly=1},plan)=="RoyalJelly","Gifted Basic is excluded from the Star Jelly exception")
+    end
     for _,name in ipairs(P.legendary) do
         check(P.count(all,name,true)==0,"Fixture intentionally has no gifted legendary")
         check(P.rollItem(all,{StarJelly=50})=="RoyalJelly","Missing legendary "..name.." does not prolong Star Jelly")
@@ -64,7 +73,7 @@ return function(P,T,runtime)
         local send,counter,_,inventory=make(P,cells,{},lease)
         check(send()==false and counter()==0 and inventory.Eggs.StarJelly==2,"Actual pre-remote guard saves Star Jelly for a completed eight-type list")
     end
-    for _,name in ipairs({"Baby","Music","Lion","Ninja","Basic","Tabby","Buoyant"}) do
+    for _,name in ipairs({"Baby","Music","Lion","Ninja","Tabby","Buoyant"}) do
         local target={x=9,y=1,bee={Type=name,Traits={}}}
         check(P.rollItem(all,{StarJelly=50},{target=target,reason="convert-flexible"})=="RoyalJelly","New upgrade rule does not add "..name.." targets")
     end

@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.33"
+local SCRIPT_VERSION = "1.8.34"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -979,7 +979,7 @@ end
 local function spend(cell,item,validate,expectedTask)
     checkStop(); acquire(); move(hiveFloor()); near(hiveFloor())
     local s=refresh()
-    if progression and not progression.allowsHive(s) then return false end
+    if progression and not progression.allowsHive(s,item) then release();return false end
     if background and not background.allowsHive(s) then release();return false end
     local p,cells=plan(s)
     local current=find(cells,cell)
@@ -1415,13 +1415,18 @@ local function run()
             Report.Phase="endgame-complete"; Report.Activity="Final hive requirements reached"; return
         end
         local item=Policy.rollItem(cells,s.Eggs,p,rollTask)
+        local savingCraftingJelly=Report.Progression and Report.Progression.SavingCraftingJelly
+        if savingCraftingJelly and (item~="StarJelly" or not p.target) then
+            waitFor("Saving Royal Jelly for "..tostring(Report.Progression.Gear))
+            s=refresh();continue
+        end
         env.FullHiveStarted=true
-        if basicLock and not p.starter then
+        if basicLock and not p.starter and not savingCraftingJelly then
             if giftedBasic(s,cells,p) then continue end
             if basicLock then waitFor("Waiting for honey or jelly for the locked Basic slot"); s=refresh(); continue end
         end
         -- A current slot finishes before another hive task claims a slot.
-        if not rollTask and not p.starter then
+        if not rollTask and not p.starter and not savingCraftingJelly then
             if eventAction(s,cells,p) then continue end
             if giftedBasic(s,cells,p) then continue end
             if starReady(s,cells) then Report.Phase="star-eggs"; useStarScript(s); continue end

@@ -10,6 +10,7 @@ return function(H)
             Reason=decision.reason or decision.action.reason,ReserveHoney=decision.reserveHoney,
             ReservedItems=decision.reservedItems,MissingItems=decision.missingItems,
             CostReservations=decision.costReservations,OptionalHiveAllowed=decision.optionalHiveAllowed,
+            SavingCraftingJelly=decision.saveCraftingJelly==true,
             Status=decision.status,PlanterCatchup=decision.planterCatchup,FundsRequired=decision.fundsRequired,
             RequiredRJ=decision.requiredRJ,MissingRJ=decision.missingRJ,RequiredTickets=decision.requiredTickets,Honey=facts.honey}
         local craft=facts.craft
@@ -20,9 +21,10 @@ return function(H)
                 and math.ceil(craft.remainingUnits/craft.autoCompletePerTicket) or 0} or nil
         return decision,facts,catalog
     end
-    function R.allowsHive(s)
+    function R.allowsHive(s,item)
         if H.Config.AutoProgression==false then return true end
         local d=read(s)
+        if d.saveCraftingJelly then return item=="StarJelly" and d.action.kind=="wait" end
         return d.optionalHiveAllowed==true
     end
     R.inspect=read
@@ -190,6 +192,10 @@ return function(H)
     function R.perform(decision,s,facts,catalog,replan)
         local action=decision.action
         if action.kind=="wait" then
+            if decision.saveCraftingJelly then
+                if (s.Eggs.StarJelly or 0)>0 then return false end
+                return true,"Saving Royal Jelly for "..tostring(decision.gear)
+            end
             if action.parallelHive==true then return false end
             if facts and facts.craft and not facts.craft.ready then
                 return true,"Waiting for Blender: "..facts.craft.item.." ("..math.ceil(facts.craft.remainingSeconds).."s remaining)"
@@ -244,8 +250,8 @@ return function(H)
     function R.step(s)
         if not H.Config.AutoProgression then return false end
         local d,f,c=read(s)
-        if d.action.kind=="wait" and type(d.action.reason)=="string"
-            and d.action.reason:match("^saving%-") and f.occupied and f.capacity
+        if d.action.kind=="wait" and (d.saveCraftingJelly or
+            type(d.action.reason)=="string" and d.action.reason:match("^saving%-")) and f.occupied and f.capacity
             and f.occupied<f.capacity and R.grow(s,f.capacity) then return true end
         return R.perform(d,s,f,c,read)
     end

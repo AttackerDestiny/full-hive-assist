@@ -113,6 +113,10 @@ function P.starJellyUpgrade(plan,task)
     return not P.gifted(target) and (target.bee.Type=="Bubble" or target.bee.Type=="Frosty")
 end
 function P.rollItem(cells,eggs,plan,task)
+    if (eggs.StarJelly or 0)>0 and plan and normalBasic(plan.target) then
+        local key=P.key(plan.target)
+        if not (plan.keep or {})[key] and not (plan.protected or {})[key] then return "StarJelly" end
+    end
     if plan and plan.starter then return "RoyalJelly" end
     if (eggs.StarJelly or 0)>0 and #P.starJellyMissing(cells)>0 then return "StarJelly" end
     return "RoyalJelly"

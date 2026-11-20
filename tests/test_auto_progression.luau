@@ -490,7 +490,12 @@ return function(P)
         check(r.missingRJ==60 and r.action.amount==10 and r.fundsRequired==20000600,
             "Existing jelly offsets the full recipe bill")
         f.honey=20000599
-        check(P.plan(f,c).gear=="Candy Planter","A later recipe must fund its full jelly bill and gear price")
+        r=P.plan(f,c)
+        check(r.gear==mask and r.action.reason=="saving-crafting-jelly" and not r.optionalHiveAllowed
+            and r.saveCraftingJelly and r.reservedItems.RoyalJelly==20,
+            "An eligible later recipe saves owned jelly until the full purchase fits")
+        f.honey=0
+        check(P.plan(f,c).saveCraftingJelly,"The reserve starts even when the gear price itself is unaffordable")
         f.honey=20000600;f.inventory.Pineapple=249
         check(P.plan(f,c).gear=="Candy Planter","Missing non-jelly ingredients prevent a fallback")
         f.inventory.Pineapple=250;f.inventory.RoyalJelly=80;f.honey=20000000
@@ -498,6 +503,11 @@ return function(P)
         check(r.gear==mask and r.action.kind=="craft" and r.action.item=="Enzymes","Fully funded fallback starts crafting")
         f.inventory.Enzymes=5;f.inventory.Pineapple=0;f.inventory.RoyalJelly=30
         check(P.plan(f,c).action.item=="Glue","Replans with the remaining ingredients after crafting Enzymes")
+        f.inventory.Enzymes=0;f.craft={item="Enzymes",count=5,ready=false}
+        r=P.plan(f,c)
+        check(r.gear==mask and r.saveCraftingJelly and r.reservedItems.RoyalJelly==30,
+            "The remaining jelly stays reserved during a Blender order")
+        f.inventory.Enzymes=5;f.craft=false
         f.inventory.Glue=3;f.inventory.Gumdrops=0;f.inventory.RoyalJelly=0
         check(P.plan(f,c).action.item=="Glitter","Uses the shared Magic Bean to finish the fallback recipe")
         f.inventory.Glitter=1;f.inventory.MoonCharm=0;f.inventory.MagicBean=0

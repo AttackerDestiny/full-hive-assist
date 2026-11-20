@@ -2879,5 +2879,21 @@
     "testsRerun": false,
     "automationChanged": false,
     "validationLimit": "Unchanged previously tested release startup/UI/Atlas coordination verified on Luneri only; no new spending path forced or Riley validation claimed."
+  },
+  "quackV1834": {
+    "version": "1.8.34",
+    "sha256": "4fd3bd8b313bf240ba97879c01f12a5fead053ec32663b0e237346347fe853a8",
+    "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
+    "startedAt": {
+      "QuackAltear1": 1795162657,
+      "QuackAltear2": 1795162703,
+      "QuackAltear3": 1795162735,
+      "QuackAltear4": 1795162743,
+      "QuackAltear5": 1795162665,
+      "QuackAltear06": 1795162657
+    },
+    "offlineChecks": 4385,
+    "liveStartupVerified": true,
+    "liveStarJellyUnderReserveObserved": false
   }
 }

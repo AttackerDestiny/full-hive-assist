@@ -1026,3 +1026,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Allow shared recipe ingredients from a temporarily deferred target, including the Candy Planter Magic Bean and Gumdrops in the user's Mask example. The existing protection for shared direct gear costs remains. Soft Wax and Hard Wax still cannot be crafted.
 - Bundle validation and 4,381 offline checks passed. The regression covers 80 jelly from zero, 60 from 20, insufficient honey, insufficient Pineapple, crafting Enzymes/Glue/Glitter, and the resulting Mask purchase decision. Bundle SHA-256 3191f9f5b998fb387c1782c6c48a0e3763de759187193e3ada6001142593beab.
 - Verified v1.8.33 running live on all six Quack clients (StartedAt 1795101998 for 2/5, 1795102005 for 06, 1795102009 for 1/3/4). All were still on Candy Planter. QuackAltear5's live honey was 241987, below the 20M Mask price. The complete fallback was exercised offline, with no live Mask spend observed.
+
+## v1.8.34 — Save crafting Royal Jelly and allow Star Jelly on normal Basic
+
+- A later target with enough non-jelly ingredients and a verified jelly route now reserves its Royal Jelly even before the gear and full deficit are affordable, including while an earlier recipe is in the Blender. Royal Jelly rolls wait. Eligible Star Jelly remains available during the crafting wait and can replace a selected, unprotected normal Basic.
+- Bundle validation and 4,385 offline checks passed. Bundle SHA-256 4fd3bd8b313bf240ba97879c01f12a5fead053ec32663b0e237346347fe853a8.
+- Verified v1.8.34 running on all six Quack clients in job 21b13cc7-411f-4d7e-a315-cfa18a38ac75. StartedAt: QuackAltear1/06 1795162657, QuackAltear5 1795162665, QuackAltear2 1795162703, QuackAltear3 1795162735, QuackAltear4 1795162743. The reserve trigger was false on all six at verification; no live Star Jelly roll under the reserve was observed.

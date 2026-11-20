@@ -428,7 +428,7 @@ return function(P,T)
         check(q.target and P.key(q.target)=="3,1","Eligible normal Basic precedes other safe candidates")
         check(q.keep["2,1"]and q.protected["4,1"],"Basic preference preserves Gifted Basic and Event protection")
         local lease=P.startRollTask(q.target,cells,q);lease.Rolled=true
-        check(P.rollItem(cells,{StarJelly=1},q,lease)=="RoyalJelly","Starter cleanup saves Star Jelly")
+        check(P.rollItem(cells,{StarJelly=1},q,lease)=="StarJelly","Starter cleanup can use Star Jelly on a normal Basic")
         check(not P.rollTaskDone(lease,cells[3],cells,T,q) and P.rollTaskSafe(lease,cells[3],cells,T,q),"A repeated normal Basic remains eligible on the same coordinate")
         cells[3].bee={Type="Brave",Traits={}}
         q=P.plan(cells,T,{slots=40,starUsed=0,jelly=1,enforceGrowth=true})

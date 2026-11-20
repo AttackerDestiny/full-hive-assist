@@ -360,6 +360,13 @@ function P.growth(facts,catalog,target,reserveHoney,reservedItems)
     if not ok then return {kind="wait",reason=reason} end
     return {kind="buy-hive-slot",amount=1,cost=copy(slot.cost),nextCapacity=facts.capacity+1}
 end
+local function onlyJellyMissing(materials)
+    if not materials then return false end
+    for item in pairs(materials.missingItems) do
+        if item~="RoyalJelly" then return false end
+    end
+    return true
+end
 local function plan(facts,catalog,selectedGear,selectedMaterials)
     local base={optionalHiveAllowed=false,reserveHoney=0,reservedItems={},materialDemand={},missingItems={},costReservations={}}
     if type(facts)~="table" or type(catalog)~="table" then return wait("unknown-progression-facts",base) end
@@ -432,13 +439,17 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
     base.queuedItems=materials.queuedItems
     base.nextCraft=materials.nextCraft
     base.gearItems=copy(gear.items)
+    base.saveCraftingJelly=onlyJellyMissing(materials) and (materials.materialDemand.RoyalJelly or 0)>0
     local costs,costError,complete=P.materialCosts(materials.missingItems,catalog)
     -- Whole-gear cost estimates are diagnostics. An unknown future quote must
     -- never hide a ready collection or the next recipe's actionable deficit.
     base.costReservations=costs or {};base.costReservationsComplete=complete==true
     base.costReservationReason=costError
     if craftAction then
-        if craftAction.parallelHive then base.optionalHiveAllowed=true;base.materialPhase=true end
+        if craftAction.parallelHive then
+            base.optionalHiveAllowed=true
+            base.materialPhase=true
+        end
         base.action=craftAction; return base
     end
     local materialPhase=(next(materials.missingItems)~=nil or #materials.crafts>0 or next(materials.queuedItems)~=nil)
@@ -452,6 +463,10 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
     -- Existing ingredients can be crafted while saving the gear's honey. No
     -- craft action is supplied for banned recipes or future/virtual inputs.
     local jellyDeficit=materials.missingItems.RoyalJelly or 0
+    if selectedGear and base.saveCraftingJelly and jellyDeficit==0 and facts.honey<base.reserveHoney then
+        base.optionalHiveAllowed=false
+        return wait("saving-gear-honey",base)
+    end
     local fundingLaterGear=selectedGear and jellyDeficit>0
     if not fundingLaterGear then
         for _,craft in ipairs(materials.crafts) do
@@ -489,6 +504,7 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
                 -- never merely the next pack. Fixed packs are sent only after
                 -- this gate and the deficit is repriced after every purchase.
                 base.optionalHiveAllowed=false
+                base.saveCraftingJelly=true
                 base.requiredRJ=fundingLaterGear and materials.materialDemand.RoyalJelly
                     or materials.nextCraft and materials.nextCraft.ingredients.RoyalJelly or deficit
                 base.missingRJ=deficit
@@ -632,16 +648,15 @@ function P.describe(result,facts,catalog)
         parallelHive=action.parallelHive==true,materials=rows,nextCraft=result.nextCraft,
         fundsRequired=result.fundsRequired,requiredRJ=result.requiredRJ,missingRJ=result.missingRJ,requiredTickets=result.requiredTickets}
 end
-local function canFundLaterGear(facts,catalog,gear,materials)
-    local reserve=gear.honey+(facts.honeyReserve or 0)
-    if not materials or facts.honey<reserve then return false end
-    for item in pairs(materials.missingItems) do
-        if item~="RoyalJelly" then return false end
+local function canPrepareLaterGear(facts,catalog,gear,materials)
+    if not onlyJellyMissing(materials) then return false end
+    if (materials.materialDemand.RoyalJelly or 0)==0 and facts.honey<gear.honey+(facts.honeyReserve or 0) then
+        return false
     end
     local remaining=materials.missingItems.RoyalJelly or 0
     if remaining==0 then return true end
     local cost=P.craftingJellyCost(remaining,catalog)
-    if not cost or facts.honey<reserve+cost then return false end
+    if not cost then return false end
     local packs={}
     for _,pack in ipairs((catalog.packs or {}).RoyalJelly or {}) do
         if type(pack)=="table" and conditionState(pack.conditions,facts)==true then packs[#packs+1]=pack end
@@ -672,24 +687,23 @@ local function laterGear(facts,catalog,primary)
         local candidateFacts=available
         local materials=P.materials(gear.items,candidateFacts,catalog)
         if materials and not next(materials.missingItems) and #materials.crafts==0 and not next(materials.queuedItems)
-            and canFundLaterGear(available,catalog,gear,materials) then
+            and canPrepareLaterGear(available,catalog,gear,materials) then
             return {gear=candidate.id,stage=candidate.stage,deferredGear=primary.gear,gearItems=copy(gear.items),
                 reservedItems=copy(primary.reservedItems),reserveHoney=gear.honey+(facts.honeyReserve or 0),
                 optionalHiveAllowed=false,action={kind="buy-gear",gear=candidate.id,honey=gear.honey,items=copy(gear.items)}}
         end
-        if facts.craft~=false then continue end
-        if not canFundLaterGear(candidateFacts,catalog,gear,materials) then
+        if not canPrepareLaterGear(candidateFacts,catalog,gear,materials) then
             -- A deferred gear item may share recipe inputs with the active one.
             -- Keep its holdings for direct gear costs, but allow shared ingredients.
             candidateFacts=copy(facts)
             candidateFacts.inventory=copy(facts.inventory)
             for item in pairs(gear.items) do candidateFacts.inventory[item]=available.inventory[item] end
             materials=P.materials(gear.items,candidateFacts,catalog)
-            if not materials or #materials.crafts==0 or not canFundLaterGear(candidateFacts,catalog,gear,materials) then continue end
+            if not materials or #materials.crafts==0 or not canPrepareLaterGear(candidateFacts,catalog,gear,materials) then continue end
         end
         local result=plan(candidateFacts,catalog,candidate,materials)
         local action=result.action
-        if action.kind~="craft"
+        if action.kind~="craft" and not (action.kind=="wait" and result.saveCraftingJelly)
             and not (action.kind=="purchase-pack" and action.item=="RoyalJelly") then continue end
         result.deferredGear=primary.gear
         action.gear=candidate.id
