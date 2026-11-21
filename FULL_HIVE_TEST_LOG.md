@@ -1100,3 +1100,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Extended starter rolling from below 30 to below 35 occupied bees. Below 35, the hive only spends owned Royal Jelly, one at a time with roll-to settings off and normal Basic preferred. Normal roll refills recheck occupied count before travel, during buying and immediately before the shop request. Gear crafting uses its separate jelly purchase path.
 - Bundle validation and 4,468 offline checks passed, including no refill with a wealthy 34-bee hive and ordinary refill at 35. Bundle SHA-256 81518e64136c513eb115c11d8152ad9af9c29cb5d8bcb3797bffa6c19dd37a67.
 - Verified v1.8.44 running on QuackAltear06 (StartedAt 1795260814), QuackAltear5 (1795260822) and QuackAltear1 (1795260823). QuackAltear1 and QuackAltear06 each had 28 bees and zero Royal Jelly and displayed Waiting for owned Royal Jelly to roll. QuackAltear5 still planned crafting jelly for Red Clay Planter. No 35-bee transition or fresh crafting-jelly receipt was observed live.
+
+## v1.8.45 — Wait for inventory-only gear materials before funding jelly
+
+- Crafting jelly funding and its roll hold wait when an inventory-only prerequisite is missing, including Soft Wax and Hard Wax. Recipes already funded with owned materials can proceed. Once the prerequisite arrives, normal exact-pack funding resumes.
+- Bundle validation and 4,474 offline checks passed. Bundle SHA-256 b7a31d98adbcfe4370f94867cccc749fd05d3cf7c4c4afb981cf4643c7eb3d84.
+- Verified v1.8.45 on QuackAltear1 (StartedAt 1795266145), QuackAltear5 (1795266152), and QuackAltear06 (1795266157). All three were targeting Red Clay Planter with a Soft Wax deficit. Live reports showed waiting-material:SoftWax and SavingCraftingJelly=false. The funding restart after receiving the Wax was exercised offline.

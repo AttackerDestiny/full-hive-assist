@@ -369,6 +369,27 @@ return function(P)
         check(not r.optionalHiveAllowed and r.action.reason=="saving-crafting-jelly","An attempted recipe-jelly purchase still requires full funding with other ingredients missing")
     end
     do
+        local f=facts();ownedThrough(f,"Red Clay Planter")
+        f.inventory={Strawberry=750,MagicBean=5,SoftWax=19,RoyalJelly=20}
+        local c=catalog("Red Clay Planter",10000000,{RedExtract=15,SoftWax=20,MagicBean=5})
+        c.packs={RoyalJelly={{amount=1,cost={Honey=10}},{amount=10,cost={Honey=100}},{amount=100,cost={Honey=1000}}}}
+        for _,honey in ipairs({0,10000000}) do
+            f.honey=honey
+            local r=P.plan(f,c)
+            check(r.action.reason=="waiting-material:SoftWax" and not r.saveCraftingJelly
+                and r.fundsRequired==nil and r.optionalHiveAllowed,
+                "Missing Soft Wax blocks both saving and buying crafting jelly")
+        end
+        f.inventory.SoftWax=20;f.honey=0
+        local r=P.plan(f,c)
+        check(r.action.reason=="saving-crafting-jelly" and r.saveCraftingJelly and r.missingRJ==130,
+            "The exact jelly deficit becomes actionable once Soft Wax is owned")
+        f.honey=1300
+        r=P.plan(f,c)
+        check(r.action.kind=="purchase-pack" and r.action.item=="RoyalJelly" and r.action.amount==100,
+            "After the inventory gate, buy only a supported pack toward the shortfall")
+    end
+    do
         local f=facts();f.inventory.Blueberry=12500;f.honey=2499999999
         local c=catalog("Clippers",5000000000,{BlueExtract=250})
         local function quote(purchased)

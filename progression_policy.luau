@@ -19,7 +19,7 @@ P.stages = {
 -- before Blue in the order given by the newer instruction.
 P.planterCatchup={"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}
 P.bannedCraft = {Gumdrops=true, MoonCharm=true, StarJelly=true, SoftWax=true, HardWax=true}
-P.waitOnly = {MoonCharm=true, StarJelly=true, MagicBean=true}
+P.waitOnly = {MoonCharm=true, StarJelly=true, MagicBean=true, SoftWax=true, HardWax=true}
 P.recipeOrder = {"BlueExtract", "RedExtract", "Enzymes", "Oil", "Glue", "TropicalDrink", "Glitter",
     "PurplePotion", "SoftWax", "HardWax", "SwirledWax", "CausticWax"}
 -- These are the human's supplied recipes, not inferred game interfaces.
@@ -482,10 +482,20 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
             end
         end
     end
-    local firstMissing
+    -- Do not fund crafting jelly while an inventory-only prerequisite still
+    -- blocks the gear. Other useful work and already-funded crafts can proceed.
+    local inventoryRequired
+    for _,item in ipairs(orderedKeys(materials.missingItems,catalog.materialOrder)) do
+        if P.waitOnly[item] or (gear.items[item] and item~="RoyalJelly" and item~="Gumdrops"
+            and not (catalog.purchases or {})[item] and not (catalog.sources or {})[item]) then
+            inventoryRequired=item
+            break
+        end
+    end
+    local firstMissing=inventoryRequired
     local actionableMissing=fundingLaterGear and {RoyalJelly=jellyDeficit}
         or materials.nextCraft and materials.nextCraft.missingInputs or materials.missingItems
-    local fundingRecipeJelly=materials.nextCraft~=nil and facts.craft==false
+    local fundingRecipeJelly=not inventoryRequired and materials.nextCraft~=nil and facts.craft==false
         and (actionableMissing.RoyalJelly or 0)>0
     if fundingRecipeJelly then
         for ingredient,amount in pairs(actionableMissing) do
@@ -501,6 +511,7 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
         base.craftingJellyDeficit=actionableMissing.RoyalJelly
     end
     for _,item in ipairs(orderedKeys(actionableMissing,catalog.materialOrder)) do
+        if item=="RoyalJelly" and inventoryRequired then continue end
         firstMissing=firstMissing or item
         local deficit=actionableMissing[item]
         if P.waitOnly[item] then continue end

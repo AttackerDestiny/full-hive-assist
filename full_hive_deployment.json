@@ -2956,5 +2956,14 @@
     "offlineChecks": 4468,
     "ownedJellyWaitVerified": ["QuackAltear1", "QuackAltear06"],
     "matureRefillObservedLive": false
+  },
+  "quackV1845": {
+    "version": "1.8.45",
+    "sha256": "b7a31d98adbcfe4370f94867cccc749fd05d3cf7c4c4afb981cf4643c7eb3d84",
+    "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
+    "startedAt": {"QuackAltear1": 1795266145, "QuackAltear5": 1795266152, "QuackAltear06": 1795266157},
+    "offlineChecks": 4474,
+    "liveSoftWaxWaitVerified": ["QuackAltear1", "QuackAltear5", "QuackAltear06"],
+    "liveFundingRestartObserved": false
   }
 }
