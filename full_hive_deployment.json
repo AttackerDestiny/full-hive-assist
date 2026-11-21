@@ -2930,5 +2930,14 @@
     "offlineChecks": 4427,
     "mountaintopPurchaseVerified": {"account": "QuackAltear1", "item": "Beekeeper's Boots", "at": 1795184119},
     "deferredMaskUiVerified": true
+  },
+  "quackV1842": {
+    "version": "1.8.42",
+    "sha256": "28bc3ae95730b94aeffac115958e83d978499f33094084d7200d04d15d8f33fd",
+    "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
+    "startedAt": {"QuackAltear1": 1795227177, "QuackAltear5": 1795227180, "QuackAltear06": 1795227180},
+    "offlineChecks": 4431,
+    "gearHoneyHoldVerified": {"account": "QuackAltear1", "item": "Blue Port-O-Hive", "reserve": 12500000},
+    "slotPurchaseObserved": false
   }
 }

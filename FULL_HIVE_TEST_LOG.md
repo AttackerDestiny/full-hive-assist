@@ -1082,3 +1082,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - The live loop checks expansion on a full hive before a roll or a refill, including when a roll coordinate is already held. Gear priority and the existing slot-plus-egg affordability check still govern spending.
 - Bundle validation and 4,430 offline checks passed. Bundle SHA-256 21af492a1f429bb82233a873e7ed32713cd0ac3cf10703abea23b1c04af7cead.
 - Running verified on QuackAltear1, QuackAltear5 and QuackAltear06 (StartedAt 1795227054). All three had 25 slots. No slot purchase was observed at the sampled balances and plans.
+
+## v1.8.42 — Save honey for gear when materials are ready
+
+- A target with all materials owned reserves its price while honey is short, including while an unrelated Blender order runs. Hive growth, jelly refills and background honey purchases use the same reserve. Inventory-only work can continue.
+- Bundle validation and 4,431 offline checks passed. Bundle SHA-256 28bc3ae95730b94aeffac115958e83d978499f33094084d7200d04d15d8f33fd.
+- Running verified on QuackAltear1 (StartedAt 1795227177), QuackAltear5 and QuackAltear06 (1795227180). QuackAltear1 displayed Saving honey for Blue Port-O-Hive with all materials ready and a 12,500,000 reserve. A new hive-slot purchase was not observed at these balances.

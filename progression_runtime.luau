@@ -10,7 +10,7 @@ return function(H)
             Reason=decision.reason or decision.action.reason,ReserveHoney=decision.reserveHoney,
             ReservedItems=decision.reservedItems,MissingItems=decision.missingItems,
             CostReservations=decision.costReservations,OptionalHiveAllowed=decision.optionalHiveAllowed,
-            SavingCraftingJelly=decision.saveCraftingJelly==true,
+            SavingCraftingJelly=decision.saveCraftingJelly==true,SavingGearHoney=decision.savingGearHoney==true,
             Status=decision.status,PlanterCatchup=decision.planterCatchup,FundsRequired=decision.fundsRequired,
             RequiredRJ=decision.requiredRJ,MissingRJ=decision.missingRJ,RequiredTickets=decision.requiredTickets,Honey=facts.honey}
         local craft=facts.craft

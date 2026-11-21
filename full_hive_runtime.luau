@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.41"
+local SCRIPT_VERSION = "1.8.42"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -986,6 +986,7 @@ local function initializeProgression()
             Events=Events,Reqs=Reqs,Packages=Packages,Funds=ProgressionFunds,
             checkStop=checkStop,refresh=refresh,invoke=invoke,move=move,near=near,release=release,
             assertAtlasPaused=assertAtlasPaused,scan=scan,hiveFloor=hiveFloor,
+            honeyReserve=hiveHoneyReserve,
             shopFloor=function(name)return shopFloor(name)end,
             fixedShopPackage=function(...)return fixedShopPackage(...)end,jellyBatchSpent=jellyBatchSpent})
     end
@@ -1525,7 +1526,10 @@ local function run()
             waitFor(reason); s=refresh(); continue
         end
         if item=="RoyalJelly" and not (jellyBatchReady(s) or refill()) then
-            waitFor("Waiting for at least "..Report.RefillAmount.." Royal Jelly to start a batch"); s=refresh(); continue
+            local gear=Report.Progression
+            waitFor(gear and gear.SavingGearHoney and ("Saving honey for "..gear.Gear)
+                or ("Waiting for at least "..Report.RefillAmount.." Royal Jelly to start a batch"))
+            s=refresh(); continue
         end
         Report.Phase="rolling"; Report.Activity=p.reason
         ensureRollTask(p)

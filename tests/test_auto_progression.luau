@@ -24,6 +24,11 @@ return function(P)
         local c=catalog("Clippers",100,{})
         local r=P.plan(f,c)
         check(r.action.reason=="saving-gear-honey" and r.optionalHiveAllowed and r.reserveHoney==100,"Gear funding keeps its reservation while allowing inventory-only hive work")
+        f.craft={item="Oil",count=1,ready=false}
+        local busy=P.plan(f,c)
+        check(busy.action.reason=="blender-busy" and busy.savingGearHoney and busy.reserveHoney==100,
+            "An unrelated Blender order preserves the price of gear whose materials are ready")
+        f.craft=false
         check(P.growth(f,c,1,r.reserveHoney,r.reservedItems).kind=="hatch-basic","Owned egg can hatch without spending gear funds")
         f.inventory.Basic=0;f.honey=100;c.basicEgg={cost={Honey=1000}}
         check(P.plan(f,c).action.kind=="buy-gear","Affordable gear precedes a more expensive next egg")

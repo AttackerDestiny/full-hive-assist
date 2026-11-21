@@ -440,6 +440,12 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
     base.nextCraft=materials.nextCraft
     base.gearItems=copy(gear.items)
     base.saveCraftingJelly=onlyJellyMissing(materials) and (materials.materialDemand.RoyalJelly or 0)>0
+    local gearBudget=gear.honey+(facts.honeyReserve or 0)
+    if not next(materials.missingItems) and #materials.crafts==0 and not next(materials.queuedItems)
+        and facts.honey<gearBudget then
+        base.savingGearHoney=true
+        base.reserveHoney=gearBudget
+    end
     local costs,costError,complete=P.materialCosts(materials.missingItems,catalog)
     -- Whole-gear cost estimates are diagnostics. An unknown future quote must
     -- never hide a ready collection or the next recipe's actionable deficit.

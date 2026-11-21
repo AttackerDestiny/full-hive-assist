@@ -160,9 +160,13 @@ return function(H)
         if disabled then return nil end
         return t,part
     end
+    local function canSpendHoney(s,cost)
+        return s.Honey>=cost+H.honeyReserve(s)
+    end
     local function generate(name,s,expected,quest)
         local t,part=toy(name,s);if not t then return false end
         if H.Config.DryRun then return false end
+        if expected and expected.category=="Honey" and not canSpendHoney(s,expected.amount)then return false end
         H.move(part);H.near(part);s=H.refresh()
         if pending()or #offers(s)>0 then H.release();return false end
         local again,freshPart=toy(name,s)
@@ -174,7 +178,7 @@ return function(H)
             if expected.category=="Honey"then
                 local disc=#(s.DiscGiftTypes or{})
                 local target=A.starTarget(disc,(s.Amulets or{}).Star)
-                if not target or target.name~=name or s.Honey<expected.amount+H.Config.HoneyReserve
+                if not target or target.name~=name or not canSpendHoney(s,expected.amount)
                     or(s.Transient or{}).GenerateSupremeDualPassive==true then H.release();return false end
                 local req=t:FindFirstChild("GiftedReq");if not req or req.Value~=target.gifted then H.release();return false end
             else
@@ -205,11 +209,11 @@ return function(H)
             if not H.Config.AutoPurchase then return false end
             local pkg=H.fixedShopPackage("Gold",1,"TicketTent")
             if not H.Packages.CanPurchase(pkg,s)or not H.Packages.CanGive(pkg,s)then return false end
-            if not H.Funds.check({kind="purchase-material"},{reserveHoney=H.Config.HoneyReserve},H.Packages.GetCost(pkg,s),s,H.Config.HoneyReserve)then return false end
+            if not H.Funds.check({kind="purchase-material"},{reserveHoney=H.honeyReserve(s)},H.Packages.GetCost(pkg,s),s,H.Config.HoneyReserve)then return false end
             H.move(H.shopFloor("TicketTent"));H.near(H.shopFloor("TicketTent"));s=H.refresh()
             if not matchingQuest(s,a)or(s.Eggs.Gold or 0)>0 then H.release();return false end
             pkg=H.fixedShopPackage("Gold",1,"TicketTent")
-            if not H.Funds.check({kind="purchase-material"},{reserveHoney=H.Config.HoneyReserve},H.Packages.GetCost(pkg,s),s,H.Config.HoneyReserve)then H.release();return false end
+            if not H.Funds.check({kind="purchase-material"},{reserveHoney=H.honeyReserve(s)},H.Packages.GetCost(pkg,s),s,H.Config.HoneyReserve)then H.release();return false end
             H.assertAtlasPaused();H.near(H.shopFloor("TicketTent"))
             local n=s.Eggs.Gold or 0;local accepted=H.invoke(H.Events.ItemPackageEvent,"Purchase",pkg);local receipt=env.FullHiveUncertain
             local fresh=H.refresh();assert(accepted and(fresh.Eggs.Gold or 0)==n+1,"Quest Gold Egg purchase uncertain; do not retry")
@@ -265,7 +269,7 @@ return function(H)
     function R.allowsHive(s)
         if H.Config.AutoAmulets==false then return true end
         local target=A.starTarget(type(s.DiscGiftTypes)=="table"and #s.DiscGiftTypes or nil,(s.Amulets or{}).Star)
-        return target==nil or s.Honey<target.price+H.Config.HoneyReserve
+        return target==nil or not canSpendHoney(s,target.price)
     end
     function R.step(s)
         if pending()then return false end
@@ -280,7 +284,7 @@ return function(H)
                 if target.minimumPollenTotal>0 then
                     state.Amulet..=string.format(" (%.0f%% / %.0f%% pollen)",state.StarPollenTotal*100,target.minimumPollenTotal*100)
                 end
-                if s.Honey>=target.price+H.Config.HoneyReserve then
+                if canSpendHoney(s,target.price) then
                     if generate(target.name,s,{category="Honey",amount=target.price})then return true end
                 end
                 H.release();return false
