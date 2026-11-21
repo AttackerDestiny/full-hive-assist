@@ -1088,3 +1088,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - A target with all materials owned reserves its price while honey is short, including while an unrelated Blender order runs. Hive growth, jelly refills and background honey purchases use the same reserve. Inventory-only work can continue.
 - Bundle validation and 4,431 offline checks passed. Bundle SHA-256 28bc3ae95730b94aeffac115958e83d978499f33094084d7200d04d15d8f33fd.
 - Running verified on QuackAltear1 (StartedAt 1795227177), QuackAltear5 and QuackAltear06 (1795227180). QuackAltear1 displayed Saving honey for Blue Port-O-Hive with all materials ready and a 12,500,000 reserve. A new hive-slot purchase was not observed at these balances.
+
+## v1.8.43 — Walk to the Blender when flight is blocked
+
+- QuackAltear5's Platform wait was Blender travel for a verified 13 Blue Extract order. Live pathfinding found approaches to the real pad. Feather now tries the center, east and north approaches, uses the existing nearby and fresh recipe checks, and releases Atlas if the approaches run out.
+- Bundle validation and 4,440 offline checks passed. Bundle SHA-256 7fc593ba00f1f4e284a05196f8f8a2963f7cb91cd61a7c539285b415d6816222.
+- Verified v1.8.43 on QuackAltear06 (StartedAt 1795251845), QuackAltear1 and QuackAltear5 (1795251854). QuackAltear5 received a craft receipt at 1795251869 and fresh BlenderState showed BlueExtract Count 13, with no uncertain request. The output was in progress at verification.

@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.42"
+local SCRIPT_VERSION = "1.8.43"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -540,9 +540,10 @@ local function move(part)
         if not waypoints then
             local guild=destination=="Workspace.Badge Guild.Walls.Floor"
             local ticketShop=destination=="Workspace.Map.Buildings.Ticket Bee Shop.Floor"
+            local blender=destination=="Workspace.Toys.Blender.Platform"
             local checkFloor=guild or ticketShop or destination=="Workspace.Map.Ground.BlueHQShopFloor"
                 or destination=="Workspace.Shops.Mountaintop.FloorPart"
-            if checkFloor or destination=="Workspace.Shops.ProShop.Terrain" then
+            if checkFloor or blender or destination=="Workspace.Shops.ProShop.Terrain" then
                 -- The shop volume can extend above the actual floor.
                 -- Use the navigable floor and restore collisions for normal walking.
                 cleanup()
@@ -568,8 +569,10 @@ local function move(part)
                     assertAtlasPaused()
                 end
                 local side,depth=guild and 12 or 8,guild and 36 or ticketShop and 32 or 8
-                for index,offset in ipairs({Vector3.zero,Vector3.new(-side,0,0),Vector3.new(side,0,0),
-                    Vector3.new(0,0,-depth),Vector3.new(0,0,depth)}) do
+                local approaches=blender and {Vector3.zero,Vector3.new(8,0,0),Vector3.new(0,0,-8)}
+                    or {Vector3.zero,Vector3.new(-side,0,0),Vector3.new(side,0,0),
+                        Vector3.new(0,0,-depth),Vector3.new(0,0,depth)}
+                for index,offset in ipairs(approaches) do
                     checkWalk()
                     local hit=workspace:Raycast(target+offset-Vector3.new(0,2,0),Vector3.new(0,-(2*height+16),0),params)
                     if not hit then continue end
@@ -1625,6 +1628,7 @@ local function runWithCharacterRecovery()
             local retryShop=destination=="Workspace.Badge Guild.Walls.Floor" and "Badge Guild"
                 or destination=="Workspace.Map.Buildings.Ticket Bee Shop.Floor" and "Ticket Tent"
                 or destination=="Workspace.Shops.Mountaintop.FloorPart" and "Mountaintop shop"
+                or destination=="Workspace.Toys.Blender.Platform" and "Blender"
             local waitForNewOrigin=movement.RoutesExhausted and retryShop
             if movement.RoutesExhausted and not waitForNewOrigin then
                 error(movement.Failure.." at "..destination.."; no purchase sent",0)
