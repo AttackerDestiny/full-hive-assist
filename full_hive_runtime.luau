@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.43"
+local SCRIPT_VERSION = "1.8.44"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1120,7 +1120,8 @@ local function buy(item,amount,shop,inventoryCeiling,validatePurchase)
     end
     local usable=math.max(0,(s.Honey or 0)-hiveHoneyReserve(s))
     if item=="RoyalJelly" then
-        plan(s)
+        local _,cells=plan(s)
+        if not Policy.canBuyRollJelly(cells) then release();return false end
         if inventoryCeiling~=Report.RefillAmount or usable<Policy.jellyCost(royalJellyPurchases(s),inventoryCeiling-before) then return false end
     elseif item=="Basic" then
         assert(amount==1,"Basic purchases must remain separate")
@@ -1151,8 +1152,9 @@ end
 local function refill()
     local s=refresh()
     if progression and not progression.allowsHive(s) then return false end
-    local _,_,slots=plan(s)
+    local _,cells,slots=plan(s)
     if jellyBatchReady(s) then return true end
+    if not Policy.canBuyRollJelly(cells) then return false end
     local target=Report.RefillAmount
     local inventory=s.Eggs.RoyalJelly or 0
     local missing=target-inventory
@@ -1163,7 +1165,9 @@ local function refill()
     if Report.RefillMode=="legendary-entry" then pack=math.max(pack,10000) end
     Report.Activity="Refilling Royal Jelly to "..target.." before starting a batch"
     while true do
-        pauseCheckpoint(); s=refresh(); plan(s)
+        pauseCheckpoint(); s=refresh()
+        local _,freshCells=plan(s)
+        if not Policy.canBuyRollJelly(freshCells) then return false end
         if Report.RefillAmount~=target or (Report.CollectorFallback==true)~=fallback then return false end
         inventory=s.Eggs.RoyalJelly or 0
         if inventory>=target then break end
@@ -1531,6 +1535,7 @@ local function run()
         if item=="RoyalJelly" and not (jellyBatchReady(s) or refill()) then
             local gear=Report.Progression
             waitFor(gear and gear.SavingGearHoney and ("Saving honey for "..gear.Gear)
+                or not Policy.canBuyRollJelly(cells) and "Waiting for owned Royal Jelly to roll"
                 or ("Waiting for at least "..Report.RefillAmount.." Royal Jelly to start a batch"))
             s=refresh(); continue
         end

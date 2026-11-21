@@ -1094,3 +1094,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - QuackAltear5's Platform wait was Blender travel for a verified 13 Blue Extract order. Live pathfinding found approaches to the real pad. Feather now tries the center, east and north approaches, uses the existing nearby and fresh recipe checks, and releases Atlas if the approaches run out.
 - Bundle validation and 4,440 offline checks passed. Bundle SHA-256 7fc593ba00f1f4e284a05196f8f8a2963f7cb91cd61a7c539285b415d6816222.
 - Verified v1.8.43 on QuackAltear06 (StartedAt 1795251845), QuackAltear1 and QuackAltear5 (1795251854). QuackAltear5 received a craft receipt at 1795251869 and fresh BlenderState showed BlueExtract Count 13, with no uncertain request. The output was in progress at verification.
+
+## v1.8.44 — Use owned jelly only below 35 occupied bees
+
+- Extended starter rolling from below 30 to below 35 occupied bees. Below 35, the hive only spends owned Royal Jelly, one at a time with roll-to settings off and normal Basic preferred. Normal roll refills recheck occupied count before travel, during buying and immediately before the shop request. Gear crafting uses its separate jelly purchase path.
+- Bundle validation and 4,468 offline checks passed, including no refill with a wealthy 34-bee hive and ordinary refill at 35. Bundle SHA-256 81518e64136c513eb115c11d8152ad9af9c29cb5d8bcb3797bffa6c19dd37a67.
+- Verified v1.8.44 running on QuackAltear06 (StartedAt 1795260814), QuackAltear5 (1795260822) and QuackAltear1 (1795260823). QuackAltear1 and QuackAltear06 each had 28 bees and zero Royal Jelly and displayed Waiting for owned Royal Jelly to roll. QuackAltear5 still planned crafting jelly for Red Clay Planter. No 35-bee transition or fresh crafting-jelly receipt was observed live.

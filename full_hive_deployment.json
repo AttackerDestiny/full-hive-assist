@@ -2947,5 +2947,14 @@
     "startedAt": {"QuackAltear1": 1795251854, "QuackAltear5": 1795251854, "QuackAltear06": 1795251845},
     "offlineChecks": 4440,
     "verifiedCraft": {"account": "QuackAltear5", "recipe": "BlueExtract", "count": 13, "at": 1795251869}
+  },
+  "quackV1844": {
+    "version": "1.8.44",
+    "sha256": "81518e64136c513eb115c11d8152ad9af9c29cb5d8bcb3797bffa6c19dd37a67",
+    "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
+    "startedAt": {"QuackAltear1": 1795260823, "QuackAltear5": 1795260822, "QuackAltear06": 1795260814},
+    "offlineChecks": 4468,
+    "ownedJellyWaitVerified": ["QuackAltear1", "QuackAltear06"],
+    "matureRefillObservedLive": false
   }
 }

@@ -8,7 +8,9 @@ P.trueSingles = {"Basic", "Bumble", "Cool", "Looker", "Bubble", "Commander", "Bu
 P.exactGifted = {Basic=true, Bumble=true, Cool=true, Looker=true, Bomber=true,
     Commander=true, Bucko=true, Carpenter=true, Demon=true, Lion=true,
     Diamond=true, Ninja=true, Shy=true}
-function P.singleJelly(cells) return #cells>0 and #cells<30 end
+local singleJellyLimit=35
+function P.canBuyRollJelly(cells) return #cells>=singleJellyLimit end
+function P.singleJelly(cells) return #cells>0 and not P.canBuyRollJelly(cells) end
 function P.eventGumdropPack(gumdrops,tickets)
     if gumdrops<1500 or gumdrops>=2500 or tickets<math.ceil((2500-gumdrops)/3) then return nil end
     local deficit=math.ceil((2500-gumdrops)/3)*3

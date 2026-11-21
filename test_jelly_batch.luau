@@ -13,7 +13,9 @@ return function(runtime,Policy,Types)
         local env={}; local report={RefillAmount=target,CollectorFallback=false}
         local s={Eggs={RoyalJelly=inventory},Honey=1e15,Totals={Purchases={Eggs={RoyalJelly=75}}}}
         local purchases={}; local config={AutoPurchase=true,HoneyReserve=0}
-        local function plan() return {},{},41 end
+        local function plan()
+            return {},s.Honeycomb and Policy.snapshot(s,Types) or table.create(41,true),41
+        end
         local ready,spent,refill=factory(env,report,{UserId=7},{JobId='test'},function() return {Name='Hive'} end,
             Policy,config,function() return s end,plan,function(_,amount,_,ceiling)
                 check(amount==1 or amount==10 or amount==100 or amount==1000 or amount==10000 or amount==100000,'Only supported pack amounts')
@@ -24,16 +26,24 @@ return function(runtime,Policy,Types)
                 allowsHive=function()return true end},Types)
         return env,report,s,ready,spent,refill,purchases,config
     end
-    for _,occupied in ipairs({1,7,29,30}) do
+    for _,occupied in ipairs({1,7,29,30,34,35}) do
         for _,inventory in ipairs({0,1,2,99}) do
             local env,_,s,ready,spent=fixture(600,inventory)
-            s.Honeycomb={};s.UnlockedCells=30;s.Totals.Purchases.HiveSlots=5
+            s.Honeycomb={};s.UnlockedCells=38;s.Totals.Purchases.HiveSlots=13
             for i=1,occupied do s.Honeycomb["x"..i]={y1={Type="Brave",Traits={}}}end
-            check(ready(s)==(occupied<30 and inventory>0),"Single jelly admission uses occupied count at "..occupied)
+            check(ready(s)==(occupied<35 and inventory>0),"Single jelly admission uses occupied count at "..occupied)
             check(not env.FullHiveJellyBatch,"Small inventories never seed a persistent batch")
             spent(0);s.Eggs.RoyalJelly=1
-            check(ready(s)==(occupied<30),"New one-jelly gift is usable only below30 bees")
+            check(ready(s)==(occupied<35),"New one-jelly gift is usable only below 35 bees")
         end
+    end
+    do
+        local _,_,s,_,_,refill,purchases=fixture(100,0)
+        s.Honeycomb={};s.UnlockedCells=38
+        for i=1,34 do s.Honeycomb["x"..i]={y1={Type="Brave",Traits={}}} end
+        check(not refill() and #purchases==0,"A wealthy 34-bee hive cannot buy jelly for rolling")
+        s.Honeycomb.x35={y1={Type="Brave",Traits={}}}
+        check(refill() and #purchases>0,"At 35 occupied bees the normal refill resumes")
     end
     do
         local _,_,s,_,_,refill,purchases=fixture(100,0,100000000)
@@ -104,7 +114,7 @@ return function(runtime,Policy,Types)
         'local Config={HoneyReserve=0,DryRun=false,AutoPurchase=true}; local Report={}; local lateStarted=false; local nextFlexible; local rollTask; local player={UserId=7}; local game={JobId="test"}; local function hive() return {Name="Hive"} end; local function starEggUses(s) return 0 end\n'..
         planning..'\nreturn plan,jellyBatchReady,jellyBatchSpent,Report\nend'))()
     local s={Honey=1e15,Eggs={RoyalJelly=1},Honeycomb={x1={y1={Type='Bubble',Traits={}}}},Totals={Purchases={HiveSlots=19,Eggs={RoyalJelly=75}},EggUses={}}}
-    for i=2,30 do s.Honeycomb["x"..i]={y1={Type="Tabby",Traits={}}}end
+    for i=2,35 do s.Honeycomb["x"..i]={y1={Type="Tabby",Traits={}}}end
     local env={}; local plan,ready,spent,report=make(Policy,Types,env)
     plan(s); check(report.RefillAmount==10000 and report.NormalRefillAmount==4000,'Legendary entry advertises 10k current refill')
     check(not ready(s),'Legendary entry cannot start with a gift')
@@ -133,11 +143,11 @@ return function(runtime,Policy,Types)
         local lowEnv={}
         local lowPlan,lowReady,_,lowReport=make(Policy,Types,lowEnv)
         local lowStats={Honey=1e15,Eggs={RoyalJelly=1},Honeycomb={},Totals={Purchases={HiveSlots=19,Eggs={RoyalJelly=75}},EggUses={}}}
-        for i=1,29 do lowStats.Honeycomb["x"..i]={y1={Type="Brave",Traits={}}}end
+        for i=1,34 do lowStats.Honeycomb["x"..i]={y1={Type="Brave",Traits={}}}end
         local q=lowPlan(lowStats)
-        check(lowReport.RefillAmount==1 and q.mode=="off" and lowReady(lowStats),"Actual29-bee planner permits one normal jelly")
-        lowStats.Honeycomb.x30={y1={Type="Brave",Traits={}}}
-        check(not lowReady(lowStats) and lowReport.RefillAmount==10000,"Fresh30-bee boundary rechecks its mature entry threshold before admission")
+        check(lowReport.RefillAmount==1 and q.mode=="off" and lowReady(lowStats),"Actual 34-bee planner permits one normal jelly")
+        lowStats.Honeycomb.x35={y1={Type="Brave",Traits={}}}
+        check(not lowReady(lowStats) and lowReport.RefillAmount==10000,"Fresh 35-bee boundary rechecks its mature entry threshold before admission")
     end
     for _,flag in ipairs({"RollToGifted","RollToLegendary","RollToMythic","RollToMutation"})do
         local snapshot={Eggs={RoyalJelly=1},Settings={[flag]=true}}
