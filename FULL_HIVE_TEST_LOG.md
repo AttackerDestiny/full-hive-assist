@@ -1076,3 +1076,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Added Blue Port-O-Hive after Mondo Belt Bag and before Blue Clay Planter. The game lists the item at 12,500,000 honey, 2 Blue Extracts and 2 Soft Wax at Blue HQ. Existing backpack upgrade recognition includes the item.
 - Bundle validation and 4,430 offline checks passed. Bundle SHA-256 9e238b169e43e02832e9301180c1cbc7176cb75c93a3e8cd0d39163b137dbc06.
 - Running verified on QuackAltear1 (StartedAt 1795226989), QuackAltear5 and QuackAltear06 (1795226985). QuackAltear1 and QuackAltear5 selected Blue Port-O-Hive live. No purchase was verified.
+
+## v1.8.41 — Buy affordable slots before rolling
+
+- The live loop checks expansion on a full hive before a roll or a refill, including when a roll coordinate is already held. Gear priority and the existing slot-plus-egg affordability check still govern spending.
+- Bundle validation and 4,430 offline checks passed. Bundle SHA-256 21af492a1f429bb82233a873e7ed32713cd0ac3cf10703abea23b1c04af7cead.
+- Running verified on QuackAltear1, QuackAltear5 and QuackAltear06 (StartedAt 1795227054). All three had 25 slots. No slot purchase was observed at the sampled balances and plans.

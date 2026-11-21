@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.40"
+local SCRIPT_VERSION = "1.8.41"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1492,6 +1492,8 @@ local function run()
                 s=refresh();continue
             end
         end
+        if progression and Config.AutoPurchase and Report.Growth.Empty==0 and slots<50
+            and progression.grow(s,slots+1) then s=refresh();continue end
         if p.complete then
             if background and(Config.AutoAmulets or Config.AutoQuestAssist)then
                 waitFor("Hive complete; monitoring amulets and active quests");s=refresh();continue
@@ -1515,7 +1517,6 @@ local function run()
             if starReady(s,cells) then Report.Phase="star-eggs"; useStarScript(s); continue end
         end
         if not p.target then
-            if progression and not rollTask and not basicLock and progression.grow(s,math.min(50,slots+1)) then s=refresh();continue end
             local reason=p.stage=="final" and p.growth.Empty>0
                 and ("Checking funds to fill "..p.growth.Empty.." empty hive cells; current bees are held")
                 or p.capacityStatus.Conflict and ("Kept bees and current targets require at least "
