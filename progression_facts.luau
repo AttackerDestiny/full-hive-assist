@@ -148,7 +148,7 @@ return function(deps)
     local accessoryChains={
         {"Basic Boots","Hiking Boots","Beekeeper's Boots","Coconut Clogs"},
         {"Helmet","Propeller Hat","Beekeeper's Mask","Bubble Mask","Diamond Mask"},
-        {"Jar","Canister","Compressor","Port-O-Hive","Porcelain Port-O-Hive","Coconut Canister"},
+        {"Jar","Canister","Compressor","Port-O-Hive","Blue Port-O-Hive","Porcelain Port-O-Hive","Coconut Canister"},
         {"Belt Pocket","Belt Bag","Mondo Belt Bag","Honeycomb Belt","Petal Belt"},
         -- Read-only Accessories definitions verify Brave is RIGHT/blue and
         -- Looker is LEFT/red. Cross-shoulder ownership proves no upgrade.

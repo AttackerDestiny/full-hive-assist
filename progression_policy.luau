@@ -7,7 +7,7 @@ P.stages = {
         "Super-Scooper", "Compressor", "Electro-Magnet", "Port-O-Hive", "Honey Dipper", "Propeller Hat",
         "Hiking Boots", "Brave Guard", "Looker Guard", "Bubble Wand"}},
     {gate=0, gear={"Basic Sprinkler", "Candy Planter", "Beekeeper's Mask", "Beekeeper's Boots",
-        "Mondo Belt Bag", "Blue Clay Planter", "Red Clay Planter"}},
+        "Mondo Belt Bag", "Blue Port-O-Hive", "Blue Clay Planter", "Red Clay Planter"}},
     {gate=34, gear={"Porcelain Dipper"}},
     {gate=35, gear={"Porcelain Port-O-Hive", "Bubble Mask"}},
     {gate=36, gear={"Silver Soakers", "Cobalt Guard"}},

@@ -1070,3 +1070,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - QuackAltear1 had four of five Enzymes for Beekeeper's Mask and all materials for Beekeeper's Boots. The existing fallback correctly selected Boots. Overview now names the deferred gear below the current target.
 - Flight to Mountaintop FloorPart repeatedly failed, but the game's pathfinder found a walking approach to the physical floor. Feather now uses the grounded shop fallback there. Bundle validation and 4,427 offline checks passed. Bundle SHA-256 a0082a5e1cad48b8f79be0355a7ac7da5e6d5dc731a1ab2658151a59b69cbe3f.
 - Running v1.8.39 verified on QuackAltear06 (StartedAt 1795184088), QuackAltear1 and QuackAltear5 (1795184089), job 21b13cc7-411f-4d7e-a315-cfa18a38ac75. QuackAltear1 showed the deferred Mask in the live UI, then bought Boots at 1795184119 via the walking fallback. Fresh inventory confirmed Boots owned with no pending request, and the target returned to Mask. The subsequent equipped read showed Hiking Boots.
+
+## v1.8.40 — Add Blue Port-O-Hive
+
+- Added Blue Port-O-Hive after Mondo Belt Bag and before Blue Clay Planter. The game lists the item at 12,500,000 honey, 2 Blue Extracts and 2 Soft Wax at Blue HQ. Existing backpack upgrade recognition includes the item.
+- Bundle validation and 4,430 offline checks passed. Bundle SHA-256 9e238b169e43e02832e9301180c1cbc7176cb75c93a3e8cd0d39163b137dbc06.
+- Running verified on QuackAltear1 (StartedAt 1795226989), QuackAltear5 and QuackAltear06 (1795226985). QuackAltear1 and QuackAltear5 selected Blue Port-O-Hive live. No purchase was verified.
