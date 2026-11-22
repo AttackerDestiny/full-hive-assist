@@ -425,7 +425,7 @@ return function(P,T)
             {x=3,y=1,bee={Type="Basic",Traits={}}},
             {x=4,y=1,bee={Type="Tabby",Traits={}}}}
         local q=P.plan(cells,T,{slots=40,starUsed=0,jelly=1,enforceGrowth=true})
-        check(P.singleJelly(cells) and q.mode=="off","Below 35 occupied bees uses normal rolls even at larger capacity")
+        check(P.singleJelly(cells) and q.mode=="off","Below 33 occupied bees uses normal rolls even at larger capacity")
         check(q.target and P.key(q.target)=="3,1","Eligible normal Basic precedes other safe candidates")
         check(q.keep["2,1"]and q.protected["4,1"],"Basic preference preserves Gifted Basic and Event protection")
         local lease=P.startRollTask(q.target,cells,q);lease.Rolled=true
@@ -436,8 +436,8 @@ return function(P,T)
         check(P.rollTaskDone(lease,cells[3],cells,T,q) and not P.rollTaskSafe(lease,cells[3],cells,T,q),"Every non-Basic starter result closes the task")
         check(not q.basicOnly and q.target and q.mode=="off","After the last normal Basic, continue with eligible one-jelly rolls")
         check(q.target.bee.Type=="Brave" and P.rollItem(cells,{StarJelly=1},q)=="RoyalJelly","Post-Basic rolls use Royal Jelly and preserve Gifted Basic and Events")
-        for i=5,35 do cells[i]={x=i,y=1,bee={Type="Tabby",Traits={}}}end
-        check(not P.singleJelly(cells),"Exactly 35 occupied bees restores the usual batch path")
+        for i=5,33 do cells[i]={x=i,y=1,bee={Type="Tabby",Traits={}}}end
+        check(not P.singleJelly(cells),"Exactly 33 occupied bees restores the usual batch path")
     end
     for _,name in ipairs({"Bubble","Frosty","Ninja"}) do
         local base=hive({{"Basic",2}})

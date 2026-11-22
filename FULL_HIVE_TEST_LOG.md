@@ -1141,3 +1141,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Porcelain Dipper no longer requires 34 occupied and unlocked cells in Feather. Mountaintop access, the game package checks, and the full honey price still apply. Other gear gates retain their prior requirements.
 - Bundle validation and 4,522 offline checks passed. Bundle SHA-256 1b96d3cbb9b2da32b35fe5e442205aeef5d33b1cfbefd4aefc5338bec4147ef8.
 - Verified QuackAltear5 (StartedAt 1795334451), QuackAltear1 (1795334458), and QuackAltear06 (1795334466) in job b768abb7-4dd3-4deb-acce-beae1b03dbca. QuackAltear5 reached Mountaintop via grounded-tween and purchased the Porcelain Dipper at 1795334462, with 33 occupied bees and 33 slots. Fresh server stats confirmed ownership and equipment. Atlas was released and no request remained pending or uncertain.
+
+## v1.8.51 — Start normal rolling refills at 33 occupied bees
+
+- Below 33 occupied bees, rolling uses owned Royal Jelly one at a time with roll-to flags off. At 33, normal batch and purchase checks apply. Crafting jelly purchases continue through their separate path.
+- Bundle validation and 4,546 offline checks passed. Bundle SHA-256 ceef876b53d46d87df27a12708672a05ae4a066fb93616b2b2e6287f289a6666.
+- Verified running on QuackAltear06 (StartedAt 1795334556), QuackAltear1 (1795334560) and QuackAltear5 (1795334560). The accounts at 30 and 31 bees waited for owned jelly. QuackAltear5 had 33 bees, the equipped Porcelain Dipper, and a normal 100-jelly refill target. Its honey was below the refill cost, and no refill purchase was observed. No pending or uncertain request remained in these snapshots.

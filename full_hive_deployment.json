@@ -3009,5 +3009,13 @@
     "startedAt": {"QuackAltear5": 1795334451, "QuackAltear1": 1795334458, "QuackAltear06": 1795334466},
     "offlineChecks": 4522,
     "dipperPurchaseVerified": {"account": "QuackAltear5", "at": 1795334462, "occupied": 33, "capacity": 33, "equipped": true}
+  },
+  "quackV1851": {
+    "version": "1.8.51",
+    "sha256": "ceef876b53d46d87df27a12708672a05ae4a066fb93616b2b2e6287f289a6666",
+    "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
+    "startedAt": {"QuackAltear06": 1795334556, "QuackAltear1": 1795334560, "QuackAltear5": 1795334560},
+    "offlineChecks": 4546,
+    "normalRefillAt33Verified": {"account": "QuackAltear5", "occupied": 33, "target": 100, "purchaseObserved": false}
   }
 }
