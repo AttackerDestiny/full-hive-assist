@@ -72,6 +72,7 @@ function P.choose(group,current,offered)
         return false,"ant-no-improvement"
     elseif group=="Star" then
         if n.rank==0 then return nil,"unknown-star-tier" end
+        if not old and n.type=="Bronze Star Amulet" then return true,"first-bronze-star" end
         if old and n.rank<old.rank then return false,"lower-star-tier" end
         return P.starGood(n),"required-star-stats"
     elseif group=="Moon" then

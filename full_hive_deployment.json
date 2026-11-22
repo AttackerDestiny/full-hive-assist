@@ -2984,5 +2984,13 @@
       "beforePurchased": 6,
       "afterPurchased": 7
     }
+  },
+  "quackV1848": {
+    "version": "1.8.48",
+    "sha256": "f933b027f1977f3abb6d34d433719e178a2dd6ad42c8bd2974bfa4998de89d2f",
+    "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
+    "startedAt": {"QuackAltear1": 1795314900, "QuackAltear5": 1795314881, "QuackAltear06": 1795314884},
+    "offlineChecks": 4495,
+    "firstBronzeVerified": {"account": "QuackAltear06", "acceptedAt": 1795314900, "qualifyingStats": false, "savingForUpgrade": true}
   }
 }

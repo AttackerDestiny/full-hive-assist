@@ -29,6 +29,13 @@ return function(P)
   if pop then mods[#mods+1]=m("PlayerAbility",1,{Ability="Pop Star"})end
   return a(t.." Star Amulet",mods)
  end
+ local weakBronze=star("Bronze",0,nil)
+ ok(P.choose("Star",nil,weakBronze),"First Bronze equips even without the required pollen stats")
+ ok(P.choose("Star",nil,a("Bronze Star Amulet",{})),"First Bronze equips with any valid modifiers")
+ ok(not P.choose("Star",nil,star("Silver",0,nil)),"First Silver still requires qualifying stats")
+ ok(P.starTarget(5,weakBronze).rank==1,"Starter Bronze keeps the Bronze upgrade target active")
+ ok(not P.choose("Star",weakBronze,star("Bronze",.1,nil)),"Later Bronze offer still needs all required stats")
+ ok(P.choose("Star",weakBronze,star("Bronze",.1,.05)),"Qualifying Bronze replaces the starter Bronze")
  for i,t in ipairs(P.tiers)do
   local threshold=P.requirements[i];local target=P.starTarget(threshold,nil)
   ok(target and target.price==P.prices[i]and target.rank==i,"Correct discovered threshold and fixed price")

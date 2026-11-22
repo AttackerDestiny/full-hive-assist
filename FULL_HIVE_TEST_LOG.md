@@ -1124,3 +1124,8 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 
 - The stopped v1.8.45 run (StartedAt 1795304451) recorded 31 occupied bees in 31 unlocked slots before the rejected purchase. A fresh RetrievePlayerStats read in the same job still showed 31 unlocked slots and six purchases. Archived the matching legacy receipt with that evidence at 1795314231.
 - Executed the unchanged v1.8.47 bundle once. StartedAt 1795314238. Feather reached the Mountaintop shop and recorded a successful Hive Slot purchase at 1795314269. Fresh server stats confirmed capacity 31 to 32 and purchases six to seven, with no pending slot receipt. The worker then hatched a Basic Egg and continued planning.
+
+## v1.8.48 — Equip the first Bronze Star Amulet
+
+- When no Star Amulet is equipped, Feather accepts the first valid Bronze Star offer with any stats. An equipped Bronze without Capacity, Blue Pollen and global Pollen remains eligible for an upgrade. Bundle validation and 4,495 offline checks passed. Bundle SHA-256 f933b027f1977f3abb6d34d433719e178a2dd6ad42c8bd2974bfa4998de89d2f.
+- Verified running on QuackAltear1 (StartedAt 1795314900), QuackAltear5 (1795314881) and QuackAltear06 (1795314884) in job b768abb7-4dd3-4deb-acce-beae1b03dbca. QuackAltear06 accepted its first Bronze Star Amulet at 1795314900. A fresh server read confirmed it equipped with Capacity, Instant Conversion and White Pollen, and Feather reported saving for another Bronze roll. No qualifying replacement was observed.
