@@ -1106,3 +1106,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Crafting jelly funding and its roll hold wait when an inventory-only prerequisite is missing, including Soft Wax and Hard Wax. Recipes already funded with owned materials can proceed. Once the prerequisite arrives, normal exact-pack funding resumes.
 - Bundle validation and 4,474 offline checks passed. Bundle SHA-256 b7a31d98adbcfe4370f94867cccc749fd05d3cf7c4c4afb981cf4643c7eb3d84.
 - Verified v1.8.45 on QuackAltear1 (StartedAt 1795266145), QuackAltear5 (1795266152), and QuackAltear06 (1795266157). All three were targeting Red Clay Planter with a Soft Wax deficit. Live reports showed waiting-material:SoftWax and SavingCraftingJelly=false. The funding restart after receiving the Wax was exercised offline.
+
+## v1.8.46 — Enter Star Hall for Bronze Star Amulet trips
+
+- The Platform travel wait was the Bronze Star Amulet Generator, separate from the equipped Gold Ant Amulets. Live raycasts found a clear passage through Star Hall's entrance. Feather now routes through that opening and keeps the normal generator and purchase checks.
+- Bundle validation and 4,488 offline checks passed. Bundle SHA-256 d7f1c7af550186d5dcb7ab6d825843f073c07b1080bc99545e93faa5f4e37d8e.
+- Verified QuackAltear1 (StartedAt 1795313835) and QuackAltear06 (1795313831) in job b768abb7-4dd3-4deb-acce-beae1b03dbca. Both reached the generator and processed Bronze Star offers. Both retained their equipped Gold Ant Amulet. QuackAltear5's existing uncertain hive-slot receipt blocked rollout.

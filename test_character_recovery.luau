@@ -208,7 +208,7 @@ return function(runtime)
         "local Config={Speed=65,NearDistance=16}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance(part) return (player.Character:FindFirstChild().Position-part.Position).Magnitude end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route","shop-path","shop-alternate","shop-floor-arrival","guild-floor-arrival","ticket-floor-arrival","dapper-entrance","mountaintop-floor-arrival","blender-approach"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route","shop-path","shop-alternate","shop-floor-arrival","guild-floor-arrival","ticket-floor-arrival","dapper-entrance","star-hall-entrance","mountaintop-floor-arrival","blender-approach"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -224,6 +224,7 @@ return function(runtime)
         local mountaintop=failure=="mountaintop-floor-arrival"
         local blender=failure=="blender-approach"
         local dapper=failure=="dapper-entrance"
+        local bronze=failure=="star-hall-entrance"
         local shopFloor=failure=="shop-floor-arrival" or guild or ticketShop or mountaintop
         local walking=failure=="shop-path" or alternate or shopFloor or blender
         local walked,walkStopped,paths=0,false,0
@@ -284,7 +285,7 @@ return function(runtime)
                     if failure=="replacement" then player.Character=character(100,true)
                     elseif failure=="detached" then r.Parent=nil
                     elseif failure=="play-error" then error("Fake tween play failed",0)
-                    elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" or dapper then r.Position=goal.Position
+                    elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" or dapper or bronze then r.Position=goal.Position
                     elseif failure=="timeout"then return
                     else c.FindFirstChildOfClass=function() return {Health=0} end end
                 end}
@@ -292,13 +293,18 @@ return function(runtime)
         }
         local fakeGame={GetService=function(_,name) return assert(services[name],name) end}
         local map={FindFirstChild=function(_,name) if name=="Fences" then return fences end end}
-        local door={Position=Vector3.new(15,4,0),CFrame={LookVector=Vector3.new(1,0,0)},
-            CanCollide=false,IsA=function(_,class) return class=="BasePart" end}
+        local door={Position=Vector3.new(15,bronze and 13 or 4,0),CFrame={LookVector=Vector3.new(1,0,0)},
+            CanCollide=bronze,IsA=function(_,class) return class=="BasePart" end}
         local fakeWorkspace={FindFirstChild=function(_,name)
             if name=="Map" then return map end
             if dapper and name=="Gates" then
                 return {FindFirstChild=function(_,gate)
                     if gate=="Dapper Shop" then return {FindFirstChild=function() return door end} end
+                end}
+            end
+            if bronze and name=="Decorations" then
+                return {FindFirstChild=function(_,hall)
+                    if hall=="StarAmuletBuilding" then return {FindFirstChild=function() return door end} end
                 end}
             end
         end,
@@ -324,6 +330,7 @@ return function(runtime)
                 if mountaintop then return "Workspace.Shops.Mountaintop.FloorPart" end
                 if blender then return "Workspace.Toys.Blender.Platform" end
                 if dapper then return "Workspace.Shops.DapperPlanterShop.Terrain" end
+                if bronze then return "Workspace.Toys.Bronze Star Amulet Generator.Platform" end
                 if shopFloor then return "Workspace.Map.Ground.BlueHQShopFloor" end
                 return walking and "Workspace.Shops.ProShop.Terrain" or "Verified.Test.Pad"
             end,IsA=function() return true end}
@@ -341,6 +348,10 @@ return function(runtime)
             check(ok and report.Movement.Method=="dapper-entrance" and #goals==3
                 and goals[1].X==0 and goals[2].X==27 and goals[3].Y==4,
                 "Dapper travel approaches the open door and aims inside at door height")
+        elseif bronze then
+            check(ok and report.Movement.Method=="star-hall-entrance" and #goals==3
+                and goals[1].X==-3 and goals[2].X==33 and goals[1].Y==4,
+                "Bronze Star travel uses the clear opening through the Star Hall model")
         elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" then check(ok,"Successful movement completes")
         elseif failure=="no-route" then
             check(not ok and err==timeoutToken and #goals==0,"No clear route stops before moving")
