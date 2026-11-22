@@ -1135,3 +1135,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Replaced Feather's walking fallback with AlignPosition tweens to ray-verified shop landings. Blue HQ checks floor bounds and actual support before arrival. When a landing stalls, try a different verified point. Exhaustion releases Atlas and returns to movement recovery without sending the purchase. The embedded Star workflow uses the host movement hook.
 - Bundle validation and 4,525 offline checks passed, including Blue HQ arrival, blocked approaches, alternate landings, and Atlas release during recovery. Bundle SHA-256 2908f285e8d29b1c87be925172b418a44344d59550c327776ddf08d73951624e.
 - Verified running on QuackAltear1 (StartedAt 1795318653), QuackAltear5 (1795318649) and QuackAltear06 (1795318661) in job b768abb7-4dd3-4deb-acce-beae1b03dbca. All three were waiting with Atlas resumed and no uncertain request. Read-only live rays confirmed ground at the Blue HQ landing near (293.317, 4.100, 77.635). The reporting account was disconnected from MCP, and a live Blue Clay Planter purchase was not observed.
+
+## v1.8.50 — Remove the Porcelain Dipper hive gate
+
+- Porcelain Dipper no longer requires 34 occupied and unlocked cells in Feather. Mountaintop access, the game package checks, and the full honey price still apply. Other gear gates retain their prior requirements.
+- Bundle validation and 4,522 offline checks passed. Bundle SHA-256 1b96d3cbb9b2da32b35fe5e442205aeef5d33b1cfbefd4aefc5338bec4147ef8.
+- Verified QuackAltear5 (StartedAt 1795334451), QuackAltear1 (1795334458), and QuackAltear06 (1795334466) in job b768abb7-4dd3-4deb-acce-beae1b03dbca. QuackAltear5 reached Mountaintop via grounded-tween and purchased the Porcelain Dipper at 1795334462, with 33 occupied bees and 33 slots. Fresh server stats confirmed ownership and equipment. Atlas was released and no request remained pending or uncertain.

@@ -3001,5 +3001,13 @@
     "offlineChecks": 4525,
     "blueHQGroundRayVerified": true,
     "blueClayPurchaseObserved": false
+  },
+  "quackV1850": {
+    "version": "1.8.50",
+    "sha256": "1b96d3cbb9b2da32b35fe5e442205aeef5d33b1cfbefd4aefc5338bec4147ef8",
+    "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
+    "startedAt": {"QuackAltear5": 1795334451, "QuackAltear1": 1795334458, "QuackAltear06": 1795334466},
+    "offlineChecks": 4522,
+    "dipperPurchaseVerified": {"account": "QuackAltear5", "at": 1795334462, "occupied": 33, "capacity": 33, "equipped": true}
   }
 }

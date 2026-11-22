@@ -8,7 +8,7 @@ P.stages = {
         "Hiking Boots", "Brave Guard", "Looker Guard", "Bubble Wand"}},
     {gate=0, gear={"Basic Sprinkler", "Candy Planter", "Beekeeper's Mask", "Beekeeper's Boots",
         "Mondo Belt Bag", "Blue Port-O-Hive", "Blue Clay Planter", "Red Clay Planter"}},
-    {gate=34, gear={"Porcelain Dipper"}},
+    {gate=0, gear={"Porcelain Dipper"}},
     {gate=35, gear={"Porcelain Port-O-Hive", "Bubble Mask"}},
     {gate=36, gear={"Silver Soakers", "Cobalt Guard"}},
     {gate=0, gear={"Golden Gushers", "TackyPlanter", "Crimson Guard", "Diamond Drenchers", "Diamond Mask",

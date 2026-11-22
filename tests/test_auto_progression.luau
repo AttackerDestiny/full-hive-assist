@@ -123,7 +123,7 @@ return function(P)
         f.conditions["sprinkler-badges"]=false
         check(P.plan(f,c).action.kind=="wait","Removing the hive gate still requires the game's badges")
     end
-    for _,gate in ipairs({34,35,36}) do
+    for _,gate in ipairs({35,36}) do
         local name
         for _,stage in ipairs(P.stages) do if stage.gate==gate then name=stage.gear[1];break end end
         local f=facts();ownedThrough(f,name);f.occupied=gate-1;f.capacity=math.max(25,gate)
@@ -137,14 +137,19 @@ return function(P)
         check(P.plan(f,catalog(name,100,{})).action.kind=="buy-gear","Both gate counts satisfy exact boundary")
     end
     do
-        local f=facts();ownedThrough(f,"Porcelain Dipper")
-        f.occupied=33;f.capacity=33;f.honeyReserve=7;f.honey=117
+        local f=facts();ownedThrough(f,"Red Clay Planter")
+        f.occupied=33;f.capacity=33;f.honey=150000000
         local c=catalog("Porcelain Dipper",150000000,{})
-        c.hiveSlot={cost={Honey=100}};c.basicEgg={cost={Honey=10}}
+        c.gear["Red Clay Planter"]={honey=10000000,items={SoftWax=20}}
+        f.inventory.SoftWax=13
         local r=P.plan(f,c)
-        check(r.action.kind=="buy-hive-slot" and r.reserveHoney==7,"Unmet hive gate reserves user honey only, not future gear price")
-        f.capacity=34;f.emptyCell={verified=true,x=4,y=7};f.honey=17
-        check(P.plan(f,c).action.kind=="buy-basic-egg","Fill gate cell before reserving future Porcelain cost")
+        check(r.action.kind=="buy-gear" and r.action.gear=="Porcelain Dipper" and r.deferredGear=="Red Clay Planter",
+            "Affordable Porcelain Dipper can pass a materials-blocked planter at 33 bees")
+        f.ownedGear["Red Clay Planter"]=true
+        f.honey=149999999
+        r=P.plan(f,c)
+        check(r.action.reason=="saving-gear-honey" and r.reserveHoney==150000000,
+            "Porcelain Dipper still needs its full quoted honey cost")
     end
     do
         local f=facts();f.honey=50;f.inventory.Blueberry=100;f.inventory.RoyalJelly=20
