@@ -50,7 +50,7 @@ return function(runtime)
         return {FindFirstChildOfClass=function() return health and {Health=health} end,
             FindFirstChild=function() return r end},r
     end
-    for _,failure in ipairs({"once","twice","exhausted","guild-exhausted","FullHivePending","AutoHivePendingRequest","FullHiveUncertain",
+    for _,failure in ipairs({"once","twice","exhausted","guild-exhausted","blue-exhausted","FullHivePending","AutoHivePendingRequest","FullHiveUncertain",
         "FullHiveStarRunning","AutoGiftedStarRunning","stop","release-failure"}) do
         local lease={x=4,y=8};local batch={Recovery=true};local basic={x=1,y=1}
         local env={FullHiveAtlasOwned=true,FullHiveRollTask=lease,FullHiveJellyBatch=batch,FullHiveBasicLock=basic}
@@ -59,8 +59,8 @@ return function(runtime)
         if failure=="exhausted" then report.Movement.RoutesExhausted=true end
         local c,r=character(100,true)
         r.Position=Vector3.zero
-        if failure=="guild-exhausted" then
-            report.Movement.Destination="Workspace.Badge Guild.Walls.Floor"
+        if failure=="guild-exhausted" or failure=="blue-exhausted" then
+            report.Movement.Destination=failure=="blue-exhausted" and "Workspace.Map.Ground.BlueHQShopFloor" or "Workspace.Badge Guild.Walls.Floor"
             report.Movement.RoutesExhausted=true
         end
         local runs,releases,waits=0,0,0;local token
@@ -73,7 +73,7 @@ return function(runtime)
         {wait=function()
             waits+=1
             check(releases==runs and not env.FullHiveAtlasOwned,"Atlas is resumed before each movement recovery wait")
-            if failure=="guild-exhausted" then r.Position=Vector3.new(waits*10,0,0) end
+            if failure=="guild-exhausted" or failure=="blue-exhausted" then r.Position=Vector3.new(waits*10,0,0) end
         end})
         token=sentinel;local ok,err=pcall(loop)
         if failure=="once"then
@@ -83,11 +83,11 @@ return function(runtime)
             check(ok and runs==3 and releases==2 and waits==12,"Repeated travel failures recover with increasing delays")
             check(report.MovementRecoveries==2,"Both movement failures are recorded")
         elseif failure=="exhausted" then
-            check(not ok and runs==1 and releases==1 and waits==0 and err:find("no purchase sent",1,true),
-                "Exhausted shop approaches resume Atlas and stop without replaying")
-        elseif failure=="guild-exhausted" then
+            check(ok and runs==2 and releases==1 and waits==2,
+                "Exhausted approaches resume Atlas and replan without replaying")
+        elseif failure=="guild-exhausted" or failure=="blue-exhausted" then
             check(ok and runs==2 and releases==1 and waits==4,
-                "An exhausted Guild route waits for Atlas to move before trying from a new origin")
+                "Exhausted Guild and Blue HQ routes wait for Atlas to move before trying from a new origin")
         elseif failure=="stop"or failure=="release-failure"then
             check(not ok and runs==1 and releases==1 and waits==0,"Stop or failed Atlas release blocks recovery")
         else
@@ -206,9 +206,9 @@ return function(runtime)
     local movementFactory=assert(loadstring("return function(player,game,workspace,Instance,descendants,Report,clock)\n"..
         "local os={clock=clock or os.clock,time=os.time}\n"..
         "local Config={Speed=65,NearDistance=16}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
-        helpers.."\nlocal function distance(part) return (player.Character:FindFirstChild().Position-part.Position).Magnitude end; local function near() end\n"..movement..
+        helpers.."\nlocal function distance(part) local d=part.CFrame:PointToObjectSpace(player.Character:FindFirstChild().Position); local h=part.Size*0.5; return (d-Vector3.new(math.clamp(d.X,-h.X,h.X),math.clamp(d.Y,-h.Y,h.Y),math.clamp(d.Z,-h.Z,h.Z))).Magnitude end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","no-route","shop-path","shop-alternate","shop-floor-arrival","guild-floor-arrival","ticket-floor-arrival","dapper-entrance","star-hall-entrance","mountaintop-floor-arrival","blender-approach"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","blocked-direct","no-route","shop-path","shop-alternate","shop-floor-arrival","shop-no-floor","guild-floor-arrival","ticket-floor-arrival","dapper-entrance","star-hall-entrance","mountaintop-floor-arrival","blender-approach"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -225,25 +225,14 @@ return function(runtime)
         local blender=failure=="blender-approach"
         local dapper=failure=="dapper-entrance"
         local bronze=failure=="star-hall-entrance"
-        local shopFloor=failure=="shop-floor-arrival" or guild or ticketShop or mountaintop
-        local walking=failure=="shop-path" or alternate or shopFloor or blender
-        local walked,walkStopped,paths=0,false,0
-        if walking then
-            local humanoid={Health=100,Parent=c}
-            function humanoid:MoveTo(point)
-                check(obstacle.CanCollide,"Shop path walks with collisions restored")
-                walked+=1
-                if shopFloor then
-                    r.Position=Vector3.new(19,2,3)
-                elseif alternate and walked==2 then
-                    r.Position=point+Vector3.new(3.5,6,0)
-                elseif not alternate or walked>1 then
-                    r.Position=point
-                end
-            end
-            function humanoid:Move() walkStopped=true end
-            c.FindFirstChildOfClass=function() return humanoid end
-        end
+        local noFloor=failure=="shop-no-floor"
+        local shopFloor=failure=="shop-floor-arrival" or noFloor or guild or ticketShop or mountaintop
+        local grounded=failure=="shop-path" or alternate or shopFloor or blender
+        local humanoid={Health=100,Parent=c}
+        function humanoid:MoveTo() error("Movement must never walk") end
+        function humanoid:Move(direction) assert(direction==Vector3.zero,"Movement must never walk") end
+        if grounded then c.FindFirstChildOfClass=function() return humanoid end end
+        local floorProbes=0
         local callbacks={}
         local function signal(name)
             return {Connect=function(_,callback)
@@ -254,16 +243,6 @@ return function(runtime)
         c.DescendantAdded=signal("characterAdded")
         local fences={DescendantAdded=signal("fenceAdded")}
         local services={
-            PathfindingService={CreatePath=function()
-                paths+=1
-                local first=alternate and paths>2 and Vector3.new(10,0,8) or Vector3.new(10,0,0)
-                return {Status=(not guild or paths>1) and Enum.PathStatus.Success or nil,ComputeAsync=function(_,_,goal)
-                    check(goal.Y==2.5,"Walk target uses the physical floor")
-                    if guild and paths==2 then check(goal.X==8,"Badge Guild tries the verified west approach") end
-                end,GetWaypoints=function()
-                    return {{Position=first},{Position=Vector3.new(20,0,0),Action=Enum.PathWaypointAction.Jump}}
-                end,Destroy=function()end}
-            end},
             RunService={Stepped=signal("stepped")},
             TweenService={Create=function(_,_,_,goal)
                 goals[#goals+1]=goal.Position
@@ -286,7 +265,8 @@ return function(runtime)
                     elseif failure=="detached" then r.Parent=nil
                     elseif failure=="play-error" then error("Fake tween play failed",0)
                     elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" or dapper or bronze then r.Position=goal.Position
-                    elseif failure=="timeout"then return
+                    elseif failure=="timeout" or failure=="no-route" or (alternate and #goals==1) then return
+                    elseif grounded or failure=="blocked-direct" then r.Position=goal.Position
                     else c.FindFirstChildOfClass=function() return {Health=0} end end
                 end}
             end},
@@ -309,8 +289,19 @@ return function(runtime)
             end
         end,
             Raycast=function(_,origin,direction)
-                if walking then return {Position=Vector3.new(guild and origin.X or 20,0,0)} end
-                if failure=="no-route" then return {} end
+                if grounded then
+                    if direction.Y<-10 and direction.X==0 and direction.Z==0 then
+                        floorProbes+=1
+                        if noFloor or (guild and floorProbes==1) then return nil end
+                        return {Position=Vector3.new(origin.X,0,origin.Z)}
+                    end
+                    if direction.Y==-5 and direction.X==0 and direction.Z==0 then
+                        if origin.Y==3 then return {} end
+                        return nil
+                    end
+                    return {} -- Force the grounded noclip approach through the blocked line.
+                end
+                if failure=="no-route" or failure=="blocked-direct" then return {} end
                 if failure=="lateral" and origin.Y==0 and (direction.Y<10 or direction.X==0) then return {} end
                 if failure=="obstructed" and origin.Y==0 and direction.X~=0 then return {} end
             end}
@@ -318,10 +309,10 @@ return function(runtime)
         local calls=0;local report={}
         local move,token,pendingCleanup,timeoutToken=movementFactory(player,fakeGame,fakeWorkspace,fakeInstance,
             function(container) return container==fences and {} or {obstacle,noncollidable} end,report,
-            (failure=="timeout" or alternate) and function()calls+=1;return calls*30 end or nil)
+            (failure=="timeout" or failure=="no-route" or alternate) and function()calls+=1;return calls*30 end or nil)
         local rotated=failure=="rotated-pad"
         local part={Name="Test",Position=Vector3.new(20,0,0),
-            Size=rotated and Vector3.new(0.32,22,22) or Vector3.new(8,1,8),
+            Size=rotated and Vector3.new(0.32,22,22) or Vector3.new(grounded and 32 or 8,1,grounded and 80 or 8),
             CFrame={RightVector=Vector3.new(0,rotated and -1 or 0,0),UpVector=Vector3.new(0,rotated and 0 or 1,0),LookVector=Vector3.new(0,0,-1),
                 PointToObjectSpace=function(_,point) return point-Vector3.new(20,0,0) end},
             GetFullName=function()
@@ -332,18 +323,19 @@ return function(runtime)
                 if dapper then return "Workspace.Shops.DapperPlanterShop.Terrain" end
                 if bronze then return "Workspace.Toys.Bronze Star Amulet Generator.Platform" end
                 if shopFloor then return "Workspace.Map.Ground.BlueHQShopFloor" end
-                return walking and "Workspace.Shops.ProShop.Terrain" or "Verified.Test.Pad"
+                return grounded and "Workspace.Shops.ProShop.Terrain" or "Verified.Test.Pad"
             end,IsA=function() return true end}
         local ok,err=pcall(move,part)
-        if walking then
-            local expectedWalks=shopFloor and 1 or alternate and 3 or 2
-            check(ok and #goals==0 and walked==expectedWalks and walkStopped,
-                "Blocked shop flight uses the route and stops walking on cleanup")
-            check(report.Movement.Arrived and report.Movement.Method=="shop-path","Shop approach records verified arrival")
-            if alternate then
-                check(paths==3 and report.Movement.Route==3,"A stalled shop path skips a repeated waypoint and takes a different path")
+        if noFloor then
+            check(not ok and err==timeoutToken and #goals==0,"Blue HQ without a verified landing sends no movement or purchase")
+            check(report.Movement.RoutesExhausted and not report.Movement.Arrived,"Missing shop floor blocks arrival")
+        elseif grounded then
+            check(ok and #goals==(alternate and 2 or 1) and goals[#goals].Y==3,
+                "Blocked shop approach uses AlignPosition to reach the physical floor on "..failure..": "..tostring(err))
+            check(report.Movement.Arrived and report.Movement.Method=="grounded-tween","Shop tween records verified arrival")
+            if alternate or guild then
+                check(report.Movement.Route==2,"A failed shop approach tries a different verified floor point")
             end
-            if guild then check(report.Movement.Route==2,"Badge Guild reaches the floor from a different approach") end
         elseif dapper then
             check(ok and report.Movement.Method=="dapper-entrance" and #goals==3
                 and goals[1].X==0 and goals[2].X==27 and goals[3].Y==4,
@@ -353,9 +345,11 @@ return function(runtime)
                 and goals[1].X==-3 and goals[2].X==33 and goals[1].Y==4,
                 "Bronze Star travel uses the clear opening through the Star Hall model")
         elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" then check(ok,"Successful movement completes")
+        elseif failure=="blocked-direct" then
+            check(ok and #goals==1 and report.Movement.Method=="direct-noclip-tween","A blocked line still uses the noclip tween")
         elseif failure=="no-route" then
-            check(not ok and err==timeoutToken and #goals==0,"No clear route stops before moving")
-            check(report.Movement.Failure=="No clear route","Blocked route is reported")
+            check(not ok and err==timeoutToken and #goals==1,"A stalled noclip tween fails before arrival")
+            check(report.Movement.Failure=="Movement timed out","Stalled noclip movement records a timeout")
         elseif failure=="timeout"then
             check(not ok and err==timeoutToken,"Movement timeout uses its private token")
             check(report.Movement.Failure=="Movement timed out"and report.Movement.Position~=nil,"Timed out movement records position and destination")
@@ -363,7 +357,7 @@ return function(runtime)
             check(not ok and err=="Fake tween "..(failure=="play-error" and "play" or "setup").." failed",
                 "Movement preserves tween failure on "..failure)
         else check(not ok and err==token,"Movement detects character "..failure..": "..tostring(err)) end
-        check((failure=="setup-error" or failure=="no-route" or walking or cancelled) and disconnected==3 and destroyed==2,
+        check((failure=="setup-error" or noFloor or cancelled) and disconnected==3 and destroyed==2,
             "Movement objects and all signals removed on "..failure)
         check(obstacle.CanCollide==true and not noncollidable.CanCollide and pendingCleanup()==nil,
             "Original true and false collisions restored on "..failure)

@@ -1129,3 +1129,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 
 - When no Star Amulet is equipped, Feather accepts the first valid Bronze Star offer with any stats. An equipped Bronze without Capacity, Blue Pollen and global Pollen remains eligible for an upgrade. Bundle validation and 4,495 offline checks passed. Bundle SHA-256 f933b027f1977f3abb6d34d433719e178a2dd6ad42c8bd2974bfa4998de89d2f.
 - Verified running on QuackAltear1 (StartedAt 1795314900), QuackAltear5 (1795314881) and QuackAltear06 (1795314884) in job b768abb7-4dd3-4deb-acce-beae1b03dbca. QuackAltear06 accepted its first Bronze Star Amulet at 1795314900. A fresh server read confirmed it equipped with Capacity, Instant Conversion and White Pollen, and Feather reported saving for another Bronze roll. No qualifying replacement was observed.
+
+## v1.8.49 — Use noclip AlignPosition tweens for shop travel
+
+- Replaced Feather's walking fallback with AlignPosition tweens to ray-verified shop landings. Blue HQ checks floor bounds and actual support before arrival. When a landing stalls, try a different verified point. Exhaustion releases Atlas and returns to movement recovery without sending the purchase. The embedded Star workflow uses the host movement hook.
+- Bundle validation and 4,525 offline checks passed, including Blue HQ arrival, blocked approaches, alternate landings, and Atlas release during recovery. Bundle SHA-256 2908f285e8d29b1c87be925172b418a44344d59550c327776ddf08d73951624e.
+- Verified running on QuackAltear1 (StartedAt 1795318653), QuackAltear5 (1795318649) and QuackAltear06 (1795318661) in job b768abb7-4dd3-4deb-acce-beae1b03dbca. All three were waiting with Atlas resumed and no uncertain request. Read-only live rays confirmed ground at the Blue HQ landing near (293.317, 4.100, 77.635). The reporting account was disconnected from MCP, and a live Blue Clay Planter purchase was not observed.
