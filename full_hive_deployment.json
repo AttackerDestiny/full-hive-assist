@@ -2972,7 +2972,17 @@
     "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
     "startedAt": {"QuackAltear1": 1795313989, "QuackAltear06": 1795314015},
     "offlineChecks": 4489,
-    "blockedByExistingSlotReceipt": ["QuackAltear5"],
-    "slotPurchaseObserved": false
+    "initiallyBlockedByExistingSlotReceipt": ["QuackAltear5"],
+    "slotPurchaseObserved": true,
+    "verifiedSlotPurchase": {
+      "account": "QuackAltear5",
+      "startedAt": 1795314238,
+      "legacyReceiptArchivedAt": 1795314231,
+      "purchasedAt": 1795314269,
+      "beforeCapacity": 31,
+      "afterCapacity": 32,
+      "beforePurchased": 6,
+      "afterPurchased": 7
+    }
   }
 }

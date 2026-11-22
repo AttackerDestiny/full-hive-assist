@@ -1119,3 +1119,8 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Bundle validation and 4,489 offline checks passed. Bundle SHA-256 e02bd16f7b7daf9710c5322c433015c16e703c5ca17bf9b7d086df96b2a0f715.
 - Verified v1.8.47 running on QuackAltear1 (StartedAt 1795313989) and QuackAltear06 (1795314015), job b768abb7-4dd3-4deb-acce-beae1b03dbca. Neither had enough honey for its next slot during the check. No new slot purchase was observed.
 - QuackAltear5 confirmed at 31 slots, with six purchased and the next quote 78,597,363 honey. Its older ItemPackageEvent receipt lacks a pre-request baseline. It still blocks rollout and was preserved without replay.
+
+### v1.8.47 — QuackAltear5 hive-slot purchase verified
+
+- The stopped v1.8.45 run (StartedAt 1795304451) recorded 31 occupied bees in 31 unlocked slots before the rejected purchase. A fresh RetrievePlayerStats read in the same job still showed 31 unlocked slots and six purchases. Archived the matching legacy receipt with that evidence at 1795314231.
+- Executed the unchanged v1.8.47 bundle once. StartedAt 1795314238. Feather reached the Mountaintop shop and recorded a successful Hive Slot purchase at 1795314269. Fresh server stats confirmed capacity 31 to 32 and purchases six to seven, with no pending slot receipt. The worker then hatched a Basic Egg and continued planning.
