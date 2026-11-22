@@ -113,6 +113,10 @@ return function(H)
         local beforePurchased=((s.Totals or {}).Purchases or {}).HiveSlots or 0
         local accepted=H.invoke(H.Events.ItemPackageEvent,"Purchase",package)
         local receipt=env.FullHiveUncertain
+        if a.kind=="buy-hive-slot" and receipt then
+            receipt.ResponseReceived=true
+            receipt.Accepted=accepted==true
+        end
         assert(accepted,"Progression purchase rejected; reconcile receipt before retry")
         local fresh=H.refresh()
         if a.kind=="buy-hive-slot" then

@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.46"
+local SCRIPT_VERSION = "1.8.47"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -183,6 +183,11 @@ local function invokeRequest(remote, receiptBefore, ...)
         elseif remote.Name=="ItemPackageEvent" and type(args[2])=="table" then
             request.Item,request.Amount=args[2].Type,args[2].Amount
             request.Category=args[2].Category
+            if request.Category=="HiveSlot" then
+                local before=Cache:Get()
+                request.HiveSlotBefore={Capacity=before.UnlockedCells,Honey=before.Honey,
+                    Purchased=((before.Totals or {}).Purchases or {}).HiveSlots or 0}
+            end
             if request.Category=="Eggs"and request.Item=="Ticket"then
                 local before=Cache:Get()
                 request.TicketBefore={Honey=before.Honey,Inventory=before.Eggs.Ticket or 0,

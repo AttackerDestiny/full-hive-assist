@@ -36,7 +36,7 @@ return function(factory,Policy)
             item("Jar","Accessories"),item("Porcelain Port-O-Hive","Accessories"),item("Basic Boots","Accessories"),
             item("Beekeeper's Boots","Accessories"),item("Blue ClayPlanter","Eggs"),item("Red ClayPlanter","Eggs"),
             item("CandyPlanter","Eggs"),item("TackyPlanter","Eggs"),item("PesticidePlanter","Eggs"),
-            node("Hive Slot","Part",{val("ItemCategory","HiveSlot")})}
+            node("Hive Slot","Part",{val("ItemCategory","HiveSlot"),val("ItemType","Hive Slot"),val("ItemAmount",1)})}
         for _,id in ipairs({"Brave Guard","Blue Guard","Elite Blue Guard","Bucko Guard","Cobalt Guard",
             "Looker Guard","Red Guard","Elite Red Guard","Riley Guard","Crimson Guard",
             "Belt Pocket","Belt Bag","Mondo Belt Bag","Honeycomb Belt","Petal Belt"}) do
@@ -90,6 +90,8 @@ return function(factory,Policy)
         check(f.codesKnown and f.redeemedCodes.Wax and f.redeemedCodes.BeesBuzz123,"Actual lowercase server code array normalizes to requested names")
         check(f.occupied==0 and f.capacity==25 and f.craft==false,"Sparse starter facts stay distinct from capacity")
         check(c.basicEgg.cost.Honey==100 and c.hiveSlot.cost.Honey==3000000,"Verified shop package costs normalize")
+        check(c.hiveSlot.package.Category=="HiveSlot" and c.hiveSlot.package.Type=="Hive Slot"
+            and c.hiveSlot.package.Amount==1,"Hive-slot package matches the game's shop item metadata")
         check(c.purchases.Diamond.cost.Ticket==400,"Diamond price comes from package metadata")
         check(#c.packs.Ticket==3 and c.ticketPurchased==0,"Only observed fixed ticket options and actual purchase counters are emitted")
         check(c.packs.Ticket[1].shop.Name=="TicketDispenser"and c.packs.Ticket[1].cost.Honey==100000,"Ticket pack binds its physical vendor and current cost")

@@ -1112,3 +1112,10 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - The Platform travel wait was the Bronze Star Amulet Generator, separate from the equipped Gold Ant Amulets. Live raycasts found a clear passage through Star Hall's entrance. Feather now routes through that opening and keeps the normal generator and purchase checks.
 - Bundle validation and 4,488 offline checks passed. Bundle SHA-256 d7f1c7af550186d5dcb7ab6d825843f073c07b1080bc99545e93faa5f4e37d8e.
 - Verified QuackAltear1 (StartedAt 1795313835) and QuackAltear06 (1795313831) in job b768abb7-4dd3-4deb-acce-beae1b03dbca. Both reached the generator and processed Bronze Star offers. Both retained their equipped Gold Ant Amulet. QuackAltear5's existing uncertain hive-slot receipt blocked rollout.
+
+## v1.8.47 — Match the Mountaintop hive-slot purchase package
+
+- Native Shop builds the hive slot request from ItemCategory, ItemType and ItemAmount. Feather now uses the same catalog package, including Type = Hive Slot. New slot receipts store the pre-request capacity, purchased counter and honey, plus the response when it returns.
+- Bundle validation and 4,489 offline checks passed. Bundle SHA-256 e02bd16f7b7daf9710c5322c433015c16e703c5ca17bf9b7d086df96b2a0f715.
+- Verified v1.8.47 running on QuackAltear1 (StartedAt 1795313989) and QuackAltear06 (1795314015), job b768abb7-4dd3-4deb-acce-beae1b03dbca. Neither had enough honey for its next slot during the check. No new slot purchase was observed.
+- QuackAltear5 confirmed at 31 slots, with six purchased and the next quote 78,597,363 honey. Its older ItemPackageEvent receipt lacks a pre-request baseline. It still blocks rollout and was preserved without replay.

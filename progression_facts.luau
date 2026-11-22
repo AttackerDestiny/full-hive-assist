@@ -275,10 +275,11 @@ return function(deps)
                 end
             end
         end
-        -- HiveSlot shop metadata may omit ItemType because Category identifies it.
+        -- Use the same Category, Type and Amount as the game's shop menu.
         for _,shop in pairs(shops) do for _,node in ipairs(children(read(shop,"Items"))) do
-            if value(node,"ItemCategory")=="HiveSlot" then
-                local entry={package={Category="HiveSlot",Amount=1},part=floor(shop) or part(node),shop=shop,shopName=shop.Name}
+            local package=packageOf(node)
+            if package and package.Category=="HiveSlot" and package.Amount==1 then
+                local entry={package=package,part=floor(shop) or part(node),shop=shop,shopName=shop.Name}
                 local d=descriptor(entry,s,facts,"HiveSlot","Honey");local cost=d and currencyCost(d)
                 if cost then catalog.hiveSlot={cost=cost,conditions=d.conditions,package=entry.package,part=entry.part,shop=shop} end
             end

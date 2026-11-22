@@ -2965,5 +2965,14 @@
     "offlineChecks": 4474,
     "liveSoftWaxWaitVerified": ["QuackAltear1", "QuackAltear5", "QuackAltear06"],
     "liveFundingRestartObserved": false
+  },
+  "quackV1847": {
+    "version": "1.8.47",
+    "sha256": "e02bd16f7b7daf9710c5322c433015c16e703c5ca17bf9b7d086df96b2a0f715",
+    "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
+    "startedAt": {"QuackAltear1": 1795313989, "QuackAltear06": 1795314015},
+    "offlineChecks": 4489,
+    "blockedByExistingSlotReceipt": ["QuackAltear5"],
+    "slotPurchaseObserved": false
   }
 }
