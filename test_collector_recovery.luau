@@ -148,7 +148,7 @@ return function(P,T,runtime)
     -- Execute the actual context()/plan() with a fake hive and server snapshot.
     local source=assert(runtime:match("(local function scan%(s%).-)\nlocal function find%(cells,cell%)"))
     local make=assert(loadstring("return function(Policy,Types,env,s)\n"..
-        'local Config={HoneyReserve=0,DryRun=false,AutoPurchase=true}; local Report={}; local lateStarted=false; local nextFlexible; local rollTask=env.FullHiveRollTask; local player={UserId=7}; local game={JobId="test"}; local function hive() return {Name="TestHive"} end; local function starEggUses(s) return s.Totals.EggUses.Star or 0 end\n'..
+        'local Config={HoneyReserve=0,DryRun=false,AutoPurchase=true}; local Report={}; local Packages={PlayerHas=function() return true end}; local lateStarted=false; local nextFlexible; local rollTask=env.FullHiveRollTask; local player={UserId=7}; local game={JobId="test"}; local function hive() return {Name="TestHive"} end; local function starEggUses(s) return s.Totals.EggUses.Star or 0 end\n'..
         source.."\nlocal p=plan(s); return p,Report,env,jellyBatchReady\nend"))()
     local function stats(cells,honey)
         local comb={}

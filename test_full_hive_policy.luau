@@ -3,7 +3,7 @@ return function(P,T)
     local function check(v,m) assert(v,m); checked=checked+1 end
     local n=0
     local function cell(t,g) n=n+1; return {x=n,y=1,bee={Type=t,Traits=g and {"Gifted"} or {}}} end
-    local function ctx(slots,used,jelly) return {slots=slots,starUsed=used or 0,jelly=jelly or 10000,lateStarted=true} end
+    local function ctx(slots,used,jelly) return {slots=slots,starUsed=used or 0,jelly=jelly or 10000,lateStarted=true,bubbleMaskOwned=slots>=40} end
     local function hive(list)
         local h={}
         for _,row in ipairs(list) do for _=1,row[2] do h[#h+1]=cell(row[1],row[3]) end end
@@ -15,6 +15,23 @@ return function(P,T)
     check(P.stage(ctx(50,1))=="late","No blue before two eggs")
     check(P.stage(ctx(49,2))=="blue","49 stays blue")
     check(P.stage(ctx(50,2))=="final","50 final")
+    do
+        local withoutMask=ctx(40)
+        withoutMask.bubbleMaskOwned=false
+        local withMask=ctx(35)
+        withMask.bubbleMaskOwned=true
+        local cells={cell("Brave",false)}
+        local before,after=P.plan(cells,T,withoutMask),P.plan(cells,T,withMask)
+        for _,name in ipairs(P.mid) do
+            local function hasGoal(plan)
+                for _,need in ipairs(plan.needs) do if need.name==name and need.gifted then return true end end
+                return false
+            end
+            check(not hasGoal(before) and hasGoal(after),"Bubble Mask, not capacity, activates the gifted goal for "..name)
+        end
+        check(P.rollItem(cells,{StarJelly=1},before)=="RoyalJelly" and P.rollItem(cells,{StarJelly=1},after)=="StarJelly",
+            "Targeted Star Jelly waits for Bubble Mask ownership")
+    end
     for _,slots in ipairs({25,35,40,42,43,44,45,46,47,48,49,50}) do
         local amount,pack=P.refill(slots)
         check(amount%pack==0,"Invalid refill increments")

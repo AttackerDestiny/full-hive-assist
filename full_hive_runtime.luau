@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.53"
+local SCRIPT_VERSION = "1.8.54"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -738,16 +738,17 @@ local function context(s,slots)
     local collectorFallback=Policy.collectorRecovery(slots,1,usable,
         bought.RoyalJelly or 0,env.FullHiveCollectorFallback==true,jelly,normalRefill)
     local batch=activeJellyBatch(s)
+    local bubbleMaskOwned=Packages and Packages.PlayerHas({Category="Accessory",Type="Bubble Mask"},s)==true
     -- Honey for the NEXT refill must not downgrade a batch already admitted.
     -- A full normal amount or affordable remaining top-up precedes recovery.
     -- Recheck the missing amount after each pack, not the cost of a new batch.
     if (batch and not batch.Recovery)
-        or ((s.Eggs.StarJelly or 0)>0 and #Policy.starJellyMissing(Policy.snapshot(s,Types))>0 and Policy.starJellyUpgradeTask(rollTask))
+        or (bubbleMaskOwned and (s.Eggs.StarJelly or 0)>0 and #Policy.starJellyMissing(Policy.snapshot(s,Types))>0 and Policy.starJellyUpgradeTask(rollTask))
         or (env.FullHiveCollectorFallback~=true and jelly>=normalRefill) then
         collectorFallback=false
     end
     return {slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,lateStarted=lateStarted,nextFlexible=nextFlexible,
-        questRetired=background and background.hiveRetirements(s)or{},
+        questRetired=background and background.hiveRetirements(s)or{},bubbleMaskOwned=bubbleMaskOwned,
         collectorFallback=collectorFallback,enforceGrowth=true,eggs=s.Eggs,
         canRefill30k=Config.AutoPurchase and usable>=Policy.jellyCost(bought.RoyalJelly or 0,30000)}
 end
@@ -838,7 +839,7 @@ local function plan(s)
     end
     Report.JellyGoal={Stage=p.stage,Reason=p.reason,Mode=p.mode,HasTarget=p.target~=nil,
         Item=p.target and Policy.rollItem(cells,s.Eggs,p,rollTask),
-        MissingFailsafes=Report.StarJellyMissing}
+        MissingFailsafes=Report.StarJellyMissing,FailsafeGoalsActive=p.failsafeGoalsActive}
     p._cells=cells
     return p,cells,slots
 end

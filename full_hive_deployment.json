@@ -3025,5 +3025,14 @@
     "startedAt": {"QuackAltear5": 1795417645, "QuackAltear06": 1795417645, "QuackAltear1": 1795417697},
     "offlineChecks": 4548,
     "hiveMetricsAndRollGoalVerified": {"account": "QuackAltear5", "slots": 35, "royalJelly": 34, "stage": "early"}
+  },
+  "quackV1854": {
+    "version": "1.8.54",
+    "sha256": "f1121168cf7682cef1d10a16f67703d8103346344b017b7bfcee361a780b26c9",
+    "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
+    "startedAt": {"QuackAltear5": 1795418112, "QuackAltear1": 1795418116, "QuackAltear06": 1795418116},
+    "offlineChecks": 4557,
+    "livePreMaskGateVerified": true,
+    "liveMaskUnlockObserved": false
   }
 }

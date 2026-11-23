@@ -129,7 +129,8 @@ function P.rollItem(cells,eggs,plan,task)
         if not (plan.keep or {})[key] and not (plan.protected or {})[key] then return "StarJelly" end
     end
     if plan and plan.starter then return "RoyalJelly" end
-    if (eggs.StarJelly or 0)>0 and #P.starJellyMissing(cells)>0 then return "StarJelly" end
+    if (eggs.StarJelly or 0)>0 and (not plan or plan.failsafeGoalsActive~=false)
+        and #P.starJellyMissing(cells)>0 then return "StarJelly" end
     return "RoyalJelly"
 end
 function P.isCollectorSection(cell)
@@ -463,7 +464,7 @@ function P.plan(cells, types, ctx)
         reserve("Ninja", 1, true); if not questRetired.Ninja then reserveNormal("Ninja", 2)end
         -- Only opportunistically keep collectors. They can be consumed for fixed targets.
         need("Baby", 4, false); need("Music", 4, false); if not questRetired.Shy then need("Shy", 3, false)end
-        if stage ~= "early" then
+        if ctx.bubbleMaskOwned then
             for _, name in ipairs(P.mid) do need(name, 1, true) end
         end
         if stage == "late" and ctx.lateStarted then
@@ -651,7 +652,7 @@ function P.plan(cells, types, ctx)
     if ctx.enforceGrowth and not growth.CanReroll then target=nil; reason="hive-growth" end
     local capacityStatus=P.capacityStatus(cells,keep,needs,ctx.slots)
     return {stage=stage, keep=keep, protected=protected, temporary=temporary, needs=needs, candidates=candidates,
-        questRetired=questRetired,basicOnly=basicOnly,starter=starter,
+        questRetired=questRetired,basicOnly=basicOnly,starter=starter,failsafeGoalsActive=ctx.bubbleMaskOwned==true,
         growth=growth,capacityStatus=capacityStatus,starPrepare=ctx.starPrepare==true and not post,
         fallbackCandidates=fallbackCandidates, collectorFallback=not basicOnly and collectorFallback and #fallbackCandidates>0,
         recoveryGifted=recoveryMode=="gifted",

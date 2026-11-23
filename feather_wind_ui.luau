@@ -55,8 +55,8 @@ function UI.describeJelly(goal)
     local objective
     if not goal.HasTarget then
         objective="No eligible roll target"
-    elseif #missing>0 and (goal.Item=="StarJelly" or goal.Reason=="fixed-targets"
-        and goal.Mode=="gifted" and goal.Stage~="early") then
+    elseif #missing>0 and goal.FailsafeGoalsActive~=false and (goal.Item=="StarJelly" or goal.Reason=="fixed-targets"
+        and goal.Mode=="gifted") then
         objective="Looking for gifted failsafe bees"
     elseif goal.Reason=="fixed-targets" then
         objective=goal.Mode=="gifted" and "Looking for required gifted bees" or "Filling required bee quotas"
@@ -65,7 +65,10 @@ function UI.describeJelly(goal)
     end
     local item=goal.Item=="StarJelly" and "Star Jelly" or goal.Item=="RoyalJelly" and "Royal Jelly"
     local text=stage.." | "..objective..(item and " ("..item..")" or "")
-    if #missing>0 then text..="\nGifted failsafes missing: "..table.concat(missing,", ") end
+    if #missing>0 then
+        text..=goal.FailsafeGoalsActive==false and "\nGifted failsafe goals unlock with Bubble Mask"
+            or "\nGifted failsafes missing: "..table.concat(missing,", ")
+    end
     return text
 end
 

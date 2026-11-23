@@ -1153,3 +1153,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - The progression wait for Bubble Mask bypassed the hive planning report assignments. Publish verified unlocked capacity and Royal Jelly from stats refresh so both stay visible. The Jelly rolling panel shows the current hive stage, planned roll objective, planned jelly type and missing Rare/Epic gifted failsafes.
 - Bundle validation and 4,548 offline checks passed. Bundle SHA-256 f5442fab7ffabde9bc874d335d23fe2ae1039708854378e92a2e1c6629602fa7.
 - Verified v1.8.53 on QuackAltear5 and QuackAltear06 (StartedAt 1795417645) and QuackAltear1 (1795417697). Live QuackAltear5 WindUI showed 35 slots, 34 jelly, refill 200 and Early | No eligible roll target while saving jelly for Bubble Mask. Missing failsafes listed Bumble, Bomber, Bubble, Commander and Bucko.
+
+## v1.8.54 — Unlock gifted Rare and Epic goals with Bubble Mask
+
+- The eight ordinary gifted Rare/Epic goals now activate on verified Bubble Mask ownership, including below 40 slots. The ordinary failsafe-targeted Star Jelly path honors the same gate. Existing gifted keeps, normal Basic cleanup and the dedicated Gifted Basic routine remain in force.
+- Bundle validation and 4,557 offline checks passed, including ownership at 35 slots and no ownership at 40. Bundle SHA-256 f1121168cf7682cef1d10a16f67703d8103346344b017b7bfcee361a780b26c9.
+- Verified v1.8.54 running on QuackAltear5 (StartedAt 1795418112), QuackAltear1 and QuackAltear06 (1795418116). All three showed FailsafeGoalsActive=false at 35 slots. QuackAltear5 was saving Royal Jelly for Bubble Mask. No live mask purchase or activation was observed.
