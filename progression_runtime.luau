@@ -224,6 +224,36 @@ return function(H)
         end
         H.checkStop()
         local part=assert(destination(action,catalog),"Verified progression destination unavailable")
+        if action.kind=="acquire-material" and action.item=="Diamond" and action.sourceKind=="claim-token" then
+            s=H.refresh()
+            local fresh,_,currentCatalog=replan(s)
+            if not same(action,fresh.action) or destination(fresh.action,currentCatalog)~=part or not part.Parent then return false end
+            assert(report.Actions<H.Config.MaxActions,"Action limit reached")
+            assert(not env.FullHivePending and not env.AutoHivePendingRequest and not env.FullHiveUncertain
+                and not env.AutoHiveUncertain,"Unresolved request before Diamond Egg pickup")
+            local before=s.Eggs.Diamond or 0
+            local known={}
+            for _,id in ipairs(s.Treasures or {}) do known[id]=true end
+            env.FullHiveDiamondTokenAttemptAt=os.time()
+            report.Activity="Collecting the Diamond Egg under Onett"
+            H.move(part,true)
+            local deadline=os.clock()+6
+            repeat
+                H.checkStop()
+                local after=H.refresh()
+                if (after.Eggs.Diamond or 0)==before+1 then
+                    for _,id in ipairs(after.Treasures or {}) do
+                        if not known[id] then
+                            report.Actions+=1
+                            report.LastProgressionAction={Kind="acquire-material",Item="Diamond",Amount=1,At=os.time()}
+                            H.release();return true
+                        end
+                    end
+                end
+                task.wait(0.25)
+            until os.clock()>=deadline
+            H.release();return true,"Diamond Egg pickup unconfirmed; waiting before checking again"
+        end
         H.move(part);H.near(part)
         s=H.refresh()
         local fresh,f,c=replan(s)

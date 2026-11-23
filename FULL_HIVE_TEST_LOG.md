@@ -1177,3 +1177,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Each eligible recipe targets its complete missing output. Once the recipe's own non-jelly inputs are ready, reserve owned jelly and save for its full shortfall. Unrelated gear material deficits no longer block this. Continue using exact fixed shop packs and one verified Blender order at a time.
 - Bundle validation and 4,568 offline checks passed, including the Diamond Mask example and skipping an unready recipe for a ready one. Bundle SHA-256 a77d5dabadc4d58e525238cdc5c8473cdccc5f62d386f7c81c4595834a1a0bda.
 - Verified running on QuackAltear1 and QuackAltear06 (StartedAt 1795436574) and QuackAltear5 (1795436577). QuackAltear1 and QuackAltear06 were saving jelly for individual Blue Extract recipes. The pictured 208-extract order was tested offline.
+
+## v1.8.58 — Prefer the Diamond Egg pickup under Onett
+
+- Gear that still needs a Diamond Egg can choose a single visible, sparkling Diamond token identified by the game icon and its position below Onett. It uses physical movement and verifies the egg increment and treasure ledger before recording success. If the source is absent or ambiguous, the existing Ticket Tent route remains available.
+- Bundle validation and 4,571 offline checks passed. Bundle SHA-256 bb90df54bca46bb005b35180e4a366739d876e9060b0c48eb17075c44042dc99.
+- Verified v1.8.58 running on QuackAltear1 and QuackAltear06 (StartedAt 1795436999), and QuackAltear5 (1795437003). No visible Diamond Egg token was exposed on the connected accounts, so live pickup remains unverified.

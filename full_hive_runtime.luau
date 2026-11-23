@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.57"
+local SCRIPT_VERSION = "1.8.58"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -415,7 +415,7 @@ local function acquire()
         assert(safe,why)
     end
 end
-local function move(part)
+local function move(part,pickup)
     acquire(); checkStop()
     if typeof(part)=="Vector3" then error("Full Hive movement requires a verified destination part") end
     assert(part and part:IsA("BasePart"),"Invalid movement destination")
@@ -427,7 +427,7 @@ local function move(part)
     local blueHQ=destination=="Workspace.Map.Ground.BlueHQShopFloor"
     local checkFloor=guild or ticketShop or blueHQ or destination=="Workspace.Shops.Mountaintop.FloorPart"
     local grounded=checkFloor or blender or destination=="Workspace.Shops.ProShop.Terrain"
-    if not grounded and distance(part)<=5 then
+    if not pickup and not grounded and distance(part)<=5 then
         Report.LastMovementArrival=part:GetFullName()
         return
     end
@@ -436,7 +436,7 @@ local function move(part)
     local cf,size=part.CFrame,part.Size
     local height=math.abs(cf.RightVector.Y)*size.X/2+math.abs(cf.UpVector.Y)*size.Y/2
         +math.abs(cf.LookVector.Y)*size.Z/2
-    local target=part.Position+Vector3.new(0,height+3,0)
+    local target=pickup and part.Position or part.Position+Vector3.new(0,height+3,0)
     Report.Movement={Destination=part:GetFullName(),Target=tostring(target),StartedAt=os.time(),
         Distance=(target-r.Position).Magnitude,Arrived=false}
     local attachment=Instance.new("Attachment"); attachment.Name="FullHiveAttachment"; attachment.Parent=r
@@ -573,7 +573,7 @@ local function move(part)
             for i,point in ipairs(points) do
                 checkTravel()
                 local duration=math.max(0.2,(point-r.Position).Magnitude/Config.Speed)
-                local tolerance=i==#points and (grounded and 1.5 or 4) or 2
+                local tolerance=i==#points and (pickup and 0.75 or grounded and 1.5 or 4) or 2
                 tween=tweenService:Create(align,TweenInfo.new(duration,Enum.EasingStyle.Linear),{Position=point})
                 local deadline=os.clock()+duration+15
                 tween:Play()
@@ -639,10 +639,10 @@ local function move(part)
     end)
     if cleanupMove then cleanupMove(); cleanupMove=nil end
     if not ok then error(err,0) end
-    near(part)
+    if not pickup or part.Parent then near(part) end
     Report.Movement.Arrived=true
     Report.LastMovementArrival=Report.Movement.Destination
-    Report.Movement.Distance=distance(part)
+    Report.Movement.Distance=pickup and (root().Position-target).Magnitude or distance(part)
 end
 local function setSettings(desired)
     acquire(); move(hiveFloor()); near(hiveFloor())
@@ -938,6 +938,34 @@ local function initializeProgression()
             end
             catalog.sources[item]={kind="nectar-vial",id=nectar,nectar=nectar,
                 readyCondition=key,part=progressionToyPart("Nectar Condenser")}
+        end
+        if (facts.occupied or 0)>=30 and type(s.Treasures)=="table"
+            and os.time()-(env.FullHiveDiamondTokenAttemptAt or 0)>=120 then
+            local npcs=workspace:FindFirstChild("NPCs")
+            local onett=npcs and npcs:FindFirstChild("Onett")
+            local icon=EggTypes.Get("Diamond").Icon
+            local token
+            if onett and onett:IsA("Model") and type(icon)=="string" then
+                local origin=onett:GetPivot().Position
+                for _,folderName in ipairs({"Collectibles","TreasureCollectibles"}) do
+                    local folder=workspace:FindFirstChild(folderName)
+                    for _,part in ipairs(folder and folder:GetChildren() or {}) do
+                        local front=part:FindFirstChild("FrontDecal")
+                        if part:IsA("BasePart") and not part.CanCollide and front and front:IsA("Decal")
+                            and front.Texture==icon and front.Transparency<0.5 and part:FindFirstChildOfClass("Sparkles") then
+                            local delta=part.Position-origin
+                            if delta.Y< -4 and delta.Y> -85 and delta.X^2+delta.Z^2<80^2 then
+                                if token then return facts,catalog end -- Ambiguous token identity.
+                                token=part
+                            end
+                        end
+                    end
+                end
+            end
+            if token then
+                facts.conditions["onett-diamond-token"]=true
+                catalog.sources.Diamond={kind="claim-token",id="onett-diamond-token",readyCondition="onett-diamond-token",part=token}
+            end
         end
         return facts,catalog
     end

@@ -301,6 +301,13 @@ return function(P)
         local c=catalog("Clippers",0,{Diamond=1});c.purchases={Diamond={amount=1,cost={Ticket=400}}}
         c.sources={Diamond={id="observed-token",kind="claim-token",readyCondition="diamond-token"}}
         check(P.plan(f,c).action.kind=="acquire-material","A verified available Diamond token precedes buying the same missing egg")
+        c.gear.Clippers.items.BlueExtract=250
+        check(P.plan(f,c).action.kind=="acquire-material","Other missing ingredients do not block the verified Diamond token")
+        c.gear.Clippers.items.BlueExtract=nil
+        f.conditions["diamond-token"]=false
+        check(P.plan(f,c).action.kind=="purchase-material","An unavailable token leaves the verified purchase route eligible")
+        f.conditions["diamond-token"]=true;f.inventory.Diamond=1
+        check(P.plan(f,c).action.kind=="buy-gear","No extra token trip after the gear's egg requirement is met")
     end
     do
         local f=facts();f.inventory.Glitter=1;f.inventory.MoonCharm=25

@@ -3059,5 +3059,13 @@
     "startedAt": {"QuackAltear5": 1795436577, "QuackAltear1": 1795436574, "QuackAltear06": 1795436574},
     "offlineChecks": 4568,
     "liveCraftingJellySaving": {"QuackAltear1": 364, "QuackAltear06": 396}
+  },
+  "quackV1858": {
+    "version": "1.8.58",
+    "sha256": "bb90df54bca46bb005b35180e4a366739d876e9060b0c48eb17075c44042dc99",
+    "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
+    "startedAt": {"QuackAltear5": 1795437003, "QuackAltear1": 1795436999, "QuackAltear06": 1795436999},
+    "offlineChecks": 4571,
+    "liveDiamondTokenPickupObserved": false
   }
 }

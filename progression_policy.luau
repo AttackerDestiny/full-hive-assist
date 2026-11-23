@@ -486,6 +486,13 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
             break
         end
     end
+    local diamond=(catalog.sources or {}).Diamond
+    if (materials.missingItems.Diamond or 0)>0 and diamond and diamond.kind=="claim-token"
+        and type(diamond.id)=="string" and type(diamond.readyCondition)=="string"
+        and flag(facts.conditions,diamond.readyCondition,false) then
+        base.action={kind="acquire-material",item="Diamond",sourceId=diamond.id,sourceKind=diamond.kind,amount=1}
+        return base
+    end
     -- A complete recipe can be prepared independently of other gear inputs.
     local fundingRecipeJelly=jellyCraft~=nil and facts.craft==false
     if fundingRecipeJelly then base.nextCraft=jellyCraft end

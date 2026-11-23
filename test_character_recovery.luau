@@ -202,7 +202,7 @@ return function(runtime)
     end
     -- Run the actual movement function against fake Instances/services. Killing
     -- the fake character during Tween:Play must restore collisions/constraints.
-    local movement=assert(runtime:match("(local function move%(part%).-)\nlocal function setSettings"))
+    local movement=assert(runtime:match("(local function move%(part,pickup%).-)\nlocal function setSettings"))
     local movementFactory=assert(loadstring("return function(player,game,workspace,Instance,descendants,Report,clock)\n"..
         "local os={clock=clock or os.clock,time=os.time}\n"..
         "local Config={Speed=65,NearDistance=16}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
