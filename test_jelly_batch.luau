@@ -125,9 +125,9 @@ return function(runtime,Policy,Types)
     check(report.RefillAmount==4000 and not ready(s),'After entry exhaustion, base 4k is required')
     s.Eggs.RoyalJelly=4000; plan(s); check(ready(s),'Exact base refill starts next batch')
     local spending=assert(runtime:match('(local function spend%(cell,item,validate,expectedTask,eventBee%).-)\nshopFloor=function'))
-    local makeSpend=assert(loadstring('return function(s,ready,low)\nlocal env={} -- Fixture state must never resolve an executor global.\n'..
-        'local Report={Actions=0,RoyalJellyUsed=0,RollMode="off"}; local Config={MaxActions=100,MaxRoyalJellies=1000,RollDelay=0}; local Events={ConstructHiveCellFromEgg={}}; local target={x=1,y=1,bee={Type="Bubble",Traits={}}}; local calls=0; local function checkStop() end; local function acquire() end; local function move() end; local function near() end; local function hiveFloor() end; local function refresh() return s end; local function plan() return {protected={},temporary={}}, {target} end; local function find() return target end; local jellyBatchReady=ready; local function jellyBatchSpent() end; local function invoke() calls+=1; return s.Eggs.RoyalJelly-1,true,{x1={y1=target.bee}} end; local Cache={Set=function() end}; local function mode(name) s.Settings={}; Report.RollMode=name end; local Policy={key=function() return "1,1" end,singleJelly=function()return low==true end}; local task={wait=function() end}\n'..
-        spending..'\nreturn function() return spend(target,"RoyalJelly",function() return true end) end,function() return calls end\nend'))()
+    local makeSpend=assert(loadstring('return function(s,ready,low,eventBee,background,progression)\nlocal env={} -- Fixture state must never resolve an executor global.\n'..
+        'local Report={Actions=0,RoyalJellyUsed=0,RollMode="off"}; local Config={MaxActions=100,MaxRoyalJellies=1000,RollDelay=0}; local Events={ConstructHiveCellFromEgg={}}; local target={x=1,y=1,bee={Type="Bubble",Traits={}}}; local calls=0; local function checkStop() end; local function acquire() end; local function move() end; local function near() end; local function release() end; local function hiveFloor() end; local function refresh() return s end; local function plan() return {protected={},temporary={}}, {target} end; local function find() return target end; local jellyBatchReady=ready; local function jellyBatchSpent() end; local function invoke(_,_,_,item) calls+=1; return s.Eggs[item]-1,true,{x1={y1=eventBee and {Type=eventBee,Traits={}} or target.bee}} end; local Cache={Set=function() end}; local function mode(name) s.Settings={}; Report.RollMode=name end; local Policy={key=function() return "1,1" end,singleJelly=function()return low==true end}; local task={wait=function() end}\n'..
+        spending..'\nreturn function() return spend(target,eventBee and eventBee.."Bee" or "RoyalJelly",function() return true end,nil,eventBee) end,function() return calls end\nend'))()
     do
         local _,_,snapshot,batchReady,spent=fixture(600,1)
         local spend,calls=makeSpend(snapshot,batchReady)
@@ -148,6 +148,18 @@ return function(runtime,Policy,Types)
         check(lowReport.RefillAmount==1 and q.mode=="off" and lowReady(lowStats),"Actual 32-bee planner permits one normal jelly")
         lowStats.Honeycomb.x33={y1={Type="Brave",Traits={}}}
         check(not lowReady(lowStats) and lowReport.RefillAmount==10000,"Fresh 33-bee boundary rechecks its mature entry threshold before admission")
+    end
+    do
+        local snapshot={Eggs={PuppyBee=1,RoyalJelly=1}}
+        local reserve={allowsHive=function()return false end}
+        local hatch,count=makeSpend(snapshot,function()return true end,false,"Puppy",reserve,
+            {eventCurrency=function()return 0 end})
+        check(hatch()~=false and count()==1,"Owned Puppy egg may hatch during Star Amulet honey priority")
+        local blocked,blockedCount=makeSpend(snapshot,function()return true end,false,"Puppy",reserve,
+            {eventCurrency=function()return nil end})
+        check(blocked()==false and blockedCount()==0,"Event placement still honors fresh progression priority")
+        local roll,rollCount=makeSpend(snapshot,function()return true end,false,nil,reserve)
+        check(roll()==false and rollCount()==0,"Normal rolls still honor Star Amulet priority")
     end
     for _,flag in ipairs({"RollToGifted","RollToLegendary","RollToMythic","RollToMutation"})do
         local snapshot={Eggs={RoyalJelly=1},Settings={[flag]=true}}

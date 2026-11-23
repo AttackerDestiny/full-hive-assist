@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.55"
+local SCRIPT_VERSION = "1.8.56"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -987,7 +987,7 @@ local function spend(cell,item,validate,expectedTask,eventBee)
     local s=refresh()
     if progression and not (eventBee and progression.eventCurrency(s,"Ticket")~=nil
         or not eventBee and progression.allowsHive(s,item)) then release();return false end
-    if background and not background.allowsHive(s) then release();return false end
+    if not eventBee and background and not background.allowsHive(s) then release();return false end
     local p,cells=plan(s)
     local current=find(cells,cell)
     if not current or not validate(current,cells,p,s) then
@@ -1191,7 +1191,7 @@ local function eventAction(s,cells,p)
                 local hatched,_,empty
                 if progression then hatched,_,empty=progression.hatchEvent(s,egg,name) end
                 if hatched then return true end
-                if target and not empty then
+                if target and not empty and (not progression or progression.eventCurrency(s,"Ticket")~=nil) then
                     mode("off")
                     if spend(target,egg,function(c,freshCells,fresh,freshStats)
                         return (freshStats.Eggs[egg] or 0)>0 and Policy.count(freshCells,name)==0 and safe(c,fresh)

@@ -1165,3 +1165,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Validated event purchases retain their ticket, ownership and gear checks after travel. The honey-only Star Amulet priority no longer repeatedly cancels the ticket purchase. Gifted Basic moves a resolved protected or kept target to another safe cell, preserving the bee and Basic Egg purchase count. It waits if no safe cell exists and stops on unresolved requests.
 - Bundle validation and 4,562 offline checks passed. Bundle SHA-256 c4ac6093930bf757d21eb4dcfd865722f033e599fdc6f6e7006d2a1560dbacbd.
 - Verified running on QuackAltear06 and QuackAltear5 (StartedAt 1795435802) and QuackAltear1 (1795435805). QuackAltear1 bought one Puppy Bee egg, tickets fell from 503 to 3, and Atlas was released. The 42-slot Gifted Basic case was not reproduced on the connected accounts.
+
+## v1.8.56 — Finish owned Event Bee placement
+
+- QuackAltear1 repeatedly traveled to its hive with an owned Puppy Bee egg. The ordinary Star Amulet priority canceled placement after arrival. Owned Event egg placement now bypasses that honey priority and checks gear availability both before travel and before spending.
+- Bundle validation and 4,565 offline checks passed. Bundle SHA-256 890309def9a912b392bd9e0a611328a46ba10cd7bb4aeb84fa4d8246c1396b3f.
+- Verified QuackAltear1 and QuackAltear06 on v1.8.56 (StartedAt 1795435933) and QuackAltear5 (1795435940). QuackAltear1 used one Puppy Bee egg at (4,5), confirmed Puppy in the hive, released Atlas, and returned to saving Royal Jelly for Bubble Mask. No unresolved request remained.
