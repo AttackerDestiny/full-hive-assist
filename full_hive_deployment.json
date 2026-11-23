@@ -3051,5 +3051,13 @@
     "startedAt": {"QuackAltear5": 1795435940, "QuackAltear1": 1795435933, "QuackAltear06": 1795435933},
     "offlineChecks": 4565,
     "puppyHatchVerified": {"account": "QuackAltear1", "x": 4, "y": 5, "consumed": 1}
+  },
+  "quackV1857": {
+    "version": "1.8.57",
+    "sha256": "a77d5dabadc4d58e525238cdc5c8473cdccc5f62d386f7c81c4595834a1a0bda",
+    "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
+    "startedAt": {"QuackAltear5": 1795436577, "QuackAltear1": 1795436574, "QuackAltear06": 1795436574},
+    "offlineChecks": 4568,
+    "liveCraftingJellySaving": {"QuackAltear1": 364, "QuackAltear06": 396}
   }
 }

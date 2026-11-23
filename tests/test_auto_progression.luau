@@ -371,28 +371,44 @@ return function(P)
             "Once the current recipe is queued its timed wait releases auto-hive")
         f.craft=false;f.inventory.Blueberry=0
         r=P.plan(f,c)
-        check(not r.optionalHiveAllowed and r.action.reason=="saving-crafting-jelly","An attempted recipe-jelly purchase still requires full funding with other ingredients missing")
+        check(not r.saveCraftingJelly and r.action.reason=="waiting-material:Blueberry","A recipe cannot reserve or buy jelly before its own non-jelly inputs are ready")
     end
     do
         local f=facts();ownedThrough(f,"Red Clay Planter")
         f.inventory={Strawberry=750,MagicBean=5,SoftWax=19,RoyalJelly=20}
         local c=catalog("Red Clay Planter",10000000,{RedExtract=15,SoftWax=20,MagicBean=5})
         c.packs={RoyalJelly={{amount=1,cost={Honey=10}},{amount=10,cost={Honey=100}},{amount=100,cost={Honey=1000}}}}
-        for _,honey in ipairs({0,10000000}) do
-            f.honey=honey
-            local r=P.plan(f,c)
-            check(r.action.reason=="waiting-material:SoftWax" and not r.saveCraftingJelly
-                and r.fundsRequired==nil and r.optionalHiveAllowed,
-                "Missing Soft Wax blocks both saving and buying crafting jelly")
-        end
-        f.inventory.SoftWax=20;f.honey=0
+        f.honey=0
         local r=P.plan(f,c)
         check(r.action.reason=="saving-crafting-jelly" and r.saveCraftingJelly and r.missingRJ==130,
-            "The exact jelly deficit becomes actionable once Soft Wax is owned")
+            "An unrelated Soft Wax deficit does not block a ready Red Extract recipe")
         f.honey=1300
         r=P.plan(f,c)
         check(r.action.kind=="purchase-pack" and r.action.item=="RoyalJelly" and r.action.amount==100,
-            "After the inventory gate, buy only a supported pack toward the shortfall")
+            "Buy only a supported pack toward the ready recipe shortfall")
+    end
+    do
+        local f=facts();f.honey=0
+        f.inventory={BlueExtract=42,Oil=21,Glitter=26,ComfortingVial=3,Diamond=1,Blueberry=10639,SunflowerSeed=4179}
+        local c=catalog("Clippers",5000000000,{BlueExtract=250,Oil=150,Glitter=100,ComfortingVial=1,Diamond=5})
+        c.packs={RoyalJelly={{amount=1,cost={Honey=1000000}},{amount=1000,cost={Honey=1000000000}}}}
+        local r=P.plan(f,c)
+        check(r.action.reason=="saving-crafting-jelly" and r.nextCraft.item=="BlueExtract" and r.nextCraft.amount==208
+            and r.missingRJ==2080 and r.fundsRequired==2080000000,
+            "Fund exactly the 208 missing Blue Extract despite unrelated Diamond Mask inputs")
+        f.inventory.RoyalJelly=2080
+        r=P.plan(f,c)
+        check(r.action.kind=="craft" and r.action.item=="BlueExtract" and r.action.amount==208,"Queue the complete extract deficit")
+        f.inventory.BlueExtract=250;f.inventory.RoyalJelly=0
+        r=P.plan(f,c)
+        check(not r.saveCraftingJelly,"Partial sunflower supply cannot start an Oil order")
+        f.inventory.SunflowerSeed=6450
+        r=P.plan(f,c)
+        check(r.action.reason=="saving-crafting-jelly" and r.nextCraft.item=="Oil" and r.nextCraft.amount==129
+            and r.missingRJ==1290,"Fund the full Oil deficit once its sunflower seeds are ready")
+        f.inventory.BlueExtract=42;f.inventory.Blueberry=0
+        r=P.plan(f,c)
+        check(r.nextCraft.item=="Oil" and r.missingRJ==1290,"An unready earlier recipe does not block the ready Oil recipe")
     end
     do
         local f=facts();f.inventory.Blueberry=12500;f.honey=2499999999
@@ -514,13 +530,13 @@ return function(P)
         local r=P.plan(f,c)
         check(r.gear==mask and r.deferredGear=="Candy Planter" and r.action.kind=="purchase-pack",
             "Ready non-jelly recipe ingredients advance the Mask while Candy Planter waits")
-        check(r.missingRJ==80 and r.action.amount==10 and r.reserveHoney==20000000,
-            "Funds the exact 80-jelly deficit through fixed packs while reserving the Mask price")
+        check(r.missingRJ==50 and r.action.amount==10 and r.reserveHoney==20000000,
+            "Funds Enzymes first through fixed packs while reserving the Mask price")
         f.inventory.RoyalJelly=20
         r=P.plan(f,c)
-        check(r.missingRJ==60 and r.action.amount==10 and r.fundsRequired==20000600,
+        check(r.missingRJ==30 and r.action.amount==10 and r.fundsRequired==20000300,
             "Existing jelly offsets the full recipe bill")
-        f.honey=20000599
+        f.honey=20000299
         r=P.plan(f,c)
         check(r.gear==mask and r.action.reason=="saving-crafting-jelly" and not r.optionalHiveAllowed
             and r.saveCraftingJelly and r.reservedItems.RoyalJelly==20,

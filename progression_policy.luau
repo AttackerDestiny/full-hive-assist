@@ -473,17 +473,22 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
         base.optionalHiveAllowed=false
         return wait("saving-gear-honey",base)
     end
-    local fundingLaterGear=selectedGear and jellyDeficit>0
-    if not fundingLaterGear then
-        for _,craft in ipairs(materials.crafts) do
-            if craft.ready then
-                if facts.craft~=false then return wait("need-verified-idle-blender",base) end
-                base.action=parallelAction(copy(craft)); base.action.gear=nextGear.id; return base
-            end
+    local jellyCraft
+    for _,craft in ipairs(materials.crafts) do
+        if craft.ready then
+            if facts.craft~=false then return wait("need-verified-idle-blender",base) end
+            base.nextCraft=craft
+            base.action=parallelAction(copy(craft)); base.action.gear=nextGear.id; return base
+        end
+        if (craft.missingInputs.RoyalJelly or 0)>0
+            and next(craft.missingInputs)=="RoyalJelly" and next(craft.missingInputs,"RoyalJelly")==nil then
+            jellyCraft=craft
+            break
         end
     end
-    -- Do not fund crafting jelly while an inventory-only prerequisite still
-    -- blocks the gear. Other useful work and already-funded crafts can proceed.
+    -- A complete recipe can be prepared independently of other gear inputs.
+    local fundingRecipeJelly=jellyCraft~=nil and facts.craft==false
+    if fundingRecipeJelly then base.nextCraft=jellyCraft end
     local inventoryRequired
     for _,item in ipairs(orderedKeys(materials.missingItems,catalog.materialOrder)) do
         if P.waitOnly[item] or (gear.items[item] and item~="RoyalJelly" and item~="Gumdrops"
@@ -493,25 +498,17 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
         end
     end
     local firstMissing=inventoryRequired
-    local actionableMissing=fundingLaterGear and {RoyalJelly=jellyDeficit}
+    local actionableMissing=fundingRecipeJelly and jellyCraft.missingInputs
         or materials.nextCraft and materials.nextCraft.missingInputs or materials.missingItems
-    local fundingRecipeJelly=not inventoryRequired and materials.nextCraft~=nil and facts.craft==false
-        and (actionableMissing.RoyalJelly or 0)>0
-    if fundingRecipeJelly then
-        for ingredient,amount in pairs(actionableMissing) do
-            if ingredient~="RoyalJelly" and amount>0 then fundingRecipeJelly=false;break end
-        end
-    end
     if fundingRecipeJelly then
         -- The next recipe has every non-jelly input. Protect its accumulated
         -- jelly while funding the remaining deficit, until that craft queues.
         base.optionalHiveAllowed=false
-        base.craftingJellyRequired=fundingLaterGear and materials.materialDemand.RoyalJelly
-            or materials.nextCraft.ingredients.RoyalJelly
+        base.craftingJellyRequired=jellyCraft.ingredients.RoyalJelly
         base.craftingJellyDeficit=actionableMissing.RoyalJelly
     end
     for _,item in ipairs(orderedKeys(actionableMissing,catalog.materialOrder)) do
-        if item=="RoyalJelly" and inventoryRequired then continue end
+        if item=="RoyalJelly" and not fundingRecipeJelly then continue end
         firstMissing=firstMissing or item
         local deficit=actionableMissing[item]
         if P.waitOnly[item] then continue end
@@ -522,8 +519,7 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
                 -- this gate and the deficit is repriced after every purchase.
                 base.optionalHiveAllowed=false
                 base.saveCraftingJelly=true
-                base.requiredRJ=fundingLaterGear and materials.materialDemand.RoyalJelly
-                    or materials.nextCraft and materials.nextCraft.ingredients.RoyalJelly or deficit
+                base.requiredRJ=jellyCraft.ingredients.RoyalJelly
                 base.missingRJ=deficit
                 local fullCost,pricingError=P.craftingJellyCost(deficit,catalog)
                 if fullCost==nil then return wait(pricingError,base) end
@@ -734,7 +730,7 @@ end
 
 function P.plan(facts,catalog)
     local result=plan(facts,catalog)
-    if result.gear and result.action.kind=="wait" and result.materialDemand
+    if result.gear and result.action.kind=="wait" and not result.craftingJellyDeficit and result.materialDemand
         and next(result.materialDemand) and (next(result.missingItems) or next(result.queuedItems or {})) then
         result=laterGear(facts,catalog,result) or result
     end

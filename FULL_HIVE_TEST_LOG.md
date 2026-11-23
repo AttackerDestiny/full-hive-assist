@@ -1171,3 +1171,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - QuackAltear1 repeatedly traveled to its hive with an owned Puppy Bee egg. The ordinary Star Amulet priority canceled placement after arrival. Owned Event egg placement now bypasses that honey priority and checks gear availability both before travel and before spending.
 - Bundle validation and 4,565 offline checks passed. Bundle SHA-256 890309def9a912b392bd9e0a611328a46ba10cd7bb4aeb84fa4d8246c1396b3f.
 - Verified QuackAltear1 and QuackAltear06 on v1.8.56 (StartedAt 1795435933) and QuackAltear5 (1795435940). QuackAltear1 used one Puppy Bee egg at (4,5), confirmed Puppy in the hive, released Atlas, and returned to saving Royal Jelly for Bubble Mask. No unresolved request remained.
+
+## v1.8.57 — Fund gear recipes one material at a time
+
+- Each eligible recipe targets its complete missing output. Once the recipe's own non-jelly inputs are ready, reserve owned jelly and save for its full shortfall. Unrelated gear material deficits no longer block this. Continue using exact fixed shop packs and one verified Blender order at a time.
+- Bundle validation and 4,568 offline checks passed, including the Diamond Mask example and skipping an unready recipe for a ready one. Bundle SHA-256 a77d5dabadc4d58e525238cdc5c8473cdccc5f62d386f7c81c4595834a1a0bda.
+- Verified running on QuackAltear1 and QuackAltear06 (StartedAt 1795436574) and QuackAltear5 (1795436577). QuackAltear1 and QuackAltear06 were saving jelly for individual Blue Extract recipes. The pictured 208-extract order was tested offline.
