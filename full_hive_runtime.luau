@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.54"
+local SCRIPT_VERSION = "1.8.55"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1085,9 +1085,11 @@ local function buy(item,amount,shop,inventoryCeiling,validatePurchase)
     acquire(); move(shopFloor(shop)); near(shopFloor(shop))
     local s=refresh()
     if validatePurchase then
+        -- Event purchases revalidate their own ticket and gear priority rules.
         if not validatePurchase(s) then release();return false end
-    elseif progression and not progression.allowsHive(s) then release();return false end
-    if background and not background.allowsHive(s) then release();return false end
+    elseif (progression and not progression.allowsHive(s)) or (background and not background.allowsHive(s)) then
+        release();return false
+    end
     local before=s.Eggs[item] or 0
     if inventoryCeiling then
         if before>=inventoryCeiling then return false end
@@ -1284,8 +1286,16 @@ local function giftedBasic(s,cells,p)
     basicLock.BasicBatchTarget=basicLock.BasicBatchTarget or 10
     basicLock.BasicBatchPurchased=basicLock.BasicBatchPurchased or 0
     local current=assert(find(cells,basicLock),"Gifted Basic locked slot missing")
-    assert(Policy.basicSlotSafe(basicLock,current,p),
-        "Gifted Basic slot became a kept bee; preserve lock and purchases for review")
+    if not Policy.basicSlotSafe(basicLock,current,p) then
+        assert(not env.FullHivePending and not env.AutoHivePendingRequest and not env.FullHiveUncertain
+            and not env.AutoHiveUncertain,"Gifted Basic slot changed with an unresolved request")
+        local replacement=Policy.basicReplacement(p)
+        if not replacement then return false end
+        basicLock.x,basicLock.y=replacement.x,replacement.y
+        basicLock.NeedsJelly=false
+        env.FullHiveJellyBatch=nil; Report.JellyBatch=nil
+        current=replacement
+    end
     local rarity=Types[current.bee.Type].Rarity
     -- This permanent rule overrides the lock when a Basic Egg yields a Mythic/Event.
     if rarity=="Event" or rarity=="Mythic" then error("Gifted Basic lock now contains a protected bee; stopped") end

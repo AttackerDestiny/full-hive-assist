@@ -87,6 +87,11 @@ function P.basicSlotSafe(lock, cell, plan)
         and not (plan.keep or {})[P.key(cell)]
         and not (cell.bee.Type=="Basic" and P.gifted(cell))
 end
+function P.basicReplacement(plan)
+    for _,cell in ipairs(plan.candidates) do
+        if P.basicSlotSafe(cell,cell,plan) then return cell end
+    end
+end
 function P.capacityStatus(cells, keep, needs, capacity)
     local required={}
     for _,c in ipairs(cells) do

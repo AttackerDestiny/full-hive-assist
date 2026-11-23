@@ -16,6 +16,13 @@ return function(P,T)
     check(P.stage(ctx(49,2))=="blue","49 stays blue")
     check(P.stage(ctx(50,2))=="final","50 final")
     do
+        local kept,protected,safe=cell("Bubble",true),cell("Tabby",false),cell("Brave",false)
+        local plan={candidates={kept,protected,safe},keep={[P.key(kept)]=true},protected={[P.key(protected)]=true}}
+        check(P.basicReplacement(plan)==safe,"Gifted Basic replacement skips kept and protected cells")
+        plan.candidates={kept,protected}
+        check(P.basicReplacement(plan)==nil,"Gifted Basic waits when no safe replacement exists")
+    end
+    do
         local withoutMask=ctx(40)
         withoutMask.bubbleMaskOwned=false
         local withMask=ctx(35)

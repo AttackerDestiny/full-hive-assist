@@ -1159,3 +1159,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - The eight ordinary gifted Rare/Epic goals now activate on verified Bubble Mask ownership, including below 40 slots. The ordinary failsafe-targeted Star Jelly path honors the same gate. Existing gifted keeps, normal Basic cleanup and the dedicated Gifted Basic routine remain in force.
 - Bundle validation and 4,557 offline checks passed, including ownership at 35 slots and no ownership at 40. Bundle SHA-256 f1121168cf7682cef1d10a16f67703d8103346344b017b7bfcee361a780b26c9.
 - Verified v1.8.54 running on QuackAltear5 (StartedAt 1795418112), QuackAltear1 and QuackAltear06 (1795418116). All three showed FailsafeGoalsActive=false at 35 slots. QuackAltear5 was saving Royal Jelly for Bubble Mask. No live mask purchase or activation was observed.
+
+## v1.8.55 — Finish validated ticket purchases and preserve kept Gifted Basic results
+
+- Validated event purchases retain their ticket, ownership and gear checks after travel. The honey-only Star Amulet priority no longer repeatedly cancels the ticket purchase. Gifted Basic moves a resolved protected or kept target to another safe cell, preserving the bee and Basic Egg purchase count. It waits if no safe cell exists and stops on unresolved requests.
+- Bundle validation and 4,562 offline checks passed. Bundle SHA-256 c4ac6093930bf757d21eb4dcfd865722f033e599fdc6f6e7006d2a1560dbacbd.
+- Verified running on QuackAltear06 and QuackAltear5 (StartedAt 1795435802) and QuackAltear1 (1795435805). QuackAltear1 bought one Puppy Bee egg, tickets fell from 503 to 3, and Atlas was released. The 42-slot Gifted Basic case was not reproduced on the connected accounts.
