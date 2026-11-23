@@ -71,6 +71,8 @@ return function(adapter)
     stopRow.config.Callback(false)
     check(not tickets and stop==1,"Existing controls still dispatch their callbacks")
     local state={phase="WAITING",activity="Farming",metrics="41 slots",progress="No rolls",gear="Tacky Planter",background="Amulets"}
+    state.jellyGoal=UI.describeJelly({Stage="mid",Reason="fixed-targets",Mode="gifted",HasTarget=true,
+        Item="StarJelly",MissingFailsafes={"Cool","Frosty"}})
     state.gearTarget=UI.describeGear({Gear="Diamond Mask",Honey=3000000000,Status={
         gearHoney=5000000000,gearMaterialsKnown=true,materials={
             {item="BlueExtract",actual=19,required=250,queued=200,deficit=31},
@@ -78,6 +80,10 @@ return function(adapter)
         },
     }})
     mounted.render(state)
+    check(registered["Overview/Paragraph/Jelly rolling"].desc=="Mid | Looking for gifted failsafe bees (Star Jelly)\nGifted failsafes missing: Cool, Frosty",
+        "Shows the current roll objective and missing gifted failsafes")
+    check(UI.describeJelly({Stage="early",HasTarget=false})=="Early | No eligible roll target",
+        "Waiting does not claim that an eligible roll exists")
     local overviewGear=registered["Overview/Paragraph/Gear target"]
     check(overviewGear.desc=="Diamond Mask\nHoney  3,000,000,000 / 5,000,000,000  (2,000,000,000 needed)"
         .."\nBlue Extract  19 / 250  (+200 crafting)  (31 needed)\nDiamond Egg  5 / 5",

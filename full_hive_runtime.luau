@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.51"
+local SCRIPT_VERSION = "1.8.53"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -224,6 +224,10 @@ end
 local function refresh()
     local s=invoke(Events.RetrievePlayerStats)
     assert(type(s)=="table" and type(s.Eggs)=="table", "Stats unavailable")
+    -- Progression can yield for gear before the hive planner runs.
+    local capacityKnown,capacity=pcall(Policy.hiveCapacity,s)
+    Report.Slots=capacityKnown and capacity or nil
+    Report.RoyalJelly=s.Eggs.RoyalJelly or 0
     for _,k in ipairs({"Honey","Eggs","Totals","Honeycomb","Settings","Quests","UnlockedCells","Accessories","Collectors","Sprinklers","Codes","PlaytimeAtLoad","LoadTime","OfflineProgressTime","MiscInfo","ItemTimes","Treasures","Amulets","IncomingAmulets","DiscGiftTypes","ToyTimes","ToyPlaytimes","PlayerActiveTimes"}) do
         if s[k]~=nil then Cache:Set(k,s[k]) end
     end
@@ -832,6 +836,9 @@ local function plan(s)
         p.mode="off"
         Report.RefillAmount=1;Report.RefillMode="single-jelly"
     end
+    Report.JellyGoal={Stage=p.stage,Reason=p.reason,Mode=p.mode,HasTarget=p.target~=nil,
+        Item=p.target and Policy.rollItem(cells,s.Eggs,p,rollTask),
+        MissingFailsafes=Report.StarJellyMissing}
     p._cells=cells
     return p,cells,slots
 end
@@ -1690,6 +1697,7 @@ local function readUIStatus()
             or Report.Activity or Report.Phase),
         progress=progress,gear=table.concat(lines,"\n"),
         gearTarget=FeatherWindUI.describeGear(pg),
+        jellyGoal=FeatherWindUI.describeJelly(Report.JellyGoal),
         background="Amulets: "..tostring(bg.Amulet or "Inspecting").."\nQuest assist: "..tostring(bg.Quest or "Inspecting"),
         slots=slots,jelly=jelly,refill=refill,metrics=slots.."  |  "..jelly.."  |  "..refill,
         finished=not env.FullHiveRunning,
@@ -1722,14 +1730,14 @@ local function hiveSnapshot()
 end
 local function makeNativeUI(gui)
     local make=FeatherTheme.make
-    local frame=make("Frame","StatusPanel",gui,{Size=UDim2.fromOffset(350,418),Position=UDim2.fromOffset(18,80)})
+    local frame=make("Frame","StatusPanel",gui,{Size=UDim2.fromOffset(350,478),Position=UDim2.fromOffset(18,80)})
     FeatherTheme.panel(frame)
     local statusScale=make("UIScale","ResponsiveScale",frame,{Scale=1})
     local function fitStatus()
         local camera=workspace.CurrentCamera
         if camera then
             local size=camera.ViewportSize
-            statusScale.Scale=math.max(0.2,math.min(1,(size.X-36)/350,(size.Y-124)/418))
+            statusScale.Scale=math.max(0.2,math.min(1,(size.X-36)/350,(size.Y-124)/478))
         end
     end
     fitStatus()
@@ -1784,6 +1792,9 @@ local function makeNativeUI(gui)
         BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=10,TextColor3=Color3.fromRGB(167,195,230),
         TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top,TextWrapped=true})
     local viewButton=Instance.new("TextButton"); viewButton.Name="ViewHiveButton"
+    local jellyGoalText=make("TextLabel","JellyGoal",frame,{Position=UDim2.fromOffset(18,354),Size=UDim2.new(1,-36,0,64),
+        BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=11,TextColor3=Color3.fromRGB(167,195,230),
+        TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top,TextWrapped=true})
     viewButton.Size=UDim2.new(0.5,-23,0,32); viewButton.Position=UDim2.new(0,18,1,-48)
     viewButton.Text="View hive"; viewButton.Parent=frame; FeatherTheme.button(viewButton,true)
     local button=Instance.new("TextButton"); button.Name="StopAssistButton"; button.Size=UDim2.new(0.5,-23,0,32); button.Position=UDim2.new(0.5,5,1,-48)
@@ -1800,6 +1811,7 @@ local function makeNativeUI(gui)
         setText(progressText,state.progress)
         setText(progressionText,state.gear)
         setText(backgroundText,state.background)
+        setText(jellyGoalText,state.jellyGoal)
         setText(slotsMetric,state.slots)
         setText(jellyMetric,state.jelly)
         setText(refillMetric,state.refill)

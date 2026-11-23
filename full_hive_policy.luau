@@ -36,8 +36,7 @@ function P.keptGiftedCount(cells,plan,name)
     end
     return count
 end
-function P.snapshot(stats,types)
-    assert(type(stats.Honeycomb)=="table", "Hive snapshot unavailable")
+function P.hiveCapacity(stats)
     local purchases=stats.Totals and stats.Totals.Purchases
     assert(type(purchases)=="table", "Hive purchase counters unavailable")
     local bought=purchases.HiveSlots
@@ -50,6 +49,11 @@ function P.snapshot(stats,types)
         assert(type(capacity)=="number" and capacity%1==0 and capacity>=purchasedCapacity and capacity<=50,
             "Invalid unlocked hive capacity; refresh before spending")
     end
+    return capacity
+end
+function P.snapshot(stats,types)
+    assert(type(stats.Honeycomb)=="table", "Hive snapshot unavailable")
+    local capacity=P.hiveCapacity(stats)
     local cells,seen={},{}
     for x,col in pairs(stats.Honeycomb) do
         local nx=type(x)=="string" and tonumber(x:match("^x(%d+)$"))

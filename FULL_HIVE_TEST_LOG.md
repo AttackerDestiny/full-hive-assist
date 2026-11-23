@@ -1147,3 +1147,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Below 33 occupied bees, rolling uses owned Royal Jelly one at a time with roll-to flags off. At 33, normal batch and purchase checks apply. Crafting jelly purchases continue through their separate path.
 - Bundle validation and 4,546 offline checks passed. Bundle SHA-256 ceef876b53d46d87df27a12708672a05ae4a066fb93616b2b2e6287f289a6666.
 - Verified running on QuackAltear06 (StartedAt 1795334556), QuackAltear1 (1795334560) and QuackAltear5 (1795334560). The accounts at 30 and 31 bees waited for owned jelly. QuackAltear5 had 33 bees, the equipped Porcelain Dipper, and a normal 100-jelly refill target. Its honey was below the refill cost, and no refill purchase was observed. No pending or uncertain request remained in these snapshots.
+
+## v1.8.53 — Show current capacity and jelly rolling objective
+
+- The progression wait for Bubble Mask bypassed the hive planning report assignments. Publish verified unlocked capacity and Royal Jelly from stats refresh so both stay visible. The Jelly rolling panel shows the current hive stage, planned roll objective, planned jelly type and missing Rare/Epic gifted failsafes.
+- Bundle validation and 4,548 offline checks passed. Bundle SHA-256 f5442fab7ffabde9bc874d335d23fe2ae1039708854378e92a2e1c6629602fa7.
+- Verified v1.8.53 on QuackAltear5 and QuackAltear06 (StartedAt 1795417645) and QuackAltear1 (1795417697). Live QuackAltear5 WindUI showed 35 slots, 34 jelly, refill 200 and Early | No eligible roll target while saving jelly for Bubble Mask. Missing failsafes listed Bumble, Bomber, Bubble, Commander and Bucko.

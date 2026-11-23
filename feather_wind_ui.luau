@@ -36,6 +36,39 @@ function UI.describeGear(report)
     return table.concat(lines,"\n")
 end
 
+local jellyObjectives={
+    ["Replacing normal Basic Bee"]="Replacing normal Basic bees",
+    ["collector"]="Building the collector lineup",
+    ["gifted-collector"]="Looking for gifted collectors",
+    ["convert-flexible"]="Upgrading Bubble or Frosty to gifted",
+    ["collector-fallback"]="Repairing the collector lineup",
+    ["gifted-collector-fallback"]="Repairing the gifted collector lineup",
+    ["slot-cap"]="Replacing a surplus bee",
+    ["blue-fill"]="Building the blue hive",
+    ["final-surplus"]="Replacing a surplus bee in the final hive",
+}
+
+function UI.describeJelly(goal)
+    if not goal then return "Waiting for a hive plan" end
+    local missing=goal.MissingFailsafes or {}
+    local stage=goal.Stage and goal.Stage:gsub("^%l",string.upper) or "Hive"
+    local objective
+    if not goal.HasTarget then
+        objective="No eligible roll target"
+    elseif #missing>0 and (goal.Item=="StarJelly" or goal.Reason=="fixed-targets"
+        and goal.Mode=="gifted" and goal.Stage~="early") then
+        objective="Looking for gifted failsafe bees"
+    elseif goal.Reason=="fixed-targets" then
+        objective=goal.Mode=="gifted" and "Looking for required gifted bees" or "Filling required bee quotas"
+    else
+        objective=jellyObjectives[goal.Reason] or "Rolling an eligible bee"
+    end
+    local item=goal.Item=="StarJelly" and "Star Jelly" or goal.Item=="RoyalJelly" and "Royal Jelly"
+    local text=stage.." | "..objective..(item and " ("..item..")" or "")
+    if #missing>0 then text..="\nGifted failsafes missing: "..table.concat(missing,", ") end
+    return text
+end
+
 function UI.visibility(overlay,onVisibility,button)
     local shown=true
     local function setShown(value)
@@ -101,6 +134,7 @@ function UI.mount(parent,overlay,version,callbacks)
         local controls=window:Tab({Title="Controls",Icon="settings"})
         local status=overview:Paragraph({Title="Starting",Desc="Preparing progression..."})
         local hive=overview:Paragraph({Title="Hive",Desc="Waiting for hive data..."})
+        local jellyGoal=overview:Paragraph({Title="Jelly rolling",Desc="Waiting for a hive plan"})
         local gear=progression:Paragraph({Title="Gear and Blender",Desc="Inspecting gear..."})
         local background=progression:Paragraph({Title="Amulets and quests",Desc="Inspecting..."})
         overview:Button({Title="View hive",Icon="eye",Callback=function() callbacks.viewHive() end})
@@ -140,6 +174,7 @@ function UI.mount(parent,overlay,version,callbacks)
                 update(status,"SetTitle","phase",state.phase)
                 update(status,"SetDesc","activity",state.activity)
                 update(hive,"SetDesc","hive",state.metrics.."\n"..state.progress)
+                update(jellyGoal,"SetDesc","jellyGoal",state.jellyGoal or "Waiting for a hive plan")
                 update(gearTarget,"SetDesc","gearTarget",state.gearTarget)
                 update(gear,"SetDesc","gear",state.gear)
                 update(background,"SetDesc","background",state.background)
