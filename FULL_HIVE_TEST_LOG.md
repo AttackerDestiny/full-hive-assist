@@ -1233,3 +1233,12 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - QuackAltear5's last verified runtime was v1.8.68, stopped by the selector error. Subsequent requests scheduled updates, but a later snapshot still showed v1.8.68. Latest attempts could not discover the account. Its current deployment is unverified and requires reconciliation on reconnect. Do not describe it as updated.
 - Current bundle SHA-256 5e1cf1244f2f607962f55de6ce90cf597ddcadef35f271ef12fc8fe6244be0be.
 
+
+## v1.8.71 — Protected UI access and verified material admission
+
+- Supersedes v1.8.70's incomplete admission observations. The production worker was hitting executor capability restrictions while reading Atlas UI. Field operations now temporarily use executor identity 8 and restore the prior identity, with recoverable MaterialFarmError diagnostics instead of terminating the assist. Selecting an already-selected field succeeds without clicking it again.
+- Exact latest bundle validation passed 42 markers and tools/test_connected_client.ps1 reported allPassed=true on QuackAltear1, including 11 new material-worker checks and main/embedded compilation.
+- All three accounts were safely maintenance-stopped/reconciled and redeployed. Live reports confirm QuackAltear1 v1.8.71 StartedAt 1795526013, QuackAltear5 v1.8.71 StartedAt 1795526014, and QuackAltear06 v1.8.71 StartedAt 1795526002, Running=true with no reported Error/MaterialFarmError. Each active state now identifies Blueberry and Pine Tree Forest against real crafting shortages of 217, 379 and 104 respectively. QuackAltear1's shortage fell from 223 to 217 through natural play. QuackAltear5's older selector-error deployment is resolved by this verified deployment.
+- Natural collection through the full shortage to zero remains unobserved. Completion/disable/maintenance restoration and all four field mappings have isolated coverage. The actual Strawberry -> Pine Tree Forest selector roundtrip was verified using the exact adapter in the earlier isolated live test. WindUI remains the only status panel renderer.
+- Bundle SHA-256 14f3ea8fc2ebe03b09111d8616e52541a2c507a89efcc63e09892054fa264d6c.
+

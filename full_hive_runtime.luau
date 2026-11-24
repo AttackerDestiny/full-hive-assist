@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.70"
+local SCRIPT_VERSION = "1.8.71"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -913,6 +913,16 @@ local function initializeProgression()
     end
     env.FullHiveMaterialFarm=env.FullHiveMaterialFarm or {}
     local materialStats
+    local function fieldAccess(callback,...)
+        local getIdentity=getthreadidentity or getidentity
+        local setIdentity=setthreadidentity or setidentity
+        local previous=type(getIdentity)=="function" and getIdentity() or nil
+        if type(setIdentity)=="function" then pcall(setIdentity,8) end
+        local ok,result=pcall(callback,...)
+        if previous and type(setIdentity)=="function" then pcall(setIdentity,previous) end
+        Report.MaterialFarmError=not ok and tostring(result) or nil
+        return ok and result or nil
+    end
     local cachedFieldControl
     local function fieldControl()
         if cachedFieldControl and cachedFieldControl.Parent and cachedFieldControl.Text:match("^%s*Field:") then
@@ -957,12 +967,16 @@ local function initializeProgression()
     end
     materialFarm=MaterialFarm.new({state=env.FullHiveMaterialFarm,
         get=function()
+            return fieldAccess(function()
             local control=fieldControl()
             return control and control.Text:match("^%s*Field:%s*(.-)%s*$")
+            end)
         end,
         set=function(field)
+            return fieldAccess(function()
             local control=fieldControl()
             if not control or type(getconnections)~="function" then return false end
+            if control.Text:match("^%s*Field:%s*(.-)%s*$")==field then return true end
             local objects=control.Parent:FindFirstChild("Box")
             objects=objects and objects:FindFirstChild("Objects")
             if not objects then return false end
@@ -979,6 +993,7 @@ local function initializeProgression()
                 end
             end
             return false
+            end)
         end,
         allowed=function(route)
             if not route.gate then return true end

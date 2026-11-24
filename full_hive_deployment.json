@@ -3289,26 +3289,30 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.70",
+    "version": "1.8.71",
     "bundle": "core.luau",
-    "sha256": "5e1cf1244f2f607962f55de6ce90cf597ddcadef35f271ef12fc8fe6244be0be",
+    "sha256": "14f3ea8fc2ebe03b09111d8616e52541a2c507a89efcc63e09892054fa264d6c",
     "accounts": [
       {
         "account": "QuackAltear1",
-        "version": "1.8.70",
-        "startedAt": 1795525531
-      },
-      {
-        "account": "QuackAltear06",
-        "version": "1.8.70",
-        "startedAt": 1795525548
+        "version": "1.8.71",
+        "startedAt": 1795526013,
+        "running": true
       },
       {
         "account": "QuackAltear5",
-        "lastObservedVersion": "1.8.68",
-        "verified": false
+        "version": "1.8.71",
+        "startedAt": 1795526014,
+        "running": true
+      },
+      {
+        "account": "QuackAltear06",
+        "version": "1.8.71",
+        "startedAt": 1795526002,
+        "running": true
       }
     ],
+    "liveRealDeficitAdmissionVerified": true,
     "naturalMaterialCompletionVerified": false,
     "isolatedLiveFieldSwitchAndReturnVerified": true
   }
