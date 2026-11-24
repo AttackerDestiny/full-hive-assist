@@ -129,6 +129,7 @@ function P.starJellyUpgrade(plan,task)
     return not P.gifted(target) and (target.bee.Type=="Bubble" or target.bee.Type=="Frosty")
 end
 function P.rollItem(cells,eggs,plan,task)
+    if plan and plan.legendaryHunt then return "RoyalJelly" end
     if (eggs.StarJelly or 0)>0 and plan and normalBasic(plan.target) then
         local key=P.key(plan.target)
         if not (plan.keep or {})[key] and not (plan.protected or {})[key] then return "StarJelly" end
@@ -170,7 +171,7 @@ function P.giftedLimit(name, stage, babyGoal)
 end
 function P.startRollTask(target, cells, plan)
     local task = {Version=2,x=target.x,y=target.y,Stage=plan.stage,Reason=plan.reason,
-        Mode=plan.mode,StartedType=target.bee.Type,Rolled=false,
+        Mode=plan.mode,StartedType=target.bee.Type,Rolled=false,LegendaryHunt=plan.legendaryHunt,
         InitialTotal={},InitialGifted={},Goals={},
         InitialFingerprint=target.bee.Type..":"..tostring(P.gifted(target))}
     for _,c in ipairs(cells) do
@@ -375,6 +376,16 @@ function P.plan(cells, types, ctx)
     local collectorFallback=P.refill(ctx.slots)>100 and ctx.collectorFallback==true
     local recoveryMode,recoveryReason=P.recoveryMode(ctx.honey)
     local post = stage == "blue" or stage == "final"
+    local legendaryReady=stage=="late"
+    if legendaryReady then
+        for _,c in ipairs(cells) do
+            if c.bee and not P.gifted(c) and (c.bee.Type=="Bubble" or c.bee.Type=="Frosty") then
+                legendaryReady=false
+                break
+            end
+        end
+    end
+    local legendaryMissing=false
     local keep, needs, protected, temporary = {}, {}, {}, {}
     local function reserve(name, amount, giftedOnly)
         local kept = 0
@@ -472,8 +483,11 @@ function P.plan(cells, types, ctx)
         if ctx.bubbleMaskOwned then
             for _, name in ipairs(P.mid) do need(name, 1, true) end
         end
-        if stage == "late" and ctx.lateStarted then
-            for _, name in ipairs(P.legendary) do need(name, 1, true) end
+        if legendaryReady then
+            for _, name in ipairs(P.legendary) do
+                if P.count(cells,name,true)==0 then legendaryMissing=true end
+                need(name, 1, true)
+            end
         end
         if ctx.starPrepare then
             for name, info in pairs(types) do
@@ -598,6 +612,7 @@ function P.plan(cells, types, ctx)
         if not P.isUsableCollector(c,cells,{questRetired=questRetired}) then fallbackCandidates[#fallbackCandidates + 1] = c end
     end
     local target, mode, reason = nil, "off", nil
+    local legendaryHunt=false
     local royalNeeds = false
     for _,n in ipairs(needs) do
         if types[n.name].Rarity ~= "Event" and n.name ~= "Basic" then royalNeeds = true end
@@ -605,6 +620,17 @@ function P.plan(cells, types, ctx)
     if collectorFallback and #fallbackCandidates > 0 then
         -- Repair safe noncollectors before returning to the normal stage refill.
         target, mode, reason = fallbackCandidates[1], recoveryMode, recoveryReason
+    elseif legendaryMissing then
+        local surplus={}
+        for _,c in ipairs(candidates) do
+            local name=c.bee.Type
+            if P.gifted(c) and not protected[P.key(c)] and (name=="Bubble" or name=="Frosty")
+                and P.count(cells,name)>4 and P.count(cells,name,true)>1 then
+                surplus[#surplus+1]=c
+            end
+        end
+        target=surplus[math.floor((ctx.legendaryChoice or 0)*#surplus)+1] or candidates[1]
+        if target then mode,reason,legendaryHunt="gifted","fixed-targets",true end
     elseif #needs > 0 and royalNeeds then
         target, reason = candidates[1], "fixed-targets"
         local normalNeed = false
@@ -639,9 +665,6 @@ function P.plan(cells, types, ctx)
         end
         if #needs == 0 and cleanupTarget then target, mode, reason=cleanupTarget,"gifted","final-surplus" end
     end
-    local waitingLate = stage == "late" and not ctx.lateStarted
-    -- At 44+, the 10k entry condition gates legendary work, not early repairs.
-    if waitingLate and #needs == 0 and reason ~= "convert-flexible" and reason ~= "slot-cap" and not collectorFallback then target = nil end
     local growth=P.growth(cells,ctx.slots,ctx.eggs)
     local starter=ctx.enforceGrowth and P.singleJelly(cells)
     local basicOnly=false
@@ -661,7 +684,7 @@ function P.plan(cells, types, ctx)
         growth=growth,capacityStatus=capacityStatus,starPrepare=ctx.starPrepare==true and not post,
         fallbackCandidates=fallbackCandidates, collectorFallback=not basicOnly and collectorFallback and #fallbackCandidates>0,
         recoveryGifted=recoveryMode=="gifted",
-        target=target, mode=mode, reason=reason, babyGoal=babyGoal,
+        target=target, mode=mode, reason=reason, babyGoal=babyGoal,legendaryHunt=legendaryHunt,
         complete=stage == "final" and ctx.slots == 50 and growth.Occupied == 50
             and #needs == 0 and not cleanupTarget and not capacityStatus.Conflict}
 end

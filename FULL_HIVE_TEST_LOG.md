@@ -1183,3 +1183,8 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Gear that still needs a Diamond Egg can choose a single visible, sparkling Diamond token identified by the game icon and its position below Onett. It uses physical movement and verifies the egg increment and treasure ledger before recording success. If the source is absent or ambiguous, the existing Ticket Tent route remains available.
 - Bundle validation and 4,571 offline checks passed. Bundle SHA-256 bb90df54bca46bb005b35180e4a366739d876e9060b0c48eb17075c44042dc99.
 - Verified v1.8.58 running on QuackAltear1 and QuackAltear06 (StartedAt 1795436999), and QuackAltear5 (1795437003). No visible Diamond Egg token was exposed on the connected accounts, so live pickup remains unverified.
+
+## v1.8.59 — Start gifted Legendary goals after collector upgrades
+
+- At 44 or more slots in Late stage, pursue missing gifted Legendaries once normal Bubble and Frosty upgrades are exhausted. Choose an eligible surplus gifted collector while retaining four of its species and a gifted copy. Use the normal stage refill. Bundle SHA-256 fca6f7ad8ee02f3615a9ca6c0e5c3b7c96a066cdd9108aae0a33e66cd93b559d.
+- Validation and 4,566 offline checks passed. Verified v1.8.59 on QuackAltear5 (1795512610), QuackAltear06 (1795512614), and QuackAltear1 (1795512617). Connected hives were at 36–37 slots, so the 44-slot hunt was tested offline.

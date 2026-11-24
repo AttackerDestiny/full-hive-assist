@@ -55,6 +55,8 @@ function UI.describeJelly(goal)
     local objective
     if not goal.HasTarget then
         objective="No eligible roll target"
+    elseif goal.LegendaryHunt then
+        objective="Looking for missing gifted Legendary bees"
     elseif #missing>0 and goal.FailsafeGoalsActive~=false and (goal.Item=="StarJelly" or goal.Reason=="fixed-targets"
         and goal.Mode=="gifted") then
         objective="Looking for gifted failsafe bees"

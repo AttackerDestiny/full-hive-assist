@@ -272,7 +272,7 @@ return function(P,T,runtime)
     -- Exercise the real runtime planner after each supported pack boundary.
     for _,slotCount in ipairs({35,39,40,41,42,43,44,45,46,47,48,49,50}) do
         local base=P.refill(slotCount)
-        local target=slotCount>=44 and math.max(10000,base) or base
+        local target=base
         for _,inventory in ipairs({1,math.floor(target/2),target-1}) do
             cells=fixture()
             -- This general fixture has 36 bees; its 35-slot snapshot must

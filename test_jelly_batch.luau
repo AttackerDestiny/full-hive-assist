@@ -107,8 +107,7 @@ return function(runtime,Policy,Types)
         s.Eggs.RoyalJelly=601
         check(refill() and #purchases==0,'Excess inventory starts a batch without purchases')
     end
-    -- Verify real planner behavior for the legendary entry batch and the later
-    -- normal refill, including the 100-jelly recovery override.
+    -- Verify that 44-slot hives use their ordinary refill from the first batch.
     local planning=assert(runtime:match('(local function scan%(s%).-)\nlocal function find%(cells,cell%)'))
     local make=assert(loadstring('return function(Policy,Types,env)\n'..
         'local Config={HoneyReserve=0,DryRun=false,AutoPurchase=true}; local Report={}; local lateStarted=false; local nextFlexible; local rollTask; local player={UserId=7}; local game={JobId="test"}; local function hive() return {Name="Hive"} end; local function starEggUses(s) return 0 end\n'..
@@ -116,13 +115,13 @@ return function(runtime,Policy,Types)
     local s={Honey=1e15,Eggs={RoyalJelly=1},Honeycomb={x1={y1={Type='Bubble',Traits={}}}},Totals={Purchases={HiveSlots=19,Eggs={RoyalJelly=75}},EggUses={}}}
     for i=2,35 do s.Honeycomb["x"..i]={y1={Type="Tabby",Traits={}}}end
     local env={}; local plan,ready,spent,report=make(Policy,Types,env)
-    plan(s); check(report.RefillAmount==10000 and report.NormalRefillAmount==4000,'Legendary entry advertises 10k current refill')
-    check(not ready(s),'Legendary entry cannot start with a gift')
-    s.Eggs.RoyalJelly=10000; plan(s); check(ready(s) and env.FullHiveLateStarted,'Exact 10k admits entry batch')
-    s.Eggs.RoyalJelly=9000; spent(9000); plan(s)
-    check(report.RefillAmount==10000 and ready(s),'Entry batch continues after first roll')
+    plan(s); check(report.RefillAmount==4000 and report.NormalRefillAmount==4000,'44-slot hive advertises its ordinary 4k refill')
+    check(not ready(s),'A small gift cannot open a batch')
+    s.Eggs.RoyalJelly=4000; plan(s); check(ready(s),'Ordinary 4k admits the first batch')
+    s.Eggs.RoyalJelly=3900; spent(3900); plan(s)
+    check(report.RefillAmount==4000 and ready(s),'Admitted batch continues below threshold')
     spent(0); s.Eggs.RoyalJelly=1; plan(s)
-    check(report.RefillAmount==4000 and not ready(s),'After entry exhaustion, base 4k is required')
+    check(report.RefillAmount==4000 and not ready(s),'After exhaustion, base 4k is required')
     s.Eggs.RoyalJelly=4000; plan(s); check(ready(s),'Exact base refill starts next batch')
     local spending=assert(runtime:match('(local function spend%(cell,item,validate,expectedTask,eventBee%).-)\nshopFloor=function'))
     local makeSpend=assert(loadstring('return function(s,ready,low,eventBee,background,progression)\nlocal env={} -- Fixture state must never resolve an executor global.\n'..
@@ -147,7 +146,7 @@ return function(runtime,Policy,Types)
         local q=lowPlan(lowStats)
         check(lowReport.RefillAmount==1 and q.mode=="off" and lowReady(lowStats),"Actual 32-bee planner permits one normal jelly")
         lowStats.Honeycomb.x33={y1={Type="Brave",Traits={}}}
-        check(not lowReady(lowStats) and lowReport.RefillAmount==10000,"Fresh 33-bee boundary rechecks its mature entry threshold before admission")
+        check(not lowReady(lowStats) and lowReport.RefillAmount==4000,"Fresh 33-bee boundary rechecks its ordinary threshold before admission")
     end
     do
         local snapshot={Eggs={PuppyBee=1,RoyalJelly=1}}

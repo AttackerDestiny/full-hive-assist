@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.58"
+local SCRIPT_VERSION = "1.8.59"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -118,7 +118,7 @@ local background,shopFloor
 local fixedShopPackage
 local Packages, Recipes, Reqs, Accessories, CellTools, OsTime
 local leased, previousAtlas, previousSettings, cleanupMove = false, nil, nil, nil
-local lateStarted = env.FullHiveLateStarted == true
+local legendaryChoice = math.random()
 local basicLock = env.FullHiveBasicLock
 local rollTask = env.FullHiveRollTask
 -- Drop an old, unowned continuation batch when upgrading from use-all mode.
@@ -734,7 +734,6 @@ local function context(s,slots)
     local usable=math.max(0,(s.Honey or 0)-hiveHoneyReserve(s))
     local used=starEggUses(s)
     local normalRefill=Policy.refill(slots)
-    if slots>=44 and not lateStarted then normalRefill=math.max(10000,normalRefill) end
     local collectorFallback=Policy.collectorRecovery(slots,1,usable,
         bought.RoyalJelly or 0,env.FullHiveCollectorFallback==true,jelly,normalRefill)
     local batch=activeJellyBatch(s)
@@ -747,7 +746,7 @@ local function context(s,slots)
         or (env.FullHiveCollectorFallback~=true and jelly>=normalRefill) then
         collectorFallback=false
     end
-    return {slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,lateStarted=lateStarted,nextFlexible=nextFlexible,
+    return {slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,legendaryChoice=legendaryChoice,nextFlexible=nextFlexible,
         questRetired=background and background.hiveRetirements(s)or{},bubbleMaskOwned=bubbleMaskOwned,
         collectorFallback=collectorFallback,enforceGrowth=true,eggs=s.Eggs,
         canRefill30k=Config.AutoPurchase and usable>=Policy.jellyCost(bought.RoyalJelly or 0,30000)}
@@ -812,6 +811,7 @@ local function plan(s)
             p.target=current
             p.reason=rollTask.Reason
             p.mode=rollTask.Mode
+            p.legendaryHunt=rollTask.LegendaryHunt==true
             if Policy.isRecoveryTask(rollTask) and Policy.refill(slots)>100 then
                 p.collectorFallback=true; env.FullHiveCollectorFallback=true
             end
@@ -826,20 +826,13 @@ local function plan(s)
     Report.StarJelly=s.Eggs.StarJelly or 0
     Report.StarJellyMissing=Policy.starJellyMissing(cells)
     Report.StarJellyUpgrade=false -- Only the eight missing gifted Rare/Epic failsafes admit Star Jelly.
-    local batch=env.FullHiveJellyBatch
-    -- The first legendary batch also satisfies the original 10k entry gate.
-    if slots>=44 and not p.collectorFallback and (not lateStarted
-        or (batch and batch.Entry and (batch.Remaining or 0)>0 and ctx.jelly>0)) then
-        Report.RefillAmount=math.max(10000,Report.RefillAmount)
-        Report.RefillMode="legendary-entry"
-    end
     if Policy.singleJelly(cells) then
         p.mode="off"
         Report.RefillAmount=1;Report.RefillMode="single-jelly"
     end
     Report.JellyGoal={Stage=p.stage,Reason=p.reason,Mode=p.mode,HasTarget=p.target~=nil,
         Item=p.target and Policy.rollItem(cells,s.Eggs,p,rollTask),
-        MissingFailsafes=Report.StarJellyMissing,FailsafeGoalsActive=p.failsafeGoalsActive}
+        MissingFailsafes=Report.StarJellyMissing,FailsafeGoalsActive=p.failsafeGoalsActive,LegendaryHunt=p.legendaryHunt}
     p._cells=cells
     return p,cells,slots
 end
@@ -865,9 +858,8 @@ local function jellyBatchReady(s)
         if inventory>=target and inventory>0 then
             batch={Version=1,Owner=player.UserId,Job=game.JobId,Hive=h and h.Name,
                 Amount=target,Remaining=inventory,Recovery=recovery,
-                Entry=Report.RefillMode=="legendary-entry",StartedAt=os.time()}
+                StartedAt=os.time()}
             env.FullHiveJellyBatch=batch
-            if batch.Entry then lateStarted=true; env.FullHiveLateStarted=true end
         end
     end
     if batch then batch.Remaining=inventory end
@@ -1167,7 +1159,6 @@ local function refill()
         <Policy.jellyCost(royalJellyPurchases(s),missing) then return false end
     local fallback=Report.CollectorFallback==true
     local _,pack=Policy.refillFor(slots,fallback)
-    if Report.RefillMode=="legendary-entry" then pack=math.max(pack,10000) end
     Report.Activity="Refilling Royal Jelly to "..target.." before starting a batch"
     while true do
         pauseCheckpoint(); s=refresh()

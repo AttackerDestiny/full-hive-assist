@@ -3067,5 +3067,12 @@
     "startedAt": {"QuackAltear5": 1795437003, "QuackAltear1": 1795436999, "QuackAltear06": 1795436999},
     "offlineChecks": 4571,
     "liveDiamondTokenPickupObserved": false
+  },
+  "quackV1859": {
+    "version": "1.8.59",
+    "sha256": "fca6f7ad8ee02f3615a9ca6c0e5c3b7c96a066cdd9108aae0a33e66cd93b559d",
+    "startedAt": {"QuackAltear5": 1795512610, "QuackAltear1": 1795512617, "QuackAltear06": 1795512614},
+    "offlineChecks": 4566,
+    "liveLegendaryHuntObserved": false
   }
 }

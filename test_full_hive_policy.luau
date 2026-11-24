@@ -16,6 +16,26 @@ return function(P,T)
     check(P.stage(ctx(49,2))=="blue","49 stays blue")
     check(P.stage(ctx(50,2))=="final","50 final")
     do
+        local cells=hive({{"Bubble",5,true},{"Frosty",5,true},{"Tabby",24,false}})
+        check(not P.plan(cells,T,ctx(43)).legendaryHunt,"Legendary hunt waits for the 44th unlocked slot")
+        cells[#cells+1]=cell("Frosty",false)
+        check(not P.plan(cells,T,ctx(44)).legendaryHunt,"A normal collector upgrade delays the Legendary hunt")
+        table.remove(cells)
+        local context=ctx(44)
+        local q=P.plan(cells,T,context)
+        local target=q.target
+        check(q.legendaryHunt and q.mode=="gifted" and target and P.gifted(target),"Eligible gifted surplus starts the hunt")
+        context.legendaryChoice=.99
+        check(P.plan(cells,T,context).target.bee.Type~=target.bee.Type,"The choice can select a different eligible gifted surplus")
+        check(P.rollItem(cells,{StarJelly=20},q)=="RoyalJelly","Legendary hunts use Royal Jelly")
+        local task=P.startRollTask(target,cells,q)
+        check(P.rollTaskSafe(task,target,cells,T,q),"The exact selected coordinate preserves four gifted copies of its type")
+        for i,c in ipairs(cells) do
+            if c~=target and c.bee.Type==target.bee.Type then table.remove(cells,i);break end
+        end
+        check(not P.rollTaskSafe(task,target,cells,T,P.plan(cells,T,context)),"Cannot roll the same collector if it becomes required")
+    end
+    do
         local kept,protected,safe=cell("Bubble",true),cell("Tabby",false),cell("Brave",false)
         local plan={candidates={kept,protected,safe},keep={[P.key(kept)]=true},protected={[P.key(protected)]=true}}
         check(P.basicReplacement(plan)==safe,"Gifted Basic replacement skips kept and protected cells")
