@@ -16,6 +16,25 @@ return function(P,T)
     check(P.stage(ctx(49,2))=="blue","49 stays blue")
     check(P.stage(ctx(50,2))=="final","50 final")
     do
+        local history={earned=2,usageKnown=true,used=0}
+        check(P.legendaryRoute(history,2)=="eggs" and P.legendaryRoute(history,1)=="waiting","Full route needs both eggs initially")
+        history.used=1
+        check(P.legendaryRoute(history,1)=="eggs","A verified first hatch leaves a one-egg continuation")
+        history.used=2
+        check(P.legendaryRoute(history,0)=="six" and P.legendaryRoute(history,2)=="waiting","No-egg route does not spend beyond the existing two-hatch budget")
+        history.earned=1
+        check(P.legendaryRoute(history,2)=="waiting" and P.legendaryRoute(history,0)=="waiting","Both quest completions are required")
+        local cells=hive({{"Bubble",5,true},{"Tabby",28,false}})
+        for _,case in ipairs({{44,0},{46,2},{50,2}}) do
+            local context=ctx(case[1],case[2]);context.legendaryRoute="six"
+            local q=P.plan(cells,T,context)
+            local gifts={}
+            for _,goal in ipairs(q.needs) do if goal.gifted then gifts[goal.name]=goal.amount end end
+            for _,name in ipairs(P.noStarEggLegendary) do check(gifts[name]==1,"Missing one gifted "..name.." at "..case[1]) end
+            check(not gifts.Carpenter and not gifts.Ninja and q.legendaryHunt and P.gifted(q.target),"Six-target route uses a safe collector and skips the other two Legendaries")
+        end
+    end
+    do
         local cells=hive({{"Bubble",5,true},{"Frosty",5,true},{"Tabby",24,false}})
         check(not P.plan(cells,T,ctx(43)).legendaryHunt,"Legendary hunt waits for the 44th unlocked slot")
         cells[#cells+1]=cell("Frosty",false)

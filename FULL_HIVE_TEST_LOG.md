@@ -1216,3 +1216,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - When a Star Treat is needed and spendable tickets are below 1,000, Feather can buy the verified 500-ticket dispenser option with surplus honey. A pack may leave the wallet above 1,000. The Star Treat purchase follows once funds are available, and excess tickets are retained.
 - Bundle validation and 4,500 offline checks passed, including the 750-to-1,250 case and unaffordable pack. Bundle SHA-256 6ce2676c6e1dc31703449efd27a351d23aebb8d64a0b267528f46db01601a82f.
 - No Roblox clients were available for verified rollout. Live ticket spending remains unverified.
+
+## v1.8.65 — Choose gifted Legendary goals from Star Egg quest history and inventory
+
+- Verify Seven To Seven and Royal Rumble. At 44 unlocked slots after normal collector upgrades, pursue the full set when the inventory can cover both planned Star Egg uses. After one recorded hatch, one held egg can continue the existing workflow. All normal preparation, honey and receipt checks remain in force.
+- With both quests complete and zero eggs, pursue one gifted Music, Baby, Shy, Diamond, Lion and Demon. Do not schedule Star Egg preparation from empty inventory or infer hatches from it. The six-goal list also works in Blue and Final stage.
+- Bundle validation and 4,525 offline checks passed. Bundle SHA-256 e340c441a3212b74f5f7c33291b9d69030746c570643991475ce35e47a4a8c93. No connected clients were available for live deployment verification.

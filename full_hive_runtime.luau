@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.64"
+local SCRIPT_VERSION = "1.8.65"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -739,6 +739,8 @@ local function context(s,slots)
     local bought=s.Totals and s.Totals.Purchases and s.Totals.Purchases.Eggs or {}
     local usable=math.max(0,(s.Honey or 0)-hiveHoneyReserve(s))
     local used=starEggUses(s)
+    local legendaryRoute
+    if StarState then legendaryRoute=Policy.legendaryRoute(StarState.read(s),s.Eggs.Star or 0) end
     local normalRefill=Policy.refill(slots)
     local collectorFallback=Policy.collectorRecovery(slots,1,usable,
         bought.RoyalJelly or 0,env.FullHiveCollectorFallback==true,jelly,normalRefill)
@@ -752,7 +754,7 @@ local function context(s,slots)
         or (env.FullHiveCollectorFallback~=true and jelly>=normalRefill) then
         collectorFallback=false
     end
-    return {slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,legendaryChoice=legendaryChoice,nextFlexible=nextFlexible,
+    return {slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,legendaryChoice=legendaryChoice,legendaryRoute=legendaryRoute,nextFlexible=nextFlexible,
         questRetired=background and background.hiveRetirements(s)or{},bubbleMaskOwned=bubbleMaskOwned,
         collectorFallback=collectorFallback,enforceGrowth=true,eggs=s.Eggs,
         canRefill30k=Config.AutoPurchase and usable>=Policy.jellyCost(bought.RoyalJelly or 0,30000)}
@@ -761,9 +763,10 @@ local function plan(s)
     local cells,slots=scan(s)
     local ctx=context(s,slots)
     local p=Policy.plan(cells,Types,ctx)
+    Report.StarEggRoute=ctx.legendaryRoute
     -- The exception activates only when the actual Star handoff is funded,
     -- has a verified egg budget and still has a missing gifted Mythic outcome.
-    local starEligible=slots>=44 and ctx.starUsed<2 and(s.Eggs.Star or 0)>0
+    local starEligible=slots>=44 and ctx.legendaryRoute=="eggs" and not Policy.hasCollectorUpgrade(cells)
         and(s.Honey or 0)>=(Config.StarEggHoney or 100000000000)
     local starCoverage=starEligible and StarState.coverage(cells,Types)
     if starEligible and StarState.budget(s,2)>0 and #starCoverage.missingMythics>0
@@ -1426,6 +1429,8 @@ local function giftedBasic(s,cells,p)
 end
 local function starReady(s,cells)
     Report.StarEggDeferred=nil
+    local history=StarState.read(s)
+    if Policy.legendaryRoute(history,s.Eggs.Star or 0)~="eggs" or Policy.hasCollectorUpgrade(cells) then return false end
     local coverage=StarState.coverage(cells,Types)
     Report.StarEggPrerequisitesMissing=coverage.missing
     Report.StarEggMythicsMissing=coverage.missingMythics
