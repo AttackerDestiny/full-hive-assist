@@ -1193,3 +1193,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 
 - The Hive panel shows the next unlocked slot number and current verified honey quote, or the 50-slot capacity limit. Bundle validation and 4,568 offline checks passed. Bundle SHA-256 4f09096ce0e31a9038d8e0ab5cd1bffbd6fdab5604c625c0a9433f71e972843c.
 - Verified running on QuackAltear5 and QuackAltear06 (StartedAt 1795512841) and QuackAltear1 (1795512877). QuackAltear5's live Hive label showed slot 37 at 380,891,931 honey. QuackAltear06 reported slot 38 at 508,855,908 honey.
+
+## v1.8.61 — Keep Moon Amulet generation active during Star savings
+
+- A pending Star goal no longer blocks an eligible Moon Amulet reroll. A funded Star action retains priority. Moon Charm reservations and the existing completion goal still apply.
+- Bundle validation and 4,568 offline checks passed. Bundle SHA-256 1aac2ece98c613a2eb974e36d773fed4f75d56faa7437cafab8d5278243e62ce.
+- Verified running on QuackAltear1, QuackAltear5, and QuackAltear06 (StartedAt 1795513146). QuackAltear1 used 100 Moon Charms (1295 to 1195), Moon uses increased 10 to 11, and it accepted 250,000 capacity while still saving for the Bronze Star generator. The Moon replacement lacked Honey per Pollen at that snapshot.

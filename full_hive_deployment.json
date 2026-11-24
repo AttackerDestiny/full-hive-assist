@@ -3081,5 +3081,12 @@
     "startedAt": {"QuackAltear5": 1795512841, "QuackAltear1": 1795512877, "QuackAltear06": 1795512841},
     "offlineChecks": 4568,
     "liveSlotLabel": {"account": "QuackAltear5", "slot": 37, "honey": 380891931}
+  },
+  "quackV1861": {
+    "version": "1.8.61",
+    "sha256": "1aac2ece98c613a2eb974e36d773fed4f75d56faa7437cafab8d5278243e62ce",
+    "startedAt": {"QuackAltear5": 1795513146, "QuackAltear1": 1795513146, "QuackAltear06": 1795513146},
+    "offlineChecks": 4568,
+    "moonDuringStarSavingsVerified": {"account": "QuackAltear1", "charmsBefore": 1295, "charmsAfter": 1195, "capacity": 250000}
   }
 }

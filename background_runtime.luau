@@ -287,13 +287,14 @@ return function(H)
                 if canSpendHoney(s,target.price) then
                     if generate(target.name,s,{category="Honey",amount=target.price})then return true end
                 end
-                H.release();return false
+            else
+                -- Reserve active Hive Minded Bias food before Moon generation.
+                for _,a in ipairs(quests)do if a.mode=="feed"and H.Config.AutoQuestAssist and assistQuest(a,s)then return true end end
             end
-            -- Reserve active Hive Minded Bias food before Moon generation.
-            for _,a in ipairs(quests)do if a.mode=="feed"and H.Config.AutoQuestAssist and assistQuest(a,s)then return true end end
             if not A.moonGood(A.read((s.Amulets or{}).Moon))and(s.Eggs.MoonCharm or 0)>=100+(res.MoonCharm or 0)then
                 if generate("Moon Amulet Generator",s,{category="Eggs",amount=100})then return true end
             end
+            if target then H.release();return false end
         end
         if H.Config.AutoQuestAssist then
             for _,a in ipairs(quests)do if a.mode~="own" and assistQuest(a,s)then return true end end
