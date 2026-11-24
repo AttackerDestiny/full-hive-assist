@@ -1210,3 +1210,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 
 - Passive amulet decisions run before Atlas and hive readiness. A control failure before acquiring Atlas now waits and replans, while unresolved requests and failed cleanup remain blocking. Bundle validation and 4,497 offline checks passed. SHA-256 eb79edc76fdca6a8bd6aaff24a04bf962b6a1d2fbdedba5f4110073de70c880c.
 - Deployed to QuackAltear06 (1795518947), QuackAltear5 (1795518951), and QuackAltear1 (1795518975). QuackAltear06 chose Keep on the pending Bronze Ant offer at 1795518949. Incoming offers cleared and its visible Ant Amulet popup closed. The Replace branch had no live offer during verification.
+
+## v1.8.64 — Fund Star Treats with 500-ticket packs
+
+- When a Star Treat is needed and spendable tickets are below 1,000, Feather can buy the verified 500-ticket dispenser option with surplus honey. A pack may leave the wallet above 1,000. The Star Treat purchase follows once funds are available, and excess tickets are retained.
+- Bundle validation and 4,500 offline checks passed, including the 750-to-1,250 case and unaffordable pack. Bundle SHA-256 6ce2676c6e1dc31703449efd27a351d23aebb8d64a0b267528f46db01601a82f.
+- No Roblox clients were available for verified rollout. Live ticket spending remains unverified.

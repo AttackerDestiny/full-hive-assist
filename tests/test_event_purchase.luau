@@ -1,6 +1,6 @@
 return function(P,runtime)
     local source=assert(runtime:match("(local function eventAction%(s,cells,p%).-)\nlocal function giftedBasic"))
-    local make=assert(loadstring("return function(Policy,buy,scan,rollTask,progression)\n"
+    local make=assert(loadstring("return function(Policy,buy,scan,rollTask,progression,Packages,fixedShopPackage,hiveHoneyReserve)\n"
         .."local Config={AutoPurchase=true};local EggTypes={Get=function() return {TicketCost=500} end}\n"
         ..source.."\nreturn eventAction\nend"))()
     local cells={{x=1,y=1,bee={Type="Basic",Traits={}}}}
@@ -39,5 +39,24 @@ return function(P,runtime)
         "Ordinary purchases retain the background priority check")
     assert(buy("PuppyBee",1,"TicketShop",nil,function(s)return s.Eggs.Ticket>=500 end)
         and live.Eggs.PuppyBee==1 and live.Eggs.Ticket==3,"Validated ticket spending proceeds during Star Amulet honey priority")
-    return {passed=12}
+    local events={}
+    for i,name in ipairs({"Tabby","Gummy","Festive","Cobalt","Vicious","Puppy"}) do
+        events[i]={x=i,y=1,bee={Type=name,Traits=i==1 and {} or {"Gifted"}}}
+    end
+    local balance={Honey=999,Eggs={Ticket=750}}
+    local action
+    local fund=make(P,function(item,n,shop,_,validate)
+        assert(validate(balance));action={item,n,shop};return true
+    end,function() return events end,nil,nil,{
+        GetCost=function() return {Category="Honey",Amount=1000} end,
+        PurchaseRequirements=function()end,CanPurchase=function()return true end,CanGive=function()return true end,
+    },function(item,n) return {Type=item,Amount=n} end,function() return 0 end)
+    local readyPlan={candidates={},keep={},protected={}}
+    assert(not fund(balance,events,readyPlan) and not action,"Unaffordable 500-ticket pack waits")
+    balance.Honey=1000
+    assert(fund(balance,events,readyPlan) and action[1]=="Ticket" and action[2]==500 and action[3]=="TicketDispenser",
+        "Star Treat funding buys only the 500-ticket option")
+    balance.Eggs.Ticket=1250
+    assert(fund(balance,events,readyPlan) and action[1]=="StarTreat" and action[2]==1,"Stops funding once 1000 tickets are available")
+    return {passed=15}
 end

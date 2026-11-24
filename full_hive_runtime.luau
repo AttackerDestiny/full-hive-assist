@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.63"
+local SCRIPT_VERSION = "1.8.64"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1149,12 +1149,15 @@ local function buy(item,amount,shop,inventoryCeiling,validatePurchase)
     elseif item=="Basic" then
         assert(amount==1,"Basic purchases must remain separate")
         if usable<10000000 then return false end
-    elseif item~="Gumdrops" then
+    elseif item~="Gumdrops" and item~="Ticket" then
         local cost=EggTypes.Get(item).TicketCost
         if type(cost)~="number" or (s.Eggs.Ticket or 0)<cost*amount then return false end
     end
     assert(Report.Actions<Config.MaxActions,"Action limit reached")
     local fixedPackage=item=="RoyalJelly" and customShopPackage(item,amount,shop) or fixedShopPackage(item,amount,shop)
+    if item=="Ticket" then
+        assert(shop=="TicketDispenser" and amount==500 and validatePurchase,"Unverified Star Treat ticket purchase")
+    end
     if item=="RoyalJelly" then
         local quote=Packages.GetCost(fixedPackage,s)
         local requirements=Packages.PurchaseRequirements(fixedPackage,s)
@@ -1174,6 +1177,10 @@ local function buy(item,amount,shop,inventoryCeiling,validatePurchase)
     assert((s.Eggs[item] or 0)-before==amount,"Purchase inventory uncertain; no retry")
     if item=="Gumdrops" then
         assert(ticketBefore-(s.Eggs.Ticket or 0)==amount/3,"Gumdrop ticket debit uncertain; no retry")
+    elseif item=="Ticket" then
+        local receipt=assert(env.FullHiveUncertain and env.FullHiveUncertain.TicketBefore,"Ticket purchase baseline missing")
+        local bought=((((s.Totals or {}).Purchases or {}).Eggs or {}).Ticket or 0)
+        assert(bought==receipt.Purchased+amount,"Ticket purchase counter uncertain; no retry")
     end
     env.FullHiveUncertain=nil
     Report.Actions=Report.Actions+1; Report.LastPurchase={Item=item,Amount=amount}
@@ -1305,7 +1312,38 @@ local function eventAction(s,cells,p)
         end
     end
     if normalEvent then
-        if Config.AutoPurchase and (s.Eggs.Ticket or 0)>=1000 then return buy("StarTreat",1,"TicketShop")~=false end
+        if not Config.AutoPurchase or not canPlace or (s.Eggs.StarTreat or 0)>0 then return false end
+        local name=normalEvent.bee.Type
+        local function available(fresh)
+            if (fresh.Eggs.StarTreat or 0)>0 then return nil end
+            local cells=scan(fresh)
+            if Policy.count(cells,name)==0 or Policy.count(cells,name,true)>0 then return nil end
+            if progression then return progression.eventCurrency(fresh,"Ticket") end
+            return fresh.Eggs.Ticket or 0
+        end
+        local tickets=available(s)
+        if not tickets then return false end
+        if tickets>=1000 then
+            return buy("StarTreat",1,"TicketShop",nil,function(fresh) return (available(fresh) or 0)>=1000 end)~=false
+        end
+        local function fund(fresh,spendable)
+            if not spendable or spendable>=1000 then return false end
+            if progression then
+                local d=progression.inspect(fresh)
+                if d.saveCraftingJelly or d.savingGearHoney or d.requiredTickets then return false end
+            end
+            local pkg=fixedShopPackage("Ticket",500,"TicketDispenser")
+            local quote=Packages.GetCost(pkg,fresh)
+            local req=Packages.PurchaseRequirements(pkg,fresh)
+            local star=Config.AutoAmulets and AmuletPolicy and AmuletPolicy.starTarget(#(fresh.DiscGiftTypes or {}),(fresh.Amulets or {}).Star)
+            local honey=(fresh.Honey or 0)-hiveHoneyReserve(fresh)-(star and star.price or 0)
+            return quote and quote.Category=="Honey" and type(quote.Amount)=="number" and quote.Amount>0
+                and honey>=quote.Amount and Packages.CanPurchase(pkg,fresh) and Packages.CanGive(pkg,fresh)
+                and (not req or Reqs.Check(fresh,req))
+        end
+        if fund(s,tickets) then
+            return buy("Ticket",500,"TicketDispenser",nil,function(fresh) return fund(fresh,available(fresh)) end)~=false
+        end
     end
     return false
 end
