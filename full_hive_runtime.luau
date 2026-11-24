@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.59"
+local SCRIPT_VERSION = "1.8.60"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1728,6 +1728,7 @@ local function readUIStatus()
         progress=progress,gear=table.concat(lines,"\n"),
         gearTarget=FeatherWindUI.describeGear(pg),
         jellyGoal=FeatherWindUI.describeJelly(Report.JellyGoal),
+        nextSlot=FeatherWindUI.describeSlot(Report.Slots,Report.NextHiveSlotPrice),
         background="Amulets: "..tostring(bg.Amulet or "Inspecting").."\nQuest assist: "..tostring(bg.Quest or "Inspecting"),
         slots=slots,jelly=jelly,refill=refill,metrics=slots.."  |  "..jelly.."  |  "..refill,
         finished=not env.FullHiveRunning,
@@ -1805,7 +1806,7 @@ local function makeNativeUI(gui)
         return item
     end
     local slotsMetric,jellyMetric,refillMetric=metric("Slots",1),metric("Jelly",2),metric("Refill",3)
-    local progressText=make("TextLabel","Progress",frame,{Position=UDim2.fromOffset(18,190),Size=UDim2.new(1,-36,0,20),
+    local progressText=make("TextLabel","Progress",frame,{Position=UDim2.fromOffset(18,187),Size=UDim2.new(1,-36,0,26),
         BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=11,TextColor3=Color3.fromRGB(160,183,217),
         TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd})
     local progressionText=make("TextLabel","Progression",frame,{Position=UDim2.fromOffset(18,214),Size=UDim2.new(1,-36,0,58),
@@ -1838,7 +1839,7 @@ local function makeNativeUI(gui)
         setText(phase,state.phase)
         phase.TextColor3=Report.Error and Color3.fromRGB(255,176,192) or Color3.fromRGB(164,214,255)
         setText(text,state.activity)
-        setText(progressText,state.progress)
+        setText(progressText,state.progress.."\n"..state.nextSlot)
         setText(progressionText,state.gear)
         setText(backgroundText,state.background)
         setText(jellyGoalText,state.jellyGoal)

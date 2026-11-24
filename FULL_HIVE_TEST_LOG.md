@@ -1188,3 +1188,8 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 
 - At 44 or more slots in Late stage, pursue missing gifted Legendaries once normal Bubble and Frosty upgrades are exhausted. Choose an eligible surplus gifted collector while retaining four of its species and a gifted copy. Use the normal stage refill. Bundle SHA-256 fca6f7ad8ee02f3615a9ca6c0e5c3b7c96a066cdd9108aae0a33e66cd93b559d.
 - Validation and 4,566 offline checks passed. Verified v1.8.59 on QuackAltear5 (1795512610), QuackAltear06 (1795512614), and QuackAltear1 (1795512617). Connected hives were at 36–37 slots, so the 44-slot hunt was tested offline.
+
+## v1.8.60 — Show the next hive-slot price
+
+- The Hive panel shows the next unlocked slot number and current verified honey quote, or the 50-slot capacity limit. Bundle validation and 4,568 offline checks passed. Bundle SHA-256 4f09096ce0e31a9038d8e0ab5cd1bffbd6fdab5604c625c0a9433f71e972843c.
+- Verified running on QuackAltear5 and QuackAltear06 (StartedAt 1795512841) and QuackAltear1 (1795512877). QuackAltear5's live Hive label showed slot 37 at 380,891,931 honey. QuackAltear06 reported slot 38 at 508,855,908 honey.

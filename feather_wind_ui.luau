@@ -7,6 +7,12 @@ local function amount(value)
     return (digits:reverse():gsub("(%d%d%d)","%1,"):reverse():gsub("^,",""))
 end
 
+function UI.describeSlot(slots,price)
+    if not slots then return "Next hive slot · Waiting for hive data" end
+    if slots>=50 then return "Hive capacity · Maximum reached" end
+    return "Slot "..(slots+1).." · "..(price and amount(price).." honey" or "Price unavailable")
+end
+
 function UI.describeGear(report)
     if not report.Gear then
         return report.Reason=="ordered-gear-complete" and "Gear route complete" or "Inspecting gear..."
@@ -178,7 +184,7 @@ function UI.mount(parent,overlay,version,callbacks)
             render=function(state)
                 update(status,"SetTitle","phase",state.phase)
                 update(status,"SetDesc","activity",state.activity)
-                update(hive,"SetDesc","hive",state.metrics.."\n"..state.progress)
+                update(hive,"SetDesc","hive",state.metrics.."\n"..state.progress.."\n"..(state.nextSlot or ""))
                 update(jellyGoal,"SetDesc","jellyGoal",state.jellyGoal or "Waiting for a hive plan")
                 update(gearTarget,"SetDesc","gearTarget",state.gearTarget)
                 update(gear,"SetDesc","gear",state.gear)

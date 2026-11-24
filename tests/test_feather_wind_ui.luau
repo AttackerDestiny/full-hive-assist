@@ -71,6 +71,7 @@ return function(adapter)
     stopRow.config.Callback(false)
     check(not tickets and stop==1,"Existing controls still dispatch their callbacks")
     local state={phase="WAITING",activity="Farming",metrics="41 slots",progress="No rolls",gear="Tacky Planter",background="Amulets"}
+    state.nextSlot=UI.describeSlot(41,152902986)
     state.jellyGoal=UI.describeJelly({Stage="mid",Reason="fixed-targets",Mode="gifted",HasTarget=true,
         Item="StarJelly",MissingFailsafes={"Cool","Frosty"}})
     state.gearTarget=UI.describeGear({Gear="Diamond Mask",Honey=3000000000,Status={
@@ -80,6 +81,9 @@ return function(adapter)
         },
     }})
     mounted.render(state)
+    check(registered["Overview/Paragraph/Hive"].desc:find("Slot 42 · 152,902,986 honey",1,true)~=nil,
+        "Shows the next slot and exact quoted honey price")
+    check(UI.describeSlot(50,152902986)=="Hive capacity · Maximum reached","Hides obsolete quotes when the hive is full")
     check(registered["Overview/Paragraph/Jelly rolling"].desc=="Mid | Looking for gifted failsafe bees (Star Jelly)\nGifted failsafes missing: Cool, Frosty",
         "Shows the current roll objective and missing gifted failsafes")
     check(UI.describeJelly({Stage="early",HasTarget=false})=="Early | No eligible roll target",
