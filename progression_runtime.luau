@@ -49,6 +49,10 @@ return function(H)
     local function destination(a,c)
         if a.kind=="buy-gear" then return c.gear[a.gear].part end
         if a.kind=="purchase-pack" then
+            if a.packId=="custom-royal-jelly" then
+                local entry=c.customRoyalJelly and c.customRoyalJelly(a.amount)
+                return entry and entry.part
+            end
             for _,pack in ipairs((c.packs or {})[a.item] or {}) do
                 if pack.amount==a.amount and pack.id==a.packId then return pack.part end
             end
@@ -98,10 +102,11 @@ return function(H)
         elseif a.kind=="buy-hive-slot" then entry=c.hiveSlot
         elseif a.kind=="buy-basic-egg" then entry=c.basicEgg
         elseif a.kind=="purchase-material" then entry=c.purchases[a.item]
+        elseif a.packId=="custom-royal-jelly" then entry=c.customRoyalJelly and c.customRoyalJelly(a.amount)
         else for _,pack in ipairs(c.packs[a.item] or {}) do if pack.amount==a.amount and pack.id==a.packId then entry=pack;break end end end
         assert(entry and entry.package,"Verified shop package unavailable")
         local package=entry.package
-        if package.Category=="Eggs" then
+        if package.Category=="Eggs" and a.packId~="custom-royal-jelly" then
             package=H.fixedShopPackage(package.Type,package.Amount,entry.shopName or entry.shop.Name)
         end
         assert(H.Packages.CanPurchase(package,s)==true and H.Packages.CanGive(package,s)==true,

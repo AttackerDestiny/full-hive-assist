@@ -18,7 +18,7 @@ return function(runtime,Policy,Types)
         end
         local ready,spent,refill=factory(env,report,{UserId=7},{JobId='test'},function() return {Name='Hive'} end,
             Policy,config,function() return s end,plan,function(_,amount,_,ceiling)
-                check(amount==1 or amount==10 or amount==100 or amount==1000 or amount==10000 or amount==100000,'Only supported pack amounts')
+                check(amount==ceiling-s.Eggs.RoyalJelly,'A custom purchase requests exactly the remaining refill deficit')
                 check(s.Eggs.RoyalJelly+amount<=ceiling,'Top-up never overbuys')
                 purchases[#purchases+1]=amount; s.Eggs.RoyalJelly+=amount
             end,function() end,function() end,function() end,function() return 75 end,

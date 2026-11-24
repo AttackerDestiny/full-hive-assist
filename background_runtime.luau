@@ -4,6 +4,8 @@ return function(H)
     local RS,player=H.RS,H.player
     local Amulets=H.load(RS:WaitForChild("Amulets"))
     local Quests=H.load(RS:WaitForChild("Quests"))
+    local BeeStats=H.load(RS:WaitForChild("BeeStats"))
+    local BeeTypes=H.load(RS:WaitForChild("BeeTypes"))
     local Actives=H.load(RS:WaitForChild("PlayerActives"))
     local ToyUI=H.load(RS.Activatables:WaitForChild("Toys"))
     local Rewards=H.load(RS.Gui:WaitForChild("RewardsPopUp"))
@@ -98,20 +100,20 @@ return function(H)
         state.Amulet=o.group..": "..(take and"replaced"or"kept current")
         return true
     end
-    local function questFacts(s,requested)
+    local function questFacts(s,requested,motherBear)
         local list={}
         for _,active in ipairs((s.Quests or{}).Active or{})do
-            if(requested or Q.rules)[active.Name]then
+            if motherBear or (requested or Q.rules)[active.Name]then
                 local def=Quests:Get(active.Name)
-                if def then
+                if def and (not motherBear or def.NPC=="Mother Bear") then
                     local tasks=Quests.ResolveTasks(def,s)
                     -- Omit the optional quest name: GetProgression must never
                     -- auto-send CompleteQuest during a read-only inspection.
                     local values=Quests:GetProgression(tasks,s,clone(active.StartValues))
-                    local q={name=active.Name,key=key(active.StartValues),active=true,tasks={}}
+                    local q={name=active.Name,key=key(active.StartValues),npc=def.NPC,active=true,tasks={}}
                     for i,t in ipairs(tasks)do
                         local v=values[i]
-                        if v then q.tasks[#q.tasks+1]={index=i,type=t.Type,item=t.Item,toy=t.Toy,tag=t.Tag,current=v[2],goal=v[3]}end
+                        if v then q.tasks[#q.tasks+1]={index=i,type=t.Type,item=t.Item,toy=t.Toy,tag=t.Tag,level=t.Level,current=v[2],goal=v[3]}end
                     end
                     list[#list+1]=q
                 end
@@ -270,6 +272,81 @@ return function(H)
         if H.Config.AutoAmulets==false then return true end
         local target=A.starTarget(type(s.DiscGiftTypes)=="table"and #s.DiscGiftTypes or nil,(s.Amulets or{}).Star)
         return target==nil or not canSpendHoney(s,target.price)
+    end
+    local function levelTarget(s)
+        local quests=questFacts(s,nil,true)
+        if #quests==0 then return nil end
+        local cells=H.scan(s)
+        local multiplier=1
+        for _,c in ipairs(cells) do
+            if c.bee.Type=="Puppy" and table.find(c.bee.Traits or {},"Gifted") then multiplier+=0.20;break end
+        end
+        local moon=(s.Amulets or {}).Moon
+        for _,mod in ipairs(moon and moon.Mods or {}) do
+            if mod.Type=="TreatBondMultiplier" and type(mod.Value)=="number" then multiplier+=mod.Value end
+        end
+        return Q.motherLevelTarget(quests,cells,BeeStats.LvlToTotalBond,function(name)
+            local def=BeeTypes:Get(name)
+            local likes=def and def.Tastes and def.Tastes.Treats and def.Tastes.Treats.Likes
+            return likes and table.find(likes,"Treat") and 20 or 10
+        end,multiplier)
+    end
+    function R.level(s,allowBuy)
+        if pending() or H.Config.DryRun or not H.Config.AutoQuestAssist then return false end
+        local goal,bee=levelTarget(s)
+        if not bee then return false end
+        local function recheck(fresh)
+            local current,c=levelTarget(fresh)
+            if current and current.quest==goal.quest and current.questKey==goal.questKey and current.index==goal.index
+                and c.x==bee.x and c.y==bee.y and c.bee.Birth==bee.bee.Birth and c.bee.Type==bee.bee.Type then return c end
+        end
+        local owned=s.Eggs.Treat or 0
+        state.Quest=goal.quest.." | Level "..goal.level.." | "..bee.treats.." Treats"
+        if owned<bee.treats then
+            if not allowBuy or not H.Config.AutoPurchase then return false end
+            local function quote(fresh,c)
+                local missing=c.treats-(fresh.Eggs.Treat or 0)
+                if missing<=0 or not H.levelHoneyAllowed(fresh) then return nil end
+                local package=H.customShopPackage("Treat",missing,"TreatShop")
+                local cost=H.Packages.GetCost(package,fresh)
+                if not cost or cost.Category~="Honey" or type(cost.Amount)~="number" or cost.Amount<=0
+                    or not H.Packages.CanPurchase(package,fresh) or not H.Packages.CanGive(package,fresh) then return nil end
+                local requirements=H.Packages.PurchaseRequirements(package,fresh)
+                if requirements and not H.Reqs.Check(fresh,requirements) then return nil end
+                local star=H.Config.AutoAmulets and A.starTarget(#(fresh.DiscGiftTypes or {}),(fresh.Amulets or {}).Star)
+                local reserve=H.honeyReserve(fresh)+(star and star.price or 0)
+                if fresh.Honey<cost.Amount+reserve then return nil end
+                return package
+            end
+            if not quote(s,bee) then return false end
+            local floor=H.shopFloor("TreatShop")
+            H.move(floor);s=H.refresh()
+            local c=recheck(s)
+            local package=c and quote(s,c)
+            if not package then H.release();return false end
+            owned=s.Eggs.Treat or 0
+            H.near(floor);H.assertAtlasPaused()
+            local ok=H.invoke(H.Events.ItemPackageEvent,"Purchase",package)
+            local receipt=env.FullHiveUncertain
+            s=H.refresh()
+            assert(ok and s.Eggs.Treat==owned+package.Amount,"Quest Treat purchase uncertain; no retry")
+            receipt.Kind,receipt.Quest="quest-buy-treats",goal.quest
+            finish(receipt,s);H.release();return true
+        end
+        local floor=H.hiveFloor()
+        H.move(floor);s=H.refresh()
+        local c=recheck(s)
+        owned=s.Eggs.Treat or 0
+        if not c or owned<c.treats then H.release();return false end
+        H.near(floor);H.assertAtlasPaused()
+        local remaining,ok=H.invoke(H.Events.ConstructHiveCellFromEgg,c.x,c.y,"Treat",c.treats,false)
+        local receipt=env.FullHiveUncertain
+        local fresh=H.refresh()
+        local after=(fresh.Honeycomb["x"..c.x] or {})["y"..c.y]
+        assert(ok and remaining==owned-c.treats and fresh.Eggs.Treat==remaining and after and after.Birth==c.bee.Birth
+            and after.Type==c.bee.Type and after.Lvl>=goal.level,"Quest level feeding uncertain; no retry")
+        receipt.Kind,receipt.Quest="quest-level-bee",goal.quest
+        finish(receipt,fresh);H.release();return true
     end
     function R.step(s)
         if pending()then return false end

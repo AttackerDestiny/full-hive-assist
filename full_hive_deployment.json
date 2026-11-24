@@ -3088,5 +3088,13 @@
     "startedAt": {"QuackAltear5": 1795513146, "QuackAltear1": 1795513146, "QuackAltear06": 1795513146},
     "offlineChecks": 4568,
     "moonDuringStarSavingsVerified": {"account": "QuackAltear1", "charmsBefore": 1295, "charmsAfter": 1195, "capacity": 250000}
+  },
+  "quackV1862": {
+    "version": "1.8.62",
+    "sha256": "325d423c0962bf1679997698535b604bf3208f6c415353840d17781176ddd0b2",
+    "startedAt": {"QuackAltear5": 1795513678, "QuackAltear1": 1795513662, "QuackAltear06": 1795513662},
+    "offlineChecks": 4497,
+    "liveLevelNineProgress": {"QuackAltear5": 3, "QuackAltear1": 2, "QuackAltear06": 3},
+    "liveCustomPurchaseObserved": false
   }
 }

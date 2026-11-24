@@ -57,4 +57,34 @@ end
 function P.duringSaving(a)
     return a and(a.mode=="field"or a.mode=="active"or a.mode=="coconut")or false
 end
+
+function P.motherLevelTarget(quests,cells,levelBond,treatValue,treatMultiplier)
+    local objective
+    for _,q in ipairs(quests) do
+        if q.active and q.npc=="Mother Bear" then
+            for _,t in ipairs(q.tasks) do
+                if t.type=="Have Bees" and type(t.level)=="number" and t.level%1==0 and t.level>=2 and t.level<=10
+                    and type(t.current)=="number" and type(t.goal)=="number" and t.goal<=50 and t.current<t.goal
+                    and (not objective or t.level>objective.level) then
+                    objective={quest=q.name,questKey=q.key,index=t.index,level=t.level}
+                end
+            end
+        end
+    end
+    if not objective then return nil end
+    local threshold=levelBond(objective.level)
+    if type(threshold)~="number" or threshold<=0 then return nil end
+    local best
+    for _,c in ipairs(cells) do
+        local bee=c.bee
+        if type(bee.Lvl)=="number" and bee.Lvl<objective.level and type(bee.Bond)=="number" and bee.Bond>=0 then
+            local bond=math.max(0,threshold-bee.Bond)
+            local treats=math.max(1,math.ceil(bond/(treatValue(bee.Type)*treatMultiplier)))
+            if not best or bond<best.bond or bond==best.bond and treats<best.treats then
+                best={x=c.x,y=c.y,bee=bee,bond=bond,treats=treats}
+            end
+        end
+    end
+    if best then return objective,best end
+end
 return P

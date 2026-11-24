@@ -381,6 +381,17 @@ return function(P)
         check(not r.saveCraftingJelly and r.action.reason=="waiting-material:Blueberry","A recipe cannot reserve or buy jelly before its own non-jelly inputs are ready")
     end
     do
+        local f=facts();f.inventory.Blueberry=150;f.inventory.RoyalJelly=7;f.honey=230
+        local c=catalog("Clippers",1000,{BlueExtract=3})
+        c.royalJellyPricing={purchased=0,baseHoney=10,stepHoney=0,maxHoney=10}
+        c.customRoyalJelly=function(n)return {id="custom-royal-jelly",amount=n,cost={Honey=n*10}} end
+        local r=P.plan(f,c)
+        check(r.action.kind=="purchase-pack" and r.action.packId=="custom-royal-jelly" and r.action.amount==23,
+            "Crafting buys the exact custom jelly deficit")
+        f.honey=229
+        check(P.plan(f,c).action.reason=="saving-crafting-jelly","Custom quantity still needs the entire deficit funded")
+    end
+    do
         local f=facts();ownedThrough(f,"Red Clay Planter")
         f.inventory={Strawberry=750,MagicBean=5,SoftWax=19,RoyalJelly=20}
         local c=catalog("Red Clay Planter",10000000,{RedExtract=15,SoftWax=20,MagicBean=5})

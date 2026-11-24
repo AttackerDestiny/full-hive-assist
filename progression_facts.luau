@@ -247,7 +247,7 @@ return function(deps)
                 for i=1,highest do if slots[i]==slots[highest] then facts.ownedGear[chain[i]]=true end end
             end
         end
-        -- Normalize physical fixed packs; no synthetic custom request amounts.
+        -- Read physical options, including the base row for native custom amounts.
         for _,spec in ipairs({{"RoyalJelly","JellyDispenser","Honey"},{"Gumdrops","GumdropDispenser","Ticket"},{"Ticket","TicketDispenser","Honey"}}) do
             catalog.packs[spec[1]]={}
             for _,entry in ipairs(index[spec[1]] or {}) do
@@ -256,6 +256,18 @@ return function(deps)
                     local cost=d and currencyCost(d)
                     if cost then catalog.packs[spec[1]][#catalog.packs[spec[1]]+1]={id=entry.part.Name,amount=entry.package.Amount,
                         cost=cost,package=entry.package,part=entry.part,shop=entry.shop,conditions=d.conditions} end
+                    if spec[1]=="RoyalJelly" and entry.package.Amount==1 and cost then
+                        catalog.customRoyalJelly=function(amount)
+                            local custom=table.clone(entry)
+                            custom.package={Category="Eggs",Type="RoyalJelly",Amount=amount}
+                            local quote=descriptor(custom,s,facts,"custom-royal-jelly","Honey")
+                            local quotedCost=quote and currencyCost(quote)
+                            if quotedCost then
+                                return {id="custom-royal-jelly",amount=amount,cost=quotedCost,
+                                    package=custom.package,part=entry.part,shop=entry.shop,conditions=quote.conditions}
+                            end
+                        end
+                    end
                 end
             end
         end

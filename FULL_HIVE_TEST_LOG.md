@@ -1199,3 +1199,9 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - A pending Star goal no longer blocks an eligible Moon Amulet reroll. A funded Star action retains priority. Moon Charm reservations and the existing completion goal still apply.
 - Bundle validation and 4,568 offline checks passed. Bundle SHA-256 1aac2ece98c613a2eb974e36d773fed4f75d56faa7437cafab8d5278243e62ce.
 - Verified running on QuackAltear1, QuackAltear5, and QuackAltear06 (StartedAt 1795513146). QuackAltear1 used 100 Moon Charms (1295 to 1195), Moon uses increased 10 to 11, and it accepted 250,000 capacity while still saving for the Bronze Star generator. The Moon replacement lacked Honey per Pollen at that snapshot.
+
+## v1.8.62 — Assist Mother Bear leveling and use the native quantity selector
+
+- Quest Assist reads active Mother Bear Have Bees objectives and chooses the lowest remaining bond for the highest unfinished level target. It uses live BeeStats thresholds, Treat preference, Gifted Puppy and Moon bonuses. Treat purchases require the full shortfall for that bee and run after other eligible honey uses.
+- Native Shop controller confirms custom amounts are supported for Treat and RoyalJelly. Buy the exact quantity needed, with live quote and inventory verification. Other shop items retain their fixed-quantity paths. Bundle validation and 4,497 offline checks passed. Bundle SHA-256 325d423c0962bf1679997698535b604bf3208f6c415353840d17781176ddd0b2.
+- Verified v1.8.62 on QuackAltear1 and QuackAltear06 (StartedAt 1795513662) and QuackAltear5 (1795513678). Sights On The Stars reached 2/3, 3/3 and 3/3 level-nine bees respectively using owned Treats. Live native quotes verified custom amounts of 23 Treats and 123 jelly. No new custom purchase was observed in this rollout.

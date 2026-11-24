@@ -23,7 +23,7 @@ $required = @(
     'buy("Basic",1,"EggDispenser")',
     'assertAtlasPaused()',
     'Policy.startRollTask(p.target,p._cells,p)',
-    'Policy.refillFor(slots,fallback)',
+    'buy("RoyalJelly",missing,"JellyDispenser",target)',
     'if item=="RoyalJelly" and not (jellyBatchReady(s) or refill()) then',
     'local CHARACTER_UNAVAILABLE = {}',
     'local function runWithCharacterRecovery()',

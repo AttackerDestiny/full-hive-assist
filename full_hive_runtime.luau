@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.61"
+local SCRIPT_VERSION = "1.8.62"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -116,6 +116,7 @@ local player, Events, Cache, Types, EggTypes
 local progression,atlasFarmOnly
 local background,shopFloor
 local fixedShopPackage
+local customShopPackage
 local Packages, Recipes, Reqs, Accessories, CellTools, OsTime
 local leased, previousAtlas, previousSettings, cleanupMove = false, nil, nil, nil
 local legendaryChoice = math.random()
@@ -974,6 +975,7 @@ local function initializeProgression()
             return invokeRequest(Events.BlenderCommand,before,"SpeedUpOrder")
         end,
         fixedShopPackage=function(...) return fixedShopPackage(...) end,
+        customShopPackage=function(...) return customShopPackage(...) end,
         assertAtlasPaused=assertAtlasPaused,
         scan=scan,hiveFloor=hiveFloor,toyPart=progressionToyPart,jellyBatchSpent=jellyBatchSpent,
         Types=Types,
@@ -986,7 +988,19 @@ local function initializeProgression()
             assertAtlasPaused=assertAtlasPaused,scan=scan,hiveFloor=hiveFloor,
             honeyReserve=hiveHoneyReserve,
             shopFloor=function(name)return shopFloor(name)end,
-            fixedShopPackage=function(...)return fixedShopPackage(...)end,jellyBatchSpent=jellyBatchSpent})
+            fixedShopPackage=function(...)return fixedShopPackage(...)end,
+            customShopPackage=function(...)return customShopPackage(...)end,
+            levelHoneyAllowed=function(s)
+                local decision,facts,catalog=progression.inspect(s)
+                if (decision.action.kind~="wait" and decision.action.kind~="hive") or decision.saveCraftingJelly or decision.savingGearHoney then return false end
+                local capacity=facts.capacity
+                if capacity and facts.occupied then
+                    local target=facts.occupied<capacity and capacity or math.min(50,capacity+1)
+                    local growth=ProgressionPolicy.growth(facts,catalog,target,decision.reserveHoney,decision.reservedItems)
+                    if growth.kind~="wait" and growth.kind~="gate-ready" then return false end
+                end
+                return plan(s).target==nil
+            end,jellyBatchSpent=jellyBatchSpent})
     end
 end
 local function find(cells,cell)
@@ -1100,6 +1114,13 @@ fixedShopPackage=function(item,amount,shopName)
     end
     error("No verified fixed shop option: "..item.." x"..amount,0)
 end
+customShopPackage=function(item,amount,shopName)
+    assert((item=="RoyalJelly" and shopName=="JellyDispenser") or (item=="Treat" and shopName=="TreatShop"),"Unsupported custom quantity item")
+    assert(type(amount)=="number" and amount>0 and amount%1==0 and amount<=999999999999999,"Invalid custom quantity")
+    local pkg=fixedShopPackage(item,1,shopName)
+    pkg.Amount=amount
+    return pkg
+end
 local function buy(item,amount,shop,inventoryCeiling,validatePurchase)
     assert(Config.AutoPurchase,"Purchasing disabled")
     acquire(); move(shopFloor(shop)); near(shopFloor(shop))
@@ -1113,7 +1134,7 @@ local function buy(item,amount,shop,inventoryCeiling,validatePurchase)
     local before=s.Eggs[item] or 0
     if inventoryCeiling then
         if before>=inventoryCeiling then return false end
-        while amount>inventoryCeiling-before do amount=amount/10 end
+        amount=inventoryCeiling-before
     end
     local usable=math.max(0,(s.Honey or 0)-hiveHoneyReserve(s))
     if item=="RoyalJelly" then
@@ -1128,7 +1149,14 @@ local function buy(item,amount,shop,inventoryCeiling,validatePurchase)
         if type(cost)~="number" or (s.Eggs.Ticket or 0)<cost*amount then return false end
     end
     assert(Report.Actions<Config.MaxActions,"Action limit reached")
-    local fixedPackage=fixedShopPackage(item,amount,shop)
+    local fixedPackage=item=="RoyalJelly" and customShopPackage(item,amount,shop) or fixedShopPackage(item,amount,shop)
+    if item=="RoyalJelly" then
+        local quote=Packages.GetCost(fixedPackage,s)
+        local requirements=Packages.PurchaseRequirements(fixedPackage,s)
+        if not quote or quote.Category~="Honey" or quote.Amount~=Policy.jellyCost(royalJellyPurchases(s),amount)
+            or not Packages.CanPurchase(fixedPackage,s) or not Packages.CanGive(fixedPackage,s)
+            or (requirements and not Reqs.Check(s,requirements)) then release();return false end
+    end
     local ticketBefore=s.Eggs.Ticket or 0
     if item=="Gumdrops" then
         local cost=Packages.GetCost(fixedPackage,s)
@@ -1149,7 +1177,7 @@ end
 local function refill()
     local s=refresh()
     if progression and not progression.allowsHive(s) then return false end
-    local _,cells,slots=plan(s)
+    local _,cells=plan(s)
     if jellyBatchReady(s) then return true end
     if not Policy.canBuyRollJelly(cells) then return false end
     local target=Report.RefillAmount
@@ -1158,7 +1186,6 @@ local function refill()
     if not Config.AutoPurchase or (s.Honey or 0)-hiveHoneyReserve(s)
         <Policy.jellyCost(royalJellyPurchases(s),missing) then return false end
     local fallback=Report.CollectorFallback==true
-    local _,pack=Policy.refillFor(slots,fallback)
     Report.Activity="Refilling Royal Jelly to "..target.." before starting a batch"
     while true do
         pauseCheckpoint(); s=refresh()
@@ -1168,13 +1195,9 @@ local function refill()
         inventory=s.Eggs.RoyalJelly or 0
         if inventory>=target then break end
         missing=target-inventory
-        -- Preserve the normal pack size; use supported smaller packs for an
-        -- incidental gift/partial refill so the inventory reaches the exact goal.
-        local amount=pack
-        while amount>missing do amount=amount/10 end
-        local cost=Policy.jellyCost(royalJellyPurchases(s),amount)
+        local cost=Policy.jellyCost(royalJellyPurchases(s),missing)
         if s.Honey-hiveHoneyReserve(s)<cost then return false end
-        if buy("RoyalJelly",amount,"JellyDispenser",target)==false then return false end
+        if buy("RoyalJelly",missing,"JellyDispenser",target)==false then return false end
     end
     local ready=jellyBatchReady(s)
     if ready then move(hiveFloor()) end
@@ -1507,6 +1530,7 @@ local function run()
         if progression and Config.AutoPurchase and Report.Growth.Empty==0 and slots<50
             and progression.grow(s,slots+1) then s=refresh();continue end
         if p.complete then
+            if background and background.level(s,true) then s=refresh();continue end
             if background and(Config.AutoAmulets or Config.AutoQuestAssist)then
                 waitFor("Hive complete; monitoring amulets and active quests");s=refresh();continue
             end
@@ -1529,6 +1553,7 @@ local function run()
             if starReady(s,cells) then Report.Phase="star-eggs"; useStarScript(s); continue end
         end
         if not p.target then
+            if background and background.level(s,true) then s=refresh();continue end
             local reason=p.stage=="final" and p.growth.Empty>0
                 and ("Checking funds to fill "..p.growth.Empty.." empty hive cells; current bees are held")
                 or p.capacityStatus.Conflict and ("Kept bees and current targets require at least "
@@ -1537,6 +1562,7 @@ local function run()
             waitFor(reason); s=refresh(); continue
         end
         if item=="RoyalJelly" and not (jellyBatchReady(s) or refill()) then
+            if background and background.level(s,false) then s=refresh();continue end
             local gear=Report.Progression
             waitFor(gear and gear.SavingGearHoney and ("Saving honey for "..gear.Gear)
                 or not Policy.canBuyRollJelly(cells) and "Waiting for owned Royal Jelly to roll"

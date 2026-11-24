@@ -49,5 +49,22 @@ return function(P)
  retired=P.hiveRetirements({}, {"Star Journey 2"})
  check(retired.Shy and not retired.Ninja,"Quest2 changes Shy only")
  check(next((P.hiveRetirements({},{})))==nil,"Unknown quest state preserves original forces")
+ do
+  local quests={{name="The Family Final",npc="Mother Bear",active=true,tasks={
+   {index=1,type="Have Bees",level=8,current=14,goal=15},
+   {index=2,type="Have Bees",level=9,current=4,goal=5}}}}
+  local cells={{x=1,y=1,bee={Type="Puppy",Lvl=8,Bond=220000}},
+   {x=2,y=1,bee={Type="Tabby",Lvl=8,Bond=349900}},
+   {x=3,y=1,bee={Type="Frosty",Lvl=9,Bond=350100}}}
+  local threshold=function(level)return level==9 and 350000 or 80000 end
+  local treat=function()return 10 end
+  local goal,bee=P.motherLevelTarget(quests,cells,threshold,treat,1.25)
+  check(goal.index==2 and bee.x==2 and bee.treats==8,"Uses the highest unfinished level and cheapest bond deficit with bonuses")
+  quests[1].tasks[2].current=5
+  quests[1].tasks[1].current=15
+  check(P.motherLevelTarget(quests,cells,threshold,treat,1.25)==nil,"Completed objectives consume no treats")
+  quests[1].tasks[2].current=4;quests[1].npc="Other Bear"
+  check(P.motherLevelTarget(quests,cells,threshold,treat,1.25)==nil,"Other NPCs do not authorize leveling")
+ end
  return{passed=n}
 end

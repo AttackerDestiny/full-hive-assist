@@ -538,7 +538,13 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
                     return pending
                 end
             end
-            local pack,packError=P.pack(item,deficit,(catalog.packs or {})[item])
+            local pack,packError
+            if item=="RoyalJelly" and catalog.customRoyalJelly then
+                pack=catalog.customRoyalJelly(deficit)
+                packError="custom-jelly-quote-unavailable"
+            else
+                pack,packError=P.pack(item,deficit,(catalog.packs or {})[item])
+            end
             if not pack then return wait(packError,base) end
             if item=="RoyalJelly" and pack.amount>deficit then return wait("no-exact-fixed-jelly-pack",base) end
             local allowed,packCondition=conditionState(pack.conditions,facts)
@@ -677,6 +683,7 @@ local function canPrepareLaterGear(facts,catalog,gear,materials)
     if remaining==0 then return true end
     local cost=P.craftingJellyCost(remaining,catalog)
     if not cost then return false end
+    if catalog.customRoyalJelly then return true end
     local packs={}
     for _,pack in ipairs((catalog.packs or {}).RoyalJelly or {}) do
         if type(pack)=="table" and conditionState(pack.conditions,facts)==true then packs[#packs+1]=pack end
