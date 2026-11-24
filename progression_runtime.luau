@@ -8,6 +8,7 @@ return function(H)
         local slot=catalog.hiveSlot
         report.NextHiveSlotPrice=slot and slot.cost and slot.cost.Honey
         local decision=P.plan(facts,catalog)
+        if H.materialFarm then H.materialFarm(s,decision) end
         report.Progression={Gear=decision.gear,DeferredGear=decision.deferredGear,Stage=decision.stage,Action=decision.action.kind,
             Reason=decision.reason or decision.action.reason,ReserveHoney=decision.reserveHoney,
             ReservedItems=decision.reservedItems,MissingItems=decision.missingItems,

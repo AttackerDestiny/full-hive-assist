@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.65"
+local SCRIPT_VERSION = "1.8.70"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -87,7 +87,7 @@ local Config = {DryRun=false, PollSeconds=3, Speed=65, NearDistance=16,
     MaxActions=math.huge, MaxRoyalJellies=math.huge, AutoPurchase=true,
     HoneyReserve=0, RollDelay=0.3, StarEggHoney=100000000000,
     AtlasInitiallyStopped=false, PreserveUniqueGifted=false, AutoProgression=true,
-    UseBlenderTickets=false, AutoAmulets=true, AutoQuestAssist=true}
+    UseBlenderTickets=false, AutoAmulets=true, AutoQuestAssist=true, SuperMaterialFarm=false}
 for k,v in pairs(env.FullHiveConfig or {}) do
     if k~="StartupDelaySeconds" then
         assert(Config[k] ~= nil, "Unknown config: "..k)
@@ -127,6 +127,7 @@ if env.FullHiveJellyBatch and not env.FullHiveJellyBatch.Recovery and not rollTa
     env.FullHiveJellyBatch=nil
 end
 local nextFlexible
+local materialFarm
 local stoppedByUser = false
 local PAUSE_REQUESTED = {}
 local function checkStop()
@@ -136,6 +137,7 @@ local function pauseCheckpoint()
     checkStop()
     -- Embedded Star Egg work must finish its own receipt reconciliation.
     if Report.PauseRequested and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning then
+        if materialFarm then materialFarm.restore() end
         error(PAUSE_REQUESTED,0)
     end
 end
@@ -909,6 +911,83 @@ local function initializeProgression()
         end
         return not door.CanCollide
     end
+    env.FullHiveMaterialFarm=env.FullHiveMaterialFarm or {}
+    local materialStats
+    local cachedFieldControl
+    local function fieldControl()
+        if cachedFieldControl and cachedFieldControl.Parent and cachedFieldControl.Text:match("^%s*Field:") then
+            return cachedFieldControl
+        end
+        local roots={uiParent()}
+        for _,button in ipairs(descendants(roots[1],"TextButton")) do
+            if button.Text:match("^%s*Field:") then
+                cachedFieldControl=button
+                return button
+            end
+        end
+        for _,tabs in ipairs(descendants(roots[1],"Frame")) do
+            if tabs.Name=="TabButtons" then
+            local buttons=tabs:FindFirstChild("ScrollingFrame")
+            for _,button in ipairs(buttons and buttons:GetChildren() or {}) do
+                if button:IsA("TextButton") then
+                    for _,connection in ipairs(getconnections(button.MouseButton1Click)) do
+                        if type(connection.Function)=="function" then
+                            for _,value in pairs(reader(connection.Function) or {}) do
+                                if typeof(value)=="Instance" and value:IsA("ScrollingFrame") and not value.Parent then
+                                    roots[#roots+1]=value
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            end
+        end
+        local found
+        for _,searchRoot in ipairs(roots) do
+        for _,button in ipairs(searchRoot:QueryDescendants("TextButton")) do
+            if button.Text:match("^%s*Field:") then
+                if found and found~=button then return nil end
+                found=button
+            end
+        end
+        end
+        cachedFieldControl=found
+        return found
+    end
+    materialFarm=MaterialFarm.new({state=env.FullHiveMaterialFarm,
+        get=function()
+            local control=fieldControl()
+            return control and control.Text:match("^%s*Field:%s*(.-)%s*$")
+        end,
+        set=function(field)
+            local control=fieldControl()
+            if not control or type(getconnections)~="function" then return false end
+            local objects=control.Parent:FindFirstChild("Box")
+            objects=objects and objects:FindFirstChild("Objects")
+            if not objects then return false end
+            for _,button in ipairs(objects:GetChildren()) do
+                if button:IsA("TextButton") and button.Text:match("^%s*(.-)%s*$")==field then
+                    local connections=getconnections(button.MouseButton1Click)
+                    if #connections~=1 then return false end
+                    connections[1]:Fire()
+                    local deadline=os.clock()+1
+                    repeat
+                        task.wait(0.05)
+                    until control.Text:match("^%s*Field:%s*(.-)%s*$")==field or os.clock()>=deadline
+                    return control.Text:match("^%s*Field:%s*(.-)%s*$")==field
+                end
+            end
+            return false
+        end,
+        allowed=function(route)
+            if not route.gate then return true end
+            local gates=workspace:FindFirstChild("Gates")
+            local gate=gates and gates:FindFirstChild(route.gate)
+            local requirements=gate and gate:FindFirstChild("Requirements")
+            return requirements and Reqs.Check(materialStats,loadModule(requirements))==true
+        end,
+    })
     local makeFacts=createProgressionFacts({
         Policy=ProgressionPolicy,Packages=Packages,Recipes=Recipes,Reqs=Reqs,
         Accessories=Accessories,CellTools=CellTools,OsTime=OsTime,Shops=workspace:FindFirstChild("Shops"),
@@ -987,6 +1066,11 @@ local function initializeProgression()
         assertAtlasPaused=assertAtlasPaused,
         scan=scan,hiveFloor=hiveFloor,toyPart=progressionToyPart,jellyBatchSpent=jellyBatchSpent,
         Types=Types,
+        materialFarm=function(s,decision)
+            materialStats=s
+            materialFarm.update(Config.SuperMaterialFarm and not Config.DryRun,decision.missingItems or {})
+            Report.MaterialFarm=env.FullHiveMaterialFarm.item
+        end,
     })
     if createBackground then
         background=createBackground({AmuletPolicy=AmuletPolicy,QuestPolicy=QuestAssistPolicy,
@@ -1526,6 +1610,9 @@ local function run()
         pauseCheckpoint()
         if Report.Actions>=Config.MaxActions or Report.RoyalJellyUsed>=Config.MaxRoyalJellies then break end
         s=Cache:Get()
+        if progression and (Config.SuperMaterialFarm or env.FullHiveMaterialFarm.previous) then
+            progression.inspect(s)
+        end
         if background and Config.AutoAmulets and background.offers(s) then s=refresh();continue end
         if not Config.DryRun then
             local available,button,state=pcall(atlasToggle)
@@ -1838,100 +1925,15 @@ local function setBlenderTickets(enabled)
     env.FullHiveConfig=env.FullHiveConfig or {}
     env.FullHiveConfig.UseBlenderTickets=enabled
 end
+local function setSuperMaterialFarm(enabled)
+    Config.SuperMaterialFarm=enabled==true
+    env.FullHiveConfig=env.FullHiveConfig or {}
+    env.FullHiveConfig.SuperMaterialFarm=Config.SuperMaterialFarm
+    if not enabled and materialFarm then materialFarm.restore() end
+end
 local function hiveSnapshot()
     if not Cache or not Types then return nil end
     return Cache:Get(),Types,Report.ActiveTarget
-end
-local function makeNativeUI(gui)
-    local make=FeatherTheme.make
-    local frame=make("Frame","StatusPanel",gui,{Size=UDim2.fromOffset(350,478),Position=UDim2.fromOffset(18,80)})
-    FeatherTheme.panel(frame)
-    local statusScale=make("UIScale","ResponsiveScale",frame,{Scale=1})
-    local function fitStatus()
-        local camera=workspace.CurrentCamera
-        if camera then
-            local size=camera.ViewportSize
-            statusScale.Scale=math.max(0.2,math.min(1,(size.X-36)/350,(size.Y-124)/478))
-        end
-    end
-    fitStatus()
-    local camera=workspace.CurrentCamera
-    if camera then
-        local resize=camera:GetPropertyChangedSignal("ViewportSize"):Connect(fitStatus)
-        gui.AncestryChanged:Connect(function() if not gui.Parent then resize:Disconnect() end end)
-    end
-    FeatherTheme.brand(frame,UDim2.fromOffset(18,10),2)
-    make("TextLabel","Subtitle",frame,{Position=UDim2.fromOffset(18,43),Size=UDim2.fromOffset(180,16),
-        BackgroundTransparency=1,Text="ATLAS HIVE ASSIST",Font=Enum.Font.GothamMedium,TextSize=10,
-        TextColor3=Color3.fromRGB(143,171,210),TextXAlignment=Enum.TextXAlignment.Left})
-    local version=make("TextLabel","VersionBadge",frame,{Position=UDim2.new(1,-87,0,17),Size=UDim2.fromOffset(69,22),
-        BackgroundColor3=Color3.fromRGB(35,50,79),BorderSizePixel=0,Text="v"..SCRIPT_VERSION,Font=Enum.Font.GothamMedium,
-        TextSize=11,TextColor3=Color3.fromRGB(184,215,255)})
-    make("UICorner","Corner",version,{CornerRadius=UDim.new(1,0)})
-    make("Frame","Divider",frame,{Position=UDim2.fromOffset(18,66),Size=UDim2.new(1,-36,0,1),
-        BackgroundColor3=Color3.fromRGB(124,163,216),BackgroundTransparency=0.75,BorderSizePixel=0})
-    FeatherTheme.draggable(frame,64,10)
-    local phase=make("TextLabel","PhaseBadge",frame,{Position=UDim2.fromOffset(18,78),Size=UDim2.new(1,-36,0,22),
-        BackgroundColor3=Color3.fromRGB(34,54,85),BorderSizePixel=0,Text="STARTING",Font=Enum.Font.GothamBold,
-        TextSize=10,TextColor3=Color3.fromRGB(164,214,255),TextXAlignment=Enum.TextXAlignment.Left})
-    make("UICorner","Corner",phase,{CornerRadius=UDim.new(0,6)})
-    make("UIPadding","Inset",phase,{PaddingLeft=UDim.new(0,10)})
-    local text=make("TextLabel","Activity",frame,{Position=UDim2.fromOffset(18,108),Size=UDim2.new(1,-36,0,38),
-        BackgroundTransparency=1,Text="Preparing progression...",TextColor3=Color3.fromRGB(230,239,253),TextSize=13,
-        TextWrapped=true,Font=Enum.Font.GothamMedium,TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top})
-    local metrics=make("Frame","Metrics",frame,{Position=UDim2.fromOffset(18,154),Size=UDim2.new(1,-36,0,32),BackgroundTransparency=1})
-    make("UIListLayout","Layout",metrics,{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder})
-    local function metric(name,order)
-        local item=make("TextLabel",name,metrics,{Size=UDim2.new(1/3,-16/3,1,0),LayoutOrder=order,
-            BackgroundColor3=Color3.fromRGB(33,47,76),BorderSizePixel=0,Font=Enum.Font.GothamMedium,TextSize=12,
-            TextColor3=Color3.fromRGB(201,223,251),Text="-"})
-        make("UICorner","Corner",item,{CornerRadius=UDim.new(0,8)})
-        return item
-    end
-    local slotsMetric,jellyMetric,refillMetric=metric("Slots",1),metric("Jelly",2),metric("Refill",3)
-    local progressText=make("TextLabel","Progress",frame,{Position=UDim2.fromOffset(18,187),Size=UDim2.new(1,-36,0,26),
-        BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=11,TextColor3=Color3.fromRGB(160,183,217),
-        TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd})
-    local progressionText=make("TextLabel","Progression",frame,{Position=UDim2.fromOffset(18,214),Size=UDim2.new(1,-36,0,58),
-        BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=11,TextColor3=Color3.fromRGB(146,179,221),
-        TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top,TextWrapped=true})
-    local blenderTicketButton=Instance.new("TextButton"); blenderTicketButton.Name="BlenderTicketToggle"
-    blenderTicketButton.Size=UDim2.fromOffset(150,18); blenderTicketButton.Position=UDim2.fromOffset(18,278)
-    blenderTicketButton.Text="Blender tickets: OFF"; blenderTicketButton.Parent=frame; FeatherTheme.button(blenderTicketButton,false)
-    blenderTicketButton.Activated:Connect(function()
-        setBlenderTickets(not Config.UseBlenderTickets)
-        blenderTicketButton.Text="Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF")
-    end)
-    local backgroundText=make("TextLabel","BackgroundStatus",frame,{Position=UDim2.fromOffset(18,302),Size=UDim2.new(1,-36,0,60),
-        BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=10,TextColor3=Color3.fromRGB(167,195,230),
-        TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top,TextWrapped=true})
-    local viewButton=Instance.new("TextButton"); viewButton.Name="ViewHiveButton"
-    local jellyGoalText=make("TextLabel","JellyGoal",frame,{Position=UDim2.fromOffset(18,354),Size=UDim2.new(1,-36,0,64),
-        BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=11,TextColor3=Color3.fromRGB(167,195,230),
-        TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top,TextWrapped=true})
-    viewButton.Size=UDim2.new(0.5,-23,0,32); viewButton.Position=UDim2.new(0,18,1,-48)
-    viewButton.Text="View hive"; viewButton.Parent=frame; FeatherTheme.button(viewButton,true)
-    local button=Instance.new("TextButton"); button.Name="StopAssistButton"; button.Size=UDim2.new(0.5,-23,0,32); button.Position=UDim2.new(0.5,5,1,-48)
-    button.Text=Report.PauseRequested and "Resume assist" or "Pause assist"; button.Parent=frame; FeatherTheme.button(button,false)
-    button.Activated:Connect(function() setAssistEnabled(Report.PauseRequested==true) end)
-    createHiveView(gui,frame,viewButton,hiveSnapshot)
-    local function setText(label,value)
-        if label.Text~=value then label.Text=value end
-    end
-    watchUI(gui,function(state)
-        setText(phase,state.phase)
-        phase.TextColor3=Report.Error and Color3.fromRGB(255,176,192) or Color3.fromRGB(164,214,255)
-        setText(text,state.activity)
-        setText(progressText,state.progress.."\n"..state.nextSlot)
-        setText(progressionText,state.gear)
-        setText(backgroundText,state.background)
-        setText(jellyGoalText,state.jellyGoal)
-        setText(slotsMetric,state.slots)
-        setText(jellyMetric,state.jelly)
-        setText(refillMetric,state.refill)
-        setText(blenderTicketButton,"Blender tickets: "..(Config.UseBlenderTickets and "ON" or "OFF"))
-        setText(button,state.finished and "Finished" or state.enabled and "Pause assist" or "Resume assist")
-    end)
 end
 local function makeUI()
     local gui,parent=makeStatusGui()
@@ -1942,6 +1944,8 @@ local function makeUI()
         setAssistEnabled=setAssistEnabled,
         ticketsEnabled=function() return Config.UseBlenderTickets end,
         setTickets=setBlenderTickets,
+        materialFarmEnabled=function() return Config.SuperMaterialFarm end,
+        setMaterialFarm=setSuperMaterialFarm,
     })
     if wind then
         gui:SetAttribute("FeatherRenderer","WindUI")
@@ -1950,9 +1954,8 @@ local function makeUI()
         watchUI(gui,wind.render)
     else
         Report.UIWarning=windError
-        gui:SetAttribute("FeatherRenderer","Native")
-        warn("[Full Hive] WindUI unavailable; using the native panel: "..windError)
-        makeNativeUI(gui)
+        gui:SetAttribute("FeatherRenderer","Unavailable")
+        warn("[Full Hive] WindUI unavailable: "..windError)
         FeatherWindUI.mountToggle(parent,gui)
     end
     gui:SetAttribute("FeatherVersion",SCRIPT_VERSION)
@@ -1965,8 +1968,10 @@ local ok,err=xpcall(function()
     runWithCharacterRecovery()
 end,function(e) return tostring(e) end)
 release()
+if materialFarm then pcall(materialFarm.restore) end
 if not ok then
     Report.Phase=stoppedByUser and "stopped" or "error"
     if not stoppedByUser then Report.Error=err; warn("[Full Hive] "..err) end
 end
 env.FullHiveRunning=false
+

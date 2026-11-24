@@ -13,6 +13,18 @@ const args = argsPath ? JSON.parse(await readFile(argsPath, 'utf8')) : {};
 const client = new Client({ name: 'bss-diagnostics', version: '1.0.0' });
 try {
     await client.connect(new StreamableHTTPClientTransport(new URL('http://127.0.0.1:16384/mcp')));
+    if (args.clientId && !/^[0-9a-f-]{8,}$/i.test(args.clientId)) {
+        let matches = [];
+        for (let attempt = 0; attempt < 5; attempt++) {
+            const discovery = await client.callTool({ name: 'list-clients', arguments: {} });
+            const listing = discovery.content?.filter(item => item.type === 'text').map(item => item.text).join('\n') || '';
+            matches = listing.split('\n').filter(line => line.includes(` | ${args.clientId} @ `));
+            if (matches.length) break;
+            await new Promise(resolve => setTimeout(resolve, 250));
+        }
+        if (matches.length !== 1) throw new Error(`Connected account unavailable or ambiguous: ${args.clientId}`);
+        args.clientId = matches[0].trim().split(' | ')[0];
+    }
     const result = name === 'tools/list' ? await client.listTools() : await client.callTool({ name, arguments: args });
     console.log(JSON.stringify(result));
     if (result.isError) process.exitCode = 1;

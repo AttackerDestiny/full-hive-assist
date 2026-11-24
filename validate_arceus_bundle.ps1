@@ -52,6 +52,11 @@ $required = @(
 if ([version]$version -ge [version]'1.8.2') {
     $required += @('local function setAssistEnabled(enabled)','Title="Assist enabled"','err==PAUSE_REQUESTED')
 } else { $required += 'button.Activated:Connect(stopAssist)' }
+if ([version]$version -ge [version]'1.8.67') {
+    $required=@($required | Where-Object { $_ -notin @('FeatherTheme.brand(frame','viewButton.Name="ViewHiveButton"') })
+    $required+=@('Title="Super Material Farm"','Icon="feather"','FeatherWindUI.mount(parent,gui')
+    if ($bundle.Contains('local function makeNativeUI(')) { throw 'Legacy status panel must not be bundled' }
+}
 foreach ($needle in $required) {
     if (-not $bundle.Contains($needle)) { throw "Compatibility marker missing: $needle" }
 }

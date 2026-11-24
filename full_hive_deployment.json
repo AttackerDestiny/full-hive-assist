@@ -82,12 +82,12 @@
     "liveStateCurrentlyVerified": false
   },
   "previousStartedAt": 1792471230,
-  "startedLocal": "2026-10-20T00:46:41-05:00",
+  "startedLocal": "2026-10-20T12:46:41+07:00",
   "startedAt": 1792475201,
   "executor": "Arceus X",
   "change": "Cap Ninja at4 and Lion at2 total slots, including gifted copies; excess cleanup and recovery keep guard.",
   "sha256": "61ccb751844232471f112884162a18ea1205ac550ee12b83462309746f894be5",
-  "verifiedLocal": "2026-10-20T00:48:17.114003-05:00",
+  "verifiedLocal": "2026-10-20T12:48:17.114003+07:00",
   "clientId": "2e22d100-fadb-4465-802b-4a68ae1e8237",
   "bytes": 142548,
   "clients": [
@@ -116,7 +116,7 @@
       "serverNameVerifiedInRobloxUI": true,
       "royalJellyUsed": 6,
       "starJellyUpgradeLiveVerified": true,
-      "latestConnectionCheckLocal": "2026-10-20T02:37:13.652334-05:00",
+      "latestConnectionCheckLocal": "2026-10-20T14:37:13.652334+07:00",
       "latestConnectionState": "unreachable-current-runtime-unknown"
     },
     {
@@ -145,12 +145,12 @@
       "royalJellyUsed": 0,
       "privateServer": "Alt1",
       "serverNameVerifiedInRobloxUI": true,
-      "latestConnectionCheckLocal": "2026-10-20T02:37:13.652334-05:00",
+      "latestConnectionCheckLocal": "2026-10-20T14:37:13.652334+07:00",
       "latestConnectionState": "unreachable-current-runtime-unknown"
     }
   ],
   "lastReconnect": {
-    "verifiedLocal": "2026-10-20T00:48:17.114003-05:00",
+    "verifiedLocal": "2026-10-20T12:48:17.114003+07:00",
     "account": "RileyCosmicguppydude",
     "profile": "cloudphone",
     "package": "free.nokaF",
@@ -202,7 +202,7 @@
     "localBundleVersion": "1.3.7"
   },
   "phone2Setup": {
-    "verifiedLocal": "2026-10-19T23:36:27.512788-05:00",
+    "verifiedLocal": "2026-10-20T11:36:27.512788+07:00",
     "profile": "phone2",
     "package": "com.roblox.client",
     "account": "Luneri427",
@@ -220,7 +220,7 @@
     "inventoryAfter": 13,
     "allEightPresent": true,
     "royalJellySelectedInPreviousVersion": "1.3.4",
-    "verifiedLocal": "2026-10-19T23:36:27.512788-05:00"
+    "verifiedLocal": "2026-10-20T11:36:27.512788+07:00"
   },
   "starJellyUpgradeLiveProof": {
     "version": "1.3.6",
@@ -248,12 +248,12 @@
     "normalRefillRestored": 2000,
     "atlasResumed": true,
     "giftedCollectorStopsWithUnusedStarJellyIsolatedVerified": true,
-    "verifiedLocal": "2026-10-19T23:43:09.362815-05:00"
+    "verifiedLocal": "2026-10-20T11:43:09.362815+07:00"
   },
   "previousMonitorRun": {
     "trigger": "automatic-heartbeat",
     "triggerUtc": "2026-10-20T07:34:32.043Z",
-    "attemptedLocal": "2026-10-20T02:37:13.652334-05:00",
+    "attemptedLocal": "2026-10-20T14:37:13.652334+07:00",
     "sourceChanged": false,
     "localBundleVersion": "1.3.6",
     "connectedClients": 0,
@@ -320,7 +320,7 @@
     ]
   },
   "lastHostConnectionAttempt": {
-    "attemptedLocal": "2026-10-20T04:22:50.365534-05:00",
+    "attemptedLocal": "2026-10-20T16:22:50.365534+07:00",
     "triggerUtc": "2026-10-20T09:21:03.967Z",
     "localMcpConnectedClients": 0,
     "phone1StatusReachable": false,
@@ -409,7 +409,7 @@
     "account": "RileyCosmicguppydude"
   },
   "latestDisconnectRecovery": {
-    "verifiedUtc": "2026-10-20T16:25:00-05:00",
+    "verifiedUtc": "2026-10-21T04:25:00+07:00",
     "riley": {
       "account": "RileyCosmicguppydude",
       "phoneProfile": "phone1",
@@ -457,7 +457,7 @@
   },
   "offlineCandidate": {
     "version": "1.5.1",
-    "createdUtc": "2026-10-21T06:52:15.720136+00:00",
+    "createdUtc": "2026-10-21T13:52:15.720136+07:00",
     "validation": "connected-isolated-regressions-and-limited-live-correction",
     "checks": 2976,
     "suiteChecks": {
@@ -498,7 +498,7 @@
   },
   "previousOfflineCandidate": {
     "version": "1.4.4",
-    "createdUtc": "2026-10-21T04:37:31.452324+00:00",
+    "createdUtc": "2026-10-21T11:37:31.452324+07:00",
     "validation": "static-review-and-compilation-only",
     "checks": 0,
     "regressionFixturesExecuted": false,
@@ -523,7 +523,7 @@
     ]
   },
   "latestReadOnlyResearch": {
-    "observedUtc": "2026-10-21T05:02:04.877966+00:00",
+    "observedUtc": "2026-10-21T12:02:04.877966+07:00",
     "evidence": "connected_hive_evidence.json",
     "newCandidate": "1.5.0",
     "deployed": false,
@@ -536,14 +536,14 @@
     "path": "loader.luau",
     "publishedUrl": "https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/loader.luau",
     "bundleUrl": "https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/auto_full_hive_assist.luau",
-    "createdUtc": "2026-10-21T05:32:55.954509+00:00",
+    "createdUtc": "2026-10-21T12:32:55.954509+07:00",
     "bytes": 2660,
     "sha256": "fbd979b3d56c9a99918d7c9b8c9da8ac42e69e6e457d92ed202dcd67949ef261",
     "validation": "static-compilation-only",
     "executed": false,
     "deployedToClients": false,
     "mainBundleVersionUnchanged": "1.5.0",
-    "updatedUtc": "2026-10-21T05:36:14.704039+00:00",
+    "updatedUtc": "2026-10-21T12:36:14.704039+07:00",
     "repositoryPrivate": true,
     "anonymousRawDownloadAccessible": false,
     "privateDownloadMode": "GitHub contents API with runtime FullHiveGitHubToken; contents-read access",
@@ -560,7 +560,7 @@
     "bundleSha256": "69f80c4336a6397772ac6caa0dfe313d5f478ee6f7a8685fa14fd80e419b98dc",
     "bundleBytes": 157178,
     "executeCount": 1,
-    "executedUtc": "2026-10-21T05:44:57.084588+00:00",
+    "executedUtc": "2026-10-21T12:44:57.084588+07:00",
     "startedAt": 1792561453,
     "startupDelayObserved": true,
     "postStartupVerified": true,
@@ -578,7 +578,7 @@
     },
     "scope": "Human explicitly authorized this one-time execution on Riley; recurring research remains read-only",
     "otherAccountModified": false,
-    "verifiedUtc": "2026-10-21T05:46:39.802391+00:00",
+    "verifiedUtc": "2026-10-21T12:46:39.802391+07:00",
     "running": true,
     "stop": false,
     "reportVersion": "1.5.0",
@@ -606,7 +606,7 @@
   },
   "latestConnectedRegression": {
     "version": "1.5.1",
-    "verifiedUtc": "2026-10-21T06:52:15.720136+00:00",
+    "verifiedUtc": "2026-10-21T13:52:15.720136+07:00",
     "checksPerExecutor": 2976,
     "suites": {
       "policy": 753,
@@ -651,7 +651,7 @@
     "basicEggsBefore": 0,
     "occupiedBefore": 43,
     "bundleSha256": "69f80c4336a6397772ac6caa0dfe313d5f478ee6f7a8685fa14fd80e419b98dc",
-    "verifiedUtc": "2026-10-21T06:03:40.652899+00:00",
+    "verifiedUtc": "2026-10-21T13:03:40.652899+07:00",
     "running": true,
     "stop": false,
     "reportVersion": "1.5.0",
@@ -691,7 +691,7 @@
     "authorization": "Human: always upgrade when a new version or update/change happens; preserve healthy unchanged instances"
   },
   "latestNaturalV150Result": {
-    "verifiedUtc": "2026-10-21T06:03:40.652899+00:00",
+    "verifiedUtc": "2026-10-21T13:03:40.652899+07:00",
     "account": "RileyCosmicguppydude",
     "version": "1.5.0",
     "startedAt": 1792561453,
@@ -711,7 +711,7 @@
     "coverage": "First unique gifted retention and completion/save-leftovers observed naturally; individual top-up/admission/intermediate roll sequence not fully captured"
   },
   "latestNaturalV150Check": {
-    "verifiedUtc": "2026-10-21T06:24:27.276376+00:00",
+    "verifiedUtc": "2026-10-21T13:24:27.276376+07:00",
     "version": "1.5.0",
     "sameClientJobVerified": true,
     "reexecuted": false,
@@ -828,7 +828,7 @@
     }
   },
   "latestVersionScopedCheck": {
-    "observedUtc": "2026-10-21T10:03:14.458597+00:00",
+    "observedUtc": "2026-10-21T17:03:14.458597+07:00",
     "sameClientsAndJobVerified": true,
     "noDeploymentPerformed": true,
     "noRegressionRepeat": true,
@@ -866,7 +866,7 @@
   },
   "rileyUpgradeAuthorizationRequest": {
     "version": "1.5.1",
-    "requestedUtc": "2026-10-21T07:28:20.848368+00:00",
+    "requestedUtc": "2026-10-21T14:28:20.848368+07:00",
     "status": "approved-standing-upgrades-both-accounts",
     "reason": "New gifted Hasty/Rad retained by legacy1.5.0, while saved task explicitly prohibits upgrading Riley without a new human instruction",
     "candidateAlreadyTestedChecks": 2976,
@@ -884,7 +884,7 @@
   "candidates": {
     "1.5.2": {
       "version": "1.5.2",
-      "createdUtc": "2026-10-21T09:42:42.216200+00:00",
+      "createdUtc": "2026-10-21T16:42:42.2162+07:00",
       "status": "candidate-not-deployed",
       "baseVersion": "1.5.1",
       "baseBundleSha256": "59bbe1d45778e8722d9fabe8929bc4698f398220e7c4c1e0504ab627bdf25409",
@@ -909,7 +909,7 @@
     }
   },
   "knownFinalBabyPolicyRegression": {
-    "verifiedUtc": "2026-10-21T09:42:42.216200+00:00",
+    "verifiedUtc": "2026-10-21T16:42:42.2162+07:00",
     "affectedTestedVersion": "1.5.1",
     "stage": "final",
     "ordinaryBabyGoal": 0,
@@ -919,7 +919,7 @@
     "remedyDeployed": false
   },
   "latestNaturalGiftedCollectorV151": {
-    "verifiedUtc": "2026-10-21T10:03:14.458597+00:00",
+    "verifiedUtc": "2026-10-21T17:03:14.458597+07:00",
     "account": "Luneri427",
     "version": "1.5.1",
     "startedAt": 1792565007,
@@ -949,7 +949,7 @@
     "coverage": "Natural normal gifted-collector completion and admission closure with saved leftovers; individual top-ups/intermediate requests not fully observed"
   },
   "bundlePublishingIntegrity": {
-    "verifiedUtc": "2026-10-21T10:32:23.238955+00:00",
+    "verifiedUtc": "2026-10-21T17:32:23.238955+07:00",
     "cause": "core.autocrlf=true with generated artifact text attributes unspecified normalized committed bytes",
     "fix": "Three anchored -text attributes preserve exact generated bundle bytes; per-path cr-at-eol whitespace handling",
     "artifacts": [
@@ -991,7 +991,7 @@
     "bundle": "auto_full_hive_assist.luau",
     "sha256": "f73e183aeb814aa3089117da0bd1167aa7153868c82913d813192038c6a23580",
     "bytes": 228315,
-    "observedUtc": "2026-10-21T16:04:26.769031+00:00",
+    "observedUtc": "2026-10-21T23:04:26.769031+07:00",
     "accounts": [
       {
         "account": "RileyCosmicguppydude",
@@ -1045,7 +1045,7 @@
   },
   "latestAutoProgressionFixes": {
     "version": "1.6.2",
-    "verifiedUtc": "2026-10-21T17:29:53.154750+00:00",
+    "verifiedUtc": "2026-10-22T00:29:53.15475+07:00",
     "sha256": "673bb6b913c2877c56ca1b444b92c97a1058d0e7e9fbb3f76ab7ee24830744fa",
     "bytes": 237576,
     "checksPerExecutor": 3287,
@@ -1144,7 +1144,7 @@
   },
   "latestCraftFundingPerformance": {
     "version": "1.6.3",
-    "verifiedUtc": "2026-10-21T17:46:40.300894+00:00",
+    "verifiedUtc": "2026-10-22T00:46:40.300894+07:00",
     "sha256": "e69b21e22055b1349524eeb2e05ff9a8ca282743dda3210800336d2397ebca17",
     "bytes": 245389,
     "checksPerExecutor": 3306,
@@ -1183,11 +1183,11 @@
       ]
     },
     "limits": "Read-only data/control timings are not FPS measurements; no speedup, purchase or main script execution during validation. Historical rejected transport fixtures excluded.",
-    "resumeAuthorizedUtc": "2026-10-21T18:10:19.702420+00:00"
+    "resumeAuthorizedUtc": "2026-10-22T01:10:19.70242+07:00"
   },
   "latestAuthorizedResume": {
     "version": "1.6.3",
-    "verifiedUtc": "2026-10-21T18:10:19.702420+00:00",
+    "verifiedUtc": "2026-10-22T01:10:19.70242+07:00",
     "authorization": "Human: Resume v1.6.3 on Riley and Luneri; then requested Atlas and assist re-execution",
     "bundleSha256": "e69b21e22055b1349524eeb2e05ff9a8ca282743dda3210800336d2397ebca17",
     "bundleBytes": 245389,
@@ -1260,7 +1260,7 @@
   },
   "latestPlanterPriorityUpdate": {
     "version": "1.6.4",
-    "verifiedUtc": "2026-10-21T18:22:00.386591+00:00",
+    "verifiedUtc": "2026-10-22T01:22:00.386591+07:00",
     "sha256": "6282589d6994172090b19d7f1fb5d99ac19b193d765501df5c7f09cbc8ee7ab8",
     "bytes": 246539,
     "checksPerExecutor": 3329,
@@ -1372,7 +1372,7 @@
     "postStartupVerified": true
   },
   "latestHealthyMonitor": {
-    "verifiedUtc": "2026-10-21T19:06:38.425823+00:00",
+    "verifiedUtc": "2026-10-22T02:06:38.425823+07:00",
     "heartbeatUtc": "2026-10-21T18:58:53.377Z",
     "version": "1.6.4",
     "sha256": "6282589d6994172090b19d7f1fb5d99ac19b193d765501df5c7f09cbc8ee7ab8",
@@ -1476,7 +1476,7 @@
   },
   "latestHatchReceiptFix": {
     "version": "1.6.5",
-    "recordedUtc": "2026-10-21T21:37:54.606469+00:00",
+    "recordedUtc": "2026-10-22T04:37:54.606469+07:00",
     "sha256": "dc2dc01ed78e40b226e04ef0479628dd1cac9fc8a77d00d257a18fff5a4615fb",
     "bytes": 252281,
     "checksLocal": 3360,
@@ -1550,7 +1550,7 @@
         "maintenanceRunningFalseObserved": true,
         "startupDelayObserved": true,
         "postStartupVerified": true,
-        "verifiedUtc": "2026-10-21T21:38:29.195888+00:00",
+        "verifiedUtc": "2026-10-22T04:38:29.195888+07:00",
         "uiVersion": "v1.6.5",
         "running": true,
         "stop": false,
@@ -1585,7 +1585,7 @@
     "validationLimit": "New receipt behavior has isolated pure-data coverage, including mutation of original input tables during a request. No new hatch, timer completion, RNG outcome or manual spend was forced. Historical rejected transport fixtures remain excluded.",
     "automationChanged": false,
     "acknowledgement": {
-      "verifiedUtc": "2026-10-22T03:24:30.283760+00:00",
+      "verifiedUtc": "2026-10-22T10:24:30.28376+07:00",
       "humanInstruction": "Acknowledge this hatch and resume v1.6.5",
       "scope": "single-original-Basic-hatch-no-replay",
       "account": "Luneri427",
@@ -1669,7 +1669,7 @@
   },
   "latestBlenderSpeedupFix": {
     "version": "1.6.6",
-    "verifiedUtc": "2026-10-22T03:45:43.173625+00:00",
+    "verifiedUtc": "2026-10-22T10:45:43.173625+07:00",
     "sha256": "8120394e3a145f503b063ca784108fc19de8a57b88cebce21d8f921e767857ea",
     "bytes": 255976,
     "checksLocal": 3401,
@@ -1828,7 +1828,7 @@
   },
   "latestStaleUnsentLeaseFix": {
     "version": "1.6.7",
-    "verifiedUtc": "2026-10-22T06:12:09.925502+00:00",
+    "verifiedUtc": "2026-10-22T13:12:09.925502+07:00",
     "sha256": "8a6ae5118807b804fe6e9bb23eb7c1caffdfb12bcdfe702d17214b900bf33c9a",
     "bytes": 256794,
     "checksLocal": 3421,
@@ -1929,7 +1929,7 @@
   },
   "latestAmuletQuestExpansion": {
     "version": "1.7.2",
-    "verifiedUtc": "2026-10-23T02:10:54.454326+00:00",
+    "verifiedUtc": "2026-10-23T09:10:54.454326+07:00",
     "bundle": "auto_full_hive_assist.luau",
     "sha256": "5398f6637c8651490072451a71ca94f1a0dde5f95595256fb12dabfdb1c52af6",
     "bytes": 284214,
@@ -2137,7 +2137,7 @@
   },
   "latestMovementRecoveryFix": {
     "version": "1.7.3",
-    "verifiedUtc": "2026-10-23T04:53:17.242810+00:00",
+    "verifiedUtc": "2026-10-23T11:53:17.24281+07:00",
     "sha256": "1baac75658c6f8526067258f705a4ea472ffa3dc8e39f454879dc09252d165a5",
     "bytes": 285463,
     "originalFailure": {
@@ -2255,7 +2255,7 @@
   },
   "latestStarThresholdAndQuestRetirement": {
     "version": "1.7.6",
-    "verifiedUtc": "2026-10-23T07:01:20.189461+00:00",
+    "verifiedUtc": "2026-10-23T14:01:20.189461+07:00",
     "releases": {
       "1.7.4": {
         "sha256": "cf8b52d88236eac797023ee0356812da3e8b4ea7481950376a3f75fcc8eb2ba7",
@@ -2511,7 +2511,7 @@
   },
   "latestStarPressureAndDiamondTickets": {
     "version": "1.7.7",
-    "verifiedUtc": "2026-10-23T09:50:05.630183+00:00",
+    "verifiedUtc": "2026-10-23T16:50:05.630183+07:00",
     "sha256": "55a720f05e9db6a30e4ec0b9637b5b82a6f7d52b7ecbd1303589e46a3ee6f9a6",
     "bytes": 301133,
     "starPressure": {
@@ -2629,7 +2629,7 @@
   },
   "latestFirePlaceholderRetirement": {
     "version": "1.7.8",
-    "verifiedUtc": "2026-10-23T10:14:54.296717+00:00",
+    "verifiedUtc": "2026-10-23T17:14:54.296717+07:00",
     "sha256": "6c09024e146fda7ca317e259e9f90f05f2fb43777ef78f6b1cb7db679e425d6f",
     "bytes": 301651,
     "humanRule": {
@@ -2724,7 +2724,7 @@
   },
   "latestStatsReadRecovery": {
     "version": "1.7.9",
-    "verifiedUtc": "2026-10-24T10:12:36.739210+00:00",
+    "verifiedUtc": "2026-10-24T17:12:36.73921+07:00",
     "sha256": "04b8a4c32161399c106521da5b5048abb6ef04493e473baac9246c58a6f6e21e",
     "bytes": 304081,
     "originalFailure": {
@@ -2823,7 +2823,7 @@
     }
   },
   "latestManualAtlasAssistExecution": {
-    "verifiedUtc": "2026-10-24T10:20:14.151143+00:00",
+    "verifiedUtc": "2026-10-24T17:20:14.151143+07:00",
     "trigger": "Human explicitly requested re-execute Atlas and assist",
     "account": "Luneri427",
     "userId": 11780133534,
@@ -2900,16 +2900,37 @@
     "version": "1.8.36",
     "sha256": "6e2d2d552b30abd259b280ec504050766be9407d793660bf23c520647f862cfa",
     "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
-    "startedAt": {"QuackAltear1": 1795163034, "QuackAltear2": 1795163034, "QuackAltear3": 1795163034, "QuackAltear4": 1795163030, "QuackAltear5": 1795163030, "QuackAltear06": 1795163030},
+    "startedAt": {
+      "QuackAltear1": 1795163034,
+      "QuackAltear2": 1795163034,
+      "QuackAltear3": 1795163034,
+      "QuackAltear4": 1795163030,
+      "QuackAltear5": 1795163030,
+      "QuackAltear06": 1795163030
+    },
     "offlineChecks": 4398,
-    "tabbyPurchaseVerified": ["QuackAltear1", "QuackAltear2", "QuackAltear3", "QuackAltear4", "QuackAltear5", "QuackAltear06"],
+    "tabbyPurchaseVerified": [
+      "QuackAltear1",
+      "QuackAltear2",
+      "QuackAltear3",
+      "QuackAltear4",
+      "QuackAltear5",
+      "QuackAltear06"
+    ],
     "quackAltear2": "Verified Tabby after a new approach; tickets 532 to 32"
   },
   "quackV1837": {
     "version": "1.8.37",
     "sha256": "0f6d0629f7bfe2951ea2f36323905b9cc1224e5ec281307f1d70a2d9e9f92a2e",
     "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
-    "startedAt": {"QuackAltear1": 1795163606, "QuackAltear2": 1795163585, "QuackAltear3": 1795163586, "QuackAltear4": 1795163585, "QuackAltear5": 1795163589, "QuackAltear06": 1795163588},
+    "startedAt": {
+      "QuackAltear1": 1795163606,
+      "QuackAltear2": 1795163585,
+      "QuackAltear3": 1795163586,
+      "QuackAltear4": 1795163585,
+      "QuackAltear5": 1795163589,
+      "QuackAltear06": 1795163588
+    },
     "offlineChecks": 4404,
     "verifiedEmptyCellTabbyHatches": 6,
     "liveGummyPurchaseObserved": false
@@ -2918,61 +2939,113 @@
     "version": "1.8.38",
     "sha256": "b00e56bc4a84bee399a1e575b29cd85d6c2582752589893b7dc9b4cc0e5ad868",
     "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
-    "startedAt": {"QuackAltear1": 1795183721, "QuackAltear5": 1795183733, "QuackAltear06": 1795183736},
+    "startedAt": {
+      "QuackAltear1": 1795183721,
+      "QuackAltear5": 1795183733,
+      "QuackAltear06": 1795183736
+    },
     "offlineChecks": 4418,
-    "verifiedCandyPlanterPurchases": ["QuackAltear1", "QuackAltear5"]
+    "verifiedCandyPlanterPurchases": [
+      "QuackAltear1",
+      "QuackAltear5"
+    ]
   },
   "quackV1839": {
     "version": "1.8.39",
     "sha256": "a0082a5e1cad48b8f79be0355a7ac7da5e6d5dc731a1ab2658151a59b69cbe3f",
     "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
-    "startedAt": {"QuackAltear1": 1795184089, "QuackAltear5": 1795184089, "QuackAltear06": 1795184088},
+    "startedAt": {
+      "QuackAltear1": 1795184089,
+      "QuackAltear5": 1795184089,
+      "QuackAltear06": 1795184088
+    },
     "offlineChecks": 4427,
-    "mountaintopPurchaseVerified": {"account": "QuackAltear1", "item": "Beekeeper's Boots", "at": 1795184119},
+    "mountaintopPurchaseVerified": {
+      "account": "QuackAltear1",
+      "item": "Beekeeper's Boots",
+      "at": 1795184119
+    },
     "deferredMaskUiVerified": true
   },
   "quackV1842": {
     "version": "1.8.42",
     "sha256": "28bc3ae95730b94aeffac115958e83d978499f33094084d7200d04d15d8f33fd",
     "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
-    "startedAt": {"QuackAltear1": 1795227177, "QuackAltear5": 1795227180, "QuackAltear06": 1795227180},
+    "startedAt": {
+      "QuackAltear1": 1795227177,
+      "QuackAltear5": 1795227180,
+      "QuackAltear06": 1795227180
+    },
     "offlineChecks": 4431,
-    "gearHoneyHoldVerified": {"account": "QuackAltear1", "item": "Blue Port-O-Hive", "reserve": 12500000},
+    "gearHoneyHoldVerified": {
+      "account": "QuackAltear1",
+      "item": "Blue Port-O-Hive",
+      "reserve": 12500000
+    },
     "slotPurchaseObserved": false
   },
   "quackV1843": {
     "version": "1.8.43",
     "sha256": "7fc593ba00f1f4e284a05196f8f8a2963f7cb91cd61a7c539285b415d6816222",
     "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
-    "startedAt": {"QuackAltear1": 1795251854, "QuackAltear5": 1795251854, "QuackAltear06": 1795251845},
+    "startedAt": {
+      "QuackAltear1": 1795251854,
+      "QuackAltear5": 1795251854,
+      "QuackAltear06": 1795251845
+    },
     "offlineChecks": 4440,
-    "verifiedCraft": {"account": "QuackAltear5", "recipe": "BlueExtract", "count": 13, "at": 1795251869}
+    "verifiedCraft": {
+      "account": "QuackAltear5",
+      "recipe": "BlueExtract",
+      "count": 13,
+      "at": 1795251869
+    }
   },
   "quackV1844": {
     "version": "1.8.44",
     "sha256": "81518e64136c513eb115c11d8152ad9af9c29cb5d8bcb3797bffa6c19dd37a67",
     "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
-    "startedAt": {"QuackAltear1": 1795260823, "QuackAltear5": 1795260822, "QuackAltear06": 1795260814},
+    "startedAt": {
+      "QuackAltear1": 1795260823,
+      "QuackAltear5": 1795260822,
+      "QuackAltear06": 1795260814
+    },
     "offlineChecks": 4468,
-    "ownedJellyWaitVerified": ["QuackAltear1", "QuackAltear06"],
+    "ownedJellyWaitVerified": [
+      "QuackAltear1",
+      "QuackAltear06"
+    ],
     "matureRefillObservedLive": false
   },
   "quackV1845": {
     "version": "1.8.45",
     "sha256": "b7a31d98adbcfe4370f94867cccc749fd05d3cf7c4c4afb981cf4643c7eb3d84",
     "jobId": "21b13cc7-411f-4d7e-a315-cfa18a38ac75",
-    "startedAt": {"QuackAltear1": 1795266145, "QuackAltear5": 1795266152, "QuackAltear06": 1795266157},
+    "startedAt": {
+      "QuackAltear1": 1795266145,
+      "QuackAltear5": 1795266152,
+      "QuackAltear06": 1795266157
+    },
     "offlineChecks": 4474,
-    "liveSoftWaxWaitVerified": ["QuackAltear1", "QuackAltear5", "QuackAltear06"],
+    "liveSoftWaxWaitVerified": [
+      "QuackAltear1",
+      "QuackAltear5",
+      "QuackAltear06"
+    ],
     "liveFundingRestartObserved": false
   },
   "quackV1847": {
     "version": "1.8.47",
     "sha256": "e02bd16f7b7daf9710c5322c433015c16e703c5ca17bf9b7d086df96b2a0f715",
     "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
-    "startedAt": {"QuackAltear1": 1795313989, "QuackAltear06": 1795314015},
+    "startedAt": {
+      "QuackAltear1": 1795313989,
+      "QuackAltear06": 1795314015
+    },
     "offlineChecks": 4489,
-    "initiallyBlockedByExistingSlotReceipt": ["QuackAltear5"],
+    "initiallyBlockedByExistingSlotReceipt": [
+      "QuackAltear5"
+    ],
     "slotPurchaseObserved": true,
     "verifiedSlotPurchase": {
       "account": "QuackAltear5",
@@ -2989,15 +3062,28 @@
     "version": "1.8.48",
     "sha256": "f933b027f1977f3abb6d34d433719e178a2dd6ad42c8bd2974bfa4998de89d2f",
     "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
-    "startedAt": {"QuackAltear1": 1795314900, "QuackAltear5": 1795314881, "QuackAltear06": 1795314884},
+    "startedAt": {
+      "QuackAltear1": 1795314900,
+      "QuackAltear5": 1795314881,
+      "QuackAltear06": 1795314884
+    },
     "offlineChecks": 4495,
-    "firstBronzeVerified": {"account": "QuackAltear06", "acceptedAt": 1795314900, "qualifyingStats": false, "savingForUpgrade": true}
+    "firstBronzeVerified": {
+      "account": "QuackAltear06",
+      "acceptedAt": 1795314900,
+      "qualifyingStats": false,
+      "savingForUpgrade": true
+    }
   },
   "quackV1849": {
     "version": "1.8.49",
     "sha256": "2908f285e8d29b1c87be925172b418a44344d59550c327776ddf08d73951624e",
     "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
-    "startedAt": {"QuackAltear1": 1795318653, "QuackAltear5": 1795318649, "QuackAltear06": 1795318661},
+    "startedAt": {
+      "QuackAltear1": 1795318653,
+      "QuackAltear5": 1795318649,
+      "QuackAltear06": 1795318661
+    },
     "offlineChecks": 4525,
     "blueHQGroundRayVerified": true,
     "blueClayPurchaseObserved": false
@@ -3006,31 +3092,63 @@
     "version": "1.8.50",
     "sha256": "1b96d3cbb9b2da32b35fe5e442205aeef5d33b1cfbefd4aefc5338bec4147ef8",
     "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
-    "startedAt": {"QuackAltear5": 1795334451, "QuackAltear1": 1795334458, "QuackAltear06": 1795334466},
+    "startedAt": {
+      "QuackAltear5": 1795334451,
+      "QuackAltear1": 1795334458,
+      "QuackAltear06": 1795334466
+    },
     "offlineChecks": 4522,
-    "dipperPurchaseVerified": {"account": "QuackAltear5", "at": 1795334462, "occupied": 33, "capacity": 33, "equipped": true}
+    "dipperPurchaseVerified": {
+      "account": "QuackAltear5",
+      "at": 1795334462,
+      "occupied": 33,
+      "capacity": 33,
+      "equipped": true
+    }
   },
   "quackV1851": {
     "version": "1.8.51",
     "sha256": "ceef876b53d46d87df27a12708672a05ae4a066fb93616b2b2e6287f289a6666",
     "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
-    "startedAt": {"QuackAltear06": 1795334556, "QuackAltear1": 1795334560, "QuackAltear5": 1795334560},
+    "startedAt": {
+      "QuackAltear06": 1795334556,
+      "QuackAltear1": 1795334560,
+      "QuackAltear5": 1795334560
+    },
     "offlineChecks": 4546,
-    "normalRefillAt33Verified": {"account": "QuackAltear5", "occupied": 33, "target": 100, "purchaseObserved": false}
+    "normalRefillAt33Verified": {
+      "account": "QuackAltear5",
+      "occupied": 33,
+      "target": 100,
+      "purchaseObserved": false
+    }
   },
   "quackV1853": {
     "version": "1.8.53",
     "sha256": "f5442fab7ffabde9bc874d335d23fe2ae1039708854378e92a2e1c6629602fa7",
     "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
-    "startedAt": {"QuackAltear5": 1795417645, "QuackAltear06": 1795417645, "QuackAltear1": 1795417697},
+    "startedAt": {
+      "QuackAltear5": 1795417645,
+      "QuackAltear06": 1795417645,
+      "QuackAltear1": 1795417697
+    },
     "offlineChecks": 4548,
-    "hiveMetricsAndRollGoalVerified": {"account": "QuackAltear5", "slots": 35, "royalJelly": 34, "stage": "early"}
+    "hiveMetricsAndRollGoalVerified": {
+      "account": "QuackAltear5",
+      "slots": 35,
+      "royalJelly": 34,
+      "stage": "early"
+    }
   },
   "quackV1854": {
     "version": "1.8.54",
     "sha256": "f1121168cf7682cef1d10a16f67703d8103346344b017b7bfcee361a780b26c9",
     "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
-    "startedAt": {"QuackAltear5": 1795418112, "QuackAltear1": 1795418116, "QuackAltear06": 1795418116},
+    "startedAt": {
+      "QuackAltear5": 1795418112,
+      "QuackAltear1": 1795418116,
+      "QuackAltear06": 1795418116
+    },
     "offlineChecks": 4557,
     "livePreMaskGateVerified": true,
     "liveMaskUnlockObserved": false
@@ -3039,69 +3157,159 @@
     "version": "1.8.55",
     "sha256": "c4ac6093930bf757d21eb4dcfd865722f033e599fdc6f6e7006d2a1560dbacbd",
     "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
-    "startedAt": {"QuackAltear5": 1795435802, "QuackAltear06": 1795435802, "QuackAltear1": 1795435805},
+    "startedAt": {
+      "QuackAltear5": 1795435802,
+      "QuackAltear06": 1795435802,
+      "QuackAltear1": 1795435805
+    },
     "offlineChecks": 4562,
-    "puppyPurchaseVerified": {"account": "QuackAltear1", "ticketsBefore": 503, "ticketsAfter": 3, "eggs": 1},
+    "puppyPurchaseVerified": {
+      "account": "QuackAltear1",
+      "ticketsBefore": 503,
+      "ticketsAfter": 3,
+      "eggs": 1
+    },
     "liveGiftedBasicRetargetObserved": false
   },
   "quackV1856": {
     "version": "1.8.56",
     "sha256": "890309def9a912b392bd9e0a611328a46ba10cd7bb4aeb84fa4d8246c1396b3f",
     "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
-    "startedAt": {"QuackAltear5": 1795435940, "QuackAltear1": 1795435933, "QuackAltear06": 1795435933},
+    "startedAt": {
+      "QuackAltear5": 1795435940,
+      "QuackAltear1": 1795435933,
+      "QuackAltear06": 1795435933
+    },
     "offlineChecks": 4565,
-    "puppyHatchVerified": {"account": "QuackAltear1", "x": 4, "y": 5, "consumed": 1}
+    "puppyHatchVerified": {
+      "account": "QuackAltear1",
+      "x": 4,
+      "y": 5,
+      "consumed": 1
+    }
   },
   "quackV1857": {
     "version": "1.8.57",
     "sha256": "a77d5dabadc4d58e525238cdc5c8473cdccc5f62d386f7c81c4595834a1a0bda",
     "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
-    "startedAt": {"QuackAltear5": 1795436577, "QuackAltear1": 1795436574, "QuackAltear06": 1795436574},
+    "startedAt": {
+      "QuackAltear5": 1795436577,
+      "QuackAltear1": 1795436574,
+      "QuackAltear06": 1795436574
+    },
     "offlineChecks": 4568,
-    "liveCraftingJellySaving": {"QuackAltear1": 364, "QuackAltear06": 396}
+    "liveCraftingJellySaving": {
+      "QuackAltear1": 364,
+      "QuackAltear06": 396
+    }
   },
   "quackV1858": {
     "version": "1.8.58",
     "sha256": "bb90df54bca46bb005b35180e4a366739d876e9060b0c48eb17075c44042dc99",
     "jobId": "b768abb7-4dd3-4deb-acce-beae1b03dbca",
-    "startedAt": {"QuackAltear5": 1795437003, "QuackAltear1": 1795436999, "QuackAltear06": 1795436999},
+    "startedAt": {
+      "QuackAltear5": 1795437003,
+      "QuackAltear1": 1795436999,
+      "QuackAltear06": 1795436999
+    },
     "offlineChecks": 4571,
     "liveDiamondTokenPickupObserved": false
   },
   "quackV1859": {
     "version": "1.8.59",
     "sha256": "fca6f7ad8ee02f3615a9ca6c0e5c3b7c96a066cdd9108aae0a33e66cd93b559d",
-    "startedAt": {"QuackAltear5": 1795512610, "QuackAltear1": 1795512617, "QuackAltear06": 1795512614},
+    "startedAt": {
+      "QuackAltear5": 1795512610,
+      "QuackAltear1": 1795512617,
+      "QuackAltear06": 1795512614
+    },
     "offlineChecks": 4566,
     "liveLegendaryHuntObserved": false
   },
   "quackV1860": {
     "version": "1.8.60",
     "sha256": "4f09096ce0e31a9038d8e0ab5cd1bffbd6fdab5604c625c0a9433f71e972843c",
-    "startedAt": {"QuackAltear5": 1795512841, "QuackAltear1": 1795512877, "QuackAltear06": 1795512841},
+    "startedAt": {
+      "QuackAltear5": 1795512841,
+      "QuackAltear1": 1795512877,
+      "QuackAltear06": 1795512841
+    },
     "offlineChecks": 4568,
-    "liveSlotLabel": {"account": "QuackAltear5", "slot": 37, "honey": 380891931}
+    "liveSlotLabel": {
+      "account": "QuackAltear5",
+      "slot": 37,
+      "honey": 380891931
+    }
   },
   "quackV1861": {
     "version": "1.8.61",
     "sha256": "1aac2ece98c613a2eb974e36d773fed4f75d56faa7437cafab8d5278243e62ce",
-    "startedAt": {"QuackAltear5": 1795513146, "QuackAltear1": 1795513146, "QuackAltear06": 1795513146},
+    "startedAt": {
+      "QuackAltear5": 1795513146,
+      "QuackAltear1": 1795513146,
+      "QuackAltear06": 1795513146
+    },
     "offlineChecks": 4568,
-    "moonDuringStarSavingsVerified": {"account": "QuackAltear1", "charmsBefore": 1295, "charmsAfter": 1195, "capacity": 250000}
+    "moonDuringStarSavingsVerified": {
+      "account": "QuackAltear1",
+      "charmsBefore": 1295,
+      "charmsAfter": 1195,
+      "capacity": 250000
+    }
   },
   "quackV1862": {
     "version": "1.8.62",
     "sha256": "325d423c0962bf1679997698535b604bf3208f6c415353840d17781176ddd0b2",
-    "startedAt": {"QuackAltear5": 1795513678, "QuackAltear1": 1795513662, "QuackAltear06": 1795513662},
+    "startedAt": {
+      "QuackAltear5": 1795513678,
+      "QuackAltear1": 1795513662,
+      "QuackAltear06": 1795513662
+    },
     "offlineChecks": 4497,
-    "liveLevelNineProgress": {"QuackAltear5": 3, "QuackAltear1": 2, "QuackAltear06": 3},
+    "liveLevelNineProgress": {
+      "QuackAltear5": 3,
+      "QuackAltear1": 2,
+      "QuackAltear06": 3
+    },
     "liveCustomPurchaseObserved": false
   },
   "quackV1863": {
     "version": "1.8.63",
     "sha256": "eb79edc76fdca6a8bd6aaff24a04bf962b6a1d2fbdedba5f4110073de70c880c",
-    "startedAt": {"QuackAltear5": 1795518951, "QuackAltear1": 1795518975, "QuackAltear06": 1795518947},
+    "startedAt": {
+      "QuackAltear5": 1795518951,
+      "QuackAltear1": 1795518975,
+      "QuackAltear06": 1795518947
+    },
     "offlineChecks": 4497,
-    "verifiedAntPromptDismissal": {"account": "QuackAltear06", "decision": "keep", "at": 1795518949}
+    "verifiedAntPromptDismissal": {
+      "account": "QuackAltear06",
+      "decision": "keep",
+      "at": 1795518949
+    }
+  },
+  "latestDeployment": {
+    "version": "1.8.70",
+    "bundle": "core.luau",
+    "sha256": "5e1cf1244f2f607962f55de6ce90cf597ddcadef35f271ef12fc8fe6244be0be",
+    "accounts": [
+      {
+        "account": "QuackAltear1",
+        "version": "1.8.70",
+        "startedAt": 1795525531
+      },
+      {
+        "account": "QuackAltear06",
+        "version": "1.8.70",
+        "startedAt": 1795525548
+      },
+      {
+        "account": "QuackAltear5",
+        "lastObservedVersion": "1.8.68",
+        "verified": false
+      }
+    ],
+    "naturalMaterialCompletionVerified": false,
+    "isolatedLiveFieldSwitchAndReturnVerified": true
   }
 }

@@ -48,9 +48,14 @@ return function(adapter)
         viewHive=function() view+=1 end,assistEnabled=function() return false end,
         setAssistEnabled=function(enabled) stop+=enabled and -1 or 1 end,
         ticketsEnabled=function() return tickets end,setTickets=function(v) tickets=v end,
+        materialFarmEnabled=function() return false end,setMaterialFarm=function(v) registered.materialFarm=v end,
     }))
     local ticketRow=registered["Controls/Toggle/Blender tickets"]
     local stopRow=registered["Controls/Toggle/Assist enabled"]
+    local farmRow=registered["Controls/Toggle/Super Material Farm"]
+    check(farmRow and farmRow.config.Value==false,"Material farm defaults off")
+    farmRow.config.Callback(true)
+    check(registered.materialFarm==true,"Material farm toggle dispatches")
     check(stopRow.config.Value==false,"Preserves the initial paused state")
     check(wind.config.Title=="Feather" and wind.config.Icon=="feather" and not wind.config.OpenButton.Enabled,"Uses the Feather WindUI window")
     check(wind.parent==parent and lastStage.destroyed and ticketRow.config.Value,"Parents only the owned layers and preserves the existing setting")

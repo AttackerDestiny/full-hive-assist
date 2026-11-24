@@ -156,6 +156,11 @@ function UI.mount(parent,overlay,version,callbacks)
         local assist=controls:Toggle({Title="Assist enabled",Icon="activity",Value=callbacks.assistEnabled(),
             Desc="Turn off to pause. Turn on to resume.",
             Callback=callbacks.setAssistEnabled})
+        if callbacks.setMaterialFarm then
+            controls:Toggle({Title="Super Material Farm",Icon="feather",
+                Desc="Farm missing crafting fruit, then return to Pine Tree Forest.",
+                Value=callbacks.materialFarmEnabled(),Callback=callbacks.setMaterialFarm})
+        end
         -- The viewer sits in its own layer. Its close button restores the window.
         local camera=workspace.CurrentCamera
         if camera and (camera.ViewportSize.X>=1100 or camera.ViewportSize.Y>=800) then
