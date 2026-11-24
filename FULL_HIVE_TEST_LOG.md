@@ -1205,3 +1205,8 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Quest Assist reads active Mother Bear Have Bees objectives and chooses the lowest remaining bond for the highest unfinished level target. It uses live BeeStats thresholds, Treat preference, Gifted Puppy and Moon bonuses. Treat purchases require the full shortfall for that bee and run after other eligible honey uses.
 - Native Shop controller confirms custom amounts are supported for Treat and RoyalJelly. Buy the exact quantity needed, with live quote and inventory verification. Other shop items retain their fixed-quantity paths. Bundle validation and 4,497 offline checks passed. Bundle SHA-256 325d423c0962bf1679997698535b604bf3208f6c415353840d17781176ddd0b2.
 - Verified v1.8.62 on QuackAltear1 and QuackAltear06 (StartedAt 1795513662) and QuackAltear5 (1795513678). Sights On The Stars reached 2/3, 3/3 and 3/3 level-nine bees respectively using owned Treats. Live native quotes verified custom amounts of 23 Treats and 123 jelly. No new custom purchase was observed in this rollout.
+
+## v1.8.63 — Resolve amulet offers independently of Atlas controls
+
+- Passive amulet decisions run before Atlas and hive readiness. A control failure before acquiring Atlas now waits and replans, while unresolved requests and failed cleanup remain blocking. Bundle validation and 4,497 offline checks passed. SHA-256 eb79edc76fdca6a8bd6aaff24a04bf962b6a1d2fbdedba5f4110073de70c880c.
+- Deployed to QuackAltear06 (1795518947), QuackAltear5 (1795518951), and QuackAltear1 (1795518975). QuackAltear06 chose Keep on the pending Bronze Ant offer at 1795518949. Incoming offers cleared and its visible Ant Amulet popup closed. The Replace branch had no live offer during verification.

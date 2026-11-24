@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.62"
+local SCRIPT_VERSION = "1.8.63"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -268,6 +268,7 @@ end
 -- A private error token distinguishes a lost character from an uncertain spend.
 local CHARACTER_UNAVAILABLE = {}
 local MOVEMENT_TIMEOUT = {}
+local ATLAS_UNAVAILABLE = {}
 local function characterRoot()
     local c=player.Character
     local h=c and c:FindFirstChildOfClass("Humanoid")
@@ -401,7 +402,11 @@ local function acquire()
         end
         return
     end
-    local _,cell=atlasControl()
+    local available,button,cell=pcall(atlasControl)
+    if not available then
+        Report.AtlasControlError=tostring(button)
+        error(ATLAS_UNAVAILABLE,0)
+    end
     previousAtlas=readAtlasState(cell) or (atlasState ~= nil and atlasState or Config.AtlasInitiallyStopped)
     previousSettings={}
     for _,k in ipairs({"RollToGifted","RollToLegendary","RollToMythic","RollToMutation"}) do
@@ -1478,15 +1483,16 @@ local function run()
         pauseCheckpoint()
         if Report.Actions>=Config.MaxActions or Report.RoyalJellyUsed>=Config.MaxRoyalJellies then break end
         s=Cache:Get()
+        if background and Config.AutoAmulets and background.offers(s) then s=refresh();continue end
         if not Config.DryRun then
             local available,button,state=pcall(atlasToggle)
             if not available or not button or (not state and type(getconnections)=="function") then
                 waitFor("Waiting for Atlas controls to start gameplay")
+                s=refresh()
                 continue
             end
         end
         if not hive() then waitFor("Waiting for Atlas to claim a hive"); s=refresh(); continue end
-        if background and Config.AutoAmulets and background.offers(s) then s=refresh();continue end
         if background and background.consumables(s)then s=refresh();continue end
         if progression then
             local did,why=progression.step(s)
@@ -1589,6 +1595,14 @@ local function runWithCharacterRecovery()
     while true do
         local ok,err=pcall(run)
         if ok then return end
+        if err==ATLAS_UNAVAILABLE then
+            assert(not leased and not env.FullHiveAtlasOwned and not Report.CleanupError
+                and not env.FullHivePending and not env.AutoHivePendingRequest and not env.FullHiveUncertain
+                and not env.AutoHiveUncertain and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning,
+                "Atlas controls unavailable with unresolved work")
+            waitFor("Waiting for Atlas controls; amulet offers remain active")
+            continue
+        end
         if err==PAUSE_REQUESTED then
             release()
             local function assertSafe()

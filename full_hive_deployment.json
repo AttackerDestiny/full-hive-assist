@@ -3096,5 +3096,12 @@
     "offlineChecks": 4497,
     "liveLevelNineProgress": {"QuackAltear5": 3, "QuackAltear1": 2, "QuackAltear06": 3},
     "liveCustomPurchaseObserved": false
+  },
+  "quackV1863": {
+    "version": "1.8.63",
+    "sha256": "eb79edc76fdca6a8bd6aaff24a04bf962b6a1d2fbdedba5f4110073de70c880c",
+    "startedAt": {"QuackAltear5": 1795518951, "QuackAltear1": 1795518975, "QuackAltear06": 1795518947},
+    "offlineChecks": 4497,
+    "verifiedAntPromptDismissal": {"account": "QuackAltear06", "decision": "keep", "at": 1795518949}
   }
 }
