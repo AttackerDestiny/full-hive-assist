@@ -44,6 +44,12 @@ return function(adapter)
         {new=instance},{fromOffset=function(...) return {...} end,fromScale=function(...) return {...} end},
         {new=function(...) return {...} end},{fromRGB=function(...) return {...} end},{})
     local parent,overlay,button=instance(),instance(),instance()
+    local types={Basic={ID=1},Cool={ID=2},Music={ID=3}}
+    check(UI.giftedDiscoveryCount({DiscGiftTypes={1,"Basic",2,"Music"}},types)==3,"Discovery deduplicates names and IDs")
+    check(UI.giftedDiscoveryCount({DiscGiftTypes={[1]=true,Cool=true,["3"]=true,Unknown=true}},types)==3,"Discovery accepts ID/name boolean maps")
+    check(UI.giftedDiscoveryCount({DiscGiftTypes={Cool=false,Unknown=true}},types)==0,"False and unknown types are excluded")
+    check(UI.giftedDiscoveryCount({DiscGiftTypes={},Honeycomb={Basic={Gifted=true}}},types)==0,"Current hive does not replace discovery history")
+    check(UI.giftedDiscoveryCount({},types)==nil,"Missing discovery data is not shown as zero")
     local stop,view,tickets=0,0,true
     local mounted=assert(UI.mount(parent,overlay,"test",{
         viewHive=function() view+=1 end,assistEnabled=function() return false end,
@@ -81,7 +87,7 @@ return function(adapter)
     ticketRow.config.Callback(false)
     stopRow.config.Callback(false)
     check(not tickets and stop==1,"Existing controls still dispatch their callbacks")
-    local state={phase="WAITING",activity="Farming",metrics="41 slots",progress="No rolls",gear="Tacky Planter",background="Amulets"}
+    local state={phase="WAITING",activity="Farming",metrics="41 slots",progress="No rolls",gear="Tacky Planter",background="Amulets",giftedTypes=12}
     state.nextSlot=UI.describeSlot(41,152902986)
     state.jellyGoal=UI.describeJelly({Stage="mid",Reason="fixed-targets",Mode="gifted",HasTarget=true,
         Item="StarJelly",MissingFailsafes={"Cool","Frosty"}})
@@ -92,6 +98,7 @@ return function(adapter)
         },
     }})
     mounted.render(state)
+    check(registered["Stats/Paragraph/Different Gifted type"].desc=="12 discovered gifted bee types","Stats tab shows discovered gifted count")
     check(registered["Overview/Paragraph/Hive"].desc:find("Slot 42 · 152,902,986 honey",1,true)~=nil,
         "Shows the next slot and exact quoted honey price")
     check(UI.describeSlot(50,152902986)=="Hive capacity · Maximum reached","Hides obsolete quotes when the hive is full")

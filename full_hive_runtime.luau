@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.84"
+local SCRIPT_VERSION = "1.8.86"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1091,8 +1091,7 @@ local function initializeProgression()
             local control=fieldControl()
             if not control or type(getconnections)~="function" then return false end
             if control.Text:match("^%s*Field:%s*(.-)%s*$")==field then return true end
-            local objects=control.Parent:FindFirstChild("Box")
-            objects=objects and objects:FindFirstChild("Objects")
+            local objects=MaterialFarm.fieldOptions(control)
             if not objects then return false end
             for _,button in ipairs(objects:GetChildren()) do
                 if button:IsA("TextButton") and button.Text:match("^%s*(.-)%s*$")==field then
@@ -1774,6 +1773,7 @@ local function run()
         Report.Growth=p.growth
         Report.CapacityStatus=p.capacityStatus
         Report.RoyalJelly,Report.Honey=s.Eggs.RoyalJelly or 0,s.Honey
+        Report.DiscoveredGiftedTypes=FeatherWindUI.giftedDiscoveryCount(s,Types)
         Report.Counts={Baby=Policy.count(cells,"Baby"),Music=Policy.count(cells,"Music"),Shy=Policy.count(cells,"Shy"),
             Tadpole=Policy.count(cells,"Tadpole"),Buoyant=Policy.count(cells,"Buoyant"),
             GiftedTadpole=Policy.count(cells,"Tadpole",true),GiftedBuoyant=Policy.count(cells,"Buoyant",true)}
@@ -2017,7 +2017,13 @@ local function readUIStatus()
     local slots=tostring(Report.Slots or "?").." slots"
     local jelly=tostring(Report.RoyalJelly or 0).." jelly"
     local refill=tostring(Report.RefillAmount or "-").." / refill"
+    local giftedTypes
+    if Cache and Types then
+        local ok,stats=pcall(function()return Cache:Get()end)
+        if ok then giftedTypes=FeatherWindUI.giftedDiscoveryCount(stats,Types) end
+    end
     return {
+        giftedTypes=giftedTypes,
         phase=string.upper((Report.Stage or "inspect").."  |  "..(Report.Phase or "starting")),
         activity=tostring(Report.Error or Report.CleanupError
             or (Report.PauseRequested and Report.Phase~="paused" and env.FullHiveRunning and "Pausing after the current action...")

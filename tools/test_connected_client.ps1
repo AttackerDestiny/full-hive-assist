@@ -83,7 +83,7 @@ $code+='local hasBackground='+$hasBackground.ToString().ToLowerInvariant()+'; '
 $materialSource=[regex]::Match($bundle,'local MaterialFarm = \(function\(\)\n(.*?)\nend\)\(\)\n',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
 if ($materialSource) {
     $materialTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_material_farm.luau') -Raw
-    $code+='local materialFarmOK,materialFarmResult=pcall(assert(loadstring([======['+$materialTests+']======]))(),assert(loadstring([======['+$materialSource+']======]))());'
+    $code+='local materialFarmOK,materialFarmResult=pcall(assert(loadstring([======['+$materialTests+']======]))(),assert(loadstring([======['+$materialSource+']======]))(),runtime);'
 } else { $code+='local materialFarmOK,materialFarmResult=true,{notApplicable=true};' }
 $settingsSource=[regex]::Match($bundle,'local FeatherSettings = \(function\(\)\n(.*?)\nend\)\(\)\n',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
 if ($settingsSource) {

@@ -3289,45 +3289,63 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.83",
+    "version": "1.8.86",
     "bundle": "core.luau",
-    "sha256": "4464826b1f56690099b5a5313c34bc7d65733e8884f9d7e7094785ddc3d82ef5",
+    "sha256": "c6d3cb95cc41213a0b748282b2df0a2d1bde48035ef877b923b7cf25c7671ca2",
+    "jobId": "5e02531d-d578-45c4-b439-c1db534c4fd1",
     "accounts": [
       {
-        "uiVerified": false,
-        "startedAt": 1795595448,
-        "running": true,
-        "settingsFileVerified": true,
+        "runtimeVerified": false,
+        "executionScheduled": true,
         "account": "QuackAltear1"
       },
       {
-        "uiVerified": true,
-        "startedAt": 1795595449,
+        "runtimeVerified": true,
         "running": true,
-        "settingsFileVerified": true,
+        "startedAt": 1795617337,
         "account": "QuackAltear5"
       },
       {
-        "uiVerified": true,
-        "startedAt": 1795595498,
+        "runtimeVerified": true,
         "running": true,
-        "settingsFileVerified": true,
+        "startedAt": 1795617336,
         "account": "QuackAltear06"
       }
     ],
-    "connectedChecks": 4656,
-    "settingsChecks": 14,
-    "nativeRegressionAccount": "QuackAltear1",
-    "processRestartTested": false
+    "offlineChecks": 4714,
+    "uiAdapterChecks": 34,
+    "materialFarmChecks": 34,
+    "liveFieldSwitchVerified": false,
+    "liveGiftedCountVerified": false
   },
   "latestCandidate": {
-    "version": "1.8.84",
+    "version": "1.8.86",
     "bundle": "core.luau",
-    "sha256": "421c620b7ebd3d60e9db41e5b1464dd604e89766e38dafb46991014148d393f7",
-    "status": "tested-awaiting-connected-client",
-    "offlineChecks": 4660,
-    "movementChecks": 459,
-    "mainAndEmbeddedCompile": true,
-    "liveDeployed": false
+    "sha256": "c6d3cb95cc41213a0b748282b2df0a2d1bde48035ef877b923b7cf25c7671ca2",
+    "jobId": "5e02531d-d578-45c4-b439-c1db534c4fd1",
+    "accounts": [
+      {
+        "runtimeVerified": false,
+        "executionScheduled": true,
+        "account": "QuackAltear1"
+      },
+      {
+        "runtimeVerified": true,
+        "running": true,
+        "startedAt": 1795617337,
+        "account": "QuackAltear5"
+      },
+      {
+        "runtimeVerified": true,
+        "running": true,
+        "startedAt": 1795617336,
+        "account": "QuackAltear06"
+      }
+    ],
+    "offlineChecks": 4714,
+    "uiAdapterChecks": 34,
+    "materialFarmChecks": 34,
+    "liveFieldSwitchVerified": false,
+    "liveGiftedCountVerified": false
   }
 }

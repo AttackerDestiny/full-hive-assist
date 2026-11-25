@@ -1,5 +1,14 @@
 -- Tracks crafting fruit shortages and selects the return field by occupied bees.
 local M={}
+function M.fieldOptions(control)
+    local parent=control and control.Parent
+    if not parent then return nil end
+    local frame=parent:FindFirstChild("Frame")
+    local options=frame and frame:FindFirstChild("ScrollingFrame")
+    if options then return options end
+    frame=parent:FindFirstChild("Box")
+    return frame and frame:FindFirstChild("Objects")
+end
 M.routes={
     {item="Strawberry",field="Strawberry Field",gate="5 Bee Gate"},
     {item="Blueberry",field="Pine Tree Forest",gate="15 Bee Gate"},
@@ -24,7 +33,7 @@ function M.new(H)
         local route=M.returnRoute(H.occupied())
         if not route or not H.allowed(route) then return end
         if not H.set(route.field) then return end
-        state.previous=nil;state.field=nil;state.item=nil
+        state.previous=nil;state.field=nil;state.item=nil;state.error=nil
     end
     local worker={restore=restore}
     function worker.update(enabled,missing)
@@ -41,9 +50,13 @@ function M.new(H)
         local current=H.get()
         if not current then return end
         local destination=M.returnRoute(H.occupied())
-        state.previous=destination and destination.field or true
-        state.field=route.field;state.item=route.item
-        H.set(route.field)
+        if H.set(route.field) then
+            state.previous=destination and destination.field or true
+            state.field=route.field;state.item=route.item;state.error=nil
+        else
+            state.field=nil;state.item=nil
+            state.error="Waiting to switch Atlas field to "..route.field
+        end
     end
     return worker
 end

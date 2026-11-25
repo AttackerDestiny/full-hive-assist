@@ -1,6 +1,22 @@
 -- Feather's UI adapter. Its only game-facing operations are the callbacks
 -- supplied by the host for the existing controls and cached hive snapshot.
 local UI={}
+function UI.giftedDiscoveryCount(stats,types)
+    if type(stats)~="table" or type(stats.DiscGiftTypes)~="table" or type(types)~="table" then return nil end
+    local aliases,seen={},{}
+    for name,info in pairs(types) do
+        if type(name)=="string" and type(info)=="table" and info.ID~=nil then
+            aliases[name]=name;aliases[info.ID]=name;aliases[tostring(info.ID)]=name
+        end
+    end
+    local count=0
+    for key,value in pairs(stats.DiscGiftTypes) do
+        local token=value==true and key or (type(value)=="number" or type(value)=="string") and value
+        local name=token and aliases[token]
+        if name and not seen[name] then seen[name]=true;count+=1 end
+    end
+    return count
+end
 
 local function amount(value)
     local digits=string.format("%.0f",value)
@@ -46,6 +62,8 @@ function UI.describeGear(report)
             lines[#lines+1]=(kind=="A" and "Honey queue: " or "Material queue: ")..(#names>0 and table.concat(names," → ") or "Complete")
         end
         if report.MaterialFarmGear then lines[#lines+1]="Material farm target: "..report.MaterialFarmGear end
+        if report.MaterialFarmEnabled~=nil then lines[#lines+1]="Super Material Farm: "..(report.MaterialFarmEnabled and "ON" or "OFF") end
+        if report.MaterialFarmStatus then lines[#lines+1]=report.MaterialFarmStatus end
     end
     return table.concat(lines,"\n")
 end
@@ -150,6 +168,8 @@ function UI.mount(parent,overlay,version,callbacks)
         window:DisableTopbarButtons({"Minimize","Close","Fullscreen"})
         local overview=window:Tab({Title="Overview",Icon="activity"})
         local progression=window:Tab({Title="Progression",Icon="hexagon"})
+        local statsTab=window:Tab({Title="Stats",Icon="chart-column"})
+        local giftedTypes=statsTab:Paragraph({Title="Different Gifted type",Desc="Waiting for discovery data..."})
         local controls=window:Tab({Title="Controls",Icon="settings"})
         controls:Slider({Title="Tween speed",Desc="1 = 10 studs/second; 6 = 60; 40 = 400. Updates active movement.",
             Step=1,Value={Min=1,Max=40,Default=callbacks.tweenSpeed()},Callback=callbacks.setTweenSpeed})
@@ -204,6 +224,7 @@ function UI.mount(parent,overlay,version,callbacks)
                 update(gearTarget,"SetDesc","gearTarget",state.gearTarget)
                 update(gear,"SetDesc","gear",state.gear)
                 update(background,"SetDesc","background",state.background)
+                update(giftedTypes,"SetDesc","giftedTypes",state.giftedTypes~=nil and tostring(state.giftedTypes).." discovered gifted bee types" or "Waiting for discovery data...")
                 if state.finished and not last.finished then
                     last.finished=true
                     tickets:Lock()

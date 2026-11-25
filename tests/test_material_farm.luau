@@ -1,4 +1,4 @@
-return function(M)
+return function(M,runtime)
     local passed=0
     local function check(value,message) assert(value,message);passed+=1 end
     local current="Clover Field"
@@ -66,6 +66,41 @@ return function(M)
     worker.restore()
     check(current=="Bamboo Field" and state.previous==nil,"Unlocked Bamboo returns using fresh count")
     check(M.returnRoute(nil)==nil and M.returnRoute(-1)==nil,"Unknown counts defer return")
+    local options={}
+    local function node(children)return {FindFirstChild=function(_,name)return children[name]end}end
+    check(M.fieldOptions({Parent=node({Frame=node({ScrollingFrame=options})})})==options,"Actual Atlas dropdown hierarchy")
+    check(M.fieldOptions({Parent=node({Box=node({Objects=options})})})==options,"Legacy dropdown hierarchy")
+    check(M.fieldOptions({Parent=node({})})==nil,"Missing dropdown stays unavailable")
+    local failedState={};local succeeds=false
+    local retry=M.new({state=failedState,occupied=function()return 6 end,get=function()return "Bamboo Field"end,
+        allowed=function()return true end,set=function()return succeeds end})
+    retry.update(true,{SunflowerSeed=1})
+    check(failedState.field==nil and failedState.error~=nil,"Failed switch never reports active farming")
+    succeeds=true;retry.update(true,{SunflowerSeed=1})
+    check(failedState.field=="Sunflower Field" and failedState.error==nil,"Failed switch retries and verifies")
+    if runtime then
+        local body=assert(runtime:match("set=function%(field%)(.-)\n        end,\n        allowed"))
+        local factory=assert(loadstring("return function(MaterialFarm,fieldControl,fieldAccess,getconnections,task,os) local function set(field) "..body.." end return set end"))()
+        local control={Text="Field: Bamboo Field"}
+        local sunflower={Text="       Sunflower Field",IsA=function()return true end}
+        local bamboo={Text="   Bamboo Field",IsA=function()return true end}
+        local objects={GetChildren=function()return {sunflower,bamboo}end}
+        control.Parent=node({Frame=node({ScrollingFrame=objects})})
+        local listeners=1
+        local set=factory(M,function()return control end,function(fn)return fn()end,
+            function(signal)
+                local rows={}
+                for _=1,listeners do rows[#rows+1]={Fire=function()control.Text="Field: "..(signal==sunflower and "Sunflower Field" or "Bamboo Field")end}end
+                return rows
+            end,{wait=function()end},{clock=function()return 0 end})
+        sunflower.MouseButton1Click=sunflower;bamboo.MouseButton1Click=bamboo
+        check(set("Sunflower Field") and control.Text=="Field: Sunflower Field","Actual setter fires and verifies the Sunflower option")
+        check(set("Bamboo Field") and control.Text=="Field: Bamboo Field","Actual setter can restore the prior field")
+        listeners=2
+        check(not set("Sunflower Field") and control.Text=="Field: Bamboo Field","Ambiguous callbacks do not claim a switch")
+        control.Parent=node({})
+        check(not set("Sunflower Field"),"Actual setter handles missing options gracefully")
+    end
     return {passed=passed}
 end
 
