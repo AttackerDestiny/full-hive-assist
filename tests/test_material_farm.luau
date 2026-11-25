@@ -40,11 +40,11 @@ return function(M)
         set=function(field) current=field;return true end,allowed=function() return true end})
     resumed.restore()
     check(current=="Pine Tree Forest","Maintenance returns to Pine Tree Forest")
-    for _,count in ipairs({0,1,14,15,16,35}) do
+    for _,count in ipairs({0,1,4,5,6,14,15,16,35}) do
         occupied=count
         worker.update(true,{Strawberry=1})
         worker.update(true,{})
-        check(current==(count<15 and "Blue Flower Field" or "Pine Tree Forest"),"Occupied boundary "..count)
+        check(current==(count<5 and "Blue Flower Field" or count<15 and "Bamboo Field" or "Pine Tree Forest"),"Occupied boundary "..count)
     end
     occupied=14
     worker.update(true,{Strawberry=1})
@@ -55,7 +55,16 @@ return function(M)
     worker.update(true,{Pineapple=1})
     occupied=14
     worker.restore()
-    check(current=="Blue Flower Field","Cleanup uses fresh count after bee loss")
+    check(current=="Bamboo Field","Cleanup uses fresh count after bee loss")
+    occupied=4
+    worker.update(true,{Strawberry=1})
+    occupied=5
+    locked["Bamboo Field"]=true
+    worker.restore()
+    check(current=="Strawberry Field" and state.previous~=nil,"Locked Bamboo defers return")
+    locked["Bamboo Field"]=nil
+    worker.restore()
+    check(current=="Bamboo Field" and state.previous==nil,"Unlocked Bamboo returns using fresh count")
     check(M.returnRoute(nil)==nil and M.returnRoute(-1)==nil,"Unknown counts defer return")
     return {passed=passed}
 end

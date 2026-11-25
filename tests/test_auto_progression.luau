@@ -606,5 +606,38 @@ return function(P)
         f.inventory.Gold=2
         check(P.growth(f,{},25).item=="Gold","A spare Gold Egg remains eligible")
     end
+    do
+        local f=facts();ownedThrough(f,"Canister");f.occupied=3;f.honey=8110
+        f.emptyCell={x=1,y=1,verified=true}
+        local c=catalog("Canister",22000,{})
+        c.basicEgg={cost={Honey=2500}}
+        local r=P.plan(f,c)
+        check(r.action.kind=="buy-basic-egg" and r.reserveHoney==0 and not r.savingGearHoney,"Cheap egg precedes Canister savings")
+        f.honey=30000
+        check(P.plan(f,c).action.kind=="buy-basic-egg","Cheap egg precedes affordable starter gear")
+        f.inventory.Basic=1
+        check(P.plan(f,c).action.kind=="hatch-basic","Owned egg fills the cell first")
+        f.inventory.Basic=0
+        for _,price in ipairs({22000,22001}) do
+            c.basicEgg.cost.Honey=price
+            check(P.plan(f,c).action.kind=="buy-gear","Equality or higher egg price restores gear priority")
+            f.honey=8110;r=P.plan(f,c)
+            check(r.savingGearHoney and r.reserveHoney==22000,"Equality or higher price saves the gear budget")
+            f.honey=30000
+        end
+        c.basicEgg.cost.Honey=2500;f.honey=8110;f.honeyReserve=6000
+        check(P.plan(f,c).action.kind=="wait","Cheap eggs respect the safety reserve")
+        f.honeyReserve=0;f.emptyCell=nil
+        check(P.plan(f,c).action.reason=="need-verified-empty-cell","Cheap egg needs a verified empty cell")
+        f.emptyCell={x=1,y=1,verified=true};f.occupied=25
+        check(P.plan(f,c).savingGearHoney,"Full hive does not stall gear for cheaper eggs")
+        f.occupied=3;c.basicEgg=nil
+        check(P.plan(f,c).savingGearHoney,"Unknown egg price preserves gear savings")
+        c.basicEgg={cost={Honey=2500}};c.gear.Canister.items={SoftWax=1}
+        check(not P.plan(f,c).eggBeforeGear,"Missing gear materials do not enter honey-only exception")
+        c.gear.Canister.items={};f.ownedGear.Canister=true;ownedThrough(f,"Basic Sprinkler")
+        c.gear["Basic Sprinkler"]={honey=22000,items={}}
+        check(P.plan(f,c).savingGearHoney and not P.plan(f,c).eggBeforeGear,"Later route preserves ordinary gear priority")
+    end
     return {passed=passed}
 end

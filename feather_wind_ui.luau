@@ -158,7 +158,7 @@ function UI.mount(parent,overlay,version,callbacks)
             Callback=callbacks.setAssistEnabled})
         if callbacks.setMaterialFarm then
             controls:Toggle({Title="Super Material Farm",Icon="feather",
-                Desc="Farm crafting fruit in the background. Return to Blue Flower below 15 bees, Pine Tree from 15 bees.",
+                Desc="Farm crafting fruit in the background. Return to Blue Flower below 5 bees, Bamboo at 5–14, Pine Tree from 15.",
                 Value=callbacks.materialFarmEnabled(),Callback=callbacks.setMaterialFarm})
         end
         -- The viewer sits in its own layer. Its close button restores the window.

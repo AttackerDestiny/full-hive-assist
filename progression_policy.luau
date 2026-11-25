@@ -631,6 +631,19 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
         parallelAction(pending.action);return pending
     end
     if not met then return wait("waiting-condition:"..tostring(condition),base) end
+    -- Starter gear yields to cheaper eggs only while an existing cell can
+    -- actually be filled. Equality restores the ordinary gear reservation.
+    local egg=catalog.basicEgg
+    if nextGear.stage==1 and not selectedGear and facts.occupied<facts.capacity
+        and type(egg)=="table" and validCost(egg.cost)
+        and integer(egg.cost.Honey) and egg.cost.Honey<gear.honey then
+        base.reserveHoney=facts.honeyReserve or 0
+        base.savingGearHoney=false
+        base.optionalHiveAllowed=true
+        base.eggBeforeGear=true
+        base.action=P.growth(facts,catalog,facts.capacity,base.reserveHoney,base.reservedItems)
+        return base
+    end
     if facts.honey<base.reserveHoney then
         base.optionalHiveAllowed=true
         local pending=wait("saving-gear-honey",base)

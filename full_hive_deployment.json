@@ -3289,45 +3289,37 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.76",
+    "version": "1.8.77",
     "bundle": "core.luau",
-    "sha256": "61766eb6c16eb84fb00c9a248cdc32806ecd1800fcd7ed49f79a21ce7aa13cc3",
+    "sha256": "3d16945e31e4c386b3cd69d2c18b86902ec79fd472afdbe112994809cda70950",
     "jobId": "db243c9d-ca59-403f-aa9d-104e5605050d",
     "accounts": [
       {
+        "running": true,
+        "version": "1.8.77",
         "account": "QuackAltear1",
-        "version": "1.8.76",
-        "startedAt": 1795577650,
-        "running": true,
-        "uiVerified": true
+        "startedAt": 1795587049,
+        "uiVerified": false
       },
       {
+        "running": true,
+        "version": "1.8.77",
         "account": "QuackAltear5",
-        "version": "1.8.76",
-        "startedAt": 1795577650,
-        "running": true,
+        "startedAt": 1795587049,
         "uiVerified": true
       },
       {
-        "account": "QuackAltear06",
-        "version": "1.8.76",
-        "startedAt": 1795577925,
         "running": true,
+        "version": "1.8.77",
+        "account": "QuackAltear06",
+        "startedAt": 1795587049,
         "uiVerified": true
       }
     ],
-    "connectedChecks": 4556,
-    "movementChecks": 416,
-    "ticketTentLiveArrival": {
-      "account": "QuackAltear06",
-      "arrived": true,
-      "route": 1,
-      "floorY": 14.343639373779,
-      "targetY": 17.638639450073,
-      "rootY": 18.168067932129,
-      "distance": 3.7994284629822,
-      "atlasReleased": true
-    },
-    "ticketTentPurchaseInMovementTest": false
+    "connectedChecks": 4574,
+    "progressionChecks": 305,
+    "materialFarmChecks": 25,
+    "naturalEarlyEggPriorityObserved": false,
+    "naturalBambooReturnObserved": false
   }
 }

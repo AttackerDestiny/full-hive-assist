@@ -13,7 +13,8 @@ function M.choose(missing,allowed)
 end
 function M.returnRoute(occupied)
     if type(occupied)~="number" or occupied<0 or occupied%1~=0 then return nil end
-    if occupied<15 then return {field="Blue Flower Field"} end
+    if occupied<5 then return {field="Blue Flower Field"} end
+    if occupied<15 then return {field="Bamboo Field",gate="5 Bee Gate"} end
     return M.routes[2]
 end
 function M.new(H)
