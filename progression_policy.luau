@@ -360,6 +360,32 @@ function P.growth(facts,catalog,target,reserveHoney,reservedItems)
     if not ok then return {kind="wait",reason=reason} end
     return {kind="buy-hive-slot",amount=1,cost=copy(slot.cost),nextCapacity=facts.capacity+1}
 end
+-- Quote one additional occupied cell, including capacity when the hive is full.
+function P.growthHoneyCost(facts,catalog,reservedItems)
+    local read=inventoryReader(facts)
+    if not read then return nil end
+    local owned=false
+    for _,item in ipairs({"Basic","Silver","Gold"}) do
+        local amount=read(item)
+        if amount==nil then return nil end
+        local reserve=(reservedItems or {})[item] or 0
+        if item=="Gold" then reserve=math.max(reserve,facts.questGoldReserve or 0) end
+        if amount>reserve then owned=true end
+    end
+    local cost=0
+    if facts.occupied==facts.capacity then
+        if facts.capacity>=50 then return nil end
+        local slot=catalog.hiveSlot
+        if type(slot)~="table" or not validCost(slot.cost) or not integer(slot.cost.Honey) then return nil end
+        cost=slot.cost.Honey
+    end
+    if not owned or facts.occupied<facts.capacity then
+        local egg=catalog.basicEgg
+        if type(egg)~="table" or not validCost(egg.cost) or not integer(egg.cost.Honey) then return nil end
+        cost+=egg.cost.Honey
+    end
+    return cost
+end
 local function onlyJellyMissing(materials)
     if not materials then return false end
     for item in pairs(materials.missingItems) do
@@ -631,17 +657,17 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
         parallelAction(pending.action);return pending
     end
     if not met then return wait("waiting-condition:"..tostring(condition),base) end
-    -- Starter gear yields to cheaper eggs only while an existing cell can
-    -- actually be filled. Equality restores the ordinary gear reservation.
-    local egg=catalog.basicEgg
-    if nextGear.stage==1 and not selectedGear and facts.occupied<facts.capacity
-        and type(egg)=="table" and validCost(egg.cost)
-        and integer(egg.cost.Honey) and egg.cost.Honey<gear.honey then
+    -- Early gear yields to a cheaper occupied cell. A full hive includes the
+    -- next slot and an egg unless a usable owned egg can fill it.
+    local growthHoney=P.growthHoneyCost(facts,catalog,base.reservedItems)
+    if nextGear.stage<=4 and not nextGear.catchup and not selectedGear
+        and growthHoney~=nil and growthHoney<gear.honey then
         base.reserveHoney=facts.honeyReserve or 0
         base.savingGearHoney=false
         base.optionalHiveAllowed=true
         base.eggBeforeGear=true
-        base.action=P.growth(facts,catalog,facts.capacity,base.reserveHoney,base.reservedItems)
+        base.growthHoney=growthHoney
+        base.action=P.growth(facts,catalog,math.min(50,facts.capacity+(facts.occupied==facts.capacity and 1 or 0)),base.reserveHoney,base.reservedItems)
         return base
     end
     if facts.honey<base.reserveHoney then

@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.77"
+local SCRIPT_VERSION = "1.8.78"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -119,7 +119,7 @@ local function loadModule(module)
     end
     error("Cannot load game module " .. module.Name .. ": " .. tostring(value), 0)
 end
-local Config = {DryRun=false, PollSeconds=3, Speed=65, NearDistance=16,
+local Config = {DryRun=false, PollSeconds=3, Speed=40, NearDistance=16,
     MaxActions=math.huge, MaxRoyalJellies=math.huge, AutoPurchase=true,
     HoneyReserve=0, RollDelay=0.3, StarEggHoney=100000000000,
     AtlasInitiallyStopped=false, PreserveUniqueGifted=false, AutoProgression=true,
@@ -133,6 +133,7 @@ end
 -- Retain the old option for config compatibility; ordinary keeps must still
 -- follow the user's failsafe/force lists even if an old override was true.
 Config.PreserveUniqueGifted=false
+Config.Speed=math.clamp(math.floor(tonumber(Config.Speed) or 40),1,40)
 if env.FullHiveRunning then
     warn("[Full Hive] Already running v"..tostring(env.FullHiveVersion or "unversioned").."; stop the old instance before loading v"..SCRIPT_VERSION)
     return
@@ -144,6 +145,7 @@ env.FullHiveRunning, env.FullHiveStop = true, false
 env.FullHiveVersion = SCRIPT_VERSION
 env.FullHivePreviousReport = env.FullHiveReport
 local Report = {Version=SCRIPT_VERSION, Phase="starting", Actions=0, RoyalJellyUsed=0, DryRun=Config.DryRun,StartedAt=os.time()}
+Report.TweenSpeed=Config.Speed
 Report.PauseRequested=env.FullHiveStartPaused==true
 env.FullHiveStartPaused=nil -- One-time handoff for maintenance of a paused/stopped session.
 env.FullHiveReport = Report
@@ -2020,6 +2022,14 @@ local function makeUI()
         setTickets=setBlenderTickets,
         materialFarmEnabled=function() return Config.SuperMaterialFarm end,
         setMaterialFarm=setSuperMaterialFarm,
+        tweenSpeed=function() return Config.Speed end,
+        setTweenSpeed=function(value)
+            if type(value)~="number" or value~=value then return end
+            Config.Speed=math.clamp(math.floor(value),1,40)
+            env.FullHiveConfig=env.FullHiveConfig or {}
+            env.FullHiveConfig.Speed=Config.Speed
+            Report.TweenSpeed=Config.Speed
+        end,
     })
     if wind then
         gui:SetAttribute("FeatherRenderer","WindUI")

@@ -3289,37 +3289,39 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.77",
+    "version": "1.8.78",
     "bundle": "core.luau",
-    "sha256": "3d16945e31e4c386b3cd69d2c18b86902ec79fd472afdbe112994809cda70950",
+    "sha256": "89c0fef48d1f5536c7e58946ebae4b3b4e91eec877c5d3cfb30fe6cc146589ec",
     "jobId": "db243c9d-ca59-403f-aa9d-104e5605050d",
     "accounts": [
       {
+        "uiVerified": true,
+        "version": "1.8.78",
         "running": true,
-        "version": "1.8.77",
         "account": "QuackAltear1",
-        "startedAt": 1795587049,
-        "uiVerified": false
+        "startedAt": 1795587386,
+        "tweenSpeed": 40
       },
       {
+        "uiVerified": true,
+        "version": "1.8.78",
         "running": true,
-        "version": "1.8.77",
         "account": "QuackAltear5",
-        "startedAt": 1795587049,
-        "uiVerified": true
+        "startedAt": 1795587385,
+        "tweenSpeed": 40
       },
       {
+        "uiVerified": true,
+        "version": "1.8.78",
         "running": true,
-        "version": "1.8.77",
         "account": "QuackAltear06",
-        "startedAt": 1795587049,
-        "uiVerified": true
+        "startedAt": 1795587386,
+        "tweenSpeed": 40
       }
     ],
-    "connectedChecks": 4574,
-    "progressionChecks": 305,
-    "materialFarmChecks": 25,
-    "naturalEarlyEggPriorityObserved": false,
-    "naturalBambooReturnObserved": false
+    "connectedChecks": 4589,
+    "progressionChecks": 320,
+    "additionalUIAdapterChecks": 26,
+    "naturalEarlyExpansionPriorityObserved": false
   }
 }

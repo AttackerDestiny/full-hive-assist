@@ -635,9 +635,45 @@ return function(P)
         check(P.plan(f,c).savingGearHoney,"Unknown egg price preserves gear savings")
         c.basicEgg={cost={Honey=2500}};c.gear.Canister.items={SoftWax=1}
         check(not P.plan(f,c).eggBeforeGear,"Missing gear materials do not enter honey-only exception")
-        c.gear.Canister.items={};f.ownedGear.Canister=true;ownedThrough(f,"Basic Sprinkler")
-        c.gear["Basic Sprinkler"]={honey=22000,items={}}
+        c.gear.Canister.items={};f.ownedGear.Canister=true;ownedThrough(f,"Silver Soakers");f.occupied=36;f.capacity=36
+        for _,planter in ipairs(P.planterCatchup) do f.ownedGear[planter]=true end
+        c.gear["Silver Soakers"]={honey=22000,items={}}
         check(P.plan(f,c).savingGearHoney and not P.plan(f,c).eggBeforeGear,"Later route preserves ordinary gear priority")
+    end
+    do
+        local f=facts();ownedThrough(f,"Porcelain Dipper");f.honey=300000000
+        local c=catalog("Porcelain Dipper",300000000,{})
+        c.hiveSlot={cost={Honey=200000000}};c.basicEgg={cost={Honey=10000000}}
+        local r=P.plan(f,c)
+        check(r.action.kind=="buy-hive-slot" and r.growthHoney==210000000,"Slot26 includes an egg in gear comparison")
+        for _,egg in ipairs({"Basic","Silver","Gold"}) do
+            f.inventory={[egg]=1};r=P.plan(f,c)
+            check(r.action.kind=="buy-hive-slot" and r.growthHoney==200000000,"Owned "..egg.." removes egg funding")
+        end
+        f.questGoldReserve=1;r=P.plan(f,c)
+        check(r.growthHoney==210000000,"Reserved quest Gold cannot fund a new cell")
+        f.questGoldReserve=0;f.inventory={}
+        for _,slotPrice in ipairs({290000000,300000000}) do
+            c.hiveSlot.cost.Honey=slotPrice
+            check(P.plan(f,c).action.kind=="buy-gear","Combined equality or higher restores gear")
+        end
+        c.hiveSlot.cost.Honey=200000000;f.honey=209999999
+        check(P.plan(f,c).action.kind=="wait","Save entire slot plus egg budget before slot purchase")
+        f.honey=210000000;r=P.plan(f,c)
+        check(r.action.kind=="buy-hive-slot","Exact slot plus egg budget qualifies")
+        f.honeyReserve=1
+        check(P.plan(f,c).action.kind=="wait","Slot and egg respect safety reserve")
+        f.honeyReserve=0;c.hiveSlot=nil
+        check(P.plan(f,c).savingGearHoney,"Unknown slot quote cannot redirect gear funds")
+        c.hiveSlot={cost={Honey=200000000},conditions={"slot-open"}}
+        f.conditions["slot-open"]=false
+        check(P.plan(f,c).action.kind=="wait","Closed expansion condition cannot purchase")
+        f.conditions["slot-open"]=true;f.capacity=26;f.occupied=25;f.emptyCell={x=1,y=1,verified=true}
+        check(P.plan(f,c).action.kind=="buy-basic-egg" and P.plan(f,c).growthHoney==10000000,"After expansion only egg remains")
+        f.inventory.Silver=1
+        check(P.plan(f,c).action.kind=="hatch-egg","Owned Silver hatches after expansion")
+        f.capacity=50;f.occupied=50
+        check(not P.plan(f,c).eggBeforeGear,"Maximum capacity cannot defer gear for growth")
     end
     return {passed=passed}
 end

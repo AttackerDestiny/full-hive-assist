@@ -29,6 +29,7 @@ return function(adapter)
             Paragraph=function(_,args) return element(config.Title,"Paragraph",args) end,
             Button=function(_,args) return element(config.Title,"Button",args) end,
             Toggle=function(_,args) return element(config.Title,"Toggle",args) end,
+            Slider=function(_,args) return element(config.Title,"Slider",args) end,
         }
     end
     function window:DisableTopbarButtons(names) self.disabled=names end
@@ -49,8 +50,13 @@ return function(adapter)
         setAssistEnabled=function(enabled) stop+=enabled and -1 or 1 end,
         ticketsEnabled=function() return tickets end,setTickets=function(v) tickets=v end,
         materialFarmEnabled=function() return false end,setMaterialFarm=function(v) registered.materialFarm=v end,
+        tweenSpeed=function() return 40 end,setTweenSpeed=function(v) registered.speed=v end,
     }))
     local ticketRow=registered["Controls/Toggle/Blender tickets"]
+    local speedRow=registered["Controls/Slider/Tween speed"]
+    check(speedRow.config.Value.Min==1 and speedRow.config.Value.Max==40 and speedRow.config.Value.Default==40,"Tween speed slider bounds")
+    speedRow.config.Callback(27)
+    check(registered.speed==27,"Tween speed dispatches to runtime")
     local stopRow=registered["Controls/Toggle/Assist enabled"]
     local farmRow=registered["Controls/Toggle/Super Material Farm"]
     check(farmRow and farmRow.config.Value==false,"Material farm defaults off")

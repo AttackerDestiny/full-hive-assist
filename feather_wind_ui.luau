@@ -143,6 +143,8 @@ function UI.mount(parent,overlay,version,callbacks)
         local overview=window:Tab({Title="Overview",Icon="activity"})
         local progression=window:Tab({Title="Progression",Icon="hexagon"})
         local controls=window:Tab({Title="Controls",Icon="settings"})
+        controls:Slider({Title="Tween speed",Desc="Movement speed in studs per second. Applies to the next movement segment.",
+            Step=1,Value={Min=1,Max=40,Default=callbacks.tweenSpeed()},Callback=callbacks.setTweenSpeed})
         local status=overview:Paragraph({Title="Starting",Desc="Preparing progression..."})
         local hive=overview:Paragraph({Title="Hive",Desc="Waiting for hive data..."})
         local jellyGoal=overview:Paragraph({Title="Jelly rolling",Desc="Waiting for a hive plan"})

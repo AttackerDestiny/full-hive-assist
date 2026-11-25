@@ -10,7 +10,7 @@ return function(H)
         local decision=P.plan(facts,catalog)
         report.Progression={Gear=decision.gear,DeferredGear=decision.deferredGear,Stage=decision.stage,Action=decision.action.kind,
             Reason=decision.reason or decision.action.reason,ReserveHoney=decision.reserveHoney,
-            ReservedItems=decision.reservedItems,MissingItems=decision.missingItems,
+            ReservedItems=decision.reservedItems,MissingItems=decision.missingItems,GrowthHoney=decision.growthHoney,
             CostReservations=decision.costReservations,OptionalHiveAllowed=decision.optionalHiveAllowed,
             SavingCraftingJelly=decision.saveCraftingJelly==true,SavingGearHoney=decision.savingGearHoney==true,
             Status=decision.status,PlanterCatchup=decision.planterCatchup,FundsRequired=decision.fundsRequired,
