@@ -429,6 +429,21 @@ return function(P)
         check(r.nextCraft.item=="Oil" and r.missingRJ==1290,"An unready earlier recipe does not block the ready Oil recipe")
     end
     do
+        local f=facts();f.honey=662465095
+        f.inventory={BlueExtract=261,Oil=32,Glitter=39,ComfortingVial=3,Diamond=1,
+            SunflowerSeed=5900,RoyalJelly=1180}
+        local c=catalog("Clippers",5000000000,{BlueExtract=250,Oil=150,Glitter=100,ComfortingVial=1,Diamond=5})
+        local r=P.plan(f,c)
+        check(r.action.kind=="craft" and r.action.item=="Oil" and r.action.amount==118,
+            "Craft all 118 missing Oil despite missing Diamond Eggs, Glitter and gear honey")
+        check(r.action.ingredients.SunflowerSeed==5900 and r.action.ingredients.RoyalJelly==1180,
+            "The complete Oil deficit uses exactly 5900 seeds and 1180 jelly")
+        f.inventory.SunflowerSeed=5899
+        check(P.plan(f,c).action.kind~="craft","One missing seed cannot start a partial Oil batch")
+        f.inventory.SunflowerSeed=5900;f.inventory.RoyalJelly=1179
+        check(P.plan(f,c).action.kind~="craft","One missing jelly cannot start a partial Oil batch")
+    end
+    do
         local f=facts();f.inventory.Blueberry=12500;f.honey=2499999999
         local c=catalog("Clippers",5000000000,{BlueExtract=250})
         local function quote(purchased)

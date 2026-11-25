@@ -87,5 +87,6 @@ if ([version]$version -ge [version]'1.8.16') {
 } elseif ([version]$version -ge [version]'1.8.15') {
     $gateOrder=$gateOrder.Replace("    if not waitForStartupDelay() then return end`n","").Replace("    makeUI()`n","    makeUI()`n    if not waitForStartupDelay() then return end`n")
 }
+if ([version]$version -ge [version]'1.8.72') { $gateOrder=$gateOrder.Replace("    runWithCharacterRecovery()","    startMaterialFarmBackground()`n    runWithCharacterRecovery()") }
 if (-not ($bundle.Replace("`r`n", "`n")).Contains($gateOrder)) { throw 'Startup UI and gameplay order is incorrect' }
 [pscustomobject]@{ Path = $bundlePath; Version = $version; Characters = $bundle.Length; UTF8 = $true; CompatibilityMarkers = $required.Count }

@@ -19,7 +19,7 @@ return function(H)
         local ok,u=pcall(H.upvalues,callback)
         return ok and type(u)=="table" and u or nil
     end
-    local function switchState(upvalues,label)
+    local function switchState(upvalues,label,button)
         local keys,hasLabel={},false
         for _,value in pairs(upvalues) do
             if value==label then
@@ -29,6 +29,8 @@ return function(H)
             end
         end
         local cell,key
+        local bound=false
+        for _,value in pairs(upvalues) do if value==button then bound=true end end
         for _,value in pairs(upvalues) do
             if type(value)=="table" then
                 for candidate in pairs(hasLabel and keys or {}) do
@@ -42,12 +44,14 @@ return function(H)
         if cell then return cell,key end
         -- Older Atlas callbacks capture a separate one-element state table.
         for _,value in pairs(upvalues) do
-            if type(value)=="table" and type(rawget(value,1))=="boolean" then
+            local stateKey=type(value)=="table" and (type(rawget(value,1))=="boolean" and 1
+                or bound and type(rawget(value,4))=="boolean" and 4)
+            if stateKey then
                 if cell and cell~=value then return nil end
-                cell=value
+                cell=value;key=stateKey
             end
         end
-        return cell,1
+        return cell,key
     end
     local function cachedAlive()
         if not cached or clock()-cached.At>=2 then return false end
@@ -67,9 +71,12 @@ return function(H)
     end
     local function discover()
         counters.Discoveries+=1
-        local label=H.core:QueryDescendants('TextLabel[Text = "Stop Everything"]')[1]
+        local labels=H.findLabels and H.findLabels("Stop Everything")
+            or H.core:QueryDescendants('TextLabel[Text = "Stop Everything"]')
+        local label=labels[1]
         local window=label
         while window and window.Name~="Window" do window=window.Parent end
+        if not window and H.window then window=H.window() end
         if not window then return nil,"Atlas window is unavailable" end
         local tabRoot=window:FindFirstChild("TabButtons")
         local tabButtons=tabRoot and tabRoot:FindFirstChild("ScrollingFrame")
@@ -93,7 +100,7 @@ return function(H)
                 if disabled[text.Text] and button and button:IsA("TextButton") then
                     local found
                     for _,connection in ipairs(H.connections(button.MouseButton1Click)) do
-                        local cell,key=switchState(values(connection.Function) or {},text.Text)
+                        local cell,key=switchState(values(connection.Function) or {},text.Text,button)
                         if cell then
                             if found then return nil,"Ambiguous Atlas switch: "..text.Text end
                             found={Name=text.Text,Label=text,Button=button,Cell=cell,Key=key,Callback=connection.Function}

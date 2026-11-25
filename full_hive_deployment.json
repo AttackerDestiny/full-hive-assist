@@ -3289,31 +3289,36 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.71",
+    "version": "1.8.74",
     "bundle": "core.luau",
-    "sha256": "14f3ea8fc2ebe03b09111d8616e52541a2c507a89efcc63e09892054fa264d6c",
+    "sha256": "ab326b969e17fd2d0ec7aa5556e93dacc59d4d8fbfcd73b92cb0d38d3062a9be",
+    "jobId": "db243c9d-ca59-403f-aa9d-104e5605050d",
     "accounts": [
       {
         "account": "QuackAltear1",
-        "version": "1.8.71",
-        "startedAt": 1795526013,
+        "version": "1.8.74",
+        "startedAt": 1795576641,
         "running": true
       },
       {
         "account": "QuackAltear5",
-        "version": "1.8.71",
-        "startedAt": 1795526014,
+        "version": "1.8.74",
+        "startedAt": 1795576638,
         "running": true
       },
       {
         "account": "QuackAltear06",
-        "version": "1.8.71",
-        "startedAt": 1795526002,
+        "version": "1.8.74",
+        "startedAt": 1795576639,
         "running": true
       }
     ],
-    "liveRealDeficitAdmissionVerified": true,
-    "naturalMaterialCompletionVerified": false,
-    "isolatedLiveFieldSwitchAndReturnVerified": true
+    "backgroundHeartbeatVerified": true,
+    "atlasReadinessVerified": true,
+    "materialWorkerChecks": 20,
+    "atlasCallbackChecks": 8,
+    "oil118PlannerVerified": true,
+    "oil118LiveCraftVerified": false,
+    "below15ReturnLiveVerified": false
   }
 }

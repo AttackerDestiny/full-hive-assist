@@ -1,4 +1,4 @@
--- Tracks the current recipe's fruit shortages and returns to Pine Tree Forest.
+-- Tracks crafting fruit shortages and selects the return field by occupied bees.
 local M={}
 M.routes={
     {item="Strawberry",field="Strawberry Field",gate="5 Bee Gate"},
@@ -11,12 +11,18 @@ function M.choose(missing,allowed)
         if type(missing[route.item])=="number" and missing[route.item]>0 and allowed(route) then return route end
     end
 end
+function M.returnRoute(occupied)
+    if type(occupied)~="number" or occupied<0 or occupied%1~=0 then return nil end
+    if occupied<15 then return {field="Blue Flower Field"} end
+    return M.routes[2]
+end
 function M.new(H)
     local state=H.state
     local function restore()
         if not state.previous then return end
-        if not H.allowed(M.routes[2]) then return end
-        if not H.set("Pine Tree Forest") then return end
+        local route=M.returnRoute(H.occupied())
+        if not route or not H.allowed(route) then return end
+        if not H.set(route.field) then return end
         state.previous=nil;state.field=nil;state.item=nil
     end
     local worker={restore=restore}
@@ -33,7 +39,9 @@ function M.new(H)
         if not route then restore();return end
         local current=H.get()
         if not current then return end
-        state.previous="Pine Tree Forest";state.field=route.field;state.item=route.item
+        local destination=M.returnRoute(H.occupied())
+        state.previous=destination and destination.field or true
+        state.field=route.field;state.item=route.item
         H.set(route.field)
     end
     return worker

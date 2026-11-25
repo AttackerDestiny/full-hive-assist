@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.71"
+local SCRIPT_VERSION = "1.8.74"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -30,14 +30,50 @@ local function descendants(root, className)
     end
     return out
 end
+local function atlasValues(callback)
+    local reader=(type(debug)=="table" and debug.getupvalues) or getupvalues
+    return atlasCallbackValues(reader,callback)
+end
+local function atlasWindow(root)
+    for _,window in ipairs(descendants(root,"Frame")) do
+        if window.Name=="Window" and window:FindFirstChild("TabButtons") then return window end
+    end
+end
+local function atlasTabs(root)
+    local window=atlasWindow(root)
+    local tabs=window and window:FindFirstChild("TabButtons")
+    local buttons=tabs and tabs:FindFirstChild("ScrollingFrame")
+    local roots,seen={},{}
+    for _,button in ipairs(buttons and buttons:GetChildren() or {}) do
+        if button:IsA("TextButton") then
+            for _,connection in ipairs(getconnections(button.MouseButton1Click)) do
+                if type(connection.Function)=="function" then
+                    for _,value in pairs(atlasValues(connection.Function)) do
+                        if typeof(value)=="Instance" and value:IsA("ScrollingFrame") and not seen[value] then
+                            seen[value]=true;roots[#roots+1]=value
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return roots
+end
 local function findText(root, text)
     local ok, result = pcall(function()
         return root:QueryDescendants('TextLabel[Text = "' .. text .. '"]')
     end)
-    if ok and type(result) == "table" then return result end
+    if ok and type(result) == "table" and #result>0 then return result end
     local out = {}
     for _, label in ipairs(descendants(root, "TextLabel")) do
         if label.Text == text then out[#out + 1] = label end
+    end
+    if #out==0 and text=="Stop Everything" and type(getconnections)=="function" then
+        for _,tab in ipairs(atlasTabs(root)) do
+            for _,label in ipairs(descendants(tab,"TextLabel")) do
+                if label.Text==text then out[#out+1]=label end
+            end
+        end
     end
     return out
 end
@@ -128,6 +164,7 @@ if env.FullHiveJellyBatch and not env.FullHiveJellyBatch.Recovery and not rollTa
 end
 local nextFlexible
 local materialFarm
+local materialFarmThread,materialFarmBusy
 local stoppedByUser = false
 local PAUSE_REQUESTED = {}
 local function checkStop()
@@ -137,6 +174,7 @@ local function pauseCheckpoint()
     checkStop()
     -- Embedded Star Egg work must finish its own receipt reconciliation.
     if Report.PauseRequested and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning then
+        while materialFarmBusy do task.wait(0.05) end
         if materialFarm then materialFarm.restore() end
         error(PAUSE_REQUESTED,0)
     end
@@ -292,7 +330,7 @@ end
 local function near(part) assert(distance(part)<=Config.NearDistance,"Too far from "..part:GetFullName()) end
 local atlasPauseControl
 local function atlasToggle()
-    local coreGui = game:GetService("CoreGui")
+    local coreGui = uiParent()
     local cached=atlasPauseControl
     if cached and cached.Button.Parent and cached.Label.Parent==cached.Button
         and cached.Label.Text=="Stop Everything" and cached.Button:IsDescendantOf(coreGui)
@@ -300,7 +338,7 @@ local function atlasToggle()
         return cached.Button,cached.State,cached.Callback
     end
     atlasPauseControl=nil
-    local upvalueReader = (type(debug) == "table" and debug.getupvalues) or getupvalues
+    local upvalueReader = atlasValues
     local fallbackButton
     local callbacksPending=false
     for _,label in ipairs(findText(coreGui, "Stop Everything")) do
@@ -884,9 +922,11 @@ local function jellyBatchSpent(remaining)
 end
 local function initializeProgression()
     if not ProgressionPolicy or not createProgressionFacts or not createProgression then return end
-    local reader=(type(debug)=="table" and debug.getupvalues) or getupvalues
+    local reader=atlasValues
     assert(type(reader)=="function" and type(getconnections)=="function","Atlas spending controls cannot be verified on this executor")
-    atlasFarmOnly=createAtlasProgressionControl({core=game:GetService("CoreGui"),
+    atlasFarmOnly=createAtlasProgressionControl({core=uiParent(),
+        findLabels=function(text) return findText(uiParent(),text) end,
+        window=function() return atlasWindow(uiParent()) end,
         upvalues=reader,connections=getconnections,activate=activate})
     local lastGateRefresh
     local shopGates={BlueHQ="Blue HQ Gate",BadgeBearersGuild="Badge Build Gate",DapperPlanterShop="Dapper Shop"}
@@ -912,7 +952,6 @@ local function initializeProgression()
         return not door.CanCollide
     end
     env.FullHiveMaterialFarm=env.FullHiveMaterialFarm or {}
-    local materialStats
     local function fieldAccess(callback,...)
         local getIdentity=getthreadidentity or getidentity
         local setIdentity=setthreadidentity or setidentity
@@ -966,6 +1005,7 @@ local function initializeProgression()
         return found
     end
     materialFarm=MaterialFarm.new({state=env.FullHiveMaterialFarm,
+        occupied=function() return #scan(Cache:Get()) end,
         get=function()
             return fieldAccess(function()
             local control=fieldControl()
@@ -1000,7 +1040,7 @@ local function initializeProgression()
             local gates=workspace:FindFirstChild("Gates")
             local gate=gates and gates:FindFirstChild(route.gate)
             local requirements=gate and gate:FindFirstChild("Requirements")
-            return requirements and Reqs.Check(materialStats,loadModule(requirements))==true
+            return requirements and Reqs.Check(Cache:Get(),loadModule(requirements))==true
         end,
     })
     local makeFacts=createProgressionFacts({
@@ -1082,7 +1122,6 @@ local function initializeProgression()
         scan=scan,hiveFloor=hiveFloor,toyPart=progressionToyPart,jellyBatchSpent=jellyBatchSpent,
         Types=Types,
         materialFarm=function(s,decision)
-            materialStats=s
             materialFarm.update(Config.SuperMaterialFarm and not Config.DryRun,decision.missingItems or {})
             Report.MaterialFarm=env.FullHiveMaterialFarm.item
         end,
@@ -1614,9 +1653,9 @@ local function useStarScript(s)
     release()
     return delta>0
 end
-local function waitFor(reason)
+local function waitFor(reason,seconds)
     Report.Phase="waiting"; Report.Activity=reason
-    release(); task.wait(Config.PollSeconds)
+    release(); task.wait(seconds or Config.PollSeconds)
 end
 local function run()
     pauseCheckpoint()
@@ -1625,17 +1664,16 @@ local function run()
         pauseCheckpoint()
         if Report.Actions>=Config.MaxActions or Report.RoyalJellyUsed>=Config.MaxRoyalJellies then break end
         s=Cache:Get()
-        if progression and (Config.SuperMaterialFarm or env.FullHiveMaterialFarm.previous) then
-            progression.inspect(s)
-        end
         if background and Config.AutoAmulets and background.offers(s) then s=refresh();continue end
         if not Config.DryRun then
             local available,button,state=pcall(atlasToggle)
             if not available or not button or (not state and type(getconnections)=="function") then
-                waitFor("Waiting for Atlas controls to start gameplay")
+                Report.AtlasControlError=not available and tostring(button) or "Switch callback state is not readable"
+                waitFor("Waiting for Atlas Stop Everything switch",math.min(Config.PollSeconds,0.5))
                 s=refresh()
                 continue
             end
+            Report.AtlasControlError=nil
         end
         if not hive() then waitFor("Waiting for Atlas to claim a hive"); s=refresh(); continue end
         if background and background.consumables(s)then s=refresh();continue end
@@ -1944,7 +1982,7 @@ local function setSuperMaterialFarm(enabled)
     Config.SuperMaterialFarm=enabled==true
     env.FullHiveConfig=env.FullHiveConfig or {}
     env.FullHiveConfig.SuperMaterialFarm=Config.SuperMaterialFarm
-    if not enabled and materialFarm then materialFarm.restore() end
+    if not enabled and materialFarm and not materialFarmBusy then materialFarm.restore() end
 end
 local function hiveSnapshot()
     if not Cache or not Types then return nil end
@@ -1975,14 +2013,33 @@ local function makeUI()
     end
     gui:SetAttribute("FeatherVersion",SCRIPT_VERSION)
 end
+local function startMaterialFarmBackground()
+    materialFarmThread=task.spawn(function()
+        local setIdentity=setthreadidentity or setidentity
+        if type(setIdentity)=="function" then pcall(setIdentity,8) end
+        while env.FullHiveRunning and not env.FullHiveStop do
+            Report.MaterialFarmBackgroundAt=os.time()
+            if not Report.PauseRequested and progression
+                and (Config.SuperMaterialFarm or env.FullHiveMaterialFarm.previous) then
+                materialFarmBusy=true
+                local worked,why=pcall(function() progression.materials(Cache:Get()) end)
+                materialFarmBusy=false
+                Report.MaterialFarmWorkerError=not worked and tostring(why) or nil
+            end
+            task.wait(Config.PollSeconds)
+        end
+    end)
+end
 local ok,err=xpcall(function()
     initializePlayer()
     makeUI()
     initializeModules()
     initializeProgression()
+    startMaterialFarmBackground()
     runWithCharacterRecovery()
 end,function(e) return tostring(e) end)
 release()
+if materialFarmThread then pcall(task.cancel,materialFarmThread);materialFarmBusy=false end
 if materialFarm then pcall(materialFarm.restore) end
 if not ok then
     Report.Phase=stoppedByUser and "stopped" or "error"

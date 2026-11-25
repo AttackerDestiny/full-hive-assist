@@ -8,7 +8,6 @@ return function(H)
         local slot=catalog.hiveSlot
         report.NextHiveSlotPrice=slot and slot.cost and slot.cost.Honey
         local decision=P.plan(facts,catalog)
-        if H.materialFarm then H.materialFarm(s,decision) end
         report.Progression={Gear=decision.gear,DeferredGear=decision.deferredGear,Stage=decision.stage,Action=decision.action.kind,
             Reason=decision.reason or decision.action.reason,ReserveHoney=decision.reserveHoney,
             ReservedItems=decision.reservedItems,MissingItems=decision.missingItems,
@@ -41,6 +40,10 @@ return function(H)
         return available~=nil and available>=cost
     end
     R.inspect=read
+    function R.materials(s)
+        local facts,catalog=H.buildFacts(s)
+        H.materialFarm(s,P.plan(facts,catalog))
+    end
     local function same(a,b)
         for _,k in ipairs({"kind","gear","item","amount","code","x","y","sourceId","packId","tickets","remainingUnits","orderCount","orderStartTime"}) do
             if a[k]~=b[k] then return false end

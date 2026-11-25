@@ -15,7 +15,7 @@ try {
     await client.connect(new StreamableHTTPClientTransport(new URL('http://127.0.0.1:16384/mcp')));
     if (args.clientId && !/^[0-9a-f-]{8,}$/i.test(args.clientId)) {
         let matches = [];
-        for (let attempt = 0; attempt < 5; attempt++) {
+        for (let attempt = 0; attempt < 20; attempt++) {
             const discovery = await client.callTool({ name: 'list-clients', arguments: {} });
             const listing = discovery.content?.filter(item => item.type === 'text').map(item => item.text).join('\n') || '';
             matches = listing.split('\n').filter(line => line.includes(` | ${args.clientId} @ `));
