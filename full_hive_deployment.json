@@ -3289,53 +3289,37 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.80",
+    "version": "1.8.81",
     "bundle": "core.luau",
-    "sha256": "4866faf780f78a8bbd2dfd457465e5310dd57483f4f896db9dc3e69e8c6e2b1b",
+    "sha256": "eb59c3440048b3b113223178f259212c98a8456d980ad8ab10774bbc23ec614f",
     "jobId": "db243c9d-ca59-403f-aa9d-104e5605050d",
     "accounts": [
       {
-        "tweenSpeed": 1,
-        "uiVerified": false,
-        "running": true,
-        "movementSpeed": 10,
-        "account": "QuackAltear1",
-        "startedAt": 1795588078,
-        "version": "1.8.80"
-      },
-      {
-        "tweenSpeed": 1,
         "uiVerified": true,
+        "startedAt": 1795593001,
+        "version": "1.8.81",
         "running": true,
-        "movementSpeed": 10,
-        "account": "QuackAltear5",
-        "startedAt": 1795588079,
-        "version": "1.8.80"
+        "account": "QuackAltear1"
       },
       {
-        "tweenSpeed": 1,
-        "uiVerified": false,
+        "uiVerified": true,
+        "startedAt": 1795592999,
+        "version": "1.8.81",
         "running": true,
-        "movementSpeed": 10,
-        "account": "QuackAltear06",
-        "startedAt": 1795588101,
-        "version": "1.8.80"
+        "account": "QuackAltear5"
+      },
+      {
+        "uiVerified": true,
+        "startedAt": 1795593002,
+        "version": "1.8.81",
+        "running": true,
+        "account": "QuackAltear06"
       }
     ],
-    "connectedChecks": 4624,
-    "movementChecks": 451,
-    "additionalUIAdapterChecks": 26,
-    "liveMovementTest": {
-      "atlasReleased": true,
-      "purchaseSent": false,
-      "floorY": 14.343639373779,
-      "distance": 3.6984477043152,
-      "arrived": true,
-      "atlasPaused": false,
-      "rootY": 18.067087173462,
-      "account": "QuackAltear06",
-      "initialSpeed": 60,
-      "finalSpeed": 120
-    }
+    "connectedChecks": 4640,
+    "progressionChecks": 336,
+    "additionalUIAdapterChecks": 28,
+    "queueLiveVerified": true,
+    "naturalQueuePurchaseObserved": false
   }
 }

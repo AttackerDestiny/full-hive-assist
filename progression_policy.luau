@@ -457,7 +457,7 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
     end
     -- Material acquisition may proceed in parallel with hive farming. Reserve
     -- only the user's safety reserve until every material/craft deficit clears.
-    base.reserveHoney=(facts.honeyReserve or 0)+(selectedGear and gear.honey or 0)
+    base.reserveHoney=(facts.honeyReserve or 0)+(selectedGear and not selectedGear.queueSelected and gear.honey or 0)
     local materials,materialError=selectedMaterials
     if not materials then materials,materialError=P.materials(gear.items,facts,catalog) end
     if not materials then return wait(materialError,base) end
@@ -781,9 +781,69 @@ local function laterGear(facts,catalog,primary)
     end
 end
 
+local function queuePlan(facts,catalog,primary)
+    if not facts.gearQueues or not primary.gear or facts.pending or facts.uncertain
+        or primary.action.kind=="redeem-code" then return nil end
+    local queues={A={},B={}}
+    local deferred={}
+    for _=1,100 do
+        local candidate=P.nextGear(facts,deferred)
+        if not candidate then break end
+        deferred[candidate.id]=true
+        local gear=(catalog.gear or {})[candidate.id]
+        -- Unknown quotes stay on the established fail-closed planner path.
+        if type(gear)~="table" or not integer(gear.honey) or type(gear.items)~="table" then
+            if candidate.id==primary.gear then return nil end
+            continue
+        end
+        local kind=next(gear.items) and "B" or "A"
+        if #queues[kind]<3 then
+            candidate.queueSelected=true;candidate.honey=gear.honey;candidate.order=#queues.A+#queues.B+1
+            queues[kind][#queues[kind]+1]=candidate
+        end
+        if #queues.A==3 and #queues.B==3 then break end
+    end
+    table.sort(queues.B,function(a,b) return a.honey<b.honey or a.honey==b.honey and a.order<b.order end)
+    for priority,candidate in ipairs(queues.B) do candidate.priority=priority end
+    local function decide(candidate,f)
+        return candidate and plan(f or facts,catalog,candidate) or nil
+    end
+    local material=decide(queues.B[1])
+    local held=material and material.reservedItems or {}
+    local function finish(result)
+        if not result then return nil end
+        result.gearQueues=queues
+        result.farmMissing=material and material.missingItems or {}
+        if material and material.requiredHive and (facts.occupied<material.requiredHive or facts.capacity<material.requiredHive) then
+            result.farmMissing={}
+        end
+        result.materialFarmGear=queues.B[1] and queues.B[1].id
+        for item,count in pairs(held) do result.reservedItems[item]=math.max(result.reservedItems[item] or 0,count) end
+        return result
+    end
+    -- Ready honey gear is independent of material collection and never invokes
+    -- the superseded egg-price diversion. One action is still sent per turn.
+    for _,candidate in ipairs(queues.A) do
+        local result=decide(candidate)
+        if result.action.kind=="buy-gear" then return finish(result) end
+    end
+    for index,candidate in ipairs(queues.B) do
+        local available=facts
+        if index>1 then
+            available=copy(facts);available.inventory=copy(facts.inventory)
+            for item,count in pairs(held) do available.inventory[item]=math.max(0,(available.inventory[item] or 0)-count) end
+        end
+        local result=index==1 and material or decide(candidate,available)
+        if result.action.kind=="buy-gear" then return finish(result) end
+    end
+    if material then return finish(material) end
+    return finish(decide(queues.A[1]))
+end
 function P.plan(facts,catalog)
     local result=plan(facts,catalog)
-    if result.gear and result.action.kind=="wait" and not result.craftingJellyDeficit and result.materialDemand
+    local queued=type(facts)=="table" and type(catalog)=="table" and queuePlan(facts,catalog,result)
+    if queued then result=queued
+    elseif result.gear and result.action.kind=="wait" and not result.craftingJellyDeficit and result.materialDemand
         and next(result.materialDemand) and (next(result.missingItems) or next(result.queuedItems or {})) then
         result=laterGear(facts,catalog,result) or result
     end

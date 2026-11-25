@@ -110,6 +110,9 @@ return function(adapter)
         :find("Deferred: Beekeeper's Mask",1,true)~=nil,
         "Overview explains why the selected gear differs from the ordered target")
     local status=registered["Overview/Paragraph/Starting"]
+    local queueText=UI.describeGear({Gear="Canister",GearQueues={A={{id="Canister"},{id="Vacuum"}},B={{id="Mask"}}},MaterialFarmGear="Mask"})
+    check(queueText:find("Honey queue: 1. Canister",1,true) and queueText:find("Material queue: 1. Mask",1,true),"Queue status shows separate ordered categories")
+    check(queueText:find("Material farm target: Mask",1,true),"Queue status identifies the independent farming target")
     check(status.title=="WAITING" and status.desc=="Farming","Shows live report values")
     check(not stopRow.locked,"Pause does not disable the resume control")
     stopRow.config.Callback(true)

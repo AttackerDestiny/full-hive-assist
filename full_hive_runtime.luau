@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.80"
+local SCRIPT_VERSION = "1.8.81"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1170,7 +1170,7 @@ local function initializeProgression()
         scan=scan,hiveFloor=hiveFloor,toyPart=progressionToyPart,jellyBatchSpent=jellyBatchSpent,
         Types=Types,
         materialFarm=function(s,decision)
-            materialFarm.update(Config.SuperMaterialFarm and not Config.DryRun,decision.missingItems or {})
+            materialFarm.update(Config.SuperMaterialFarm and not Config.DryRun,decision.farmMissing or decision.missingItems or {})
             Report.MaterialFarm=env.FullHiveMaterialFarm.item
         end,
     })

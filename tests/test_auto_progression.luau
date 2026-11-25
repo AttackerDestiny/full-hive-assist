@@ -675,5 +675,44 @@ return function(P)
         f.capacity=50;f.occupied=50
         check(not P.plan(f,c).eggBeforeGear,"Maximum capacity cannot defer gear for growth")
     end
+    do
+        local stages=P.stages
+        P.stages={{gate=0,gear={"A1","B1","A2","B2","A3","B3","A4","B4"}}}
+        local f=facts();f.gearQueues=true;f.honey=1000
+        local c={gear={A1={honey=100,items={}},A2={honey=200,items={}},A3={honey=300,items={}},A4={honey=400,items={}},
+            B1={honey=500,items={SunflowerSeed=3}},B2={honey=450,items={Strawberry=2}},
+            B3={honey=600,items={SoftWax=1}},B4={honey=700,items={Blueberry=5}}}}
+        local r=P.plan(f,c)
+        check(r.action.kind=="buy-gear" and r.gear=="A1","Ready honey gear takes its turn while materials grow")
+        check(#r.gearQueues.A==3 and #r.gearQueues.B==3,"Both queues contain at most three targets")
+        check(r.gearQueues.B[1].id=="B2" and r.gearQueues.B[1].priority==1,"Material priority follows full honey price")
+        check(r.farmMissing.Strawberry==2 and r.materialFarmGear=="B2","Farm follows material queue even during honey purchases")
+        f.ownedGear.A1=true;r=P.plan(f,c)
+        check(r.gear=="A2" and r.gearQueues.A[3].id=="A4","Honey queue replenishes from its own category")
+        f.honey=0;r=P.plan(f,c)
+        check(r.gear=="B2" and r.farmMissing.Strawberry==2,"Unfunded honey gear cannot block material collection")
+        c.gear.B2.items={RedExtract=1};r=P.plan(f,c)
+        check(r.farmMissing.Strawberry==50 and r.farmMissing.RoyalJelly==10,"Queued Red Extract expands into its complete fruit and jelly recipe")
+        f.inventory.Strawberry=50;r=P.plan(f,c)
+        check(not r.farmMissing.Strawberry and r.saveCraftingJelly,"Enough fruit ends farming and funds crafting jelly")
+        c.gear.B2.items={Strawberry=2};f.inventory={}
+        f.ownedGear.B2=true;r=P.plan(f,c)
+        check(r.gearQueues.B[3].id=="B4" and r.materialFarmGear=="B1","Material queue replenishes from its own category")
+        f.ownedGear.A2=true;f.ownedGear.A3=true;f.ownedGear.A4=true
+        f.honey=1000;f.inventory.SunflowerSeed=3;r=P.plan(f,c)
+        check(r.action.kind=="buy-gear" and r.gear=="B1","Complete priority1 buys immediately")
+        c.gear.B1.items.SoftWax=1;c.gear.B3.items={SunflowerSeed=3};r=P.plan(f,c)
+        check(r.action.kind~="buy-gear" and r.reservedItems.SunflowerSeed==3,"Lower priority cannot consume priority1 ingredients")
+        c.gear.B3.items={Blueberry=1};f.inventory.Blueberry=1;r=P.plan(f,c)
+        check(r.action.kind=="buy-gear" and r.gear=="B3","Independent ready material gear may buy while priority1 is blocked")
+        check(r.farmMissing.SoftWax==1 and not r.farmMissing.Blueberry,"Unsupported priority1 deficit never selects a different fruit")
+        f.pending=true;r=P.plan(f,c)
+        check(r.action.reason=="unresolved-progression-request","Queues preserve unresolved request guard")
+        f.pending=false;f.redeemedCodes.Wax=false
+        check(P.plan(f,c).action.kind=="redeem-code","Queues preserve code task ordering")
+        f.redeemedCodes.Wax=true;c.gear.B1=nil
+        check(not P.plan(f,c).gearQueues,"Unknown primary gear quote retains fail-closed planning")
+        P.stages=stages
+    end
     return {passed=passed}
 end

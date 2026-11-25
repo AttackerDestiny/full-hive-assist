@@ -39,6 +39,14 @@ function UI.describeGear(report)
         if row.deficit and row.deficit>0 then line=line.."  ("..amount(row.deficit).." needed)" end
         lines[#lines+1]=line
     end
+    if report.GearQueues then
+        for _,kind in ipairs({"A","B"}) do
+            local names={}
+            for index,entry in ipairs(report.GearQueues[kind] or {}) do names[#names+1]=index..". "..entry.id end
+            lines[#lines+1]=(kind=="A" and "Honey queue: " or "Material queue: ")..(#names>0 and table.concat(names," → ") or "Complete")
+        end
+        if report.MaterialFarmGear then lines[#lines+1]="Material farm target: "..report.MaterialFarmGear end
+    end
     return table.concat(lines,"\n")
 end
 

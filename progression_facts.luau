@@ -166,6 +166,7 @@ return function(deps)
         if type(s.Eggs)=="table" then for id,n in pairs(s.Eggs) do facts.inventory[id]=n end end
         -- Starter saves omit Codes until their first redemption. Only accept
         -- that omission from a complete player snapshot, never partial data.
+        facts.gearQueues=true
         local codes=s.Codes
         if codes==nil and facts.honey~=nil and facts.inventoryKnown and type(s.Honeycomb)=="table" then
             codes={}
