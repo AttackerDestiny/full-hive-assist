@@ -50,11 +50,11 @@ return function(adapter)
         setAssistEnabled=function(enabled) stop+=enabled and -1 or 1 end,
         ticketsEnabled=function() return tickets end,setTickets=function(v) tickets=v end,
         materialFarmEnabled=function() return false end,setMaterialFarm=function(v) registered.materialFarm=v end,
-        tweenSpeed=function() return 40 end,setTweenSpeed=function(v) registered.speed=v end,
+        tweenSpeed=function() return 6 end,setTweenSpeed=function(v) registered.speed=v end,
     }))
     local ticketRow=registered["Controls/Toggle/Blender tickets"]
     local speedRow=registered["Controls/Slider/Tween speed"]
-    check(speedRow.config.Value.Min==1 and speedRow.config.Value.Max==40 and speedRow.config.Value.Default==40,"Tween speed slider bounds")
+    check(speedRow.config.Value.Min==1 and speedRow.config.Value.Max==40 and speedRow.config.Value.Default==6,"Tween speed slider bounds")
     speedRow.config.Callback(27)
     check(registered.speed==27,"Tween speed dispatches to runtime")
     local stopRow=registered["Controls/Toggle/Assist enabled"]

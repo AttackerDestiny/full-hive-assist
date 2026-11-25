@@ -208,8 +208,8 @@ return function(runtime)
         "local RaycastParams={new=function() return {} end}\n"..
         "local Config={Speed=65,NearDistance=16}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance(part) local d=part.CFrame:PointToObjectSpace(player.Character:FindFirstChild().Position); local h=part.Size*0.5; return (d-Vector3.new(math.clamp(d.X,-h.X,h.X),math.clamp(d.Y,-h.Y,h.Y),math.clamp(d.Z,-h.Z,h.Z))).Magnitude end; local function near() end\n"..movement..
-        "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","blocked-direct","no-route","shop-path","shop-alternate","shop-floor-arrival","shop-no-floor","guild-floor-arrival","ticket-floor-arrival","ticket-underfloor","ticket-reject-underfloor","dapper-entrance","star-hall-entrance","mountaintop-floor-arrival","blender-approach"}) do
+        "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT,Config\nend"))()
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","speed-change","rotated-pad","obstructed","lateral","blocked-direct","no-route","shop-path","shop-alternate","shop-floor-arrival","shop-no-floor","guild-floor-arrival","ticket-floor-arrival","ticket-underfloor","ticket-reject-underfloor","dapper-entrance","star-hall-entrance","mountaintop-floor-arrival","blender-approach"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -232,9 +232,12 @@ return function(runtime)
         local shopFloor=failure=="shop-floor-arrival" or noFloor or guild or ticketShop or mountaintop
         local grounded=failure=="shop-path" or alternate or shopFloor or blender
         local humanoid={Health=100,Parent=c}
+        local state=Enum.HumanoidStateType.Running
+        function humanoid:GetState() return state end
+        function humanoid:ChangeState(value) state=value end
         function humanoid:MoveTo() error("Movement must never walk") end
         function humanoid:Move(direction) assert(direction==Vector3.zero,"Movement must never walk") end
-        if grounded then c.FindFirstChildOfClass=function() return humanoid end end
+        if grounded or failure=="speed-change" then c.FindFirstChildOfClass=function() return humanoid end end
         local floorProbes=0
         local landingPart
         local callbacks={}
@@ -246,10 +249,17 @@ return function(runtime)
         end
         c.DescendantAdded=signal("characterAdded")
         local fences={DescendantAdded=signal("fenceAdded")}
+        local movementConfig
+        local objects={}
         local services={
-            RunService={Stepped=signal("stepped")},
-            TweenService={Create=function(_,_,_,goal)
+            RunService={PreSimulation=signal("stepped")},
+            TweenService={Create=function(_,align,info,goal)
                 goals[#goals+1]=goal.Position
+                if failure=="speed-change" then
+                    check(align.MaxVelocity==(#goals==1 and 65 or 120),"Speed change updates the active velocity cap")
+                    check(state==Enum.HumanoidStateType.Physics,"Movement holds Physics state")
+                    check(math.abs(info.Time-math.max(0.2,(goal.Position-r.Position).Magnitude/align.MaxVelocity))<0.001,"Tween duration follows actual speed")
+                end
                 if failure=="rotated-pad" then
                     check(math.abs(goal.Position.Y-3.16)<0.0001,"Rotated pad approaches world surface rather than local tall axis")
                 end
@@ -265,7 +275,9 @@ return function(runtime)
                     callbacks.stepped()
                     check(not obstacle.CanCollide and not added.CanCollide,
                         "Stepped reapplies noclip to old and new parts on "..failure)
-                    if failure=="replacement" then player.Character=character(100,true)
+                    if failure=="speed-change" then
+                        if #goals==1 then movementConfig.Speed=120 else r.Position=goal.Position end
+                    elseif failure=="replacement" then player.Character=character(100,true)
                     elseif failure=="detached" then r.Parent=nil
                     elseif failure=="play-error" then error("Fake tween play failed",0)
                     elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" or dapper or bronze then r.Position=goal.Position
@@ -316,11 +328,14 @@ return function(runtime)
                 if failure=="lateral" and origin.Y==0 and (direction.Y<10 or direction.X==0) then return {} end
                 if failure=="obstructed" and origin.Y==0 and direction.X~=0 then return {} end
             end}
-        local fakeInstance={new=function() return {Destroy=function() destroyed+=1 end} end}
+        local fakeInstance={new=function(class)
+            local obj={Destroy=function() destroyed+=1 end};objects[class]=obj;return obj
+        end}
         local calls=0;local report={}
-        local move,token,pendingCleanup,timeoutToken=movementFactory(player,fakeGame,fakeWorkspace,fakeInstance,
+        local move,token,pendingCleanup,timeoutToken,config=movementFactory(player,fakeGame,fakeWorkspace,fakeInstance,
             function(container) return container==fences and {} or {obstacle,noncollidable} end,report,
             (failure=="timeout" or failure=="no-route" or alternate) and function()calls+=1;return calls*30 end or nil)
+        movementConfig=config
         local rotated=failure=="rotated-pad"
         local part={Name="Test",Position=Vector3.new(20,0,0),
             Size=rotated and Vector3.new(0.32,22,22) or Vector3.new(grounded and 32 or 8,1,grounded and 80 or 8),
@@ -338,7 +353,11 @@ return function(runtime)
             end,IsA=function() return true end}
         landingPart=part
         local ok,err=pcall(move,part)
-        if noFloor or rejectUnderfloor then
+        if failure=="speed-change" then
+            check(ok and #goals==2 and report.Movement.Arrived,"Active speed change rebuilds the remaining tween and arrives")
+            check(state==Enum.HumanoidStateType.Running,"Cleanup restores the previous humanoid state")
+            check(objects.AlignOrientation.RigidityEnabled and objects.AlignOrientation.Attachment0==objects.Attachment,"Movement stabilizes orientation using its owned attachment")
+        elseif noFloor or rejectUnderfloor then
             check(not ok and err==timeoutToken and #goals==0,"Blue HQ without a verified landing sends no movement or purchase")
             check(report.Movement.RoutesExhausted and not report.Movement.Arrived,"Missing shop floor blocks arrival")
         elseif grounded then
@@ -372,7 +391,7 @@ return function(runtime)
             check(not ok and err=="Fake tween "..(failure=="play-error" and "play" or "setup").." failed",
                 "Movement preserves tween failure on "..failure)
         else check(not ok and err==token,"Movement detects character "..failure..": "..tostring(err)) end
-        check((failure=="setup-error" or noFloor or rejectUnderfloor or cancelled) and disconnected==3 and destroyed==2,
+        check((failure=="setup-error" or noFloor or rejectUnderfloor or cancelled) and disconnected==3 and destroyed==3,
             "Movement objects and all signals removed on "..failure)
         check(obstacle.CanCollide==true and not noncollidable.CanCollide and pendingCleanup()==nil,
             "Original true and false collisions restored on "..failure)
@@ -386,6 +405,24 @@ return function(runtime)
         if failure=="lateral" then
             check(#goals==3 and goals[1].X~=0 and goals[3].X==20,"Blocked vertical climb uses a clear angled climb")
         end
+    end
+    do
+        local body=assert(runtime:match("setTweenSpeed=function%(value%)(.-)\n        end,"),"Tween speed callback missing")
+        local config,env,report={Speed=40},{},{}
+        local setter=assert(loadstring("return function(Config,env,Report) return function(value) "..body.." end end"))()(config,env,report)
+        for _,pair in ipairs({{6,60},{40,400},{1,10},{100,400},{-5,10},{6.9,60}}) do
+            setter(pair[1])
+            check(config.Speed==pair[2] and env.FullHiveConfig.Speed==pair[2],"Tween slider scales and persists actual speed")
+            check(report.TweenSpeed==pair[2]/10 and report.MovementSpeed==pair[2],"Tween report distinguishes slider units and actual speed")
+        end
+        setter(0/0);setter("invalid")
+        check(config.Speed==60,"Invalid slider input preserves speed")
+        setter("8")
+        check(config.Speed==80 and report.TweenSpeed==8,"WindUI formatted string values update movement speed")
+        local normalize=assert(runtime:match("(Config.Speed=math.clamp[^\n]+)"))
+        local init=assert(loadstring("return function(Config) "..normalize.." return Config.Speed end"))()
+        check(init({Speed=40})==40,"Legacy actual speed40 remains40, not400")
+        check(init({Speed=1000})==400 and init({Speed=0})==10,"Loaded config respects actual speed bounds")
     end
     return {passed=checked}
 end

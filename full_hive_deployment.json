@@ -3289,39 +3289,53 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.78",
+    "version": "1.8.80",
     "bundle": "core.luau",
-    "sha256": "89c0fef48d1f5536c7e58946ebae4b3b4e91eec877c5d3cfb30fe6cc146589ec",
+    "sha256": "4866faf780f78a8bbd2dfd457465e5310dd57483f4f896db9dc3e69e8c6e2b1b",
     "jobId": "db243c9d-ca59-403f-aa9d-104e5605050d",
     "accounts": [
       {
-        "uiVerified": true,
-        "version": "1.8.78",
+        "tweenSpeed": 1,
+        "uiVerified": false,
         "running": true,
+        "movementSpeed": 10,
         "account": "QuackAltear1",
-        "startedAt": 1795587386,
-        "tweenSpeed": 40
+        "startedAt": 1795588078,
+        "version": "1.8.80"
       },
       {
+        "tweenSpeed": 1,
         "uiVerified": true,
-        "version": "1.8.78",
         "running": true,
+        "movementSpeed": 10,
         "account": "QuackAltear5",
-        "startedAt": 1795587385,
-        "tweenSpeed": 40
+        "startedAt": 1795588079,
+        "version": "1.8.80"
       },
       {
-        "uiVerified": true,
-        "version": "1.8.78",
+        "tweenSpeed": 1,
+        "uiVerified": false,
         "running": true,
+        "movementSpeed": 10,
         "account": "QuackAltear06",
-        "startedAt": 1795587386,
-        "tweenSpeed": 40
+        "startedAt": 1795588101,
+        "version": "1.8.80"
       }
     ],
-    "connectedChecks": 4589,
-    "progressionChecks": 320,
+    "connectedChecks": 4624,
+    "movementChecks": 451,
     "additionalUIAdapterChecks": 26,
-    "naturalEarlyExpansionPriorityObserved": false
+    "liveMovementTest": {
+      "atlasReleased": true,
+      "purchaseSent": false,
+      "floorY": 14.343639373779,
+      "distance": 3.6984477043152,
+      "arrived": true,
+      "atlasPaused": false,
+      "rootY": 18.067087173462,
+      "account": "QuackAltear06",
+      "initialSpeed": 60,
+      "finalSpeed": 120
+    }
   }
 }
