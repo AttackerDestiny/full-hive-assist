@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.83"
+local SCRIPT_VERSION = "1.8.84"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -345,7 +345,15 @@ local function distance(part)
     local closest=Vector3.new(math.clamp(localPos.X,-half.X,half.X),math.clamp(localPos.Y,-half.Y,half.Y),math.clamp(localPos.Z,-half.Z,half.Z))
     return (localPos-closest).Magnitude
 end
-local function near(part) assert(distance(part)<=Config.NearDistance,"Too far from "..part:GetFullName()) end
+local function near(part)
+    local gap=distance(part)
+    if gap<=Config.NearDistance then return end
+    local movement=Report.Movement or {}
+    movement.Destination=part:GetFullName();movement.Arrived=false
+    movement.Distance=gap;movement.Failure="Lost proximity before action"
+    Report.Movement=movement;Report.LastMovementArrival=nil
+    error(MOVEMENT_TIMEOUT,0)
+end
 local atlasPauseControl
 local function atlasToggle()
     local coreGui = uiParent()
@@ -481,6 +489,7 @@ local function acquire()
 end
 local function move(part,pickup)
     acquire(); checkStop()
+    if cleanupMove then cleanupMove();cleanupMove=nil end
     if typeof(part)=="Vector3" then error("Full Hive movement requires a verified destination part") end
     assert(part and part:IsA("BasePart"),"Invalid movement destination")
     Report.Activity="Moving to "..part.Name
@@ -529,6 +538,7 @@ local function move(part,pickup)
     local function cleanup()
         if cleaned then return end
         cleaned=true
+        if cleanupMove==cleanup then cleanupMove=nil end
         if tween then tween:Cancel() end
         for _,connection in ipairs(connections) do connection:Disconnect() end
         align:Destroy(); orientation:Destroy(); attachment:Destroy()
@@ -745,7 +755,9 @@ local function move(part,pickup)
         movement.Position=tostring(r.Position)
         error(MOVEMENT_TIMEOUT,0)
     end)
-    if cleanupMove then cleanupMove(); cleanupMove=nil end
+    -- Keep the verified Ticket Tent landing stable across the yielding stats
+    -- refresh and final pre-request check. Release/next move owns cleanup.
+    if (not ok or not ticketShop) and cleanupMove then cleanupMove(); cleanupMove=nil end
     if not ok then error(err,0) end
     if not pickup or part.Parent then near(part) end
     Report.Movement.Arrived=true

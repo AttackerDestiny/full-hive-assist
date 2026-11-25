@@ -3319,5 +3319,15 @@
     "settingsChecks": 14,
     "nativeRegressionAccount": "QuackAltear1",
     "processRestartTested": false
+  },
+  "latestCandidate": {
+    "version": "1.8.84",
+    "bundle": "core.luau",
+    "sha256": "421c620b7ebd3d60e9db41e5b1464dd604e89766e38dafb46991014148d393f7",
+    "status": "tested-awaiting-connected-client",
+    "offlineChecks": 4660,
+    "movementChecks": 459,
+    "mainAndEmbeddedCompile": true,
+    "liveDeployed": false
   }
 }

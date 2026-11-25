@@ -353,6 +353,11 @@ return function(runtime)
             end,IsA=function() return true end}
         landingPart=part
         local ok,err=pcall(move,part)
+        if ticketShop and ok then
+            check(pendingCleanup()~=nil and destroyed==0 and not obstacle.CanCollide,"Ticket Tent retains its arrival hold across stats refresh")
+            pendingCleanup()()
+            check(pendingCleanup()==nil,"Releasing the Ticket Tent hold clears its lease")
+        end
         if failure=="speed-change" then
             check(ok and #goals==2 and report.Movement.Arrived,"Active speed change rebuilds the remaining tween and arrives")
             check(state==Enum.HumanoidStateType.Running,"Cleanup restores the previous humanoid state")
@@ -423,6 +428,18 @@ return function(runtime)
         local init=assert(loadstring("return function(Config) "..normalize.." return Config.Speed end"))()
         check(init({Speed=40})==40,"Legacy actual speed40 remains40, not400")
         check(init({Speed=1000})==400 and init({Speed=0})==10,"Loaded config respects actual speed bounds")
+    end
+    do
+        local source=assert(runtime:match("(local function near%(part%).-)\nlocal atlasPauseControl"))
+        local make=assert(loadstring("return function(distance,Config,Report,MOVEMENT_TIMEOUT) "..source.." return near end"))()
+        local gap=16;local report={LastMovementArrival="old"};local token={}
+        local near=make(function()return gap end,{NearDistance=16},report,token)
+        local part={GetFullName=function()return "Workspace.Map.Buildings.Ticket Bee Shop.Floor"end}
+        check(pcall(near,part),"Exact near boundary remains allowed")
+        gap=17;local ok,why=pcall(near,part)
+        check(not ok and why==token,"Lost proximity enters the existing guarded movement recovery")
+        check(report.Movement.Distance==17 and report.Movement.Arrived==false and report.LastMovementArrival==nil,"Lost arrival records fresh distance and invalidates stale success")
+        check(report.Movement.Failure=="Lost proximity before action","Lost proximity has a diagnostic cause")
     end
     return {passed=checked}
 end
