@@ -803,8 +803,10 @@ local function queuePlan(facts,catalog,primary)
         end
         if #queues.A==3 and #queues.B==3 then break end
     end
-    table.sort(queues.B,function(a,b) return a.honey<b.honey or a.honey==b.honey and a.order<b.order end)
-    for priority,candidate in ipairs(queues.B) do candidate.priority=priority end
+    for _,queue in ipairs({queues.A,queues.B}) do
+        table.sort(queue,function(a,b) return a.honey<b.honey or a.honey==b.honey and a.order<b.order end)
+        for priority,candidate in ipairs(queue) do candidate.priority=priority end
+    end
     local function decide(candidate,f)
         return candidate and plan(f or facts,catalog,candidate) or nil
     end

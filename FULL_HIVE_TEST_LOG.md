@@ -1315,3 +1315,11 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Guarded maintenance waited for pending reads, preserved uncertainty and human state, released/stopped the prior worker and executed once per account. All three intended Delta accounts in place1537690962/job db243c9d-ca59-403f-aa9d-104e5605050d now report/UI1.8.81, Running=true, no reported errors/UI warnings. StartedAt: QuackAltear1 1795593001; QuackAltear5 1795592999; QuackAltear06 1795593002.
 - LIVE queues on all3: Type A Diamond Drenchers / The Supreme Saturator (only2 remaining); Type B Cobalt Guard / Crimson Guard / Diamond Mask. Priority1 is Cobalt Guard, tie resolved by route order. Existing BlueExtract orders are counted as queued output; the planner waits for Blender, keeps current materials reserved and reports no new fruit shortage. A new purchase or fruit-field change from this queue implementation has not yet naturally occurred; readiness/purchase/field-input paths are isolated regression coverage, with live queue and UI selection verified.
 - Bundle SHA-256 eb59c3440048b3b113223178f259212c98a8456d980ad8ab10774bbc23ec614f.
+
+## v1.8.82 — Rank honey queue by price too
+
+- Both queues now use ascending full honey price, route-order tie breaking and explicit priority numbers. Queue admission/refill stays the next three unowned items of its category. No material-farm, receipt, reserve or spending-policy changes.
+- Exact bundle42 markers/main+embedded compilation passed; connected suite on QuackAltear5 allPassed=true with4642 checks,338 progression. Two new assertions cover reordered honey prices and equal-price stability.
+- Guarded pending/uncertain checks, clean maintenance stops and one execution per account completed. Fresh runtime/report/UI1.8.82 confirmed on QuackAltear1,5,06, all Running=true, StartedAt1795594233, no reported error/UI warning/pending/uncertain state in final snapshots. Live honey queues expose Diamond Drenchers priority1 and Supreme Saturator priority2 in ascending price. No new purchase was forced or naturally observed during this update.
+- SHA-256 c4acfce16c4e65846371aae105b151b5a600d51d0b49ffef339f29f39754e2a4.
+
