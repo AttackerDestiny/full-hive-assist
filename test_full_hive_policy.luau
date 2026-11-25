@@ -36,6 +36,32 @@ return function(P,T)
     end
     do
         local cells=hive({{"Bubble",5,true},{"Frosty",5,true},{"Tabby",24,false}})
+        local isolated=hive({{"Carpenter",1,true},{"Bubble",4,true},{"Frosty",4,true},{"Tabby",35,false}})
+        local carpenter=isolated[1]
+        for _,case in ipairs({{44,0},{46,2},{50,2}}) do
+            local context=ctx(case[1],case[2]);context.legendaryRoute="six"
+            local q=P.plan(isolated,T,context)
+            check(not q.keep[P.key(carpenter)] and q.target==carpenter,"Zero-egg route selects the lone gifted Carpenter at "..case[1])
+            check(q.legendaryHunt and q.mode=="gifted","Released Carpenter pursues the existing Legendary goals")
+            local task=P.startRollTask(carpenter,isolated,q)
+            check(P.rollTaskSafe(task,carpenter,isolated,T,q),"Unrolled Carpenter lease is eligible")
+            task.Rolled=true
+            check(not P.rollTaskDone(task,carpenter,isolated,T,q) and P.rollTaskSafe(task,carpenter,isolated,T,q),
+                "A new gifted Carpenter result continues the same coordinate")
+            check(q.protected[P.key(isolated[#isolated])],"Event protection remains active")
+        end
+        for _,route in ipairs({"eggs","waiting"}) do
+            local context=ctx(44);context.legendaryRoute=route
+            check(P.plan(isolated,T,context).keep[P.key(carpenter)],"Existing Carpenter keep for route "..route)
+        end
+        local before=ctx(43);before.legendaryRoute="six"
+        local lastEvent=table.remove(isolated)
+        check(P.plan(isolated,T,before).keep[P.key(carpenter)],"Before 44 slots the ordinary Carpenter keep applies")
+        isolated[#isolated+1]=lastEvent
+        local preparing=ctx(44);preparing.legendaryRoute="six";preparing.starPrepare=true
+        local starPlan=P.plan(isolated,T,preparing)
+        check(starPlan.keep[P.key(carpenter)] and P.giftedLimit("Carpenter","late",4,"six",true)==1,
+            "Explicit Star preparation reserves required gifted Carpenter coverage")
         check(not P.plan(cells,T,ctx(43)).legendaryHunt,"Legendary hunt waits for the 44th unlocked slot")
         cells[#cells+1]=cell("Frosty",false)
         check(not P.plan(cells,T,ctx(44)).legendaryHunt,"A normal collector upgrade delays the Legendary hunt")

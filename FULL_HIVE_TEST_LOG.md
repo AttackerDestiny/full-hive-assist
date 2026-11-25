@@ -1254,3 +1254,14 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - Offline zero-Star-Egg screenshot review found that late-stage P.singles still reserves one gifted Carpenter. The six-goal route changes desired Legendary goals, while that keep continues. No Carpenter protection policy was changed from the question alone. The screenshot's 2756 Royal Jelly is also below its 4000 new-batch threshold. Offline quest/hive state cannot be confirmed by MCP.
 - Bundle SHA-256 ab326b969e17fd2d0ec7aa5556e93dacc59d4d8fbfcd73b92cb0d38d3062a9be.
 
+
+## v1.8.75 — Release gifted Carpenter on the confirmed zero-Star-Egg path
+
+- Human explicitly requested removing the late-stage gifted Carpenter keep after the source explanation. For legendaryRoute=six at late/blue/final stages, the gifted Carpenter limit is zero and the late singleton reservation is omitted. A selected Carpenter remains eligible at the same coordinate, and a new gifted Carpenter result does not finish the task as a failsafe. Before 44 slots and on eggs/waiting routes, existing behavior remains. Explicit Star preparation still reserves its required gifted Carpenter coverage. Other goals, protections, batch thresholds and pending-request safeguards are unaffected.
+- Added 19 policy checks covering 44/46/50 slots, candidate selection, unrolled and rolled task safety, same-coordinate continuation, Event protection, waiting/egg routes, pre-44 and explicit Star preparation. Exact rebuilt bundle passed 42 validation markers and tools/test_connected_client.ps1 allPassed=true on QuackAltear1 and QuackAltear5. Current connected suite totals 4539 checks (policy 1222).
+- Rediscovered all three intended Delta accounts on Bee Swarm Simulator job db243c9d-ca59-403f-aa9d-104e5605050d. Pre-deployment reports showed running/unpaused v1.8.74 with no unresolved flags. Maintenance guard rechecked both pending and uncertain pairs, stopped the old worker, waited for Running=false and executed v1.8.75 once per account.
+- Live report/version/UI confirmation: QuackAltear1 StartedAt1795577039, QuackAltear5 StartedAt1795577040, QuackAltear06 StartedAt1795577041. All Running=true, Stop=false, version/report/UI matching, no Error/UIWarning/MaterialFarmWorkerError and no unresolved flags in the verification snapshots. QuackAltear1 resumed its ordinary 200-jelly wait. QuackAltear5/06 held Atlas during normal movement at that snapshot.
+- The user's 44-slot zero-egg account remains offline. Eligibility and new-result continuation for that path are regression verified, not naturally rolled on that account. No inventory/quest history or item results were manually changed.
+- Bundle SHA-256 eb3165224643827f68729b0b794e62ec7acf8b5d052ad105fceb33201431d501.
+
+- Later live recheck confirmed QuackAltear5 and QuackAltear06 released Atlas (AtlasPaused=false) during their recoverable Ticket Tent approach waits, with matching v1.8.75 UI and no new reported errors.
