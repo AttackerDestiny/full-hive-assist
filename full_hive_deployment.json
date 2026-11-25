@@ -3289,32 +3289,35 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.82",
+    "version": "1.8.83",
     "bundle": "core.luau",
-    "sha256": "c4acfce16c4e65846371aae105b151b5a600d51d0b49ffef339f29f39754e2a4",
+    "sha256": "4464826b1f56690099b5a5313c34bc7d65733e8884f9d7e7094785ddc3d82ef5",
     "accounts": [
       {
-        "startedAt": 1795594233,
-        "uiVerified": true,
+        "uiVerified": false,
+        "startedAt": 1795595448,
         "running": true,
+        "settingsFileVerified": true,
         "account": "QuackAltear1"
       },
       {
-        "startedAt": 1795594233,
         "uiVerified": true,
+        "startedAt": 1795595449,
         "running": true,
+        "settingsFileVerified": true,
         "account": "QuackAltear5"
       },
       {
-        "startedAt": 1795594233,
         "uiVerified": true,
+        "startedAt": 1795595498,
         "running": true,
+        "settingsFileVerified": true,
         "account": "QuackAltear06"
       }
     ],
-    "connectedChecks": 4642,
-    "progressionChecks": 338,
-    "queueLiveVerified": true,
-    "naturalQueuePurchaseObserved": false
+    "connectedChecks": 4656,
+    "settingsChecks": 14,
+    "nativeRegressionAccount": "QuackAltear1",
+    "processRestartTested": false
   }
 }

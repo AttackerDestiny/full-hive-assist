@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.82"
+local SCRIPT_VERSION = "1.8.83"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -124,6 +124,13 @@ local Config = {DryRun=false, PollSeconds=3, Speed=60, NearDistance=16,
     HoneyReserve=0, RollDelay=0.3, StarEggHoney=100000000000,
     AtlasInitiallyStopped=false, PreserveUniqueGifted=false, AutoProgression=true,
     UseBlenderTickets=false, AutoAmulets=true, AutoQuestAssist=true, SuperMaterialFarm=false}
+local settingsPlayer=game:GetService("Players").LocalPlayer
+local settingsHttp=game:GetService("HttpService")
+local settingsStore=FeatherSettings.new({userId=settingsPlayer.UserId,read=readfile,write=writefile,exists=isfile,
+    encode=function(value) return settingsHttp:JSONEncode(value) end,
+    decode=function(value) return settingsHttp:JSONDecode(value) end})
+local savedPreferences=settingsStore.load()
+for k,v in pairs(savedPreferences) do if k~="AssistEnabled" then Config[k]=v end end
 for k,v in pairs(env.FullHiveConfig or {}) do
     if k~="StartupDelaySeconds" then
         assert(Config[k] ~= nil, "Unknown config: "..k)
@@ -148,7 +155,14 @@ env.FullHivePreviousReport = env.FullHiveReport
 local Report = {Version=SCRIPT_VERSION, Phase="starting", Actions=0, RoyalJellyUsed=0, DryRun=Config.DryRun,StartedAt=os.time()}
 Report.TweenSpeed=Config.Speed/10
 Report.MovementSpeed=Config.Speed
-Report.PauseRequested=env.FullHiveStartPaused==true
+Report.PauseRequested=savedPreferences.AssistEnabled==false
+if env.FullHiveStartPaused~=nil then Report.PauseRequested=env.FullHiveStartPaused==true end
+local function saveSettings()
+    settingsStore.save(Config,not Report.PauseRequested)
+    Report.SettingsError=settingsStore.error
+    Report.SettingsFile=settingsStore.path
+end
+saveSettings()
 env.FullHiveStartPaused=nil -- One-time handoff for maintenance of a paused/stopped session.
 env.FullHiveReport = Report
 local Players, RS = game:GetService("Players"), game:GetService("ReplicatedStorage")
@@ -2019,17 +2033,20 @@ end
 local function setAssistEnabled(enabled)
     if env.FullHiveRunning and not env.FullHiveStop then
         Report.PauseRequested=not enabled
+        saveSettings()
     end
 end
 local function setBlenderTickets(enabled)
     Config.UseBlenderTickets=enabled
     env.FullHiveConfig=env.FullHiveConfig or {}
     env.FullHiveConfig.UseBlenderTickets=enabled
+    saveSettings()
 end
 local function setSuperMaterialFarm(enabled)
     Config.SuperMaterialFarm=enabled==true
     env.FullHiveConfig=env.FullHiveConfig or {}
     env.FullHiveConfig.SuperMaterialFarm=Config.SuperMaterialFarm
+    saveSettings()
     if not enabled and materialFarm and not materialFarmBusy then materialFarm.restore() end
 end
 local function hiveSnapshot()
@@ -2056,6 +2073,7 @@ local function makeUI()
             env.FullHiveConfig.Speed=Config.Speed
             Report.TweenSpeed=Config.Speed/10
             Report.MovementSpeed=Config.Speed
+            saveSettings()
         end,
     })
     if wind then

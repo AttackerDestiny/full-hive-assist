@@ -409,7 +409,7 @@ return function(runtime)
     do
         local body=assert(runtime:match("setTweenSpeed=function%(value%)(.-)\n        end,"),"Tween speed callback missing")
         local config,env,report={Speed=40},{},{}
-        local setter=assert(loadstring("return function(Config,env,Report) return function(value) "..body.." end end"))()(config,env,report)
+        local setter=assert(loadstring("return function(Config,env,Report) local function saveSettings() end return function(value) "..body.." end end"))()(config,env,report)
         for _,pair in ipairs({{6,60},{40,400},{1,10},{100,400},{-5,10},{6.9,60}}) do
             setter(pair[1])
             check(config.Speed==pair[2] and env.FullHiveConfig.Speed==pair[2],"Tween slider scales and persists actual speed")

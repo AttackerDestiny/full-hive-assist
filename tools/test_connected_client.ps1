@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)][string]$ClientId,[string]$BundlePath,[switch]$CheckFinalBabyQuota)
+param([Parameter(Mandatory=$true)][string]$ClientId,[string]$BundlePath,[switch]$CheckFinalBabyQuota,[string]$TestFilePath)
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
 if (-not $BundlePath) { $BundlePath=Join-Path $project 'core.luau' }
@@ -85,6 +85,11 @@ if ($materialSource) {
     $materialTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_material_farm.luau') -Raw
     $code+='local materialFarmOK,materialFarmResult=pcall(assert(loadstring([======['+$materialTests+']======]))(),assert(loadstring([======['+$materialSource+']======]))());'
 } else { $code+='local materialFarmOK,materialFarmResult=true,{notApplicable=true};' }
+$settingsSource=[regex]::Match($bundle,'local FeatherSettings = \(function\(\)\n(.*?)\nend\)\(\)\n',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
+if ($settingsSource) {
+    $settingsTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_feather_settings.luau') -Raw
+    $code+='local settingsOK,settingsResult=pcall(assert(loadstring([======['+$settingsTests+']======]))(),assert(loadstring([======['+$settingsSource+']======]))());'
+} else { $code+='local settingsOK,settingsResult=true,{notApplicable=true};' }
 $atlasValuesSource=[regex]::Match($bundle,'local atlasCallbackValues = \(function\(\)\n(.*?)\nend\)\(\)\n',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
 if ($atlasValuesSource) {
     $atlasValuesTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_atlas_callback_values.luau') -Raw
@@ -125,14 +130,19 @@ local blenderReceiptOK,blenderReceiptResult=true,{notApplicable=true}
 if hasBlenderReceipt then blenderReceiptOK,blenderReceiptResult=pcall(assert(loadstring(blenderReceiptTests))(),assert(loadstring(blenderReceipt))()) end
 local amuletOK,amuletResult,questOK,questResult=true,{notApplicable=true},true,{notApplicable=true}
 if hasBackground then amuletOK,amuletResult=pcall(assert(loadstring(amuletTests))(),assert(loadstring(amulets))());questOK,questResult=pcall(assert(loadstring(questTests))(),assert(loadstring(quests))()) end
-return {allPassed=atlasValuesOK and materialFarmOK and main~=nil and star~=nil and policyOK and recoveryOK and collectorOK and batchOK and starJellyOK
+return {allPassed=settingsOK and atlasValuesOK and materialFarmOK and main~=nil and star~=nil and policyOK and recoveryOK and collectorOK and batchOK and starJellyOK
     and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK and finalBabyOK and progressionOK and progressionFactsOK and fundsOK and hatchReceiptOK and blenderReceiptOK and amuletOK and questOK,
-    atlasValues={ok=atlasValuesOK,result=atlasValuesResult},materialFarm={ok=materialFarmOK,result=materialFarmResult},main=main~=nil,mainError=mainError,embeddedStar=star~=nil,starError=starError,
+    settings={ok=settingsOK,result=settingsResult},atlasValues={ok=atlasValuesOK,result=atlasValuesResult},materialFarm={ok=materialFarmOK,result=materialFarmResult},main=main~=nil,mainError=mainError,embeddedStar=star~=nil,starError=starError,
     policy={ok=policyOK,result=policyResult},recovery={ok=recoveryOK,result=recoveryResult},collector={ok=collectorOK,result=collectorResult},batch={ok=batchOK,result=batchResult},starJelly={ok=starJellyOK,result=starJellyResult},
     starPreflight={ok=starPreflightOK,result=starPreflightResult},starProgress={ok=starProgressOK,result=starProgressResult},
     finalOccupancy={ok=finalOccupancyOK,result=finalOccupancyResult},connectedReview={ok=connectedReviewOK,result=connectedReviewResult},failsafeOnly={ok=failsafeOnlyOK,result=failsafeOnlyResult},finalBaby={ok=finalBabyOK,result=finalBabyResult},
     progression={ok=progressionOK,result=progressionResult},progressionFacts={ok=progressionFactsOK,result=progressionFactsResult},funds={ok=fundsOK,result=fundsResult},hatchReceipt={ok=hatchReceiptOK,result=hatchReceiptResult},blenderReceipt={ok=blenderReceiptOK,result=blenderReceiptResult},amulets={ok=amuletOK,result=amuletResult},questAssist={ok=questOK,result=questResult}}
 '@
+if ($TestFilePath) {
+    [IO.File]::WriteAllText($TestFilePath,('getgenv().FullHiveRegressionResult=(function() '+$code+' end)()'))
+    Write-Output "Generated isolated test file; execution and allPassed verification are still required: $TestFilePath"
+    return
+}
 $argsPath = Join-Path ([IO.Path]::GetTempPath()) ('bss-tests-'+[guid]::NewGuid().ToString()+'.json')
 try {
     [IO.File]::WriteAllText($argsPath,(@{clientId=$ClientId;code=$code;timeout=60000;maxOutputChars=6500} | ConvertTo-Json -Depth 4))

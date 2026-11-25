@@ -21,6 +21,7 @@ try {
     $questPolicy = Get-Content -LiteralPath quest_assist_policy.luau -Raw
     $backgroundRuntime = Get-Content -LiteralPath background_runtime.luau -Raw
     $materialFarm = Get-Content -LiteralPath material_farm.luau -Raw
+    $settingsSource = Get-Content -LiteralPath feather_settings.luau -Raw
     $atlasCallbackValues = Get-Content -LiteralPath atlas_callback_values.luau -Raw
     $atlasProgressionControl = Get-Content -LiteralPath atlas_progression_control.luau -Raw
     $versionMatch = [regex]::Match($runtime, 'local SCRIPT_VERSION = "(\d+\.\d+\.\d+)"')
@@ -56,6 +57,7 @@ try {
     if ([version]$version -ge [version]'1.7.0') { $progressionSources="local AmuletPolicy = (function()`n$amuletPolicy`nend)()`nlocal QuestAssistPolicy = (function()`n$questPolicy`nend)()`nlocal createBackground = (function()`n$backgroundRuntime`nend)()`n"+$progressionSources }
     $windSources = ''
     $progressionSources="local MaterialFarm = (function()`n$materialFarm`nend)()`n"+$progressionSources
+    $progressionSources="local FeatherSettings = (function()`n$settingsSource`nend)()`n"+$progressionSources
     $progressionSources="local atlasCallbackValues = (function()`n$atlasCallbackValues`nend)()`n"+$progressionSources
     if ([version]$version -ge [version]'1.8.0') {
         $windSources = & "$PSScriptRoot/build_feather_windui.ps1"
