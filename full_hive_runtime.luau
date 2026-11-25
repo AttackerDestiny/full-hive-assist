@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.75"
+local SCRIPT_VERSION = "1.8.76"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -528,6 +528,21 @@ local function move(part,pickup)
         local params=RaycastParams.new()
         params.RespectCanCollide=true
         params.FilterDescendantsInstances={movingCharacter}
+        local floorParams=params
+        local doormat
+        if ticketShop then
+            doormat=part.Parent and part.Parent:FindFirstChild("Doormat")
+            if doormat and not doormat:IsA("BasePart") then doormat=nil end
+            floorParams=RaycastParams.new()
+            floorParams.RespectCanCollide=true
+            floorParams.FilterType=Enum.RaycastFilterType.Include
+            floorParams.FilterDescendantsInstances=doormat and {part,doormat} or {part}
+        end
+        local function ticketSurface(hit)
+            return hit and (hit.Instance==part or doormat and hit.Instance==doormat)
+                and hit.Position.Y>=part.Position.Y+height-0.5
+                and hit.Position.Y<=part.Position.Y+height+2
+        end
         local function blocked(from,to)
             return workspace:Raycast(from,to-from,params)~=nil
         end
@@ -643,7 +658,11 @@ local function move(part,pickup)
                 local localPosition=part.CFrame:PointToObjectSpace(r.Position)
                 if math.abs(localPosition.X)>size.X/2 or math.abs(localPosition.Z)>size.Z/2 then return false end
             end
-            return workspace:Raycast(r.Position,Vector3.new(0,-5,0),params)~=nil
+            local hit=workspace:Raycast(r.Position,Vector3.new(0,-5,0),floorParams)
+            if ticketShop then
+                return r.Position.Y>=part.Position.Y+height+1 and ticketSurface(hit)
+            end
+            return hit~=nil
         end
         if grounded then
             movement.Method="grounded-tween"
@@ -655,8 +674,10 @@ local function move(part,pickup)
             local attempted={}
             for index,offset in ipairs(approaches) do
                 checkTravel()
-                local hit=workspace:Raycast(target+offset-Vector3.new(0,2,0),Vector3.new(0,-(2*height+16),0),params)
+                local probe=target+offset+Vector3.new(0,ticketShop and 3 or -2,0)
+                local hit=workspace:Raycast(probe,Vector3.new(0,-(2*height+16),0),floorParams)
                 if not hit then continue end
+                if ticketShop and not ticketSurface(hit) then continue end
                 local groundTarget=hit.Position+Vector3.new(0,3,0)
                 if checkFloor then
                     local point=cf:PointToObjectSpace(groundTarget)

@@ -205,10 +205,11 @@ return function(runtime)
     local movement=assert(runtime:match("(local function move%(part,pickup%).-)\nlocal function setSettings"))
     local movementFactory=assert(loadstring("return function(player,game,workspace,Instance,descendants,Report,clock)\n"..
         "local os={clock=clock or os.clock,time=os.time}\n"..
+        "local RaycastParams={new=function() return {} end}\n"..
         "local Config={Speed=65,NearDistance=16}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance(part) local d=part.CFrame:PointToObjectSpace(player.Character:FindFirstChild().Position); local h=part.Size*0.5; return (d-Vector3.new(math.clamp(d.X,-h.X,h.X),math.clamp(d.Y,-h.Y,h.Y),math.clamp(d.Z,-h.Z,h.Z))).Magnitude end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","blocked-direct","no-route","shop-path","shop-alternate","shop-floor-arrival","shop-no-floor","guild-floor-arrival","ticket-floor-arrival","dapper-entrance","star-hall-entrance","mountaintop-floor-arrival","blender-approach"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","rotated-pad","obstructed","lateral","blocked-direct","no-route","shop-path","shop-alternate","shop-floor-arrival","shop-no-floor","guild-floor-arrival","ticket-floor-arrival","ticket-underfloor","ticket-reject-underfloor","dapper-entrance","star-hall-entrance","mountaintop-floor-arrival","blender-approach"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -220,7 +221,9 @@ return function(runtime)
         local goals={}
         local alternate=failure=="shop-alternate"
         local guild=failure=="guild-floor-arrival"
-        local ticketShop=failure=="ticket-floor-arrival"
+        local underfloor=failure=="ticket-underfloor"
+        local rejectUnderfloor=failure=="ticket-reject-underfloor"
+        local ticketShop=failure=="ticket-floor-arrival" or underfloor or rejectUnderfloor
         local mountaintop=failure=="mountaintop-floor-arrival"
         local blender=failure=="blender-approach"
         local dapper=failure=="dapper-entrance"
@@ -233,6 +236,7 @@ return function(runtime)
         function humanoid:Move(direction) assert(direction==Vector3.zero,"Movement must never walk") end
         if grounded then c.FindFirstChildOfClass=function() return humanoid end end
         local floorProbes=0
+        local landingPart
         local callbacks={}
         local function signal(name)
             return {Connect=function(_,callback)
@@ -288,15 +292,22 @@ return function(runtime)
                 end}
             end
         end,
-            Raycast=function(_,origin,direction)
+            Raycast=function(_,origin,direction,params)
                 if grounded then
                     if direction.Y<-10 and direction.X==0 and direction.Z==0 then
                         floorProbes+=1
                         if noFloor or (guild and floorProbes==1) then return nil end
-                        return {Position=Vector3.new(origin.X,0,origin.Z)}
+                        if rejectUnderfloor or underfloor and params.FilterType~=Enum.RaycastFilterType.Include then
+                            return {Position=Vector3.new(origin.X,-10,origin.Z),Instance=landingPart}
+                        end
+                        if underfloor then
+                            check(params.FilterType==Enum.RaycastFilterType.Include
+                                and table.find(params.FilterDescendantsInstances,landingPart),"Ticket probes are restricted to the actual shop surface")
+                        end
+                        return {Position=Vector3.new(origin.X,0,origin.Z),Instance=landingPart}
                     end
                     if direction.Y==-5 and direction.X==0 and direction.Z==0 then
-                        if origin.Y==3 then return {} end
+                        if origin.Y==3 then return {Position=Vector3.new(origin.X,0,origin.Z),Instance=landingPart} end
                         return nil
                     end
                     return {} -- Force the grounded noclip approach through the blocked line.
@@ -325,8 +336,9 @@ return function(runtime)
                 if shopFloor then return "Workspace.Map.Ground.BlueHQShopFloor" end
                 return grounded and "Workspace.Shops.ProShop.Terrain" or "Verified.Test.Pad"
             end,IsA=function() return true end}
+        landingPart=part
         local ok,err=pcall(move,part)
-        if noFloor then
+        if noFloor or rejectUnderfloor then
             check(not ok and err==timeoutToken and #goals==0,"Blue HQ without a verified landing sends no movement or purchase")
             check(report.Movement.RoutesExhausted and not report.Movement.Arrived,"Missing shop floor blocks arrival")
         elseif grounded then
@@ -335,6 +347,9 @@ return function(runtime)
             check(report.Movement.Arrived and report.Movement.Method=="grounded-tween","Shop tween records verified arrival")
             if alternate or guild then
                 check(report.Movement.Route==2,"A failed shop approach tries a different verified floor point")
+            end
+            if underfloor then
+                for _,goal in ipairs(goals) do check(goal.Y>=3,"Ticket tween never aims below its floor") end
             end
         elseif dapper then
             check(ok and report.Movement.Method=="dapper-entrance" and #goals==3
@@ -357,7 +372,7 @@ return function(runtime)
             check(not ok and err=="Fake tween "..(failure=="play-error" and "play" or "setup").." failed",
                 "Movement preserves tween failure on "..failure)
         else check(not ok and err==token,"Movement detects character "..failure..": "..tostring(err)) end
-        check((failure=="setup-error" or noFloor or cancelled) and disconnected==3 and destroyed==2,
+        check((failure=="setup-error" or noFloor or rejectUnderfloor or cancelled) and disconnected==3 and destroyed==2,
             "Movement objects and all signals removed on "..failure)
         check(obstacle.CanCollide==true and not noncollidable.CanCollide and pendingCleanup()==nil,
             "Original true and false collisions restored on "..failure)
