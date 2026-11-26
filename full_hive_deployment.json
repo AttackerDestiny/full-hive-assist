@@ -3315,11 +3315,10 @@
       },
       {
         "account": "QuackAltear1",
-        "version": "1.8.103",
-        "startedAt": 1795697528,
-        "requestedVersion": "1.8.104",
-        "awaitingVerification": true,
-        "note": "Guarded file scheduled once; responsive current-job MCP disappeared before final verification. No crash inferred or repeat execution."
+        "version": "1.8.104",
+        "startedAt": 1795697850,
+        "running": true,
+        "paused": false
       }
     ],
     "offlineChecks": 6722,
@@ -3406,11 +3405,10 @@
       },
       {
         "account": "QuackAltear1",
-        "version": "1.8.103",
-        "startedAt": 1795697528,
-        "requestedVersion": "1.8.104",
-        "awaitingVerification": true,
-        "note": "Guarded file scheduled once; responsive current-job MCP disappeared before final verification. No crash inferred or repeat execution."
+        "version": "1.8.104",
+        "startedAt": 1795697850,
+        "running": true,
+        "paused": false
       }
     ],
     "offlineChecks": 6722,
