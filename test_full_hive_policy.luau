@@ -554,5 +554,28 @@ return function(P,T)
         local done,reason,safe=P.reconcileRollTask(task,cells[4],cells,T,plan)
         check(done and reason=="starter-bee-kept" and not safe,"A freshly kept starter placeholder ends a stale fixed task safely")
     end
+    do
+        for _,case in ipairs({{25,0},{40,0},{44,0},{46,2},{50,2}}) do
+            local h=hive({{"Basic",2,true},{"Tabby",18,false}})
+            local c=ctx(case[1],case[2]);c.enforceGrowth=true
+            local p=P.plan(h,T,c)
+            check(p.keep[P.key(h[1])] and not p.keep[P.key(h[2])],"Exactly one gifted Basic reserved at "..case[1])
+            check(not P.basicSlotSafe(h[1],h[1],p) and P.basicSlotSafe(h[2],h[2],p),"Only surplus gifted Basic is a safe replacement")
+            local extra=P.startRollTask(h[2],h,p)
+            check(P.rollTaskSafe(extra,h[2],h,T,p) and not P.rollTaskDone(extra,h[2],h,T,p),"Surplus Basic stays eligible through starter keep rules")
+            local force=P.startRollTask(h[1],h,p)
+            check(not P.rollTaskSafe(force,h[1],h,T,p) and P.rollTaskDone(force,h[1],h,T,p),"Unrolled force coordinate cannot be consumed")
+            h[1].bee={Type="Brave",Traits={}}
+            p=P.plan(h,T,c)
+            check(not P.rollTaskSafe(extra,h[2],h,T,p) and P.rollTaskDone(extra,h[2],h,T,p),"Last remaining gifted Basic becomes protected on refresh")
+            check(not P.basicSlotSafe(h[2],h[2],p),"Last remaining gifted Basic cannot be used for placement")
+        end
+        local h=hive({{"Brave",1},{"Basic",1,true},{"Tabby",18,false}})
+        local c=ctx(40);local p=P.plan(h,T,c)
+        local task=P.startRollTask(h[1],h,p);task.Rolled=true
+        h[1].bee={Type="Basic",Traits={"Gifted"}}
+        p=P.plan(h,T,c)
+        check(not P.rollTaskDone(task,h[1],h,T,p) and P.rollTaskSafe(task,h[1],h,T,p),"New earlier-coordinate duplicate cannot steal the existing Basic force")
+    end
     return {passed=checked}
 end

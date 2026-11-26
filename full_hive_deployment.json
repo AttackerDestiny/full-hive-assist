@@ -3318,32 +3318,29 @@
     "naturalPurchaseObserved": false
   },
   "latestCandidate": {
-    "version": "1.8.88",
+    "version": "1.8.89",
     "bundle": "core.luau",
-    "sha256": "2f4a9182e2523d34c72ffafb2c03d7af304f9973b69274fc26ab9368b57830ba",
-    "jobId": "5e02531d-d578-45c4-b439-c1db534c4fd1",
+    "sha256": "fa44f31994cf55ae4c03c65ffc7cf58defae2f9b3408c15355f13b791ddc6949",
+    "status": "execution-scheduled-runtime-verification-pending",
+    "offlineChecks": 4697,
+    "policyChecks": 1253,
     "accounts": [
       {
         "account": "QuackAltear1",
-        "startedAt": 1795666651,
-        "reportVersionVerified": true,
-        "running": true
+        "executionScheduled": true,
+        "runtimeVerified": false
       },
       {
         "account": "QuackAltear5",
-        "startedAt": 1795666657,
-        "reportVersionVerified": true,
-        "running": true
+        "executionScheduled": true,
+        "runtimeVerified": false
       },
       {
         "account": "QuackAltear06",
-        "startedAt": 1795666657,
-        "reportVersionVerified": true,
-        "running": true
+        "executionScheduled": true,
+        "runtimeVerified": false
       }
     ],
-    "offlineRelevantChecks": 387,
-    "uiVisualVerified": false,
-    "naturalPurchaseObserved": false
+    "naturalDuplicateBasicRollObserved": false
   }
 }
