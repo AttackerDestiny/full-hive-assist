@@ -22,6 +22,7 @@ try {
     $backgroundRuntime = Get-Content -LiteralPath background_runtime.luau -Raw
     $materialFarm = Get-Content -LiteralPath material_farm.luau -Raw
     $settingsSource = Get-Content -LiteralPath feather_settings.luau -Raw
+    $mythicSource = Get-Content -LiteralPath mythic_discovery.luau -Raw
     $atlasCallbackValues = Get-Content -LiteralPath atlas_callback_values.luau -Raw
     $atlasProgressionControl = Get-Content -LiteralPath atlas_progression_control.luau -Raw
     $versionMatch = [regex]::Match($runtime, 'local SCRIPT_VERSION = "(\d+\.\d+\.\d+)"')
@@ -58,6 +59,7 @@ try {
     $windSources = ''
     $progressionSources="local MaterialFarm = (function()`n$materialFarm`nend)()`n"+$progressionSources
     $progressionSources="local FeatherSettings = (function()`n$settingsSource`nend)()`n"+$progressionSources
+    $progressionSources="local MythicDiscovery = (function()`n$mythicSource`nend)()`n"+$progressionSources
     $progressionSources="local atlasCallbackValues = (function()`n$atlasCallbackValues`nend)()`n"+$progressionSources
     if ([version]$version -ge [version]'1.8.0') {
         $windSources = & "$PSScriptRoot/build_feather_windui.ps1"

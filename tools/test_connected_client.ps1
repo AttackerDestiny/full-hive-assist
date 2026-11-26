@@ -85,6 +85,13 @@ if ($materialSource) {
     $materialTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_material_farm.luau') -Raw
     $code+='local materialFarmOK,materialFarmResult=pcall(assert(loadstring([======['+$materialTests+']======]))(),assert(loadstring([======['+$materialSource+']======]))(),runtime);'
 } else { $code+='local materialFarmOK,materialFarmResult=true,{notApplicable=true};' }
+$mythicSource=[regex]::Match($bundle,'local MythicDiscovery = \(function\(\)\n(.*?)\nend\)\(\)\n',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
+if ($mythicSource) {
+    $mythicTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_mythic_discovery.luau') -Raw
+    $code+='local mythicOK,mythicResult=pcall(assert(loadstring([======['+$mythicTests+']======]))(),assert(loadstring([======['+$mythicSource+']======]))());'
+    $mythicRuntimeTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_mythic_runtime.luau') -Raw
+    $code+='local mythicRuntimeOK,mythicRuntimeResult=pcall(assert(loadstring([======['+$mythicRuntimeTests+']======]))(),runtime,assert(loadstring([======['+$mythicSource+']======]))());'
+} else { $code+='local mythicOK,mythicResult,mythicRuntimeOK,mythicRuntimeResult=true,{notApplicable=true},true,{notApplicable=true};' }
 $settingsSource=[regex]::Match($bundle,'local FeatherSettings = \(function\(\)\n(.*?)\nend\)\(\)\n',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
 if ($settingsSource) {
     $settingsTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_feather_settings.luau') -Raw
@@ -130,9 +137,9 @@ local blenderReceiptOK,blenderReceiptResult=true,{notApplicable=true}
 if hasBlenderReceipt then blenderReceiptOK,blenderReceiptResult=pcall(assert(loadstring(blenderReceiptTests))(),assert(loadstring(blenderReceipt))()) end
 local amuletOK,amuletResult,questOK,questResult=true,{notApplicable=true},true,{notApplicable=true}
 if hasBackground then amuletOK,amuletResult=pcall(assert(loadstring(amuletTests))(),assert(loadstring(amulets))());questOK,questResult=pcall(assert(loadstring(questTests))(),assert(loadstring(quests))()) end
-return {allPassed=settingsOK and atlasValuesOK and materialFarmOK and main~=nil and star~=nil and policyOK and recoveryOK and collectorOK and batchOK and starJellyOK
+return {allPassed=mythicRuntimeOK and mythicOK and settingsOK and atlasValuesOK and materialFarmOK and main~=nil and star~=nil and policyOK and recoveryOK and collectorOK and batchOK and starJellyOK
     and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK and finalBabyOK and progressionOK and progressionFactsOK and fundsOK and hatchReceiptOK and blenderReceiptOK and amuletOK and questOK,
-    settings={ok=settingsOK,result=settingsResult},atlasValues={ok=atlasValuesOK,result=atlasValuesResult},materialFarm={ok=materialFarmOK,result=materialFarmResult},main=main~=nil,mainError=mainError,embeddedStar=star~=nil,starError=starError,
+    mythicRuntime={ok=mythicRuntimeOK,result=mythicRuntimeResult},mythic={ok=mythicOK,result=mythicResult},settings={ok=settingsOK,result=settingsResult},atlasValues={ok=atlasValuesOK,result=atlasValuesResult},materialFarm={ok=materialFarmOK,result=materialFarmResult},main=main~=nil,mainError=mainError,embeddedStar=star~=nil,starError=starError,
     policy={ok=policyOK,result=policyResult},recovery={ok=recoveryOK,result=recoveryResult},collector={ok=collectorOK,result=collectorResult},batch={ok=batchOK,result=batchResult},starJelly={ok=starJellyOK,result=starJellyResult},
     starPreflight={ok=starPreflightOK,result=starPreflightResult},starProgress={ok=starProgressOK,result=starProgressResult},
     finalOccupancy={ok=finalOccupancyOK,result=finalOccupancyResult},connectedReview={ok=connectedReviewOK,result=connectedReviewResult},failsafeOnly={ok=failsafeOnlyOK,result=failsafeOnlyResult},finalBaby={ok=finalBabyOK,result=finalBabyResult},

@@ -1,7 +1,7 @@
 return function(P,runtime)
     local source=assert(runtime:match("(local function eventAction%(s,cells,p%).-)\nlocal function giftedBasic"))
-    local make=assert(loadstring("return function(Policy,buy,scan,rollTask,progression,Packages,fixedShopPackage,hiveHoneyReserve)\n"
-        .."local Config={AutoPurchase=true};local EggTypes={Get=function() return {TicketCost=500} end}\n"
+    local make=assert(loadstring("return function(Policy,buy,scan,rollTask,progression,Packages,fixedShopPackage,hiveHoneyReserve,Types,spend)\n"
+        .."local Config={AutoPurchase=true};local EggTypes={Get=function() return {TicketCost=500} end};local function mode()end\n"
         ..source.."\nreturn eventAction\nend"))()
     local cells={{x=1,y=1,bee={Type="Basic",Traits={}}}}
     local plan={starter=true,candidates=cells,keep={},protected={},temporary={}}
@@ -58,5 +58,11 @@ return function(P,runtime)
         "Star Treat funding buys only the 500-ticket option")
     balance.Eggs.Ticket=1250
     assert(fund(balance,events,readyPlan) and action[1]=="StarTreat" and action[2]==1,"Stops funding once 1000 tickets are available")
-    return {passed=15}
+    events[#events+1]={x=7,y=1,bee={Type="Photon",Traits={}}}
+    for _,c in ipairs(events)do if c.bee.Type=="Tabby"then c.bee.Traits={"Gifted"}end end
+    local giftedPhoton=false
+    local allEvents=make(P,function()error("Owned Star Treat should be used before purchases")end,function()return events end,nil,nil,nil,nil,nil,
+        {Photon={Rarity="Event"}},function(c,item)assert(c.bee.Type=="Photon" and item=="StarTreat");giftedPhoton=true;return {}end)
+    assert(allEvents({Eggs={StarTreat=1}},events,readyPlan) and giftedPhoton,"Event priority includes Photon outside the historical six-bee list")
+    return {passed=16}
 end

@@ -719,5 +719,23 @@ return function(P)
         check(not P.plan(f,c).gearQueues,"Unknown primary gear quote retains fail-closed planning")
         P.stages=stages
     end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Material1","Material2","Material3"}}}
+        local f=facts();f.gearQueues=true;f.discoveryPreparation=true;f.honey=0
+        f.inventory={SunflowerSeed=250,RoyalJelly=60,Gumdrops=50}
+        local c={gear={Material1={honey=100,items={Oil=2,MagicBean=1}},Material2={honey=200,items={Oil=3,SoftWax=2}},Material3={honey=300,items={Glue=1}}}}
+        local r=P.plan(f,c)
+        check(r.queueMaterialRequirements.Oil==5 and r.queueMaterialRequirements.SoftWax==2,"Combined queue sums shared and uncraftable ingredients")
+        check(r.action.kind=="craft" and r.action.item=="Oil" and r.action.amount==5,"Craft the full combined output rather than first gear amount")
+        check(not r.queueMaterialsReady and r.queueMaterialMissing.SoftWax==2 and r.queueMaterialMissing.MagicBean==1,"Uncraftable shortages block Mythic fruit use")
+        check(r.reservedItems.SunflowerSeed==250,"All combined recipe fruit is reserved")
+        f.craft={item="Oil",count=5,ready=false};f.inventory={Glue=1,MagicBean=1,SoftWax=2}
+        check(not P.plan(f,c).queueMaterialsReady,"Queued output is not actual ready gear inventory")
+        f.craft=false;f.inventory.Oil=5;r=P.plan(f,c)
+        check(r.queueMaterialsReady and r.discoveryPreparation,"All actual combined materials unlock the feeding gate")
+        f.ownedGear.Material1=true;r=P.plan(f,c)
+        check(r.queueMaterialRequirements.Oil==3,"Queue totals refresh after gear ownership changes")
+        P.stages=stages
+    end
     return {passed=passed}
 end

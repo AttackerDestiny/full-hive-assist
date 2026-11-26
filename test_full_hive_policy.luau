@@ -577,5 +577,9 @@ return function(P,T)
         p=P.plan(h,T,c)
         check(not P.rollTaskDone(task,h[1],h,T,p) and P.rollTaskSafe(task,h[1],h,T,p),"New earlier-coordinate duplicate cannot steal the existing Basic force")
     end
+    check(math.abs(P.rollWait(10,10.1,0.3)-0.2)<0.0001,"Roll delay counts time already spent waiting for server")
+    check(P.rollWait(10,10.5,0.3)==0,"Slow server responses need no extra fixed delay")
+    check(P.rollWait(10,10,0)==0.3,"Roll interval keeps conservative300ms floor")
+    check(P.rollWait(10,10.5,1)==0.5,"Explicit slower roll settings are honored")
     return {passed=checked}
 end

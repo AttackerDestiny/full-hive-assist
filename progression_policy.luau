@@ -810,16 +810,31 @@ local function queuePlan(facts,catalog,primary)
     local function decide(candidate,f)
         return candidate and plan(f or facts,catalog,candidate) or nil
     end
-    local material=decide(queues.B[1])
+    local priorityMaterial=decide(queues.B[1])
+    local material=priorityMaterial
+    local aggregate,requirements,aggregateError
+    if facts.discoveryPreparation then
+        requirements={}
+        for _,candidate in ipairs(queues.B) do
+            for item,count in pairs(catalog.gear[candidate.id].items) do add(requirements,item,count) end
+        end
+        aggregate,aggregateError=P.materials(requirements,facts,catalog)
+        if not aggregate then return wait(aggregateError,primary) end
+        if queues.B[1] then material=plan(facts,catalog,queues.B[1],aggregate) end
+    end
     local held=material and material.reservedItems or {}
     local function finish(result)
         if not result then return nil end
         result.gearQueues=queues
+        result.discoveryPreparation=facts.discoveryPreparation==true
+        result.queueMaterialRequirements=requirements
+        result.queueMaterialsReady=aggregate~=nil and not next(aggregate.missingItems) and #aggregate.crafts==0 and not next(aggregate.queuedItems)
+        result.queueMaterialMissing=aggregate and aggregate.missingItems
         result.farmMissing=material and material.missingItems or {}
         if material and material.requiredHive and (facts.occupied<material.requiredHive or facts.capacity<material.requiredHive) then
             result.farmMissing={}
         end
-        result.materialFarmGear=queues.B[1] and queues.B[1].id
+        result.materialFarmGear=facts.discoveryPreparation and "Combined material queue" or queues.B[1] and queues.B[1].id
         for item,count in pairs(held) do result.reservedItems[item]=math.max(result.reservedItems[item] or 0,count) end
         return result
     end
@@ -833,9 +848,9 @@ local function queuePlan(facts,catalog,primary)
         local available=facts
         if index>1 then
             available=copy(facts);available.inventory=copy(facts.inventory)
-            for item,count in pairs(held) do available.inventory[item]=math.max(0,(available.inventory[item] or 0)-count) end
+            for item,count in pairs(priorityMaterial and priorityMaterial.reservedItems or {}) do available.inventory[item]=math.max(0,(available.inventory[item] or 0)-count) end
         end
-        local result=index==1 and material or decide(candidate,available)
+        local result=index==1 and priorityMaterial or decide(candidate,available)
         if result.action.kind=="buy-gear" then return finish(result) end
     end
     if material then return finish(material) end
@@ -848,6 +863,9 @@ function P.plan(facts,catalog)
     elseif result.gear and result.action.kind=="wait" and not result.craftingJellyDeficit and result.materialDemand
         and next(result.materialDemand) and (next(result.missingItems) or next(result.queuedItems or {})) then
         result=laterGear(facts,catalog,result) or result
+    end
+    if facts and facts.discoveryPreparation and not result.gear and result.action.kind=="hive" then
+        result.discoveryPreparation=true;result.queueMaterialsReady=true;result.queueMaterialRequirements={}
     end
     result.status=P.describe(result,type(facts)=="table" and facts or {},type(catalog)=="table" and catalog or {})
     return result

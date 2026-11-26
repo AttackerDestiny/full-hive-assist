@@ -1,5 +1,8 @@
 -- Pure planner. No Roblox calls; every spending action must revalidate this plan.
 local P = {}
+function P.rollWait(started,now,delay)
+    return math.max(0,math.max(0.3,delay or 0.3)-math.max(0,now-started))
+end
 P.slotCaps = {Ninja=4, Lion=2, Fuzzy=1}
 P.mid = {"Bumble", "Cool", "Looker", "Bomber", "Bubble", "Commander", "Bucko", "Frosty"}
 P.legendary = {"Baby", "Carpenter", "Demon", "Lion", "Diamond", "Music", "Ninja", "Shy"}
@@ -175,7 +178,7 @@ end
 function P.startRollTask(target, cells, plan)
     local task = {Version=2,x=target.x,y=target.y,Stage=plan.stage,Reason=plan.reason,
         Mode=plan.mode,StartedType=target.bee.Type,Rolled=false,LegendaryHunt=plan.legendaryHunt,LegendaryRoute=plan.legendaryRoute,
-        InitialTotal={},InitialGifted={},Goals={},
+        InitialTotal={},InitialGifted={},Goals={},DiscoveryMythic=plan.discoveryMythic,
         InitialFingerprint=target.bee.Type..":"..tostring(P.gifted(target))}
     for _,c in ipairs(cells) do
         if c.bee then

@@ -64,6 +64,9 @@ function UI.describeGear(report)
         if report.MaterialFarmGear then lines[#lines+1]="Material farm target: "..report.MaterialFarmGear end
         if report.MaterialFarmEnabled~=nil then lines[#lines+1]="Super Material Farm: "..(report.MaterialFarmEnabled and "ON" or "OFF") end
         if report.MaterialFarmStatus then lines[#lines+1]=report.MaterialFarmStatus end
+        if report.DiscoveryPreparation then
+            lines[#lines+1]=report.QueueMaterialsReady and "Combined queue materials: ready" or "Preparing combined queue materials before Mythic feeding"
+        end
     end
     return table.concat(lines,"\n")
 end
@@ -170,6 +173,7 @@ function UI.mount(parent,overlay,version,callbacks)
         local progression=window:Tab({Title="Progression",Icon="hexagon"})
         local statsTab=window:Tab({Title="Stats",Icon="chart-column"})
         local giftedTypes=statsTab:Paragraph({Title="Different Gifted type",Desc="Waiting for discovery data..."})
+        local mythicProgress=statsTab:Paragraph({Title="SSA discovery",Desc="Waiting for post-Star preparation"})
         local controls=window:Tab({Title="Controls",Icon="settings"})
         controls:Slider({Title="Tween speed",Desc="1 = 10 studs/second; 6 = 60; 40 = 400. Updates active movement.",
             Step=1,Value={Min=1,Max=40,Default=callbacks.tweenSpeed()},Callback=callbacks.setTweenSpeed})
@@ -225,6 +229,7 @@ function UI.mount(parent,overlay,version,callbacks)
                 update(gear,"SetDesc","gear",state.gear)
                 update(background,"SetDesc","background",state.background)
                 update(giftedTypes,"SetDesc","giftedTypes",state.giftedTypes~=nil and tostring(state.giftedTypes).." discovered gifted bee types" or "Waiting for discovery data...")
+                update(mythicProgress,"SetDesc","mythicProgress",state.mythicDiscovery or "Waiting for post-Star preparation")
                 if state.finished and not last.finished then
                     last.finished=true
                     tickets:Lock()

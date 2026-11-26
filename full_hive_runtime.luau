@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.89"
+local SCRIPT_VERSION = "1.8.90"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -238,7 +238,8 @@ local function invokeRequest(remote, receiptBefore, ...)
         assert(not env.FullHiveUncertain,"An earlier mutation needs reconciliation")
         if remote.Name=="ConstructHiveCellFromEgg" then
             request.X,request.Y,request.Item,request.Amount=args[1],args[2],args[3],args[4]
-            request.HatchBefore=receiptBefore -- Copied before the request can yield.
+            if receiptBefore and receiptBefore.Kind=="ssa-feed" then request.FeedBefore=receiptBefore
+            else request.HatchBefore=receiptBefore end -- Copied before the request can yield.
         elseif remote.Name=="ItemPackageEvent" and type(args[2])=="table" then
             request.Item,request.Amount=args[2].Type,args[2].Amount
             request.Category=args[2].Category
@@ -784,7 +785,11 @@ local function mode(name)
     if name~="off" and (Cache:Get().Eggs.RoyalJelly or 0)>Config.MaxRoyalJellies-Report.RoyalJellyUsed then
         name="off" -- A finite per-run budget cannot be delegated to an unbounded server auto-roll.
     end
-    setSettings({RollToGifted=name=="gifted",RollToLegendary=name=="legendary",RollToMythic=false,RollToMutation=false})
+    local desired={RollToGifted=name=="gifted",RollToLegendary=name=="legendary",RollToMythic=false,RollToMutation=false}
+    local current=Cache:Get().Settings
+    local matches=type(current)=="table"
+    for key,value in pairs(desired) do if not current or (current[key]==true)~=value then matches=false end end
+    if not matches then setSettings(desired) end
     Report.RollMode=name
 end
 local function restoreSettingsDirect(desired)
@@ -935,6 +940,7 @@ local function plan(s)
             p.reason=rollTask.Reason
             p.mode=rollTask.Mode
             p.legendaryHunt=rollTask.LegendaryHunt==true
+            if rollTask.DiscoveryMythic then p.complete=false end
             if Policy.isRecoveryTask(rollTask) and Policy.refill(slots)>100 then
                 p.collectorFallback=true; env.FullHiveCollectorFallback=true
             end
@@ -1132,6 +1138,8 @@ local function initializeProgression()
     end
     local function buildFacts(s)
         local facts,catalog=makeFacts(s)
+        local cells,capacity=scan(s)
+        facts.discoveryPreparation=MythicDiscovery.unlocked(StarState.read(s),s,cells,capacity,env.AutoGiftedStarReport)
         if background and (s.Eggs.Gold or 0)>0 then
             facts.questGoldReserve=background.goldEggReserve(s)
         end
@@ -1277,6 +1285,7 @@ local function spend(cell,item,validate,expectedTask,eventBee)
             and not settings.RollToMythic and not settings.RollToMutation,"Roll settings changed before spending")
     end
     near(hiveFloor())
+    local requestStarted=os.clock()
     local remaining,accepted,comb,discovered,eggUses=invoke(Events.ConstructHiveCellFromEgg,current.x,current.y,item,1,false)
     assert(accepted and type(remaining)=="number" and type(comb)=="table","Item response rejected or uncertain; no retry")
     Cache:Set({"Eggs",item},remaining); Cache:Set("Honeycomb",comb)
@@ -1307,7 +1316,11 @@ local function spend(cell,item,validate,expectedTask,eventBee)
     end
     if Report.LastResult.Gifted and (b.Type=="Bubble" or b.Type=="Frosty") then nextFlexible=b.Type end
     if env then env.FullHiveUncertain=nil end -- Response/delta/hive protection verified.
-    task.wait(Config.RollDelay)
+    if item=="RoyalJelly" then
+        local remainingDelay=Policy.rollWait(requestStarted,os.clock(),Config.RollDelay)
+        Report.RollTiming={Elapsed=os.clock()-requestStarted,ExtraWait=remainingDelay,MinimumInterval=math.max(0.3,Config.RollDelay)}
+        if remainingDelay>0 then task.wait(remainingDelay) else task.wait() end
+    else task.wait(Config.RollDelay) end
     return b
 end
 shopFloor=function(name)
@@ -1444,6 +1457,12 @@ local function eventAction(s,cells,p)
             if c.bee.Type==name and not Policy.gifted(c) then normalEvent=c; break end
         end
         if normalEvent then break end
+    end
+    if not normalEvent then
+        for _,c in ipairs(cells) do
+            local info=Types and Types[c.bee.Type]
+            if info and info.Rarity=="Event" and not Policy.gifted(c) then normalEvent=c;break end
+        end
     end
     if canPlace and normalEvent and (s.Eggs.StarTreat or 0)>0 then
         mode("off")
@@ -1638,6 +1657,82 @@ local function giftedBasic(s,cells,p)
     end
     return true
 end
+local function discoverySnapshot(s)
+    local cells=scan(s)
+    local decision=progression and progression.inspect(s) or {}
+    return MythicDiscovery.plan(s,cells,Types,decision),cells,decision
+end
+local function mythicDiscoveryStep(s,p)
+    if not Report.Progression or not Report.Progression.DiscoveryPreparation then return false end
+    local action,cells,decision=discoverySnapshot(s)
+    Report.MythicDiscovery={Action=action.kind,Reason=action.reason,Type=action.name,Item=action.item,
+        Amount=action.amount,MaterialsReady=decision.queueMaterialsReady}
+    if rollTask and not rollTask.DiscoveryMythic or basicLock then return false end
+    if action.kind=="wait" then
+        if rollTask and rollTask.DiscoveryMythic then return true,action.reason end
+        return false
+    end
+    if action.kind=="complete" then return false end
+    if action.kind=="acquire" then
+        if rollTask then return false end
+        local target=p.candidates[1]
+        if not target then return false end
+        -- Ordinary admission, spending and keep rules own these single rolls.
+        p.target=target;p.reason="ssa-mythic-acquire";p.mode="off";p.complete=false
+        p.discoveryMythic=action.name
+        ensureRollTask(p)
+        return false
+    end
+    if rollTask then return false end
+    if action.kind=="fund-star-treat" then
+        if not Config.AutoPurchase then return true,"Star Treat purchasing is disabled" end
+        local function eligible(fresh)
+            local a,_,d=discoverySnapshot(fresh)
+            if a.kind~="fund-star-treat" or a.name~=action.name or d.saveCraftingJelly or d.savingGearHoney then return nil end
+            return progression and progression.eventCurrency(fresh,"Ticket") or fresh.Eggs.Ticket or 0
+        end
+        local tickets=eligible(s)
+        if tickets==nil then return false end
+        if tickets>=1000 then
+            return buy("StarTreat",1,"TicketShop",nil,function(fresh)return (eligible(fresh) or -1)>=1000 end)~=false
+        end
+        local function funded(fresh)
+            local available=eligible(fresh)
+            if available==nil or available>=1000 then return false end
+            local package=fixedShopPackage("Ticket",500,"TicketDispenser")
+            local quote=Packages.GetCost(package,fresh)
+            local req=Packages.PurchaseRequirements(package,fresh)
+            local star=Config.AutoAmulets and AmuletPolicy.starTarget(#(fresh.DiscGiftTypes or {}),(fresh.Amulets or {}).Star)
+            return quote and quote.Category=="Honey" and type(quote.Amount)=="number" and quote.Amount>0
+                and (fresh.Honey or 0)-hiveHoneyReserve(fresh)-(star and star.price or 0)>=quote.Amount
+                and Packages.CanPurchase(package,fresh) and Packages.CanGive(package,fresh)
+                and (not req or Reqs.Check(fresh,req))
+        end
+        if funded(s) then return buy("Ticket",500,"TicketDispenser",nil,funded)~=false end
+        return true,"Saving honey for the next 500-ticket Star Treat pack"
+    end
+    if action.kind~="feed" then return false end
+    mode("off");acquire();move(hiveFloor());near(hiveFloor())
+    s=refresh()
+    local freshAction,freshCells=discoverySnapshot(s)
+    if freshAction.kind~="feed" or freshAction.name~=action.name or freshAction.item~=action.item
+        or freshAction.amount~=action.amount or freshAction.x~=action.x or freshAction.y~=action.y then release();return false end
+    assert(not env.FullHivePending and not env.AutoHivePendingRequest and not env.FullHiveUncertain and not env.AutoHiveUncertain,
+        "Unresolved request before Mythic feeding")
+    assert(Report.Actions<Config.MaxActions,"Action limit reached")
+    local baseline=MythicDiscovery.feedBaseline(s,freshCells,freshAction)
+    near(hiveFloor());assertAtlasPaused()
+    Report.Phase="mythic-discovery";Report.Activity="Feeding "..action.amount.." "..action.item.." to "..action.name
+    local remaining,accepted,comb=invokeRequest(Events.ConstructHiveCellFromEgg,baseline,action.x,action.y,action.item,action.amount,false)
+    local receipt=assert(env.FullHiveUncertain,"Feeding receipt missing")
+    local after=refresh()
+    local valid,consumed,gifted=MythicDiscovery.validateFeed(baseline,remaining,accepted,comb,after)
+    assert(valid,"Mythic feeding uncertain; no retry: "..tostring(consumed))
+    assert(env.FullHiveUncertain==receipt,"Feeding receipt changed")
+    env.FullHiveUncertain=nil;Report.Actions+=1
+    Report.LastMythicFeed={Type=action.name,Item=action.item,Consumed=consumed,Gifted=gifted,At=os.time()}
+    release();return true
+end
 local function starReady(s,cells)
     Report.StarEggDeferred=nil
     local history=StarState.read(s)
@@ -1792,6 +1887,8 @@ local function run()
         end
         if progression and Config.AutoPurchase and Report.Growth.Empty==0 and slots<50
             and progression.grow(s,slots+1) then s=refresh();continue end
+        local discoveryDid,discoveryWhy=mythicDiscoveryStep(s,p)
+        if discoveryDid then if discoveryWhy then waitFor(discoveryWhy) end;s=refresh();continue end
         if p.complete then
             if background and background.level(s,true) then s=refresh();continue end
             if background and(Config.AutoAmulets or Config.AutoQuestAssist)then
@@ -2024,6 +2121,8 @@ local function readUIStatus()
     end
     return {
         giftedTypes=giftedTypes,
+        mythicDiscovery=pg.DiscoveryPreparation and not pg.QueueMaterialsReady and "Preparing combined gear materials"
+            or Report.MythicDiscovery and (Report.MythicDiscovery.Reason or (Report.MythicDiscovery.Action.." · "..tostring(Report.MythicDiscovery.Type or ""))),
         phase=string.upper((Report.Stage or "inspect").."  |  "..(Report.Phase or "starting")),
         activity=tostring(Report.Error or Report.CleanupError
             or (Report.PauseRequested and Report.Phase~="paused" and env.FullHiveRunning and "Pausing after the current action...")

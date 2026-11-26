@@ -12,6 +12,8 @@ return function(H)
             Reason=decision.reason or decision.action.reason,ReserveHoney=decision.reserveHoney,
             ReservedItems=decision.reservedItems,MissingItems=decision.missingItems,GrowthHoney=decision.growthHoney,
             GearQueues=decision.gearQueues,MaterialFarmGear=decision.materialFarmGear,
+            DiscoveryPreparation=decision.discoveryPreparation,QueueMaterialsReady=decision.queueMaterialsReady,
+            QueueMaterialRequirements=decision.queueMaterialRequirements,QueueMaterialMissing=decision.queueMaterialMissing,
             MaterialFarmEnabled=H.Config.SuperMaterialFarm==true,MaterialFarmStatus=env.FullHiveMaterialFarm and env.FullHiveMaterialFarm.error,
             CostReservations=decision.costReservations,OptionalHiveAllowed=decision.optionalHiveAllowed,
             SavingCraftingJelly=decision.saveCraftingJelly==true,SavingGearHoney=decision.savingGearHoney==true,

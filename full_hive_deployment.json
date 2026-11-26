@@ -3289,58 +3289,73 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.88",
+    "version": "1.8.90",
     "bundle": "core.luau",
-    "sha256": "2f4a9182e2523d34c72ffafb2c03d7af304f9973b69274fc26ab9368b57830ba",
-    "jobId": "5e02531d-d578-45c4-b439-c1db534c4fd1",
+    "sha256": "37bcf3846b987f963601a1dfb6fb28acaae8e8d6d8911e350a81687c0ea295f5",
+    "jobId": "cc6a7a55-2baa-4186-813e-7ef21e859242",
     "accounts": [
       {
         "account": "QuackAltear1",
-        "startedAt": 1795666651,
-        "reportVersionVerified": true,
-        "running": true
+        "uiVerified": true,
+        "startedAt": 1795688998,
+        "running": true,
+        "discoveryPreparation": false
       },
       {
         "account": "QuackAltear5",
-        "startedAt": 1795666657,
-        "reportVersionVerified": true,
-        "running": true
+        "uiVerified": true,
+        "startedAt": 1795688861,
+        "running": true,
+        "discoveryPreparation": false
       },
       {
         "account": "QuackAltear06",
-        "startedAt": 1795666657,
-        "reportVersionVerified": true,
-        "running": true
+        "uiVerified": true,
+        "startedAt": 1795688861,
+        "running": true,
+        "discoveryPreparation": false
       }
     ],
-    "offlineRelevantChecks": 387,
-    "uiVisualVerified": false,
-    "naturalPurchaseObserved": false
+    "offlineChecks": 4801,
+    "connectedChecks": 4807,
+    "mythicPolicyChecks": 64,
+    "mythicRuntimeChecks": 28,
+    "naturalMythicFeedingObserved": false,
+    "naturalRollSpeedBenchmarkObserved": false
   },
   "latestCandidate": {
-    "version": "1.8.89",
+    "version": "1.8.90",
     "bundle": "core.luau",
-    "sha256": "fa44f31994cf55ae4c03c65ffc7cf58defae2f9b3408c15355f13b791ddc6949",
-    "status": "execution-scheduled-runtime-verification-pending",
-    "offlineChecks": 4697,
-    "policyChecks": 1253,
+    "sha256": "37bcf3846b987f963601a1dfb6fb28acaae8e8d6d8911e350a81687c0ea295f5",
+    "jobId": "cc6a7a55-2baa-4186-813e-7ef21e859242",
     "accounts": [
       {
         "account": "QuackAltear1",
-        "executionScheduled": true,
-        "runtimeVerified": false
+        "uiVerified": true,
+        "startedAt": 1795688998,
+        "running": true,
+        "discoveryPreparation": false
       },
       {
         "account": "QuackAltear5",
-        "executionScheduled": true,
-        "runtimeVerified": false
+        "uiVerified": true,
+        "startedAt": 1795688861,
+        "running": true,
+        "discoveryPreparation": false
       },
       {
         "account": "QuackAltear06",
-        "executionScheduled": true,
-        "runtimeVerified": false
+        "uiVerified": true,
+        "startedAt": 1795688861,
+        "running": true,
+        "discoveryPreparation": false
       }
     ],
-    "naturalDuplicateBasicRollObserved": false
+    "offlineChecks": 4801,
+    "connectedChecks": 4807,
+    "mythicPolicyChecks": 64,
+    "mythicRuntimeChecks": 28,
+    "naturalMythicFeedingObserved": false,
+    "naturalRollSpeedBenchmarkObserved": false
   }
 }
