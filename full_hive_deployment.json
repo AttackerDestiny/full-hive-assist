@@ -3289,40 +3289,39 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.104",
+    "version": "1.8.105",
     "bundle": "core.luau",
-    "sha256": "319893b5a85f2931389394cc7fd0d4ec84a53a81e217aafb6a344ad53f409809",
-    "deployedNormalizedUTF8Sha256": "27a4ba793ae9464f0b7b490080f7e0bd9d25ea5e271c03a239e380a7388f0c0b",
+    "sha256": "e8c5cd40afe32ed23f61684ad6301a77325ab3e6eebff65068400da3738bd832",
+    "deployedNormalizedUTF8Sha256": "4ded33d356d690c34b7ffe098b9efb1991b173f59801983f28bd50ffffe48acd",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
-        "account": "QuackAltear5",
-        "version": "1.8.104",
-        "uiVerified": true,
-        "startedAt": 1795697824,
+        "account": "QuackAltear1",
+        "version": "1.8.105",
+        "startedAt": 1795699418,
         "running": true,
         "paused": false,
-        "spiritPetals": 0
+        "uiVerified": true
+      },
+      {
+        "account": "QuackAltear5",
+        "version": "1.8.105",
+        "startedAt": 1795699420,
+        "running": true,
+        "paused": false,
+        "uiVerified": true
       },
       {
         "account": "QuackAltear06",
-        "version": "1.8.104",
-        "uiVerified": true,
-        "startedAt": 1795697823,
+        "version": "1.8.105",
+        "startedAt": 1795699417,
         "running": true,
         "paused": false,
-        "spiritPetals": 0
-      },
-      {
-        "account": "QuackAltear1",
-        "version": "1.8.104",
-        "startedAt": 1795697850,
-        "running": true,
-        "paused": false
+        "uiVerified": true
       }
     ],
-    "offlineChecks": 6722,
-    "connectedChecks": 6717,
+    "offlineChecks": 6738,
+    "connectedChecks": 6732,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3350,7 +3349,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 423,
+    "progressionChecks": 437,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3359,7 +3358,7 @@
       "QuackAltear06": 42
     },
     "naturalPassiveCandyDeferralObserved": false,
-    "uiChecks": 45,
+    "uiChecks": 46,
     "allPassiveFallbackFixed": true,
     "cleanOverviewLiveVerified": "QuackAltear5",
     "gearAndBlenderRequirementsLiveVerified": [
@@ -3376,43 +3375,44 @@
     "characterChecks": 514,
     "petalBeltRequiresOwnedSpiritPetal": true,
     "arrivalHoldRetained": true,
-    "naturalGumdropPurchaseAfterFixObserved": false
+    "naturalGumdropPurchaseAfterFixObserved": false,
+    "fundedUnlockDeferral": true,
+    "naturalSilverBadgeUnlockTransitionObserved": false
   },
   "latestCandidate": {
-    "version": "1.8.104",
+    "version": "1.8.105",
     "bundle": "core.luau",
-    "sha256": "319893b5a85f2931389394cc7fd0d4ec84a53a81e217aafb6a344ad53f409809",
-    "deployedNormalizedUTF8Sha256": "27a4ba793ae9464f0b7b490080f7e0bd9d25ea5e271c03a239e380a7388f0c0b",
+    "sha256": "e8c5cd40afe32ed23f61684ad6301a77325ab3e6eebff65068400da3738bd832",
+    "deployedNormalizedUTF8Sha256": "4ded33d356d690c34b7ffe098b9efb1991b173f59801983f28bd50ffffe48acd",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
-        "account": "QuackAltear5",
-        "version": "1.8.104",
-        "uiVerified": true,
-        "startedAt": 1795697824,
+        "account": "QuackAltear1",
+        "version": "1.8.105",
+        "startedAt": 1795699418,
         "running": true,
         "paused": false,
-        "spiritPetals": 0
+        "uiVerified": true
+      },
+      {
+        "account": "QuackAltear5",
+        "version": "1.8.105",
+        "startedAt": 1795699420,
+        "running": true,
+        "paused": false,
+        "uiVerified": true
       },
       {
         "account": "QuackAltear06",
-        "version": "1.8.104",
-        "uiVerified": true,
-        "startedAt": 1795697823,
+        "version": "1.8.105",
+        "startedAt": 1795699417,
         "running": true,
         "paused": false,
-        "spiritPetals": 0
-      },
-      {
-        "account": "QuackAltear1",
-        "version": "1.8.104",
-        "startedAt": 1795697850,
-        "running": true,
-        "paused": false
+        "uiVerified": true
       }
     ],
-    "offlineChecks": 6722,
-    "connectedChecks": 6717,
+    "offlineChecks": 6738,
+    "connectedChecks": 6732,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3440,7 +3440,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 423,
+    "progressionChecks": 437,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3449,7 +3449,7 @@
       "QuackAltear06": 42
     },
     "naturalPassiveCandyDeferralObserved": false,
-    "uiChecks": 45,
+    "uiChecks": 46,
     "allPassiveFallbackFixed": true,
     "cleanOverviewLiveVerified": "QuackAltear5",
     "gearAndBlenderRequirementsLiveVerified": [
@@ -3466,6 +3466,8 @@
     "characterChecks": 514,
     "petalBeltRequiresOwnedSpiritPetal": true,
     "arrivalHoldRetained": true,
-    "naturalGumdropPurchaseAfterFixObserved": false
+    "naturalGumdropPurchaseAfterFixObserved": false,
+    "fundedUnlockDeferral": true,
+    "naturalSilverBadgeUnlockTransitionObserved": false
   }
 }

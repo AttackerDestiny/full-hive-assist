@@ -222,5 +222,13 @@ return function(factory,Policy)
         check(not c.gear.Clippers,"Read-only owned quote never adds a planner target")
         check(c.routeGear.Clippers.icon=="rbxassetid://123"and c.routeGear.Clippers.model==model,"Route carries cached game art and model references")
     end
+    do
+        local deps,s=fixture()
+        deps.Packages.PurchaseRequirements=function()return {{Type="Earn Badges",Amount=10,Tier=2}}end
+        deps.Reqs.Check=function()return false end
+        deps.Reqs.Description=function()return "Earn 10 Hotshot Badges"end
+        local _,c=factory(deps)(s)
+        check(c.gear.Clippers.requirementText=="Earn 10 Hotshot Badges","Catalog preserves game-supplied locked requirement descriptions")
+    end
     return {passed=passed}
 end

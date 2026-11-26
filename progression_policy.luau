@@ -697,6 +697,7 @@ function P.describe(result,facts,catalog)
     local reason=action.reason or result.reason
     local label=labels[action.kind] or (reason=="blender-busy" and "Blender running; hive continues")
         or (reason=="waiting-passive-materials"and"Waiting for material drops; hive continues")
+        or (reason=="waiting-gear-unlocks"and"Waiting for gear unlock requirements; hive continues")
         or (reason=="saving-crafting-jelly" and "Saving honey for crafting jelly")
         or (reason=="saving-diamond-tickets"and"Saving honey for Diamond Egg tickets")
         or (phase=="saving-gear-honey" and "Saving honey for gear") or "Waiting for materials or requirements"
@@ -829,6 +830,27 @@ local function queuePlan(facts,catalog,primary)
     local function decide(candidate,f)
         return candidate and plan(f or facts,catalog,candidate) or nil
     end
+    local function funded(candidate)
+        local gear=catalog.gear[candidate.id]
+        local read=inventoryReader(facts)
+        for item,count in pairs(gear.items) do
+            if type(item)~="string"or item=="Honey"or not integer(count)then return false end
+        end
+        local cost=copy(gear.items);cost.Honey=gear.honey
+        return read and afford(cost,facts.honey,read,facts.honeyReserve or 0,{})==true
+    end
+    local deferredRequirements={}
+    for _,queue in pairs(queues)do for _,candidate in ipairs(queue)do
+        local gear=catalog.gear[candidate.id]
+        if funded(candidate)then
+            local met=conditionState(gear.conditions,facts)
+            local reason
+            if candidate.gate>facts.occupied or candidate.gate>facts.capacity then reason="Requires "..candidate.gate.." bees and hive slots"
+            elseif gear.shopAccess==false then reason="Shop entry requirements not met"
+            elseif met~=true then reason=gear.requirementText or (met==nil and "Purchase requirements not verified"or"Purchase requirements not met")end
+            if reason then candidate.unlockBlocked=reason;deferredRequirements[candidate.id]=reason end
+        end
+    end end
     local materialCandidate=queues.B[1]
     local deferredMaterials={}
     local deferredReasons={}
@@ -850,6 +872,7 @@ local function queuePlan(facts,catalog,primary)
     if not facts.discoveryPreparation then
         materialCandidate=nil
         for _,candidate in ipairs(queues.B) do
+            if candidate.unlockBlocked then continue end
             local passive,reasons=passiveShortages(candidate)
             if not passive then materialCandidate=candidate;break end
             deferredMaterials[#deferredMaterials+1]=candidate.id
@@ -860,13 +883,15 @@ local function queuePlan(facts,catalog,primary)
     local material=priorityMaterial
     local aggregate,requirements,aggregateError
     if facts.discoveryPreparation then
+        materialCandidate=nil
+        for _,candidate in ipairs(queues.B)do if not candidate.unlockBlocked then materialCandidate=candidate;break end end
         requirements={}
         for _,candidate in ipairs(queues.B) do
             for item,count in pairs(catalog.gear[candidate.id].items) do add(requirements,item,count) end
         end
         aggregate,aggregateError=P.materials(requirements,facts,catalog)
         if not aggregate then return wait(aggregateError,primary) end
-        if queues.B[1] then material=plan(facts,catalog,queues.B[1],aggregate) end
+        material=materialCandidate and plan(facts,catalog,materialCandidate,aggregate)or nil
     end
     local held=material and material.reservedItems or {}
     local function finish(result)
@@ -874,6 +899,7 @@ local function queuePlan(facts,catalog,primary)
         result.gearQueues=queues
         result.deferredMaterialGear=deferredMaterials
         result.deferredMaterialReasons=deferredReasons
+        result.deferredRequirementGear=deferredRequirements
         result.allMaterialDeferred=#queues.B>0 and materialCandidate==nil
         result.discoveryPreparation=facts.discoveryPreparation==true
         result.queueMaterialRequirements=requirements
@@ -893,12 +919,7 @@ local function queuePlan(facts,catalog,primary)
         local gear=catalog.gear[candidate.id]
         if candidate.gate>facts.occupied or candidate.gate>facts.capacity or gear.shopAccess==false
             or conditionState(gear.conditions,facts)~=true then return nil end
-        local read=inventoryReader(facts)
-        for item,count in pairs(gear.items) do
-            if type(item)~="string" or item=="Honey" or not integer(count) then return nil end
-        end
-        local cost=copy(gear.items);cost.Honey=gear.honey
-        if not read or not afford(cost,facts.honey,read,facts.honeyReserve or 0,{}) then return nil end
+        if not funded(candidate)then return nil end
         -- A fully ready purchase precedes blocked material targets and Blender
         -- work. Its actual spend is revalidated by the host after travel.
         return {gear=candidate.id,stage=candidate.stage,requiredHive=candidate.gate,
@@ -917,11 +938,13 @@ local function queuePlan(facts,catalog,primary)
         if result then return finish(result) end
     end
     if material then return finish(material) end
-    local honey=decide(queues.A[1])
-    if honey then return finish(honey)end
+    for _,candidate in ipairs(queues.A)do
+        if not candidate.unlockBlocked then return finish(decide(candidate))end
+    end
+    local reason=next(deferredRequirements)and #deferredMaterials==0 and "waiting-gear-unlocks"or"waiting-passive-materials"
     return finish({optionalHiveAllowed=true,reserveHoney=facts.honeyReserve or 0,reservedItems={},
-        materialDemand={},missingItems={},reason="waiting-passive-materials",
-        action=parallelAction({kind="wait",reason="waiting-passive-materials"})})
+        materialDemand={},missingItems={},reason=reason,
+        action=parallelAction({kind="wait",reason=reason})})
 end
 function P.plan(facts,catalog)
     local result=plan(facts,catalog)

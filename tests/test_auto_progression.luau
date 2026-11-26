@@ -934,5 +934,37 @@ return function(P)
         f.craft=false;f.inventory.SpiritPetal=1;f.pending=true
         check(P.plan(f,c).action.reason=="unresolved-progression-request","Owned petal does not bypass pending guard")
     end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Silver Soakers","Next Honey"}}}
+        local f=facts();f.gearQueues=true;f.honey=23871059;f.conditions.badges=false
+        local c={gear={["Silver Soakers"]={honey=22222222,items={},conditions={"badges"},requirementText="Earn 10 Hotshot Badges"},["Next Honey"]={honey=150000000,items={}}}}
+        local r=P.plan(f,c)
+        check(r.gear=="Next Honey"and r.savingGearHoney,"Funded badge-locked Silver Soakers yields funding to next honey gear")
+        check(r.deferredRequirementGear["Silver Soakers"]=="Earn 10 Hotshot Badges"and r.gearQueues.A[1].id=="Silver Soakers","Locked gear stays queued with its exact requirement")
+        check(r.reserveHoney==150000000,"Skipped locked gear does not retain an independent honey reservation")
+        f.conditions.badges=true;r=P.plan(f,c)
+        check(r.gear=="Silver Soakers"and r.action.kind=="buy-gear","Rechecked badge completion returns to affordable Silver Soakers")
+        f.conditions.badges=false;f.honey=100
+        check(not P.plan(f,c).deferredRequirementGear["Silver Soakers"],"New deferral applies only when honey and actual materials are funded")
+        f.honey=23871059;f.honeyReserve=2000000
+        check(not P.plan(f,c).deferredRequirementGear["Silver Soakers"],"User honey reserve remains part of funding admission")
+        f.honeyReserve=0;f.conditions.badges=nil;r=P.plan(f,c)
+        check(r.gear=="Next Honey"and r.action.kind~="buy-gear","Unknown requirement never permits a purchase or blocks independent planning")
+        P.stages={{gate=0,gear={"Locked Mat","Prep Mat"}}}
+        c={gear={["Locked Mat"]={honey=100,items={Oil=1},conditions={"badges"}},["Prep Mat"]={honey=200,items={BlueExtract=2}}}}
+        f.honey=1000;f.inventory={Oil=1};f.conditions.badges=false;r=P.plan(f,c)
+        check(r.gear=="Prep Mat"and r.materialFarmGear=="Prep Mat","Funded locked material gear yields to another recipe's preparation")
+        f.discoveryPreparation=true;r=P.plan(f,c)
+        check(r.gear=="Prep Mat"and r.queueMaterialRequirements.Oil==1 and r.queueMaterialRequirements.BlueExtract==2,"Combined preparation skips locked anchor without discarding aggregate requirements")
+        f.discoveryPreparation=false;f.inventory.Oil=0;f.craft={item="Oil",count=1,ready=false};r=P.plan(f,c)
+        check(not r.deferredRequirementGear["Locked Mat"],"Queued material output does not count as funded inventory")
+        f.craft=false;f.inventory={Oil=1,BlueExtract=2};c.gear["Prep Mat"].conditions={"badges"};r=P.plan(f,c)
+        check(not r.gear and r.action.reason=="waiting-gear-unlocks"and r.optionalHiveAllowed,"All funded but locked gear yields safely to hive work")
+        c.gear["Prep Mat"].conditions={};c.gear["Prep Mat"].shopAccess=false;r=P.plan(f,c)
+        check(r.deferredRequirementGear["Prep Mat"]=="Shop entry requirements not met","Funded locked shops are deferred too")
+        f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Unlock skipping preserves pending guard")
+        f.pending=false;f.uncertain=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Unlock skipping preserves uncertain guard")
+        P.stages=stages
+    end
     return {passed=passed}
 end

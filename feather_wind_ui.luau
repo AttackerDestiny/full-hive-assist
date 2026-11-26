@@ -31,7 +31,8 @@ end
 
 function UI.describeGear(report,requirementsOnly)
     if not report.Gear then
-        if report.AllMaterialDeferred then return "Material targets are waiting for drops.\nHive progression continues.\nSee Progression for missing materials."end
+        if report.AllMaterialDeferred then return "Material targets are waiting for drops or unlocks.\nHive progression continues.\nSee Progression for details."end
+        if report.DeferredRequirementGear and next(report.DeferredRequirementGear)then return "Waiting for gear unlock requirements.\nHive progression continues.\nSee Progression for details."end
         return report.Reason=="ordered-gear-complete" and "Gear route complete" or "Inspecting gear..."
     end
     local status=report.Status or {}
@@ -59,7 +60,7 @@ function UI.describeGear(report,requirementsOnly)
     if report.GearQueues and not requirementsOnly then
         lines[#lines+1]="Queues · "..#(report.GearQueues.A or {}).." honey / "..#(report.GearQueues.B or {}).." material"
         if report.MaterialFarmGear then lines[#lines+1]="Material prep: "..report.MaterialFarmGear
-        elseif report.AllMaterialDeferred then lines[#lines+1]="Material prep: waiting for drops"end
+        elseif report.AllMaterialDeferred then lines[#lines+1]="Material prep: waiting for drops or unlocks"end
         if report.DeferredMaterialGear and #report.DeferredMaterialGear>0 then
             lines[#lines+1]=#report.DeferredMaterialGear.." deferred · details in Progression"
         end
@@ -100,7 +101,9 @@ function UI.describeQueues(report)
         for index,entry in ipairs(queue)do
             local line=index..". "..entry.id
             local reasons=(report.DeferredMaterialReasons or{})[entry.id]
-            if reasons then
+            local locked=(report.DeferredRequirementGear or{})[entry.id]
+            if locked then line..="\n   Locked: "..locked
+            elseif reasons then
                 local items={};for name,n in pairs(reasons)do items[#items+1]=name:gsub("(%l)(%u)","%1 %2").." ×"..amount(n)end
                 table.sort(items);line..="\n   Waiting: "..table.concat(items,", ")
             elseif entry.id==report.Gear then line..=" · active"end

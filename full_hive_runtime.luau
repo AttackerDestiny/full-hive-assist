@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.104"
+local SCRIPT_VERSION = "1.8.105"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -2101,7 +2101,8 @@ local function readUIStatus()
     end
     local pg=Report.Progression or {}
     local status=pg.Status or {}
-    local title=pg.Gear and ("Target: "..pg.Gear) or pg.AllMaterialDeferred and "Waiting for material drops" or "Gear route complete"
+    local title=pg.Gear and ("Target: "..pg.Gear) or pg.AllMaterialDeferred and "Waiting for material drops or unlocks"
+        or pg.DeferredRequirementGear and next(pg.DeferredRequirementGear)and "Waiting for gear unlocks"or"Gear route complete"
     local lines={title}
     lines[#lines+1]=status.label or pg.Reason or pg.Action or "Inspecting gear"
     if pg.Gear then

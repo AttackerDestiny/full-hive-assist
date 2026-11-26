@@ -117,7 +117,14 @@ return function(deps)
         local checked,good=call(deps.Reqs,"Check",s,reqs)
         if not good or type(checked)~="boolean" then return nil end
         local key="purchase:"..id;facts.conditions[key]=checked
-        return {key}
+        local descriptions={}
+        if not checked then
+            for _,requirement in ipairs(reqs)do
+                local text,known=call(deps.Reqs,"Description",requirement)
+                if known and type(text)=="string"then descriptions[#descriptions+1]=text end
+            end
+        end
+        return {key},#descriptions>0 and table.concat(descriptions,"; ")or nil
     end
     local function descriptor(entry,s,facts,id,currency)
         if not entry or not entry.part then return nil end
@@ -125,7 +132,7 @@ return function(deps)
         if not ok then return nil end
         local cost=normalizeCost(raw,currency)
         if not cost then return nil end
-        local req=requirements(entry.package,s,facts,id)
+        local req,requirementText=requirements(entry.package,s,facts,id)
         if not req then return nil end
         local canGive,giveKnown=call(deps.Packages,"CanGive",entry.package,s)
         if not giveKnown or type(canGive)~="boolean" then return nil end
@@ -133,7 +140,7 @@ return function(deps)
         local purchasable,purchaseKnown=call(deps.Packages,"CanPurchase",entry.package,s)
         if not purchaseKnown or type(purchasable)~="boolean" then return nil end
         local purchaseKey="can-purchase:"..id;facts.conditions[purchaseKey]=purchasable;req[#req+1]=purchaseKey
-        return {honey=cost.honey,items=cost.items,conditions=req,
+        return {honey=cost.honey,items=cost.items,conditions=req,requirementText=requirementText,
             canPurchase=purchasable,package=entry.package,
             part=entry.part,shop=entry.shop,shopName=entry.shopName}
     end
