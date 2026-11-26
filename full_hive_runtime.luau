@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.103"
+local SCRIPT_VERSION = "1.8.104"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -499,10 +499,6 @@ local function move(part,pickup)
     local blueHQ=destination=="Workspace.Map.Ground.BlueHQShopFloor"
     local checkFloor=guild or ticketShop or blueHQ or destination=="Workspace.Shops.Mountaintop.FloorPart"
     local grounded=checkFloor or blender or destination=="Workspace.Shops.ProShop.Terrain"
-    if not pickup and not grounded and distance(part)<=5 then
-        Report.LastMovementArrival=part:GetFullName()
-        return
-    end
     local r=root()
     -- Hive and Blender pads are rotated: local Size.Y is not their world height.
     local cf,size=part.CFrame,part.Size
@@ -699,6 +695,7 @@ local function move(part,pickup)
                 tween:Cancel()
                 tween=nil
                 if not reached then return false end
+                align.Position=point
             end
             return true
         end
@@ -754,9 +751,9 @@ local function move(part,pickup)
         movement.Position=tostring(r.Position)
         error(MOVEMENT_TIMEOUT,0)
     end)
-    -- Keep the verified Ticket Tent landing stable across the yielding stats
-    -- refresh and final pre-request check. Release/next move owns cleanup.
-    if (not ok or not ticketShop) and cleanupMove then cleanupMove(); cleanupMove=nil end
+    -- Keep every verified action landing stable across yielding stats and the
+    -- final nearby check. Release/next move owns cleanup; pickups finish here.
+    if (not ok or pickup) and cleanupMove then cleanupMove(); cleanupMove=nil end
     if not ok then error(err,0) end
     if not pickup or part.Parent then near(part) end
     Report.Movement.Arrived=true

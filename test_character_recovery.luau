@@ -209,7 +209,7 @@ return function(runtime)
         "local Config={Speed=65,NearDistance=16}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance(part) local d=part.CFrame:PointToObjectSpace(player.Character:FindFirstChild().Position); local h=part.Size*0.5; return (d-Vector3.new(math.clamp(d.X,-h.X,h.X),math.clamp(d.Y,-h.Y,h.Y),math.clamp(d.Z,-h.Z,h.Z))).Magnitude end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT,Config\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","speed-change","rotated-pad","obstructed","lateral","blocked-direct","no-route","shop-path","shop-alternate","shop-floor-arrival","shop-no-floor","guild-floor-arrival","ticket-floor-arrival","ticket-underfloor","ticket-reject-underfloor","dapper-entrance","star-hall-entrance","mountaintop-floor-arrival","blender-approach"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","already-near","speed-change","rotated-pad","obstructed","lateral","blocked-direct","no-route","shop-path","shop-alternate","shop-floor-arrival","shop-no-floor","guild-floor-arrival","ticket-floor-arrival","ticket-underfloor","ticket-reject-underfloor","dapper-entrance","star-hall-entrance","mountaintop-floor-arrival","blender-approach"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -280,7 +280,7 @@ return function(runtime)
                     elseif failure=="replacement" then player.Character=character(100,true)
                     elseif failure=="detached" then r.Parent=nil
                     elseif failure=="play-error" then error("Fake tween play failed",0)
-                    elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" or dapper or bronze then r.Position=goal.Position
+                    elseif failure=="success" or failure=="already-near" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" or dapper or bronze then r.Position=goal.Position
                     elseif failure=="timeout" or failure=="no-route" or (alternate and #goals==1) then return
                     elseif grounded or failure=="blocked-direct" then r.Position=goal.Position
                     else c.FindFirstChildOfClass=function() return {Health=0} end end
@@ -352,11 +352,13 @@ return function(runtime)
                 return grounded and "Workspace.Shops.ProShop.Terrain" or "Verified.Test.Pad"
             end,IsA=function() return true end}
         landingPart=part
+        if failure=="already-near"then r.Position=Vector3.new(20,3.5,0)end
         local ok,err=pcall(move,part)
-        if ticketShop and ok then
-            check(pendingCleanup()~=nil and destroyed==0 and not obstacle.CanCollide,"Ticket Tent retains its arrival hold across stats refresh")
+        if ok then
+            check(pendingCleanup()~=nil and destroyed==0 and not obstacle.CanCollide,"Every action destination retains its arrival hold across stats refresh")
+            check(objects.AlignPosition.Position==goals[#goals],"Retained hold points to the exact final arrival target")
             pendingCleanup()()
-            check(pendingCleanup()==nil,"Releasing the Ticket Tent hold clears its lease")
+            check(pendingCleanup()==nil,"Releasing the arrival hold clears its lease")
         end
         if failure=="speed-change" then
             check(ok and #goals==2 and report.Movement.Arrived,"Active speed change rebuilds the remaining tween and arrives")
@@ -383,7 +385,7 @@ return function(runtime)
             check(ok and report.Movement.Method=="star-hall-entrance" and #goals==3
                 and goals[1].X==-3 and goals[2].X==33 and goals[1].Y==4,
                 "Bronze Star travel uses the clear opening through the Star Hall model")
-        elseif failure=="success" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" then check(ok,"Successful movement completes")
+        elseif failure=="success" or failure=="already-near" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" then check(ok,"Successful movement completes")
         elseif failure=="blocked-direct" then
             check(ok and #goals==1 and report.Movement.Method=="direct-noclip-tween","A blocked line still uses the noclip tween")
         elseif failure=="no-route" then

@@ -73,7 +73,7 @@ return function(P)
     end
     for stageIndex,stage in ipairs(P.stages) do
         for _,name in ipairs(stage.gear) do
-            local f=facts();ownedThrough(f,name);f.occupied=50;f.capacity=50
+            local f=facts();ownedThrough(f,name);f.occupied=50;f.capacity=50;f.inventory.SpiritPetal=1
             -- Isolate normal route order; 36+ catch-up has its own cases below.
             for _,planter in ipairs(P.planterCatchup) do f.ownedGear[planter]=true end
             f.ownedGear[name]=false
@@ -913,6 +913,26 @@ return function(P)
         f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","New material ranking retains pending guard")
         f.pending=false;f.uncertain=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","New material ranking retains uncertain guard")
         P.stages=stages
+    end
+    do
+        local f=facts();f.gearQueues=true;f.capacity=46
+        for _,stage in ipairs(P.stages)do for _,id in ipairs(stage.gear)do f.ownedGear[id]=true end end
+        f.ownedGear["Petal Belt"]=false
+        local c=catalog("Petal Belt",100,{SpiritPetal=1})
+        for _,amount in ipairs({0,1,2})do
+            f.inventory.SpiritPetal=amount
+            local r=P.plan(f,c)
+            check((r.gear=="Petal Belt")== (amount>=1),"Petal Belt is queued only with an actual owned Spirit Petal")
+            check((r.action.kind=="buy-gear")== (amount>=1),"Direct purchase shares the inventory gate")
+        end
+        f.inventory.SpiritPetal=nil
+        check(not P.plan(f,c).gear,"Missing Spirit Petal field cannot admit Petal Belt")
+        f.inventory.SpiritPetal=1;f.craft={item="SpiritPetal",count=1,ready=false};f.inventory.SpiritPetal=0
+        check(not P.plan(f,c).gear,"Queued or expected Spirit Petals never substitute for inventory")
+        local row=P.routeStatus(f,c,{}).stages[6].gear[6]
+        check(row.id=="Petal Belt"and row.inventoryRequired.item=="SpiritPetal"and not row.hiveReady,"Route explains Petal Belt inventory unlock")
+        f.craft=false;f.inventory.SpiritPetal=1;f.pending=true
+        check(P.plan(f,c).action.reason=="unresolved-progression-request","Owned petal does not bypass pending guard")
     end
     return {passed=passed}
 end

@@ -87,6 +87,7 @@ function UI.describeRouteGear(row,honey)
         lines[#lines+1]="Entry or purchase requirements not met"
     end
     if row.capacityRequired then lines[#lines+1]="Requires "..row.capacityRequired.." unlocked hive slots"end
+    if row.inventoryRequired then lines[#lines+1]="Queue unlock: "..row.inventoryRequired.amount.." "..row.inventoryRequired.item:gsub("(%l)(%u)","%1 %2").." in inventory"end
     return table.concat(lines,"\n")
 end
 

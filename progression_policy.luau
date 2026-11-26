@@ -19,6 +19,7 @@ P.stages = {
 -- before Blue in the order given by the newer instruction.
 P.planterCatchup={"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}
 P.capacityRequirements={["Pesticide Planter"]=47}
+P.inventoryRequirements={["Petal Belt"]={item="SpiritPetal",amount=1}}
 P.bannedCraft = {Gumdrops=true, MoonCharm=true, StarJelly=true, SoftWax=true, HardWax=true}
 P.waitOnly = {MoonCharm=true, StarJelly=true, MagicBean=true, SoftWax=true, HardWax=true}
 P.recipeOrder = {"BlueExtract", "RedExtract", "Enzymes", "Oil", "Glue", "TropicalDrink", "Glitter",
@@ -112,9 +113,12 @@ function P.nextGear(facts,deferred)
     for stageIndex,stage in ipairs(P.stages) do
         for _,gear in ipairs(stage.gear) do
             local owned=flag(facts.ownedGear,gear,facts.ownedGearKnown)
+            local requiredItem=P.inventoryRequirements[gear]
+            local held=requiredItem and (facts.inventory or {})[requiredItem.item]
             if owned==nil then return nil,"unknown-ownership:"..gear end
             if not owned and not (deferred and deferred[gear])
-                and (not P.capacityRequirements[gear] or integer(facts.capacity) and facts.capacity>=P.capacityRequirements[gear]) then
+                and (not P.capacityRequirements[gear] or integer(facts.capacity) and facts.capacity>=P.capacityRequirements[gear])
+                and (not requiredItem or integer(held) and held>=requiredItem.amount) then
                 return {id=gear,stage=stageIndex,gate=stage.gate}
             end
         end
@@ -947,6 +951,11 @@ function P.routeStatus(facts,catalog,decision)
                 hiveReady=(facts.occupied or 0)>=stage.gate and (facts.capacity or 0)>=stage.gate,
                 shopAccess=quote and quote.shopAccess,requirementsMet=quote and conditionState(quote.conditions,facts)}
             row.capacityRequired=P.capacityRequirements[id]
+            row.inventoryRequired=P.inventoryRequirements[id]
+            if row.inventoryRequired then
+                local count=(facts.inventory or {})[row.inventoryRequired.item]
+                if not integer(count)or count<row.inventoryRequired.amount then row.hiveReady=false end
+            end
             if row.capacityRequired and (facts.capacity or 0)<row.capacityRequired then row.hiveReady=false end
             if quote then
                 for _,item in ipairs(orderedKeys(quote.items,{})) do
