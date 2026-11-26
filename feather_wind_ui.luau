@@ -62,6 +62,9 @@ function UI.describeGear(report)
             lines[#lines+1]=(kind=="A" and "Honey queue: " or "Material queue: ")..(#names>0 and table.concat(names," → ") or "Complete")
         end
         if report.MaterialFarmGear then lines[#lines+1]="Material farm target: "..report.MaterialFarmGear end
+        if report.DeferredMaterialGear and #report.DeferredMaterialGear>0 then
+            lines[#lines+1]="Waiting for drops: "..table.concat(report.DeferredMaterialGear,", ")
+        end
         if report.MaterialFarmEnabled~=nil then lines[#lines+1]="Super Material Farm: "..(report.MaterialFarmEnabled and "ON" or "OFF") end
         if report.MaterialFarmStatus then lines[#lines+1]=report.MaterialFarmStatus end
         if report.DiscoveryPreparation then
@@ -86,6 +89,7 @@ function UI.describeRouteGear(row,honey)
     if row.owned~=true and (not row.hiveReady or row.shopAccess==false or row.requirementsMet==false) then
         lines[#lines+1]="Entry or purchase requirements not met"
     end
+    if row.capacityRequired then lines[#lines+1]="Requires "..row.capacityRequired.." unlocked hive slots"end
     return table.concat(lines,"\n")
 end
 

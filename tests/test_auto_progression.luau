@@ -714,7 +714,7 @@ return function(P)
         check(r.action.kind=="buy-gear" and r.gear=="B3","A ready queued purchase may use blocked priority1 ingredients")
         c.gear.B3.items={Blueberry=1};f.inventory.Blueberry=1;r=P.plan(f,c)
         check(r.action.kind=="buy-gear" and r.gear=="B3","Independent ready material gear may buy while priority1 is blocked")
-        check(r.farmMissing.SoftWax==1 and not r.farmMissing.Blueberry,"Unsupported priority1 deficit never selects a different fruit")
+        check(r.materialFarmGear=="B3" and not r.farmMissing.SoftWax,"Passive priority1 shortage yields preparation to the next queue target")
         c.gear.B3.shopAccess=false;f.inventory.Oil=1;r=P.plan(f,c)
         check(r.action.kind=="buy-gear"and r.gear=="B6"and r.gearQueues.B[5].id=="B6","The fifth ready material target can buy past four blocked candidates")
         f.pending=true;r=P.plan(f,c)
@@ -760,7 +760,7 @@ return function(P)
         f.conditions["blue-open"]=true;f.uncertain=true
         check(P.plan(f,c).action.reason=="unresolved-progression-request","Uncertain receipt blocks ready queue purchase")
         f.uncertain=false;f.ownedGear["Blue Port-O-Hive"]=true;f.inventory.Oil=0;f.inventory.BlueExtract=0
-        check(P.plan(f,c).gear=="Candy Planter","After ownership update blocked Candy remains a future target")
+        check(P.plan(f,c).gearQueues.B[1].id=="Candy Planter","After ownership update blocked Candy remains queued for later")
         f.honey=30746216;f.inventory.MagicBean=5
         check(P.plan(f,c).gear=="Candy Planter" and P.plan(f,c).action.kind=="buy-gear","Skipped Candy returns once its own requirements are met")
         P.stages=stages
@@ -809,6 +809,69 @@ return function(P)
         f.ownedGear.M1=true;r=P.plan(f,c)
         check(r.queueMaterialRequirements.Oil==14,"Combined materials refresh after ownership changes")
         P.stages=stages
+    end
+    do
+        local stages=P.stages
+        P.stages={{gate=0,gear={"Candy Planter","Next Mask","Third Gear"}}}
+        local f=facts();f.gearQueues=true;f.honey=11653997
+        f.inventory={SoftWax=2,Gumdrops=268,JellyBeans=7,MagicBean=5}
+        local c={gear={
+            ["Candy Planter"]={honey=5000000,items={SoftWax=5,Gumdrops=30,JellyBeans=3,MagicBean=5}},
+            ["Next Mask"]={honey=20000000,items={BlueExtract=2}},
+            ["Third Gear"]={honey=30000000,items={Pineapple=100}}}}
+        local r=P.plan(f,c)
+        check(r.gear=="Next Mask"and r.materialFarmGear=="Next Mask","Screenshot Candy wax shortage yields to the next material target")
+        check(r.farmMissing.Blueberry==100 and r.farmMissing.RoyalJelly==20,"Next target expands its own complete recipe requirements")
+        check(r.deferredMaterialGear[1]=="Candy Planter"and not r.reservedItems.MagicBean,"Deferred Candy is reported without holding its unrelated ingredients")
+        f.inventory.Gumdrops=0;r=P.plan(f,c)
+        check(r.gear=="Candy Planter","Missing actively purchasable Gumdrops keep current preparation")
+        f.inventory.Gumdrops=268;f.inventory.SoftWax=5;f.inventory.JellyBeans=0;f.inventory.MagicBean=0;r=P.plan(f,c)
+        check(r.gear=="Next Mask","Jelly Beans and Magic Beans are passive shortages too")
+        f.inventory.JellyBeans=7;f.inventory.MagicBean=5;r=P.plan(f,c)
+        check(r.gear=="Candy Planter"and r.action.kind=="buy-gear","Skipped Candy returns immediately when all actual materials arrive")
+        f.inventory.SoftWax=2;f.inventory.Blueberry=100;r=P.plan(f,c)
+        check(r.gear=="Next Mask"and r.saveCraftingJelly,"Next recipe may reserve crafting jelly while earlier gear awaits drops")
+        f.inventory.RoyalJelly=20;r=P.plan(f,c)
+        check(r.gear=="Next Mask"and r.action.kind=="craft","Ready next-target recipe crafts before passive Candy")
+        f.inventory.BlueExtract=2;f.honey=20000000;r=P.plan(f,c)
+        check(r.gear=="Next Mask"and r.action.kind=="buy-gear","Completed next target buys with original live guard path")
+        f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Passive skipping never bypasses pending requests")
+        f.pending=false;f.uncertain=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Passive skipping never bypasses uncertain receipts")
+        f.uncertain=false;f.inventory={MoonCharm=25}
+        c.gear["Candy Planter"].items={Glitter=1}
+        r=P.plan(f,c)
+        check(r.gear=="Next Mask","An unready nested craft blocked solely by a passive ingredient may defer")
+        f.inventory.MagicBean=1;r=P.plan(f,c)
+        check(r.gear=="Candy Planter"and r.action.kind=="craft","An actually ready current recipe is completed before deferral")
+        c.gear["Candy Planter"].items={SoftWax=5};c.gear["Next Mask"].items={HardWax=1}
+        f.inventory={};r=P.plan(f,c)
+        check(r.gear=="Third Gear"and #r.deferredMaterialGear==2,"Multiple passive-only targets yield to an obtainable third target")
+        c.gear["Third Gear"].items={MagicBean=2};r=P.plan(f,c)
+        check(r.gear=="Candy Planter"and #r.deferredMaterialGear==3,"All-passive queues wait deterministically without a cycling target")
+        f.discoveryPreparation=true;r=P.plan(f,c)
+        check(r.discoveryPreparation and r.queueMaterialRequirements.SoftWax==5 and #r.deferredMaterialGear==0,"Combined SSA material accounting remains intact")
+        P.stages=stages
+    end
+    do
+        local f=facts();f.gearQueues=true;f.honey=1e12
+        for _,stage in ipairs(P.stages)do for _,id in ipairs(stage.gear)do f.ownedGear[id]=true end end
+        f.ownedGear["Pesticide Planter"]=false
+        local c=catalog("Pesticide Planter",100,{SoftWax=1})
+        f.inventory.SoftWax=1
+        for _,capacity in ipairs({25,44,46})do
+            f.capacity=capacity;f.occupied=25
+            check(P.nextGear(f)==false,"Pesticide is excluded before unlocked slot47")
+            local r=P.plan(f,c)
+            check(r.action.kind~="buy-gear"and not r.gear,"No queue or direct purchase before47 even when affordable")
+        end
+        f.capacity=47;f.occupied=25
+        local r=P.plan(f,c)
+        check(r.gear=="Pesticide Planter"and r.action.kind=="buy-gear","Unlocked47 admits Pesticide without requiring47 occupied bees")
+        check(#r.gearQueues.B==1,"Pesticide joins the normal material queue at47")
+        f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Slot47 does not bypass pending guard")
+        f.pending=false;f.capacity=46
+        local row=P.routeStatus(f,c,{}).stages[6].gear[#P.stages[6].gear]
+        check(row.capacityRequired==47 and not row.hiveReady,"Route details expose Pesticide's unlocked-slot gate")
     end
     return {passed=passed}
 end

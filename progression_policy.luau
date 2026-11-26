@@ -18,6 +18,7 @@ P.stages = {
 -- stays intact below that capacity; this catch-up intentionally puts Red
 -- before Blue in the order given by the newer instruction.
 P.planterCatchup={"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}
+P.capacityRequirements={["Pesticide Planter"]=47}
 P.bannedCraft = {Gumdrops=true, MoonCharm=true, StarJelly=true, SoftWax=true, HardWax=true}
 P.waitOnly = {MoonCharm=true, StarJelly=true, MagicBean=true, SoftWax=true, HardWax=true}
 P.recipeOrder = {"BlueExtract", "RedExtract", "Enzymes", "Oil", "Glue", "TropicalDrink", "Glitter",
@@ -112,7 +113,8 @@ function P.nextGear(facts,deferred)
         for _,gear in ipairs(stage.gear) do
             local owned=flag(facts.ownedGear,gear,facts.ownedGearKnown)
             if owned==nil then return nil,"unknown-ownership:"..gear end
-            if not owned and not (deferred and deferred[gear]) then
+            if not owned and not (deferred and deferred[gear])
+                and (not P.capacityRequirements[gear] or integer(facts.capacity) and facts.capacity>=P.capacityRequirements[gear]) then
                 return {id=gear,stage=stageIndex,gate=stage.gate}
             end
         end
@@ -653,7 +655,7 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
     base.reserveHoney=gear.honey+(facts.honeyReserve or 0)
     if gear.shopAccess==false then
         base.optionalHiveAllowed=true
-        local pending=wait("waiting-shop-access:"..gear.shopName,base)
+        local pending=wait("waiting-shop-access:"..tostring(gear.shopName or nextGear.id),base)
         parallelAction(pending.action);return pending
     end
     if not met then return wait("waiting-condition:"..tostring(condition),base) end
@@ -810,7 +812,30 @@ local function queuePlan(facts,catalog,primary)
     local function decide(candidate,f)
         return candidate and plan(f or facts,catalog,candidate) or nil
     end
-    local priorityMaterial=decide(queues.B[1])
+    local materialCandidate=queues.B[1]
+    local deferredMaterials={}
+    local farmable={Strawberry=true,Blueberry=true,SunflowerSeed=true,Pineapple=true}
+    local function passiveShortages(candidate)
+        local gear=catalog.gear[candidate.id]
+        local materials=P.materials(gear.items,facts,catalog)
+        if candidate.gate>facts.occupied or candidate.gate>facts.capacity
+            or not materials or not next(materials.missingItems) then return false end
+        for _,craft in ipairs(materials.crafts) do if craft.ready then return false end end
+        for item in pairs(materials.missingItems) do
+            -- Retain existing fruit farming, crafting supplies and supported
+            -- acquisition paths. Unknown/uncraftable drops cannot block them.
+            if farmable[item] or item=="RoyalJelly" or item=="Gumdrops"
+                or (catalog.sources or {})[item] or (catalog.purchases or {})[item] then return false end
+        end
+        return true
+    end
+    if not facts.discoveryPreparation then
+        for _,candidate in ipairs(queues.B) do
+            if not passiveShortages(candidate) then materialCandidate=candidate;break end
+            deferredMaterials[#deferredMaterials+1]=candidate.id
+        end
+    end
+    local priorityMaterial=decide(materialCandidate)
     local material=priorityMaterial
     local aggregate,requirements,aggregateError
     if facts.discoveryPreparation then
@@ -826,6 +851,7 @@ local function queuePlan(facts,catalog,primary)
     local function finish(result)
         if not result then return nil end
         result.gearQueues=queues
+        result.deferredMaterialGear=deferredMaterials
         result.discoveryPreparation=facts.discoveryPreparation==true
         result.queueMaterialRequirements=requirements
         result.queueMaterialsReady=aggregate~=nil and not next(aggregate.missingItems) and #aggregate.crafts==0 and not next(aggregate.queuedItems)
@@ -834,7 +860,7 @@ local function queuePlan(facts,catalog,primary)
         if material and material.requiredHive and (facts.occupied<material.requiredHive or facts.capacity<material.requiredHive) then
             result.farmMissing={}
         end
-        result.materialFarmGear=facts.discoveryPreparation and "Combined material queue" or queues.B[1] and queues.B[1].id
+        result.materialFarmGear=facts.discoveryPreparation and "Combined material queue" or materialCandidate and materialCandidate.id
         if result.action.kind~="buy-gear" then
             for item,count in pairs(held) do result.reservedItems[item]=math.max(result.reservedItems[item] or 0,count) end
         end
@@ -897,6 +923,8 @@ function P.routeStatus(facts,catalog,decision)
             local row={id=id,owned=owned,current=id==decision.gear,items={},honey=quote and quote.honey,icon=quote and quote.icon,model=quote and quote.model,
                 hiveReady=(facts.occupied or 0)>=stage.gate and (facts.capacity or 0)>=stage.gate,
                 shopAccess=quote and quote.shopAccess,requirementsMet=quote and conditionState(quote.conditions,facts)}
+            row.capacityRequired=P.capacityRequirements[id]
+            if row.capacityRequired and (facts.capacity or 0)<row.capacityRequired then row.hiveReady=false end
             if quote then
                 for _,item in ipairs(orderedKeys(quote.items,{})) do
                     local actual=facts.inventory and facts.inventory[item]

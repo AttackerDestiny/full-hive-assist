@@ -3289,36 +3289,36 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.99",
+    "version": "1.8.100",
     "bundle": "core.luau",
-    "sha256": "0e92ace47022ec3b88d77b81c00d8917a37df0200a5a346b94195ab41495bd78",
-    "deployedNormalizedUTF8Sha256": "935a0b0d7f29b300687a42af9796d1de35891bc19375f9a3465d2024acc56b04",
+    "sha256": "38b597d8101cb59a239a8ce07bef64cd3e7438fd37f076d112af3db7a0662466",
+    "deployedNormalizedUTF8Sha256": "a24b90dbe31aed2afb64f2ebe273e7292425ef184eef14b0f4df5dd7d38cae3b",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795695912,
+        "startedAt": 1795696381,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795695933,
+        "startedAt": 1795696394,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795695921,
+        "startedAt": 1795696383,
         "running": true,
         "paused": false
       }
     ],
-    "offlineChecks": 6612,
-    "connectedChecks": 6610,
+    "offlineChecks": 6638,
+    "connectedChecks": 6636,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3345,39 +3345,48 @@
     "queueLimit": {
       "honey": 5,
       "material": 5
-    }
+    },
+    "progressionChecks": 397,
+    "pesticideUnlockedCapacityRequirement": 47,
+    "passiveMaterialDeferral": true,
+    "livePesticideExcludedBelow47": {
+      "QuackAltear1": 40,
+      "QuackAltear5": 40,
+      "QuackAltear06": 42
+    },
+    "naturalPassiveCandyDeferralObserved": false
   },
   "latestCandidate": {
-    "version": "1.8.99",
+    "version": "1.8.100",
     "bundle": "core.luau",
-    "sha256": "0e92ace47022ec3b88d77b81c00d8917a37df0200a5a346b94195ab41495bd78",
-    "deployedNormalizedUTF8Sha256": "935a0b0d7f29b300687a42af9796d1de35891bc19375f9a3465d2024acc56b04",
+    "sha256": "38b597d8101cb59a239a8ce07bef64cd3e7438fd37f076d112af3db7a0662466",
+    "deployedNormalizedUTF8Sha256": "a24b90dbe31aed2afb64f2ebe273e7292425ef184eef14b0f4df5dd7d38cae3b",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795695912,
+        "startedAt": 1795696381,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795695933,
+        "startedAt": 1795696394,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795695921,
+        "startedAt": 1795696383,
         "running": true,
         "paused": false
       }
     ],
-    "offlineChecks": 6612,
-    "connectedChecks": 6610,
+    "offlineChecks": 6638,
+    "connectedChecks": 6636,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3404,6 +3413,15 @@
     "queueLimit": {
       "honey": 5,
       "material": 5
-    }
+    },
+    "progressionChecks": 397,
+    "pesticideUnlockedCapacityRequirement": 47,
+    "passiveMaterialDeferral": true,
+    "livePesticideExcludedBelow47": {
+      "QuackAltear1": 40,
+      "QuackAltear5": 40,
+      "QuackAltear06": 42
+    },
+    "naturalPassiveCandyDeferralObserved": false
   }
 }
