@@ -170,7 +170,7 @@ return function(deps)
         local facts={honey=finite(s.Honey) and s.Honey>=0 and math.floor(s.Honey) or nil,
             honeyReserve=finite(deps.HoneyReserve or 0) and math.ceil(deps.HoneyReserve or 0) or nil,inventory={},conditions={},ownedGear={},
             redeemedCodes={},inventoryKnown=type(s.Eggs)=="table",codesKnown=type(s.Codes)=="table",craft=nil}
-        local catalog={gear={},recipes={},useSuppliedRecipes=false,packs={},purchases={},sources={}}
+        local catalog={gear={},recipes={},recipeBlockers={},useSuppliedRecipes=false,packs={},purchases={},sources={}}
         if includeRoute then catalog.routeGear={} end
         if type(s.Eggs)=="table" then for id,n in pairs(s.Eggs) do facts.inventory[id]=n end end
         -- Starter saves omit Codes until their first redemption. Only accept
@@ -321,6 +321,21 @@ return function(deps)
             local recipe,ok=call(deps.Recipes,"Get",item)
             if ok and type(recipe)=="table" and type(recipe.Ingredients)=="table" and type(recipe.Requirements)=="table" then
                 local met,checked=call(deps.Reqs,"Check",s,recipe.Requirements)
+                if not checked or met~=true then
+                    local reasons={}
+                    if checked then
+                        for _,requirement in ipairs(recipe.Requirements) do
+                            local passed,known=call(deps.Reqs,"Check",s,{requirement})
+                            if not known or passed~=true then
+                                local description,described=call(deps.Reqs,"Description",requirement)
+                                reasons[#reasons+1]=described and type(description)=="string" and description
+                                    or "Recipe requirement not verified"
+                            end
+                        end
+                    end
+                    catalog.recipeBlockers[item]=#reasons>0 and table.concat(reasons,"; ")
+                        or checked and "Recipe requirements not met"or"Recipe requirements could not be read"
+                end
                 if checked and met==true then
                     local ingredients,order={},{}
                     local valid=true
@@ -332,7 +347,11 @@ return function(deps)
                     if valid and #order>0 then catalog.recipes[item]={yield=1,ingredients=ingredients,order=order,time=recipe.Time} end
                 end
             end
-            if not catalog.recipes[item] then catalog.recipes[item]=false end
+            if not catalog.recipes[item] then
+                catalog.recipes[item]=false
+                catalog.recipeBlockers[item]=catalog.recipeBlockers[item]or(ok and type(recipe)=="table"
+                    and "Recipe definition could not be verified"or"Recipe definition unavailable")
+            end
         end
         local blender=s.BlenderState
         if blender==nil or blender==false then facts.craft=false

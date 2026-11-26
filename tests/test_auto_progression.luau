@@ -1050,5 +1050,18 @@ return function(P)
         f.craft={item="BlueExtract",count=2,ready=false};r=P.plan(f,c)
         check(r.action.kind=="wait"and r.action.reason=="blender-busy","Independent selection never double-books the Blender")
     end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Porcelain Dipper","Boots"}}}
+        local f=facts();f.gearQueues=true;f.honey=100;f.inventory={SunflowerSeed=150,RoyalJelly=0}
+        local c={useSuppliedRecipes=false,recipes={Oil=false},recipeBlockers={Oil="Earn 3 Ability Badges"},
+            gear={["Porcelain Dipper"]={honey=150000000,items={}},Boots={honey=15000000,items={Oil=3}}},
+            packs={RoyalJelly={{id="one",amount=1,cost={Honey=1}}}}}
+        local r=P.plan(f,c)
+        check(r.gear=="Porcelain Dipper"and r.allMaterialDeferred and r.craftingBlocked.Oil=="Earn 3 Ability Badges","Screenshot fallback identifies unavailable recipe rather than silently ignoring Boots")
+        check(r.gearQueues.B[1].recipeBlocks.Oil=="Earn 3 Ability Badges"and not r.saveCraftingJelly,"Actual recipe locks stay enforced and explain the queue")
+        c.recipes.Oil=P.recipes.Oil;c.recipeBlockers.Oil=nil;r=P.plan(f,c)
+        check(r.gear=="Boots"and r.saveCraftingJelly and r.action.kind=="purchase-pack"and not next(r.craftingBlocked),"Fresh unlock automatically restores crafting-jelly priority")
+        P.stages=stages
+    end
     return {passed=passed}
 end

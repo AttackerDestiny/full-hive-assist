@@ -166,6 +166,13 @@ return function(factory,Policy)
         deps.Reqs.Check=function() return false end
         local _,c=factory(deps)(s)
         check(c.recipes.Oil==false,"Unmet recipe badge requirements disable crafting")
+        check(c.recipeBlockers.Oil=="Recipe requirements not met","Rejected recipes expose the failed eligibility check")
+        deps.Reqs.Description=function()return "Earn 3 Ability Badges"end
+        deps.Recipes.Get("Oil").Requirements={{Type="Earn Badges",Set="Ability",Amount=3}}
+        _,c=factory(deps)(s)
+        check(c.recipeBlockers.Oil=="Earn 3 Ability Badges","Recipe lock retains exact game-supplied requirement text")
+        deps.Reqs.Check=function()error("unavailable")end;_,c=factory(deps)(s)
+        check(c.recipeBlockers.Oil=="Recipe requirements could not be read","Read failures are distinguished from unmet requirements")
     end
     do
         local deps,s,_,defs=fixture();s.BlenderState={Recipe="Oil",Count=15,StartTime=0}

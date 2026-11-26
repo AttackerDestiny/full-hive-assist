@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.109"
+local SCRIPT_VERSION = "1.8.110"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1949,7 +1949,9 @@ local function run()
         if item=="RoyalJelly" and not (jellyBatchReady(s) or refill()) then
             if background and background.level(s,false) then s=refresh();continue end
             local gear=Report.Progression
-            waitFor(gear and gear.SavingGearHoney and ("Saving honey for "..gear.Gear)
+            waitFor(gear and gear.AllMaterialDeferred and next(gear.CraftingBlocked or {})
+                and "Crafting blocked; see Progression for recipe requirements"
+                or gear and gear.SavingGearHoney and ("Saving honey for "..gear.Gear)
                 or not Policy.canBuyRollJelly(cells) and "Waiting for owned Royal Jelly to roll"
                 or ("Waiting for at least "..Report.RefillAmount.." Royal Jelly to start a batch"))
             s=refresh(); continue

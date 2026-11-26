@@ -250,7 +250,7 @@ function P.materials(requirements,facts,catalog)
         if type(item)~="string" or not integer(quantity) then return nil,"invalid-material-demand" end
     end
     local read,err=inventoryReader(facts); if not read then return nil,err end
-    local available,reserved,demand,missing,crafts={},{},{},{},{}
+    local available,reserved,demand,missing,crafts,blocked={},{},{},{},{},{}
     local queued,queuedAllocated={},{}
     if type(facts.craft)=="table" and type(facts.craft.item)=="string" and integer(facts.craft.count)
         and facts.craft.count>0 and type(facts.craft.ready)=="boolean" then
@@ -276,6 +276,9 @@ function P.materials(requirements,facts,catalog)
         if stack[item] then return nil,"cyclic-recipe:"..item end
         local recipe=(catalog.recipes or {})[item]
         if recipe==nil and catalog.useSuppliedRecipes~=false then recipe=P.recipes[item] end
+        if recipe==false and not P.bannedCraft[item] then
+            blocked[item]=(catalog.recipeBlockers or {})[item]or"Recipe unavailable or requirements not verified"
+        end
         if P.bannedCraft[item] or item=="MagicBean" or recipe==false then recipe=nil end
         if recipe==nil then add(missing,item,deficit); return false end
         if type(recipe)~="table" or not integer(recipe.yield) or recipe.yield==0
@@ -313,7 +316,7 @@ function P.materials(requirements,facts,catalog)
         if ok==nil then return nil,why end
     end
     return {reservedItems=reserved,materialDemand=demand,missingItems=missing,crafts=crafts,
-        queuedItems=queuedAllocated,nextCraft=crafts[1]}
+        queuedItems=queuedAllocated,nextCraft=crafts[1],blockedRecipes=blocked}
 end
 -- Growth is allowed only at a required gate; outside a gate the host retains
 -- its established auto-hive scheduling and can request this advisory separately.
@@ -841,6 +844,10 @@ local function queuePlan(facts,catalog,primary)
         local kind=next(gear.items) and "B" or "A"
         if #queues[kind]<5 then
             candidate.queueSelected=true;candidate.honey=gear.honey;candidate.order=#queues.A+#queues.B+1
+            if kind=="B"then
+                local materials=P.materials(gear.items,facts,catalog)
+                candidate.recipeBlocks=materials and materials.blockedRecipes
+            end
             queues[kind][#queues[kind]+1]=candidate
         end
         if #queues.A==5 and #queues.B==5 then break end
@@ -920,6 +927,10 @@ local function queuePlan(facts,catalog,primary)
     local function finish(result)
         if not result then return nil end
         result.gearQueues=queues
+        result.craftingBlocked={}
+        for _,candidate in ipairs(queues.B)do
+            for item,reason in pairs(candidate.recipeBlocks or {})do result.craftingBlocked[item]=reason end
+        end
         result.deferredMaterialGear=deferredMaterials
         result.deferredMaterialReasons=deferredReasons
         result.deferredRequirementGear=deferredRequirements

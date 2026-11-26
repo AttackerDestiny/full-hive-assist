@@ -105,6 +105,12 @@ function UI.describeQueues(report)
                 local items={};for name,n in pairs(reasons)do items[#items+1]=name:gsub("(%l)(%u)","%1 %2").." ×"..amount(n)end
                 table.sort(items);line..="\n   Waiting: "..table.concat(items,", ")
             elseif entry.id==report.Gear then line..=" · active"end
+            local blocked={}
+            for item,reason in pairs(entry.recipeBlocks or {})do
+                blocked[#blocked+1]=item:gsub("(%l)(%u)","%1 %2")..": "..reason
+            end
+            table.sort(blocked)
+            if #blocked>0 then line..="\n   Crafting blocked: "..table.concat(blocked,"; ")end
             lines[#lines+1]=line
         end
         lines[#lines+1]=""

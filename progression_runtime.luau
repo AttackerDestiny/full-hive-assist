@@ -15,7 +15,7 @@ return function(H)
         report.Progression={Gear=decision.gear,DeferredGear=decision.deferredGear,Stage=decision.stage,Action=decision.action.kind,
             Reason=decision.reason or decision.action.reason,ReserveHoney=decision.reserveHoney,
             ReservedItems=decision.reservedItems,MissingItems=decision.missingItems,GrowthHoney=decision.growthHoney,
-            GearQueues=decision.gearQueues,MaterialFarmGear=decision.materialFarmGear,
+            GearQueues=decision.gearQueues,CraftingBlocked=decision.craftingBlocked,MaterialFarmGear=decision.materialFarmGear,
             DeferredMaterialGear=decision.deferredMaterialGear,
             DeferredMaterialReasons=decision.deferredMaterialReasons,AllMaterialDeferred=decision.allMaterialDeferred,
             DeferredRequirementGear=decision.deferredRequirementGear,
