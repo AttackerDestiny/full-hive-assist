@@ -137,10 +137,11 @@ return function(deps)
         local canGive,giveKnown=call(deps.Packages,"CanGive",entry.package,s)
         if not giveKnown or type(canGive)~="boolean" then return nil end
         local giveKey="give:"..id;facts.conditions[giveKey]=canGive;req[#req+1]=giveKey
+        local unlockConditions={};for _,key in ipairs(req)do unlockConditions[#unlockConditions+1]=key end
         local purchasable,purchaseKnown=call(deps.Packages,"CanPurchase",entry.package,s)
         if not purchaseKnown or type(purchasable)~="boolean" then return nil end
         local purchaseKey="can-purchase:"..id;facts.conditions[purchaseKey]=purchasable;req[#req+1]=purchaseKey
-        return {honey=cost.honey,items=cost.items,conditions=req,requirementText=requirementText,
+        return {honey=cost.honey,items=cost.items,conditions=req,unlockConditions=unlockConditions,requirementText=requirementText,
             canPurchase=purchasable,package=entry.package,
             part=entry.part,shop=entry.shop,shopName=entry.shopName}
     end

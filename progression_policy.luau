@@ -793,7 +793,16 @@ local function queuePlan(facts,catalog,primary)
     if not facts.gearQueues or not primary.gear or facts.pending or facts.uncertain
         or primary.action.kind=="redeem-code" then return nil end
     local queues={A={},B={}}
+    local deferredRequirements={}
     local deferred={}
+    local function fundedGear(gear)
+        local read=inventoryReader(facts)
+        for item,count in pairs(gear.items) do
+            if type(item)~="string"or item=="Honey"or not integer(count)then return false end
+        end
+        local cost=copy(gear.items);cost.Honey=gear.honey
+        return read and afford(cost,facts.honey,read,facts.honeyReserve or 0,{})==true
+    end
     for _=1,100 do
         local candidate=P.nextGear(facts,deferred)
         if not candidate then break end
@@ -804,6 +813,23 @@ local function queuePlan(facts,catalog,primary)
             if candidate.id==primary.gear then return nil end
             continue
         end
+        local admission=gear.unlockConditions
+        if admission==nil then
+            if gear.conditions~=nil and type(gear.conditions)~="table"then admission=gear.conditions
+            else
+                admission={}
+                for _,key in ipairs(gear.conditions or {})do
+                    if type(key)~="string"or not key:match("^can%-purchase:")then admission[#admission+1]=key end
+                end
+            end
+        end
+        local met=conditionState(admission,facts)
+        local reason
+        if candidate.gate>facts.occupied or candidate.gate>facts.capacity then reason="Requires "..candidate.gate.." bees and hive slots"
+        elseif gear.shopAccess==false then reason="Shop entry requirements not met"
+        elseif met~=true then reason=gear.requirementText or (met==nil and "Purchase requirements not verified"or"Purchase requirements not met")
+        elseif fundedGear(gear)and conditionState(gear.conditions,facts)~=true then reason="Purchase eligibility not met"end
+        if reason then deferredRequirements[candidate.id]=reason;continue end
         local kind=next(gear.items) and "B" or "A"
         if #queues[kind]<5 then
             candidate.queueSelected=true;candidate.honey=gear.honey;candidate.order=#queues.A+#queues.B+1
@@ -831,26 +857,8 @@ local function queuePlan(facts,catalog,primary)
         return candidate and plan(f or facts,catalog,candidate) or nil
     end
     local function funded(candidate)
-        local gear=catalog.gear[candidate.id]
-        local read=inventoryReader(facts)
-        for item,count in pairs(gear.items) do
-            if type(item)~="string"or item=="Honey"or not integer(count)then return false end
-        end
-        local cost=copy(gear.items);cost.Honey=gear.honey
-        return read and afford(cost,facts.honey,read,facts.honeyReserve or 0,{})==true
+        return fundedGear(catalog.gear[candidate.id])
     end
-    local deferredRequirements={}
-    for _,queue in pairs(queues)do for _,candidate in ipairs(queue)do
-        local gear=catalog.gear[candidate.id]
-        if funded(candidate)then
-            local met=conditionState(gear.conditions,facts)
-            local reason
-            if candidate.gate>facts.occupied or candidate.gate>facts.capacity then reason="Requires "..candidate.gate.." bees and hive slots"
-            elseif gear.shopAccess==false then reason="Shop entry requirements not met"
-            elseif met~=true then reason=gear.requirementText or (met==nil and "Purchase requirements not verified"or"Purchase requirements not met")end
-            if reason then candidate.unlockBlocked=reason;deferredRequirements[candidate.id]=reason end
-        end
-    end end
     local materialCandidate=queues.B[1]
     local deferredMaterials={}
     local deferredReasons={}

@@ -229,6 +229,7 @@ return function(factory,Policy)
         deps.Reqs.Description=function()return "Earn 10 Hotshot Badges"end
         local _,c=factory(deps)(s)
         check(c.gear.Clippers.requirementText=="Earn 10 Hotshot Badges","Catalog preserves game-supplied locked requirement descriptions")
+        check(#c.gear.Clippers.unlockConditions==2 and #c.gear.Clippers.conditions==3,"Unlock checks separate badge/grant requirements from affordability")
     end
     return {passed=passed}
 end

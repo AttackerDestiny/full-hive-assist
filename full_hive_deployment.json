@@ -3289,39 +3289,39 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.105",
+    "version": "1.8.106",
     "bundle": "core.luau",
-    "sha256": "e8c5cd40afe32ed23f61684ad6301a77325ab3e6eebff65068400da3738bd832",
-    "deployedNormalizedUTF8Sha256": "4ded33d356d690c34b7ffe098b9efb1991b173f59801983f28bd50ffffe48acd",
+    "sha256": "a74db92530fa0c2b89f3a7658f45cda8ca4c7c11b4203e4fbcbdbaf6efbf2e2f",
+    "deployedNormalizedUTF8Sha256": "3b78498c9ae65bd144b3989a7fa379baccb30d6ab2a005b56270a218d011ecba",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
-        "version": "1.8.105",
-        "startedAt": 1795699418,
+        "version": "1.8.106",
+        "startedAt": 1795699851,
         "running": true,
         "paused": false,
         "uiVerified": true
       },
       {
         "account": "QuackAltear5",
-        "version": "1.8.105",
-        "startedAt": 1795699420,
+        "version": "1.8.106",
+        "startedAt": 1795699852,
         "running": true,
         "paused": false,
         "uiVerified": true
       },
       {
         "account": "QuackAltear06",
-        "version": "1.8.105",
-        "startedAt": 1795699417,
+        "version": "1.8.106",
+        "startedAt": 1795699853,
         "running": true,
         "paused": false,
         "uiVerified": true
       }
     ],
-    "offlineChecks": 6738,
-    "connectedChecks": 6732,
+    "offlineChecks": 6745,
+    "connectedChecks": 6739,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3349,7 +3349,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 437,
+    "progressionChecks": 443,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3377,42 +3377,43 @@
     "arrivalHoldRetained": true,
     "naturalGumdropPurchaseAfterFixObserved": false,
     "fundedUnlockDeferral": true,
-    "naturalSilverBadgeUnlockTransitionObserved": false
+    "naturalSilverBadgeUnlockTransitionObserved": false,
+    "unlockFilteredQueues": true
   },
   "latestCandidate": {
-    "version": "1.8.105",
+    "version": "1.8.106",
     "bundle": "core.luau",
-    "sha256": "e8c5cd40afe32ed23f61684ad6301a77325ab3e6eebff65068400da3738bd832",
-    "deployedNormalizedUTF8Sha256": "4ded33d356d690c34b7ffe098b9efb1991b173f59801983f28bd50ffffe48acd",
+    "sha256": "a74db92530fa0c2b89f3a7658f45cda8ca4c7c11b4203e4fbcbdbaf6efbf2e2f",
+    "deployedNormalizedUTF8Sha256": "3b78498c9ae65bd144b3989a7fa379baccb30d6ab2a005b56270a218d011ecba",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
-        "version": "1.8.105",
-        "startedAt": 1795699418,
+        "version": "1.8.106",
+        "startedAt": 1795699851,
         "running": true,
         "paused": false,
         "uiVerified": true
       },
       {
         "account": "QuackAltear5",
-        "version": "1.8.105",
-        "startedAt": 1795699420,
+        "version": "1.8.106",
+        "startedAt": 1795699852,
         "running": true,
         "paused": false,
         "uiVerified": true
       },
       {
         "account": "QuackAltear06",
-        "version": "1.8.105",
-        "startedAt": 1795699417,
+        "version": "1.8.106",
+        "startedAt": 1795699853,
         "running": true,
         "paused": false,
         "uiVerified": true
       }
     ],
-    "offlineChecks": 6738,
-    "connectedChecks": 6732,
+    "offlineChecks": 6745,
+    "connectedChecks": 6739,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3440,7 +3441,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 437,
+    "progressionChecks": 443,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3468,6 +3469,7 @@
     "arrivalHoldRetained": true,
     "naturalGumdropPurchaseAfterFixObserved": false,
     "fundedUnlockDeferral": true,
-    "naturalSilverBadgeUnlockTransitionObserved": false
+    "naturalSilverBadgeUnlockTransitionObserved": false,
+    "unlockFilteredQueues": true
   }
 }

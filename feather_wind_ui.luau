@@ -101,14 +101,19 @@ function UI.describeQueues(report)
         for index,entry in ipairs(queue)do
             local line=index..". "..entry.id
             local reasons=(report.DeferredMaterialReasons or{})[entry.id]
-            local locked=(report.DeferredRequirementGear or{})[entry.id]
-            if locked then line..="\n   Locked: "..locked
-            elseif reasons then
+            if reasons then
                 local items={};for name,n in pairs(reasons)do items[#items+1]=name:gsub("(%l)(%u)","%1 %2").." ×"..amount(n)end
                 table.sort(items);line..="\n   Waiting: "..table.concat(items,", ")
             elseif entry.id==report.Gear then line..=" · active"end
             lines[#lines+1]=line
         end
+        lines[#lines+1]=""
+    end
+    local lockedNames={}
+    for name in pairs(report.DeferredRequirementGear or{})do lockedNames[#lockedNames+1]=name end
+    if #lockedNames>0 then
+        table.sort(lockedNames);lines[#lines+1]="LOCKED · NOT QUEUED"
+        for _,name in ipairs(lockedNames)do lines[#lines+1]=name.."\n   "..report.DeferredRequirementGear[name]end
         lines[#lines+1]=""
     end
     lines[#lines+1]="Material farming: "..(report.MaterialFarmEnabled and "ON"or"OFF")

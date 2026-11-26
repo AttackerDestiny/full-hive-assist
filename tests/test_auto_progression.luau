@@ -718,7 +718,7 @@ return function(P)
         check(r.action.kind=="buy-gear" and r.gear=="B3","Independent ready material gear may buy while priority1 is blocked")
         check(r.materialFarmGear=="B3" and not r.farmMissing.SoftWax,"Passive priority1 shortage yields preparation to the next queue target")
         c.gear.B3.shopAccess=false;f.inventory.Oil=1;r=P.plan(f,c)
-        check(r.action.kind=="buy-gear"and r.gear=="B6"and r.gearQueues.B[2].id=="B6","A newly ready material target is promoted and can buy past a locked candidate")
+        check(r.action.kind=="buy-gear"and r.gear=="B6"and r.gearQueues.B[1].id=="B6","Ready material target leads the queue after the locked candidate is excluded")
         f.pending=true;r=P.plan(f,c)
         check(r.action.reason=="unresolved-progression-request","Queues preserve unresolved request guard")
         f.pending=false;f.redeemedCodes.Wax=false
@@ -940,14 +940,14 @@ return function(P)
         local c={gear={["Silver Soakers"]={honey=22222222,items={},conditions={"badges"},requirementText="Earn 10 Hotshot Badges"},["Next Honey"]={honey=150000000,items={}}}}
         local r=P.plan(f,c)
         check(r.gear=="Next Honey"and r.savingGearHoney,"Funded badge-locked Silver Soakers yields funding to next honey gear")
-        check(r.deferredRequirementGear["Silver Soakers"]=="Earn 10 Hotshot Badges"and r.gearQueues.A[1].id=="Silver Soakers","Locked gear stays queued with its exact requirement")
+        check(r.deferredRequirementGear["Silver Soakers"]=="Earn 10 Hotshot Badges"and #r.gearQueues.A==1 and r.gearQueues.A[1].id=="Next Honey","Locked Silver stays outside the queue with its exact requirement")
         check(r.reserveHoney==150000000,"Skipped locked gear does not retain an independent honey reservation")
         f.conditions.badges=true;r=P.plan(f,c)
         check(r.gear=="Silver Soakers"and r.action.kind=="buy-gear","Rechecked badge completion returns to affordable Silver Soakers")
         f.conditions.badges=false;f.honey=100
-        check(not P.plan(f,c).deferredRequirementGear["Silver Soakers"],"New deferral applies only when honey and actual materials are funded")
+        check(P.plan(f,c).deferredRequirementGear["Silver Soakers"]~=nil,"Unfunded but badge-locked gear is excluded too")
         f.honey=23871059;f.honeyReserve=2000000
-        check(not P.plan(f,c).deferredRequirementGear["Silver Soakers"],"User honey reserve remains part of funding admission")
+        check(P.plan(f,c).deferredRequirementGear["Silver Soakers"]~=nil,"Unlock admission remains separate from the honey reserve")
         f.honeyReserve=0;f.conditions.badges=nil;r=P.plan(f,c)
         check(r.gear=="Next Honey"and r.action.kind~="buy-gear","Unknown requirement never permits a purchase or blocks independent planning")
         P.stages={{gate=0,gear={"Locked Mat","Prep Mat"}}}
@@ -955,15 +955,36 @@ return function(P)
         f.honey=1000;f.inventory={Oil=1};f.conditions.badges=false;r=P.plan(f,c)
         check(r.gear=="Prep Mat"and r.materialFarmGear=="Prep Mat","Funded locked material gear yields to another recipe's preparation")
         f.discoveryPreparation=true;r=P.plan(f,c)
-        check(r.gear=="Prep Mat"and r.queueMaterialRequirements.Oil==1 and r.queueMaterialRequirements.BlueExtract==2,"Combined preparation skips locked anchor without discarding aggregate requirements")
+        check(r.gear=="Prep Mat"and not r.queueMaterialRequirements.Oil and r.queueMaterialRequirements.BlueExtract==2,"Combined preparation includes eligible queue targets only")
         f.discoveryPreparation=false;f.inventory.Oil=0;f.craft={item="Oil",count=1,ready=false};r=P.plan(f,c)
-        check(not r.deferredRequirementGear["Locked Mat"],"Queued material output does not count as funded inventory")
+        check(r.deferredRequirementGear["Locked Mat"]~=nil and #r.gearQueues.B==1,"Queued output cannot admit requirement-locked gear")
         f.craft=false;f.inventory={Oil=1,BlueExtract=2};c.gear["Prep Mat"].conditions={"badges"};r=P.plan(f,c)
         check(not r.gear and r.action.reason=="waiting-gear-unlocks"and r.optionalHiveAllowed,"All funded but locked gear yields safely to hive work")
         c.gear["Prep Mat"].conditions={};c.gear["Prep Mat"].shopAccess=false;r=P.plan(f,c)
         check(r.deferredRequirementGear["Prep Mat"]=="Shop entry requirements not met","Funded locked shops are deferred too")
         f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Unlock skipping preserves pending guard")
         f.pending=false;f.uncertain=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Unlock skipping preserves uncertain guard")
+        P.stages=stages
+    end
+    do
+        local stages=P.stages
+        P.stages={{gate=0,gear={"Locked Honey","Locked Material","H1","B1","H2","B2","H3","B3","H4","B4","H5","B5"}}}
+        local f=facts();f.gearQueues=true;f.honey=0;f.conditions.lock=false;f.conditions.open=true
+        local c={gear={["Locked Honey"]={honey=1,items={},conditions={"lock"}},["Locked Material"]={honey=1,items={Oil=1},conditions={"lock"}}}}
+        for i=1,5 do c.gear["H"..i]={honey=i*100,items={}};c.gear["B"..i]={honey=i*100,items={Blueberry=i}}end
+        local r=P.plan(f,c)
+        check(#r.gearQueues.A==5 and #r.gearQueues.B==5,"Locked items never consume queue capacity; later eligible gear fills all five slots")
+        check(r.gearQueues.A[1].id=="H1"and r.gearQueues.B[1].id=="B1","Both honey and material queue exclude locked items without needing funds")
+        f.conditions.lock=true;r=P.plan(f,c)
+        check(r.gearQueues.A[1].id=="Locked Honey"and #r.gearQueues.A==5,"Newly unlocked gear enters automatically and queue cap stays five")
+        f.conditions.lock=false;f.conditions["can-purchase:H1"]=false
+        c.gear.H1.conditions={"open","can-purchase:H1"};c.gear.H1.unlockConditions={"open"}
+        r=P.plan(f,c)
+        check(r.gearQueues.A[1].id=="H1","Unlocked gear remains queued when CanPurchase is false only because it lacks funds")
+        f.honey=100;r=P.plan(f,c)
+        check(r.gearQueues.A[1].id=="H2"and r.deferredRequirementGear.H1,"Funded residual purchase ineligibility is excluded safely")
+        f.conditions.lock=nil;r=P.plan(f,c)
+        check(r.deferredRequirementGear["Locked Honey"]=="Purchase requirements not verified","Unknown unlock evidence cannot admit a target")
         P.stages=stages
     end
     return {passed=passed}
