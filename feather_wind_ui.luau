@@ -71,6 +71,24 @@ function UI.describeGear(report)
     return table.concat(lines,"\n")
 end
 
+function UI.describeRouteGear(row,honey)
+    local lines={row.owned==true and "Owned / superseded" or row.current and "Current purchase target"
+        or row.owned==nil and "Ownership not yet known" or "Upcoming gear"}
+    if row.honey~=nil then
+        lines[#lines+1]="Honey  "..(honey and amount(honey) or "?").." / "..amount(row.honey)
+    else lines[#lines+1]="Cost unavailable in this server" end
+    if row.honey~=nil and #row.items==0 then lines[#lines+1]="No materials required" end
+    for _,item in ipairs(row.items) do
+        local missing=item.actual and math.max(0,item.required-item.actual)
+        lines[#lines+1]=item.item:gsub("(%l)(%u)","%1 %2").."  "..(item.actual and amount(item.actual) or "?")
+            .." / "..amount(item.required)..(missing and missing>0 and "  ("..amount(missing).." needed)" or "")
+    end
+    if row.owned~=true and (not row.hiveReady or row.shopAccess==false or row.requirementsMet==false) then
+        lines[#lines+1]="Entry or purchase requirements not met"
+    end
+    return table.concat(lines,"\n")
+end
+
 local jellyObjectives={
     ["Replacing normal Basic Bee"]="Replacing normal Basic bees",
     ["collector"]="Building the collector lineup",
@@ -172,9 +190,53 @@ function UI.mount(parent,overlay,version,callbacks)
         local overview=window:Tab({Title="Overview",Icon="activity"})
         local progression=window:Tab({Title="Progression",Icon="hexagon"})
         local statsTab=window:Tab({Title="Stats",Icon="chart-column"})
+        local routeTab,routeSummary,routeRows
+        local function showRoute()
+            local snapshot=callbacks.routeSnapshot and callbacks.routeSnapshot()
+            -- Game cost readers may lower this callback's thread identity.
+            -- Restore executor UI access before touching WindUI's protected layer.
+            local setIdentity=setthreadidentity or setidentity
+            if type(setIdentity)=="function" then setIdentity(8) end
+            if not routeTab then
+                routeRows={}
+                routeTab=window:Tab({Title="Route",Icon="route"})
+                routeTab:Button({Title="Back to Stats",Icon="arrow-left",Callback=function()statsTab:Select()end})
+                routeTab:Button({Title="Refresh route",Icon="refresh-cw",Callback=function()showRoute()end})
+                routeSummary=routeTab:Paragraph({Title="Progression route",Desc="Waiting for progression data..."})
+            end
+            if snapshot then
+                routeSummary:SetDesc("Current gear stage: "..tostring(snapshot.currentStage or (snapshot.complete and "Complete" or "Inspecting"))
+                    .." | Hive stage: "..tostring(snapshot.hiveStage or "Inspecting")
+                    .."\nCurrent target: "..tostring(snapshot.currentGear or (snapshot.complete and "Gear route complete" or "Inspecting"))
+                    .."\n"..tostring(snapshot.occupied or "?").." bees / "..tostring(snapshot.capacity or "?").." slots"
+                    .."\nReady queued gear can buy first. Values are from the latest cached player snapshot.")
+                for _,stageInfo in ipairs(snapshot.stages) do
+                    local key="stage"..stageInfo.index
+                    if not routeRows[key] then routeRows[key]=routeTab:Paragraph({Title="Stage "..stageInfo.index,Desc=""}) end
+                    routeRows[key]:SetTitle((stageInfo.index==snapshot.currentStage and "CURRENT · " or "").."Stage "..stageInfo.index)
+                    routeRows[key]:SetDesc((stageInfo.complete and "Complete" or "In progress / upcoming")
+                        ..(stageInfo.gate>0 and " · "..stageInfo.gate.." bees required" or " · No hive gate"))
+                    for _,row in ipairs(stageInfo.gear) do
+                        if not routeRows[row.id] then routeRows[row.id]=routeTab:Paragraph({Title=row.id,Desc=""}) end
+                        routeRows[row.id]:SetTitle((row.owned==true and "✓ " or row.current and "→ " or "")..row.id)
+                        routeRows[row.id]:SetDesc(UI.describeRouteGear(row,snapshot.honey))
+                    end
+                end
+            else routeSummary:SetDesc("Waiting for progression data. Use Refresh route once the game has loaded.") end
+            routeTab:Select()
+        end
+        statsTab:Button({Title="Progression route",Icon="route",Callback=showRoute})
         local giftedTypes=statsTab:Paragraph({Title="Different Gifted type",Desc="Waiting for discovery data..."})
         local mythicProgress=statsTab:Paragraph({Title="SSA discovery",Desc="Waiting for post-Star preparation"})
         local controls=window:Tab({Title="Controls",Icon="settings"})
+        local restarting=false
+        controls:Button({Title="Re-execute script",Icon="refresh-cw",Desc="Reload the latest source after a safe stop. Keeps paused accounts paused.",
+            Callback=function()
+                if restarting then return end
+                restarting=true
+                if callbacks.reexecute then callbacks.reexecute() end
+                restarting=false
+            end})
         controls:Slider({Title="Tween speed",Desc="1 = 10 studs/second; 6 = 60; 40 = 400. Updates active movement.",
             Step=1,Value={Min=1,Max=40,Default=callbacks.tweenSpeed()},Callback=callbacks.setTweenSpeed})
         local status=overview:Paragraph({Title="Starting",Desc="Preparing progression..."})

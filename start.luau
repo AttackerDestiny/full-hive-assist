@@ -1,29 +1,18 @@
--- Full Hive Assist loader v1.2.0. Loads the current main-branch bundle.
--- Feather's UI can open before Atlas. Existing FullHiveConfig options are preserved.
-local env = (type(getgenv) == "function" and getgenv()) or _G
-local function ready()
-    if env.FullHiveRunning then
-        warn("[Full Hive loader] Assist already running; left it unchanged")
-        return false
-    end
-    assert(not env.AutoGiftedStarRunning, "Another hive assist is running")
-    assert(not env.FullHivePending and not env.AutoHivePendingRequest,
-        "A previous hive request is pending; do not retry")
-    assert(not env.FullHiveUncertain,
-        "An earlier hive mutation needs reconciliation; do not retry")
-    return true
+-- Feather loader v1.3.0. Download and compile before a safe runtime handoff.
+local env=(type(getgenv)=="function" and getgenv()) or _G
+if env.FullHiveLoaderBusy or env.FullHiveReloadBusy then
+    warn("[Feather] A script reload is already in progress")
+    return
 end
-if not ready() then return end
-
-local compile = loadstring or load
-assert(type(compile) == "function", "Executor does not expose loadstring/load")
-local url = "https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/core.luau"
-local ok, source = pcall(function() return game:HttpGet(url) end)
-assert(ok, "Cannot download the current bundle from GitHub: " .. tostring(source))
-local header = "-- Full Hive Assist for Atlas / Arceus X Android / Potassium."
-assert(type(source) == "string" and source:sub(1, #header) == header,
-    "Downloaded content is not the Full Hive Assist bundle")
-local chunk, err = compile(source)
-assert(chunk, "Cannot compile Full Hive Assist: " .. tostring(err))
-if not ready() then return end -- HttpGet may yield while another workflow starts.
+env.FullHiveLoaderBusy=true
+local ok,chunk=pcall(function()
+    local compile=loadstring or load
+    assert(type(compile)=="function","Executor does not expose loadstring/load")
+    local source=game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/core.luau")
+    local header="-- Full Hive Assist for Atlas / Arceus X Android / Potassium."
+    assert(type(source)=="string" and source:sub(1,#header)==header,"Downloaded content is not the Feather bundle")
+    return assert(compile(source))
+end)
+env.FullHiveLoaderBusy=nil
+assert(ok,"Cannot load Feather: "..tostring(chunk))
 return chunk()

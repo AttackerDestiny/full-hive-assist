@@ -3,6 +3,10 @@
 return function(H)
     local P,env,report=H.Policy,H.env,H.Report
     local R={}
+    function R.route(s)
+        local facts,catalog=H.buildFacts(s,true)
+        return P.routeStatus(facts,catalog,P.plan(facts,catalog))
+    end
     local function read(s)
         local facts,catalog=H.buildFacts(s)
         local slot=catalog.hiveSlot

@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.93"
+local SCRIPT_VERSION = "1.8.95"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -142,14 +142,12 @@ end
 Config.PreserveUniqueGifted=false
 -- Speed remains actual studs/second for compatibility with saved configurations.
 Config.Speed=math.clamp(tonumber(Config.Speed) or 60,10,400)
-if env.FullHiveRunning then
-    warn("[Full Hive] Already running v"..tostring(env.FullHiveVersion or "unversioned").."; stop the old instance before loading v"..SCRIPT_VERSION)
-    return
-end
+local restartToken=FeatherRestart.prepare(env,os.clock,task.wait)
 assert(not env.AutoGiftedStarRunning, "Stop the other hive assist before starting Full Hive")
 assert(not env.AutoHivePendingRequest and not env.FullHivePending, "A previous server request is pending")
 assert(not env.FullHiveUncertain, "An earlier hive mutation needs reconciliation; do not retry")
 env.FullHiveRunning, env.FullHiveStop = true, false
+FeatherRestart.finish(env,restartToken)
 env.FullHiveVersion = SCRIPT_VERSION
 env.FullHivePreviousReport = env.FullHiveReport
 local Report = {Version=SCRIPT_VERSION, Phase="starting", Actions=0, RoyalJellyUsed=0, DryRun=Config.DryRun,StartedAt=os.time()}
@@ -1147,8 +1145,8 @@ local function initializeProgression()
         if type(tile.TimerStart)~="number" or type(tile.TimerDur)~="number" then return nil end
         return math.max(0,tile.TimerStart+tile.TimerDur-OsTime())
     end
-    local function buildFacts(s)
-        local facts,catalog=makeFacts(s)
+    local function buildFacts(s,includeRoute)
+        local facts,catalog=makeFacts(s,includeRoute)
         local cells,capacity=scan(s)
         facts.discoveryPreparation=MythicDiscovery.unlocked(StarState.read(s),s,cells,capacity,env.AutoGiftedStarReport)
         if background and (s.Eggs.Gold or 0)>0 then
@@ -2135,7 +2133,7 @@ local function readUIStatus()
         mythicDiscovery=pg.DiscoveryPreparation and not pg.QueueMaterialsReady and "Preparing combined gear materials"
             or Report.MythicDiscovery and (Report.MythicDiscovery.Reason or (Report.MythicDiscovery.Action.." · "..tostring(Report.MythicDiscovery.Type or ""))),
         phase=string.upper((Report.Stage or "inspect").."  |  "..(Report.Phase or "starting")),
-        activity=tostring(Report.Error or Report.CleanupError
+        activity=tostring(Report.RestartError or Report.Error or Report.CleanupError
             or (Report.PauseRequested and Report.Phase~="paused" and env.FullHiveRunning and "Pausing after the current action...")
             or Report.Activity or Report.Phase),
         progress=progress,gear=table.concat(lines,"\n"),
@@ -2185,6 +2183,22 @@ local function makeUI()
     local gui,parent=makeStatusGui()
     local openHive
     local wind,windError=FeatherWindUI.mount(parent,gui,SCRIPT_VERSION,{
+        routeSnapshot=function()
+            if not progression or not Cache then return nil end
+            local route=progression.route(Cache:Get())
+            route.hiveStage=Report.Stage
+            return route
+        end,
+        reexecute=function()
+            task.spawn(function()
+                local ok,why=pcall(function()
+                    assert(not env.FullHiveReloadBusy,"A restart is already in progress")
+                    local source=game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/start.luau")
+                    assert(compile(source))()
+                end)
+                if not ok then Report.RestartError=tostring(why);warn("[Feather restart] "..tostring(why)) end
+            end)
+        end,
         viewHive=function() if openHive then openHive() end end,
         assistEnabled=function() return not Report.PauseRequested end,
         setAssistEnabled=setAssistEnabled,

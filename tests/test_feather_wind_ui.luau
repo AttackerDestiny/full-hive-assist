@@ -23,13 +23,16 @@ return function(adapter)
         registered[tab.."/"..kind.."/"..config.Title]=row
         return row
     end
+    local uiAccess=true
     local window={UIElements={Main={}}}
     function window:Tab(config)
+        assert(uiAccess,"UI callback lost protected-layer access")
         return {
             Paragraph=function(_,args) return element(config.Title,"Paragraph",args) end,
             Button=function(_,args) return element(config.Title,"Button",args) end,
             Toggle=function(_,args) return element(config.Title,"Toggle",args) end,
             Slider=function(_,args) return element(config.Title,"Slider",args) end,
+            Select=function()window.selected=config.Title end,
         }
     end
     function window:DisableTopbarButtons(names) self.disabled=names end
@@ -39,10 +42,10 @@ return function(adapter)
     function wind:SetParent(parent) self.parent=parent end
     local fail=false
     local lastStage
-    local make=assert(loadstring("return function(loadFeatherWindUI,Instance,UDim2,Vector2,Color3,workspace)\n"..adapter.."\nend"))()
+    local make=assert(loadstring("return function(loadFeatherWindUI,Instance,UDim2,Vector2,Color3,workspace,setthreadidentity)\n"..adapter.."\nend"))()
     local UI=make(function(stage) if fail then error("unavailable") end; lastStage=stage; return wind end,
         {new=instance},{fromOffset=function(...) return {...} end,fromScale=function(...) return {...} end},
-        {new=function(...) return {...} end},{fromRGB=function(...) return {...} end},{})
+        {new=function(...) return {...} end},{fromRGB=function(...) return {...} end},{},function(identity)uiAccess=identity==8 end)
     local parent,overlay,button=instance(),instance(),instance()
     local types={Basic={ID=1},Cool={ID=2},Music={ID=3}}
     check(UI.giftedDiscoveryCount({DiscGiftTypes={1,"Basic",2,"Music"}},types)==3,"Discovery deduplicates names and IDs")
@@ -50,15 +53,33 @@ return function(adapter)
     check(UI.giftedDiscoveryCount({DiscGiftTypes={Cool=false,Unknown=true}},types)==0,"False and unknown types are excluded")
     check(UI.giftedDiscoveryCount({DiscGiftTypes={},Honeycomb={Basic={Gifted=true}}},types)==0,"Current hive does not replace discovery history")
     check(UI.giftedDiscoveryCount({},types)==nil,"Missing discovery data is not shown as zero")
-    local stop,view,tickets=0,0,true
+    local stop,view,tickets,restarts=0,0,true,0
+    local routeData={currentStage=2,currentGear="Mondo Belt Bag",hiveStage="early",occupied=25,capacity=25,honey=100,
+        stages={{index=2,gate=0,complete=false,gear={
+            {id="Mondo Belt Bag",current=true,items={{item="Oil",actual=1,required=3}},honey=1000,hiveReady=true},
+            {id="Beekeeper's Boots",owned=true,items={},honey=2000,hiveReady=true}}}}}
     local mounted=assert(UI.mount(parent,overlay,"test",{
         viewHive=function() view+=1 end,assistEnabled=function() return false end,
         setAssistEnabled=function(enabled) stop+=enabled and -1 or 1 end,
         ticketsEnabled=function() return tickets end,setTickets=function(v) tickets=v end,
         materialFarmEnabled=function() return false end,setMaterialFarm=function(v) registered.materialFarm=v end,
         tweenSpeed=function() return 6 end,setTweenSpeed=function(v) registered.speed=v end,
+        routeSnapshot=function()uiAccess=false;return routeData end,reexecute=function()restarts+=1 end,
     }))
     local ticketRow=registered["Controls/Toggle/Blender tickets"]
+    registered["Stats/Button/Progression route"].config.Callback()
+    check(window.selected=="Route","Stats button opens a scrolling WindUI route tab")
+    check(registered["Route/Paragraph/Progression route"].desc:find("Current gear stage: 2",1,true),"Route identifies current gear stage")
+    check(registered["Route/Paragraph/Mondo Belt Bag"].title=="→ Mondo Belt Bag","Current gear is highlighted")
+    check(registered["Route/Paragraph/Mondo Belt Bag"].desc:find("Oil  1 / 3  (2 needed)",1,true),"Route shows actual and required materials")
+    check(registered["Route/Paragraph/Beekeeper's Boots"].desc:find("Owned / superseded",1,true),"Owned route gear remains visible")
+    routeData.honey=200
+    registered["Route/Button/Refresh route"].config.Callback()
+    check(registered["Route/Paragraph/Mondo Belt Bag"].desc:find("Honey  200 / 1,000",1,true),"Refresh rereads cached route data")
+    registered["Route/Button/Back to Stats"].config.Callback()
+    check(window.selected=="Stats","Route can return to Stats")
+    registered["Controls/Button/Re-execute script"].config.Callback()
+    check(restarts==1 and stop==0,"Reload button dispatches only the safe restart callback")
     local speedRow=registered["Controls/Slider/Tween speed"]
     check(speedRow.config.Value.Min==1 and speedRow.config.Value.Max==40 and speedRow.config.Value.Default==6,"Tween speed slider bounds")
     speedRow.config.Callback(27)

@@ -207,5 +207,15 @@ return function(factory,Policy)
         now=6;build(s)
         check(perf.ShopIndexBuilds==2,"Physical shop discovery expires and rebuilds")
     end
+    do
+        local deps,s=fixture();s.owns.Clippers=true
+        local build=factory(deps)
+        local _,ordinary=build(s)
+        check(not ordinary.routeGear and not ordinary.gear.Clippers,"Normal planning does not quote owned gear")
+        local f,c=build(s,true)
+        check(f.ownedGear.Clippers and c.routeGear.Clippers.honey==100,"Route view quotes owned gear without changing ownership")
+        check(c.routeGear.Jar.honey==100 and c.gear.Jar.honey==100,"Route and planner share fresh unowned quotes")
+        check(not c.gear.Clippers,"Read-only owned quote never adds a planner target")
+    end
     return {passed=passed}
 end

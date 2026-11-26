@@ -884,4 +884,31 @@ function P.plan(facts,catalog)
     result.status=P.describe(result,type(facts)=="table" and facts or {},type(catalog)=="table" and catalog or {})
     return result
 end
+-- Read-only route snapshot; actual inventory and ownership never imply a spend.
+function P.routeStatus(facts,catalog,decision)
+    local result={stages={},complete=true,currentGear=decision.gear,currentStage=decision.stage,
+        honey=facts.honey,occupied=facts.occupied,capacity=facts.capacity}
+    for index,stage in ipairs(P.stages) do
+        local group={index=index,gate=stage.gate,gear={},complete=true}
+        for _,id in ipairs(stage.gear) do
+            local quote=(catalog.routeGear or catalog.gear or {})[id]
+            local owned=flag(facts.ownedGear,id,facts.ownedGearKnown)
+            if owned~=true then group.complete=false end
+            local row={id=id,owned=owned,current=id==decision.gear,items={},honey=quote and quote.honey,
+                hiveReady=(facts.occupied or 0)>=stage.gate and (facts.capacity or 0)>=stage.gate,
+                shopAccess=quote and quote.shopAccess,requirementsMet=quote and conditionState(quote.conditions,facts)}
+            if quote then
+                for _,item in ipairs(orderedKeys(quote.items,{})) do
+                    local actual=facts.inventory and facts.inventory[item]
+                    if actual==nil and facts.inventoryKnown then actual=0 end
+                    row.items[#row.items+1]={item=item,required=quote.items[item],actual=actual}
+                end
+            end
+            group.gear[#group.gear+1]=row
+        end
+        result.stages[#result.stages+1]=group
+        if not group.complete then result.complete=false end
+    end
+    return result
+end
 return P

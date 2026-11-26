@@ -777,5 +777,21 @@ return function(P)
         check(r.queueMaterialRequirements.Oil==3,"Queue totals refresh after gear ownership changes")
         P.stages=stages
     end
+    do
+        local f=facts();f.inventory.Oil=2;f.ownedGear.Clippers=true
+        local c={gear={Jar={honey=100,items={Oil=3},conditions={"open"}}},routeGear={
+            Clippers={honey=10,items={}},Jar={honey=100,items={Oil=3},conditions={"open"}}}}
+        f.conditions.open=false
+        local r=P.routeStatus(f,c,{gear="Jar",stage=1})
+        check(#r.stages==#P.stages and r.currentStage==1 and r.currentGear=="Jar","Route includes all configured stages and active queued target")
+        local clip,jar=r.stages[1].gear[1],r.stages[1].gear[2]
+        check(clip.owned and clip.honey==10,"Owned gear retains its available cost")
+        check(jar.current and jar.items[1].actual==2 and jar.items[1].required==3,"Route reports actual material progress")
+        check(jar.requirementsMet==false,"Unmet prerequisites are exposed")
+        check(not r.stages[1].complete and r.stages[2].gear[1].honey==nil,"Unknown prices remain unknown")
+        check(f.inventory.Oil==2 and not f.pending,"Route generation never consumes or requests")
+        f.inventory.Oil=3;f.conditions.open=true
+        check(P.routeStatus(f,c,{gear="Jar",stage=1}).stages[1].gear[2].items[1].actual==3,"Refreshed snapshot follows actual inventory")
+    end
     return {passed=passed}
 end

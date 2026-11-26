@@ -9,6 +9,7 @@ try {
     if (-not $RuntimePath) { $RuntimePath=Join-Path $PSScriptRoot 'full_hive_runtime.luau' }
     $policy = Get-Content -LiteralPath $PolicyPath -Raw
     $runtime = Get-Content -LiteralPath $RuntimePath -Raw
+    $restartSource = Get-Content -LiteralPath feather_restart.luau -Raw
     $hiveView = Get-Content -LiteralPath hive_view_ui.luau -Raw
     $theme = Get-Content -LiteralPath feather_theme.luau -Raw
     $progressionPolicy = Get-Content -LiteralPath progression_policy.luau -Raw
@@ -61,6 +62,7 @@ try {
     $progressionSources="local FeatherSettings = (function()`n$settingsSource`nend)()`n"+$progressionSources
     $progressionSources="local MythicDiscovery = (function()`n$mythicSource`nend)()`n"+$progressionSources
     $progressionSources="local atlasCallbackValues = (function()`n$atlasCallbackValues`nend)()`n"+$progressionSources
+    $progressionSources="local FeatherRestart = (function()`n$restartSource`nend)()`n"+$progressionSources
     if ([version]$version -ge [version]'1.8.0') {
         $windSources = & "$PSScriptRoot/build_feather_windui.ps1"
     }

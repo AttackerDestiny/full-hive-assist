@@ -155,7 +155,7 @@ return function(deps)
         {"Brave Guard","Blue Guard","Elite Blue Guard","Bucko Guard","Cobalt Guard"},
         {"Looker Guard","Red Guard","Elite Red Guard","Riley Guard","Crimson Guard"},
     }
-    return function(s)
+    return function(s,includeRoute)
         -- Ownership/funds/requirements are fresh per snapshot; only immutable
         -- physical shop discovery and repeated reads within this build reuse data.
         ownershipMemo={}
@@ -163,6 +163,7 @@ return function(deps)
             honeyReserve=finite(deps.HoneyReserve or 0) and math.ceil(deps.HoneyReserve or 0) or nil,inventory={},conditions={},ownedGear={},
             redeemedCodes={},inventoryKnown=type(s.Eggs)=="table",codesKnown=type(s.Codes)=="table",craft=nil}
         local catalog={gear={},recipes={},useSuppliedRecipes=false,packs={},purchases={},sources={}}
+        if includeRoute then catalog.routeGear={} end
         if type(s.Eggs)=="table" then for id,n in pairs(s.Eggs) do facts.inventory[id]=n end end
         -- Starter saves omit Codes until their first redemption. Only accept
         -- that omission from a complete player snapshot, never partial data.
@@ -215,10 +216,11 @@ return function(deps)
                 local owned=knownOwnership(entry.package,s)
                 if facts.ownedGear[id]==true then owned=true end
                 facts.ownedGear[id]=owned
-                if not owned then
+                if not owned or includeRoute then
                     local gear=descriptor(entry,s,facts,id,"Honey")
                     if gear and deps.ShopAccess then gear.shopAccess=deps.ShopAccess(entry.shopName,s) end
-                    catalog.gear[id]=gear
+                    if not owned then catalog.gear[id]=gear end
+                    if includeRoute then catalog.routeGear[id]=gear end
                 end
             end
         end end
