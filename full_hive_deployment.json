@@ -3289,83 +3289,83 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.95",
+    "version": "1.8.96",
     "bundle": "core.luau",
-    "sha256": "5f5b045bacd3f3b54df3a228a9eaa438fed58342aecda0577fb8ca7ea5aafa01",
-    "deployedNormalizedUTF8Sha256": "1267950a27f8adc9a8e4f54859654f112de64dedbe29a0bc21df12f10301abbc",
+    "sha256": "d21a44a128e2f6f9bbaecba58c3e1aa90e1f9a981bec0f8ff5713fbc06e7fc78",
+    "deployedNormalizedUTF8Sha256": "9fad8b8a952966f53463bae63c9fe5983b9d6aae3c7347554abb5f30dd573d59",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795694608,
+        "startedAt": 1795694831,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795694608,
+        "startedAt": 1795694840,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795694610,
+        "startedAt": 1795694840,
         "running": true,
         "paused": false
       }
     ],
-    "offlineChecks": 4923,
-    "connectedChecks": 4921,
+    "offlineChecks": 4925,
+    "connectedChecks": 4923,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
       "currentStage": 6,
       "currentGear": "Diamond Mask"
     },
-    "restartChecks": 30,
+    "restartChecks": 32,
     "naturalRemoteLoaderButtonRestartObserved": false
   },
   "latestCandidate": {
-    "version": "1.8.95",
+    "version": "1.8.96",
     "bundle": "core.luau",
-    "sha256": "5f5b045bacd3f3b54df3a228a9eaa438fed58342aecda0577fb8ca7ea5aafa01",
-    "deployedNormalizedUTF8Sha256": "1267950a27f8adc9a8e4f54859654f112de64dedbe29a0bc21df12f10301abbc",
+    "sha256": "d21a44a128e2f6f9bbaecba58c3e1aa90e1f9a981bec0f8ff5713fbc06e7fc78",
+    "deployedNormalizedUTF8Sha256": "9fad8b8a952966f53463bae63c9fe5983b9d6aae3c7347554abb5f30dd573d59",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795694608,
+        "startedAt": 1795694831,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795694608,
+        "startedAt": 1795694840,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795694610,
+        "startedAt": 1795694840,
         "running": true,
         "paused": false
       }
     ],
-    "offlineChecks": 4923,
-    "connectedChecks": 4921,
+    "offlineChecks": 4925,
+    "connectedChecks": 4923,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
       "currentStage": 6,
       "currentGear": "Diamond Mask"
     },
-    "restartChecks": 30,
+    "restartChecks": 32,
     "naturalRemoteLoaderButtonRestartObserved": false
   }
 }

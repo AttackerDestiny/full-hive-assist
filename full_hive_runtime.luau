@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.95"
+local SCRIPT_VERSION = "1.8.96"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -2193,7 +2193,7 @@ local function makeUI()
             task.spawn(function()
                 local ok,why=pcall(function()
                     assert(not env.FullHiveReloadBusy,"A restart is already in progress")
-                    local source=game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/start.luau")
+                    local source=game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/start.luau?reload="..tostring(os.time()))
                     assert(compile(source))()
                 end)
                 if not ok then Report.RestartError=tostring(why);warn("[Feather restart] "..tostring(why)) end
