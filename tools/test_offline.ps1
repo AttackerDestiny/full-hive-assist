@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$LuauPath = $env:LUAU_PATH,
     [ValidateSet('test_full_hive_policy.luau','test_character_recovery.luau','test_collector_recovery.luau','test_jelly_batch.luau','test_star_jelly.luau','tests/test_star_preflight_offline.luau','tests/test_final_occupancy_offline.luau','tests/test_star_progress_offline.luau','tests/test_connected_review_offline.luau','tests/test_failsafe_only_recovery.luau','tests/test_final_baby_quota.luau','tests/test_auto_progression.luau','tests/test_progression_facts.luau','tests/test_progression_funds.luau','tests/test_progression_hatch_receipt.luau','tests/test_progression_blender_receipt.luau','tests/test_amulet_policy.luau','tests/test_quest_assist_policy.luau')]
     [string[]]$Suites = @('test_full_hive_policy.luau','test_character_recovery.luau','test_collector_recovery.luau','test_jelly_batch.luau','test_star_jelly.luau','tests/test_star_preflight_offline.luau','tests/test_final_occupancy_offline.luau','tests/test_star_progress_offline.luau','tests/test_connected_review_offline.luau','tests/test_failsafe_only_recovery.luau','tests/test_final_baby_quota.luau','tests/test_auto_progression.luau','tests/test_progression_facts.luau','tests/test_progression_funds.luau','tests/test_progression_hatch_receipt.luau','tests/test_progression_blender_receipt.luau','tests/test_amulet_policy.luau','tests/test_quest_assist_policy.luau')
@@ -43,6 +43,7 @@ try {
         $code+='do local m=compile('+(Literal 'mythic_discovery.luau')+')();local t=compile('+(Literal 'tests/test_mythic_discovery.luau')+')();local r=t(m);total+=r.passed;print("tests/test_mythic_discovery.luau",r.passed)end'+"`n"
         $code+='do local m=compile('+(Literal 'mythic_discovery.luau')+')();local t=compile('+(Literal 'tests/test_mythic_runtime.luau')+')();local r=t(runtime,m);total+=r.passed;print("tests/test_mythic_runtime.luau",r.passed)end'+"`n"
     }
+    $code+='do local t=compile('+(Literal 'tests/test_roll_atlas_lease.luau')+')();local r=t('+(Literal 'background_runtime.luau')+',runtime);total+=r.passed;print("tests/test_roll_atlas_lease.luau",r.passed)end'+"`n"
     $code+='print("OFFLINE PASS",total)'+"`n"
     [IO.File]::WriteAllText($taskScript,$code,[Text.UTF8Encoding]::new($false))
     & $LuauPath $taskScript

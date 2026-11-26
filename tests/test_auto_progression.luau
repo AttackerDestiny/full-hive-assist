@@ -103,7 +103,7 @@ return function(P)
         check(P.nextGear(f)==nil,"Unknown catch-up ownership cannot be treated as missing or skipped")
         local route=P.stages[6].gear
         local at=table.find(route,"Petal Belt")
-        check(route[at+1]=="Pesticide Planter" and route[at+2]=="Coconut Canister","Pesticide Planter follows Petal Belt before Coconut Canister")
+        check(route[at+1]=="Coconut Canister" and route[at+2]=="The Supreme Saturator" and route[at+3]=="Pesticide Planter","Pesticide Planter follows Supreme Saturator")
     end
     do
         local f=facts()

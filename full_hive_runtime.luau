@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.90"
+local SCRIPT_VERSION = "1.8.91"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -808,6 +808,7 @@ local function restoreSettingsDirect(desired)
     error("Roll settings cleanup did not synchronize",0)
 end
 local function release()
+    Report.RollLeaseHeld=false
     if cleanupMove then cleanupMove(); cleanupMove=nil end
     local shouldRestore=leased or Report.AtlasPaused==true or atlasState==true or env.FullHiveAtlasOwned==true
     if not shouldRestore then return end
@@ -826,6 +827,16 @@ local function release()
     env.FullHiveStop=stop
     leased=false
     if #errors>0 then Report.CleanupError=table.concat(errors,"; "); warn("[Full Hive] Cleanup: "..Report.CleanupError) end
+end
+local function releaseIdle()
+    if leased and (rollTask or basicLock) and not env.FullHiveStop and not Report.PauseRequested
+        and not env.FullHivePending and not env.AutoHivePendingRequest
+        and not env.FullHiveUncertain and not env.AutoHiveUncertain
+        and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning and not Report.CleanupError then
+        Report.RollLeaseHeld=true
+        return
+    end
+    release()
 end
 local function scan(s)
     return Policy.snapshot(s,Types)
@@ -1190,7 +1201,7 @@ local function initializeProgression()
         BlenderReceipt=ProgressionBlenderReceipt,
         env=env,Report=Report,Config=Config,Events=Events,
         Packages=Packages,Recipes=Recipes,Reqs=Reqs,buildFacts=buildFacts,nectarSeconds=nectarSeconds,OsTime=OsTime,
-        checkStop=checkStop,refresh=refresh,invoke=invoke,move=move,near=near,release=release,
+        checkStop=checkStop,refresh=refresh,invoke=invoke,move=move,near=near,release=releaseIdle,
         invokeHatch=function(before,x,y,item)
             return invokeRequest(Events.ConstructHiveCellFromEgg,before,x,y,item,1,false)
         end,
@@ -1211,7 +1222,7 @@ local function initializeProgression()
         background=createBackground({AmuletPolicy=AmuletPolicy,QuestPolicy=QuestAssistPolicy,
             env=env,Report=Report,Config=Config,RS=RS,player=player,load=loadModule,
             Events=Events,Reqs=Reqs,Packages=Packages,Funds=ProgressionFunds,
-            checkStop=checkStop,refresh=refresh,invoke=invoke,move=move,near=near,release=release,
+            checkStop=checkStop,refresh=refresh,invoke=invoke,move=move,near=near,release=releaseIdle,
             assertAtlasPaused=assertAtlasPaused,scan=scan,hiveFloor=hiveFloor,
             honeyReserve=hiveHoneyReserve,
             shopFloor=function(name)return shopFloor(name)end,

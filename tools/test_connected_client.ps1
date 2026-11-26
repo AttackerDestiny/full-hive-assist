@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)][string]$ClientId,[string]$BundlePath,[switch]$CheckFinalBabyQuota,[string]$TestFilePath)
+﻿param([Parameter(Mandatory=$true)][string]$ClientId,[string]$BundlePath,[switch]$CheckFinalBabyQuota,[string]$TestFilePath)
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
 if (-not $BundlePath) { $BundlePath=Join-Path $project 'core.luau' }
@@ -102,6 +102,12 @@ if ($atlasValuesSource) {
     $atlasValuesTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_atlas_callback_values.luau') -Raw
     $code+='local atlasValuesOK,atlasValuesResult=pcall(assert(loadstring([======['+$atlasValuesTests+']======]))(),assert(loadstring([======['+$atlasValuesSource+']======]))());'
 } else { $code+='local atlasValuesOK,atlasValuesResult=true,{notApplicable=true};' }
+if ([version]$versionMatch.Groups[1].Value -ge [version]'1.8.91') {
+    $backgroundSource=[regex]::Match($bundle,'local createBackground = \(function\(\)\n(.*?)\nend\)\(\)\n',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
+    if (-not $backgroundSource) { throw 'Cannot locate bundled background runtime' }
+    $leaseTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_roll_atlas_lease.luau') -Raw
+    $code+='local rollLeaseOK,rollLeaseResult=pcall(assert(loadstring([======['+$leaseTests+']======]))(),[======['+$backgroundSource+']======],runtime);'
+} else { $code+='local rollLeaseOK,rollLeaseResult=true,{notApplicable=true};' }
 $code += @'
 local main,mainError=loadstring(bundle)
 local embedded=assert(bundle:match("local StarEggSource = %[%=%=%=%=%[(.-)%]%=%=%=%=%]"))
@@ -137,9 +143,9 @@ local blenderReceiptOK,blenderReceiptResult=true,{notApplicable=true}
 if hasBlenderReceipt then blenderReceiptOK,blenderReceiptResult=pcall(assert(loadstring(blenderReceiptTests))(),assert(loadstring(blenderReceipt))()) end
 local amuletOK,amuletResult,questOK,questResult=true,{notApplicable=true},true,{notApplicable=true}
 if hasBackground then amuletOK,amuletResult=pcall(assert(loadstring(amuletTests))(),assert(loadstring(amulets))());questOK,questResult=pcall(assert(loadstring(questTests))(),assert(loadstring(quests))()) end
-return {allPassed=mythicRuntimeOK and mythicOK and settingsOK and atlasValuesOK and materialFarmOK and main~=nil and star~=nil and policyOK and recoveryOK and collectorOK and batchOK and starJellyOK
+return {allPassed=rollLeaseOK and mythicRuntimeOK and mythicOK and settingsOK and atlasValuesOK and materialFarmOK and main~=nil and star~=nil and policyOK and recoveryOK and collectorOK and batchOK and starJellyOK
     and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK and finalBabyOK and progressionOK and progressionFactsOK and fundsOK and hatchReceiptOK and blenderReceiptOK and amuletOK and questOK,
-    mythicRuntime={ok=mythicRuntimeOK,result=mythicRuntimeResult},mythic={ok=mythicOK,result=mythicResult},settings={ok=settingsOK,result=settingsResult},atlasValues={ok=atlasValuesOK,result=atlasValuesResult},materialFarm={ok=materialFarmOK,result=materialFarmResult},main=main~=nil,mainError=mainError,embeddedStar=star~=nil,starError=starError,
+    rollLease={ok=rollLeaseOK,result=rollLeaseResult},mythicRuntime={ok=mythicRuntimeOK,result=mythicRuntimeResult},mythic={ok=mythicOK,result=mythicResult},settings={ok=settingsOK,result=settingsResult},atlasValues={ok=atlasValuesOK,result=atlasValuesResult},materialFarm={ok=materialFarmOK,result=materialFarmResult},main=main~=nil,mainError=mainError,embeddedStar=star~=nil,starError=starError,
     policy={ok=policyOK,result=policyResult},recovery={ok=recoveryOK,result=recoveryResult},collector={ok=collectorOK,result=collectorResult},batch={ok=batchOK,result=batchResult},starJelly={ok=starJellyOK,result=starJellyResult},
     starPreflight={ok=starPreflightOK,result=starPreflightResult},starProgress={ok=starProgressOK,result=starProgressResult},
     finalOccupancy={ok=finalOccupancyOK,result=finalOccupancyResult},connectedReview={ok=connectedReviewOK,result=connectedReviewResult},failsafeOnly={ok=failsafeOnlyOK,result=failsafeOnlyResult},finalBaby={ok=finalBabyOK,result=finalBabyResult},

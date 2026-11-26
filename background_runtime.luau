@@ -371,7 +371,12 @@ return function(H)
             if not A.moonGood(A.read((s.Amulets or{}).Moon))and(s.Eggs.MoonCharm or 0)>=100+(res.MoonCharm or 0)then
                 if generate("Moon Amulet Generator",s,{category="Eggs",amount=100})then return true end
             end
-            if target then H.release();return false end
+            if target then
+                -- A passive savings check must not release the rolling worker's
+                -- lease. Its completion/funding wait/stop paths own that release.
+                if not env.FullHiveRollTask and not env.FullHiveBasicLock then H.release() end
+                return false
+            end
         end
         if H.Config.AutoQuestAssist then
             for _,a in ipairs(quests)do if a.mode~="own" and assistQuest(a,s)then return true end end
