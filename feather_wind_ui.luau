@@ -29,7 +29,7 @@ function UI.describeSlot(slots,price)
     return "Slot "..(slots+1).." · "..(price and amount(price).." honey" or "Price unavailable")
 end
 
-function UI.describeGear(report)
+function UI.describeGear(report,requirementsOnly)
     if not report.Gear then
         if report.AllMaterialDeferred then return "Material targets are waiting for drops.\nHive progression continues.\nSee Progression for missing materials."end
         return report.Reason=="ordered-gear-complete" and "Gear route complete" or "Inspecting gear..."
@@ -56,7 +56,7 @@ function UI.describeGear(report)
         if row.deficit and row.deficit>0 then line=line.."  ("..amount(row.deficit).." needed)" end
         lines[#lines+1]=line
     end
-    if report.GearQueues then
+    if report.GearQueues and not requirementsOnly then
         lines[#lines+1]="Queues · "..#(report.GearQueues.A or {}).." honey / "..#(report.GearQueues.B or {}).." material"
         if report.MaterialFarmGear then lines[#lines+1]="Material prep: "..report.MaterialFarmGear
         elseif report.AllMaterialDeferred then lines[#lines+1]="Material prep: waiting for drops"end

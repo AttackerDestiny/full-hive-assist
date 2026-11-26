@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.101"
+local SCRIPT_VERSION = "1.8.102"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -2107,16 +2107,10 @@ local function readUIStatus()
     local title=pg.Gear and ("Target: "..pg.Gear) or pg.AllMaterialDeferred and "Waiting for material drops" or "Gear route complete"
     local lines={title}
     lines[#lines+1]=status.label or pg.Reason or pg.Action or "Inspecting gear"
-    local counts={}
-    local names={BlueExtract="Blue Extract",RedExtract="Red Extract",ComfortingVial="Comforting Vial"}
-    for _,row in ipairs(status.materials or {}) do
-        if (row.actual or 0)<row.required then
-            local count=(names[row.item] or row.item).." "..tostring(row.actual or 0).."/"..row.required
-            if (row.queued or 0)>0 then count=count.." (+"..row.queued.." crafting)" end
-            counts[#counts+1]=count
-        end
+    if pg.Gear then
+        local requirements=FeatherWindUI.describeGear(pg,true):match("^[^\n]*\n(.*)$")
+        if requirements then lines[#lines+1]=requirements end
     end
-    if #counts>0 then lines[#lines+1]=table.concat(counts,", ") end
     if pg.FundsRequired and(pg.MissingRJ or pg.RequiredTickets)then
         local function money(n)
             if n>=1000000000 then return string.format("%.2fB",n/1000000000) end
