@@ -894,7 +894,7 @@ function P.routeStatus(facts,catalog,decision)
             local quote=(catalog.routeGear or catalog.gear or {})[id]
             local owned=flag(facts.ownedGear,id,facts.ownedGearKnown)
             if owned~=true then group.complete=false end
-            local row={id=id,owned=owned,current=id==decision.gear,items={},honey=quote and quote.honey,
+            local row={id=id,owned=owned,current=id==decision.gear,items={},honey=quote and quote.honey,icon=quote and quote.icon,model=quote and quote.model,
                 hiveReady=(facts.occupied or 0)>=stage.gate and (facts.capacity or 0)>=stage.gate,
                 shopAccess=quote and quote.shopAccess,requirementsMet=quote and conditionState(quote.conditions,facts)}
             if quote then

@@ -45,8 +45,8 @@ return function(R,loader)
         e={FullHiveRunning=true}
         local downloadFail=false
         local make=assert(loadstring("return function(getgenv,game,loadstring,warn) "..loader.." end"))()
-        local game={HttpGet=function(_,url)
-            check(url:find("core.luau?reload=",1,true)~=nil,"Bundle download bypasses stale executor URL cache")
+        local game={HttpGet=function(_,url,bypass)
+            check(url:find("core.luau?reload=",1,true)~=nil and bypass==true,"Bundle download bypasses stale executor URL cache")
             downloads+=1
             if downloadFail then error("offline")end
             return "-- Full Hive Assist for Atlas / Arceus X Android / Potassium. mock"

@@ -225,7 +225,9 @@ function UI.mount(parent,overlay,version,callbacks)
             else routeSummary:SetDesc("Waiting for progression data. Use Refresh route once the game has loaded.") end
             routeTab:Select()
         end
-        statsTab:Button({Title="Progression route",Icon="route",Callback=showRoute})
+        statsTab:Button({Title="Progression route",Icon="route",Callback=function()
+            if callbacks.viewRoute then callbacks.viewRoute() else showRoute() end
+        end})
         local giftedTypes=statsTab:Paragraph({Title="Different Gifted type",Desc="Waiting for discovery data..."})
         local mythicProgress=statsTab:Paragraph({Title="SSA discovery",Desc="Waiting for post-Star preparation"})
         local controls=window:Tab({Title="Controls",Icon="settings"})
@@ -281,6 +283,7 @@ function UI.mount(parent,overlay,version,callbacks)
         end
         return {
             showWindow=showWindow,
+            openRouteList=showRoute,
             syncVisibility=syncVisibility,
             render=function(state)
                 update(status,"SetTitle","phase",state.phase)

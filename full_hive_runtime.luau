@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.96"
+local SCRIPT_VERSION = "1.8.98"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1137,6 +1137,18 @@ local function initializeProgression()
         Hive=hive,HoneyReserve=Config.HoneyReserve,UseBlenderTickets=function() return Config.UseBlenderTickets end,
         Uncertain=function() return env.FullHiveUncertain end,
         ShopAccess=shopAccess,
+        PreviewModel=function(package)
+            local definition
+            if package.Category=="Accessory" then definition=Accessories.Get(package.Type)
+            elseif package.Category=="Collector" then
+                local folder=RS:FindFirstChild("CollectorModels")
+                return folder and folder:FindFirstChild(package.Type)
+            elseif package.Category=="Sprinkler" then
+                local module=RS:FindFirstChild("Sprinklers")
+                if module then definition=loadModule(module).Get(package.Type) end
+            end
+            return definition and definition.Model
+        end,
     })
     local buffTiles=loadModule(waitForChild(waitForChild(waitForChild(RS,"Gui"),"TileDisplay"),"BuffTile"))
     local function nectarSeconds(name)
@@ -2181,19 +2193,20 @@ local function hiveSnapshot()
 end
 local function makeUI()
     local gui,parent=makeStatusGui()
-    local openHive
+    local openHive,openRoute
+    local function routeSnapshot()
+        if not progression or not Cache then return nil end
+        local route=progression.route(Cache:Get());route.hiveStage=Report.Stage
+        return route
+    end
     local wind,windError=FeatherWindUI.mount(parent,gui,SCRIPT_VERSION,{
-        routeSnapshot=function()
-            if not progression or not Cache then return nil end
-            local route=progression.route(Cache:Get())
-            route.hiveStage=Report.Stage
-            return route
-        end,
+        routeSnapshot=routeSnapshot,
+        viewRoute=function()if openRoute then openRoute()end end,
         reexecute=function()
             task.spawn(function()
                 local ok,why=pcall(function()
                     assert(not env.FullHiveReloadBusy,"A restart is already in progress")
-                    local source=game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/start.luau?reload="..tostring(os.time()))
+                    local source=game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/start.luau?reload="..tostring(os.time()),true)
                     assert(compile(source))()
                 end)
                 if not ok then Report.RestartError=tostring(why);warn("[Feather restart] "..tostring(why)) end
@@ -2221,6 +2234,7 @@ local function makeUI()
     if wind then
         gui:SetAttribute("FeatherRenderer","WindUI")
         openHive=createHiveView(gui,wind.showWindow,nil,hiveSnapshot)
+        openRoute=createRouteDashboard.mount(gui,wind.showWindow,routeSnapshot,FeatherWindUI.describeRouteGear,wind.openRouteList)
         FeatherWindUI.mountToggle(parent,gui,wind.syncVisibility)
         watchUI(gui,wind.render)
     else

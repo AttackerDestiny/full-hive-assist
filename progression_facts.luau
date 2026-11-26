@@ -220,7 +220,17 @@ return function(deps)
                     local gear=descriptor(entry,s,facts,id,"Honey")
                     if gear and deps.ShopAccess then gear.shopAccess=deps.ShopAccess(entry.shopName,s) end
                     if not owned then catalog.gear[id]=gear end
-                    if includeRoute then catalog.routeGear[id]=gear end
+                    if includeRoute then
+                        if gear then
+                            local icon,known=call(deps.Packages,"Icon",entry.package,s)
+                            if known and type(icon)=="string" then gear.icon=icon end
+                            if deps.PreviewModel then
+                                local ok,model=pcall(deps.PreviewModel,entry.package)
+                                if ok then gear.model=model end
+                            end
+                        end
+                        catalog.routeGear[id]=gear
+                    end
                 end
             end
         end end

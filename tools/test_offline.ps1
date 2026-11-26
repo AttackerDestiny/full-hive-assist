@@ -45,6 +45,7 @@ try {
     }
     $code+='do local t=compile('+(Literal 'tests/test_roll_atlas_lease.luau')+')();local r=t('+(Literal 'background_runtime.luau')+',runtime);total+=r.passed;print("tests/test_roll_atlas_lease.luau",r.passed)end'+"`n"
     $code+='do local m=compile('+(Literal 'feather_restart.luau')+')();local t=compile('+(Literal 'tests/test_feather_restart.luau')+')();local r=t(m,'+(Literal 'start.luau')+');total+=r.passed;print("tests/test_feather_restart.luau",r.passed)end'+"`n"
+    $code+='do local m=compile('+(Literal 'route_dashboard.luau')+')();local t=compile('+(Literal 'tests/test_route_dashboard.luau')+')();local r=t(m,Progression);total+=r.passed;print("tests/test_route_dashboard.luau",r.passed)end'+"`n"
     $code+='print("OFFLINE PASS",total)'+"`n"
     [IO.File]::WriteAllText($taskScript,$code,[Text.UTF8Encoding]::new($false))
     & $LuauPath $taskScript

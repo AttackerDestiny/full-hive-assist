@@ -8,7 +8,7 @@ env.FullHiveLoaderBusy=true
 local ok,chunk=pcall(function()
     local compile=loadstring or load
     assert(type(compile)=="function","Executor does not expose loadstring/load")
-    local source=game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/core.luau?reload="..tostring(os.time()))
+    local source=game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/core.luau?reload="..tostring(os.time()),true)
     local header="-- Full Hive Assist for Atlas / Arceus X Android / Potassium."
     assert(type(source)=="string" and source:sub(1,#header)==header,"Downloaded content is not the Feather bundle")
     return assert(compile(source))

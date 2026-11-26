@@ -209,13 +209,18 @@ return function(factory,Policy)
     end
     do
         local deps,s=fixture();s.owns.Clippers=true
+        local model={};local previews=0
+        deps.PreviewModel=function()previews+=1;return model end
+        deps.Packages.Icon=function()return "rbxassetid://123"end
         local build=factory(deps)
         local _,ordinary=build(s)
         check(not ordinary.routeGear and not ordinary.gear.Clippers,"Normal planning does not quote owned gear")
+        check(previews==0,"Normal planning never clones or requests gear previews")
         local f,c=build(s,true)
         check(f.ownedGear.Clippers and c.routeGear.Clippers.honey==100,"Route view quotes owned gear without changing ownership")
         check(c.routeGear.Jar.honey==100 and c.gear.Jar.honey==100,"Route and planner share fresh unowned quotes")
         check(not c.gear.Clippers,"Read-only owned quote never adds a planner target")
+        check(c.routeGear.Clippers.icon=="rbxassetid://123"and c.routeGear.Clippers.model==model,"Route carries cached game art and model references")
     end
     return {passed=passed}
 end
