@@ -3289,45 +3289,48 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.108",
+    "version": "1.8.109",
     "bundle": "core.luau",
-    "sha256": "0636a18cb85293e416200c9725aed5f71b5edb697bd40bebedc2380f9b712901",
-    "deployedNormalizedUTF8Sha256": "bf7a02efefbc60736906e2ffde5933643cf475dd6714a55905f4b22c4a404806",
+    "sha256": "526390826c42d5a27dfa7cd4be8f204dc343696519be13e2cf53367337b8d2cb",
+    "deployedNormalizedUTF8Sha256": "841e8bb1965da1c0f79c064bc2ecd24a3c2347baef808a06caf265ce9eca441b",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
-        "version": "1.8.108",
-        "startedAt": 1795700551,
+        "version": "1.8.109",
+        "startedAt": 1795701327,
         "running": true,
         "paused": false,
         "uiVerified": true,
-        "actualAtlasStopEverything": false,
-        "savingCraftingJelly": true
+        "savingCraftingJelly": true,
+        "craftingJellyRequired": 1430,
+        "craftingJellyMissing": 1386
       },
       {
         "account": "QuackAltear5",
-        "version": "1.8.108",
-        "startedAt": 1795700520,
+        "version": "1.8.109",
+        "startedAt": 1795701311,
         "running": true,
         "paused": false,
         "uiVerified": true,
-        "actualAtlasStopEverything": false,
-        "savingCraftingJelly": true
+        "savingCraftingJelly": true,
+        "craftingJellyRequired": 1320,
+        "craftingJellyMissing": 886
       },
       {
         "account": "QuackAltear06",
-        "version": "1.8.108",
-        "startedAt": 1795700505,
+        "version": "1.8.109",
+        "startedAt": 1795701309,
         "running": true,
         "paused": false,
         "uiVerified": true,
-        "actualAtlasStopEverything": false,
-        "savingCraftingJelly": true
+        "savingCraftingJelly": true,
+        "craftingJellyRequired": 1390,
+        "craftingJellyMissing": 779
       }
     ],
-    "offlineChecks": 6771,
-    "connectedChecks": 6765,
+    "offlineChecks": 6785,
+    "connectedChecks": 6779,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3355,7 +3358,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 451,
+    "progressionChecks": 465,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3389,48 +3392,55 @@
     "actionableQueueCrafting": true,
     "reservedTargetRetirement": true,
     "naturalReservedTargetTransitionObserved": false,
-    "naturalCrossQueueCraftPurchaseObserved": false
+    "naturalCrossQueueCraftPurchaseObserved": false,
+    "craftFundingBeforeHoneyQueue": true,
+    "independentRecipeInventory": true,
+    "naturalOfflineScreenshotAccountVerified": false,
+    "naturalCraftPurchaseAfterFixObserved": false
   },
   "latestCandidate": {
-    "version": "1.8.108",
+    "version": "1.8.109",
     "bundle": "core.luau",
-    "sha256": "0636a18cb85293e416200c9725aed5f71b5edb697bd40bebedc2380f9b712901",
-    "deployedNormalizedUTF8Sha256": "bf7a02efefbc60736906e2ffde5933643cf475dd6714a55905f4b22c4a404806",
+    "sha256": "526390826c42d5a27dfa7cd4be8f204dc343696519be13e2cf53367337b8d2cb",
+    "deployedNormalizedUTF8Sha256": "841e8bb1965da1c0f79c064bc2ecd24a3c2347baef808a06caf265ce9eca441b",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
-        "version": "1.8.108",
-        "startedAt": 1795700551,
+        "version": "1.8.109",
+        "startedAt": 1795701327,
         "running": true,
         "paused": false,
         "uiVerified": true,
-        "actualAtlasStopEverything": false,
-        "savingCraftingJelly": true
+        "savingCraftingJelly": true,
+        "craftingJellyRequired": 1430,
+        "craftingJellyMissing": 1386
       },
       {
         "account": "QuackAltear5",
-        "version": "1.8.108",
-        "startedAt": 1795700520,
+        "version": "1.8.109",
+        "startedAt": 1795701311,
         "running": true,
         "paused": false,
         "uiVerified": true,
-        "actualAtlasStopEverything": false,
-        "savingCraftingJelly": true
+        "savingCraftingJelly": true,
+        "craftingJellyRequired": 1320,
+        "craftingJellyMissing": 886
       },
       {
         "account": "QuackAltear06",
-        "version": "1.8.108",
-        "startedAt": 1795700505,
+        "version": "1.8.109",
+        "startedAt": 1795701309,
         "running": true,
         "paused": false,
         "uiVerified": true,
-        "actualAtlasStopEverything": false,
-        "savingCraftingJelly": true
+        "savingCraftingJelly": true,
+        "craftingJellyRequired": 1390,
+        "craftingJellyMissing": 779
       }
     ],
-    "offlineChecks": 6771,
-    "connectedChecks": 6765,
+    "offlineChecks": 6785,
+    "connectedChecks": 6779,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3458,7 +3468,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 451,
+    "progressionChecks": 465,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3492,6 +3502,10 @@
     "actionableQueueCrafting": true,
     "reservedTargetRetirement": true,
     "naturalReservedTargetTransitionObserved": false,
-    "naturalCrossQueueCraftPurchaseObserved": false
+    "naturalCrossQueueCraftPurchaseObserved": false,
+    "craftFundingBeforeHoneyQueue": true,
+    "independentRecipeInventory": true,
+    "naturalOfflineScreenshotAccountVerified": false,
+    "naturalCraftPurchaseAfterFixObserved": false
   }
 }

@@ -494,7 +494,9 @@ return function(P)
             {amount=100,cost={Honey=100000000}},{amount=1000,cost={Honey=1000000000}}}}
         c.royalJellyPricing={purchased=75,baseHoney=250000,stepHoney=10000,maxHoney=1000000}
         local r=P.plan(f,c)
-        check(r.nextCraft.item=="BlueExtract" and r.nextCraft.amount==231 and r.nextCraft.missingInputs.RoyalJelly==303,"Observed partial supplies price only the current 231-extract recipe deficit")
+        check(r.action.kind=="craft"and r.action.item=="Oil"and r.action.amount==2,"Actual owned jelly completes the ready Oil recipe before funding extracts")
+        f.inventory.Oil=150;f.inventory.RoyalJelly=1987;r=P.plan(f,c)
+        check(r.nextCraft.item=="BlueExtract" and r.nextCraft.amount==231 and r.nextCraft.missingInputs.RoyalJelly==323,"After Oil queues the current extract deficit is repriced from actual remaining jelly")
         check(r.action.kind=="purchase-pack" and r.action.item=="RoyalJelly" and r.action.amount==100,"Current recipe funding precedes waiting on Diamond tickets")
         check(r.reserveHoney==0 and r.status.phase=="materials" and r.status.materials[1].actual==19,"19 of 250 extracts is a material phase, never 5B honey saving")
         f.craft={item="BlueExtract",count=231,ready=true};c.packs.RoyalJelly=nil
@@ -561,6 +563,8 @@ return function(P)
             {id="RJ10",amount=10,cost={Honey=100}},{id="RJ100",amount=100,cost={Honey=1000}}}}
         f.inventory={Pineapple=250,Gumdrops=150,MoonCharm=25,MagicBean=1}
         local r=P.plan(f,c)
+        check(r.gear==mask and r.action.kind=="craft"and r.action.item=="Glitter","Ready Glitter crafts before funding another Mask recipe")
+        f.inventory.Glitter=1;f.inventory.MoonCharm=0;f.inventory.MagicBean=0;r=P.plan(f,c)
         check(r.gear==mask and r.deferredGear=="Candy Planter" and r.action.kind=="purchase-pack",
             "Ready non-jelly recipe ingredients advance the Mask while Candy Planter waits")
         check(r.missingRJ==50 and r.action.amount==10 and r.reserveHoney==20000000,
@@ -589,6 +593,7 @@ return function(P)
             "The remaining jelly stays reserved during a Blender order")
         f.inventory.Enzymes=5;f.craft=false
         f.inventory.Glue=3;f.inventory.Gumdrops=0;f.inventory.RoyalJelly=0
+        f.inventory.Glitter=0;f.inventory.MoonCharm=25;f.inventory.MagicBean=1
         check(P.plan(f,c).action.item=="Glitter","Uses the shared Magic Bean to finish the fallback recipe")
         f.inventory.Glitter=1;f.inventory.MoonCharm=0;f.inventory.MagicBean=0
         r=P.plan(f,c)
@@ -1007,6 +1012,43 @@ return function(P)
         f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Craft selection cannot bypass a pending request")
         f.pending=false;f.uncertain=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Craft selection cannot bypass an uncertain receipt")
         P.stages=stages
+    end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Porcelain Dipper","Beekeeper's Boots","Beekeeper's Mask"}}}
+        local f=facts();f.gearQueues=true;f.honey=150000000;f.honeyReserve=1000000
+        f.inventory={Blueberry=100,SunflowerSeed=150,Gumdrops=100,RoyalJelly=10}
+        local c={gear={["Porcelain Dipper"]={honey=150000000,items={}},["Beekeeper's Boots"]={honey=15000000,items={BlueExtract=2,Oil=3}},
+            ["Beekeeper's Mask"]={honey=20000000,items={Glue=2}}},packs={RoyalJelly={{id="one",amount=1,cost={Honey=1000000}},{id="ten",amount=10,cost={Honey=10000000}}}}}
+        local r=P.plan(f,c)
+        check(r.action.kind=="purchase-pack"and r.gear=="Beekeeper's Boots"and r.missingRJ==10,"Boots recipe jelly takes priority over Dipper savings")
+        f.honey=200000000;r=P.plan(f,c)
+        check(r.action.kind=="purchase-pack"and r.saveCraftingJelly and not r.optionalHiveAllowed,"Recipe funding outranks even an affordable Dipper purchase")
+        f.inventory.RoyalJelly=20;r=P.plan(f,c)
+        check(r.action.kind=="craft"and r.action.item=="BlueExtract"and r.action.amount==2,"Craft full Blue Extract deficit before buying honey gear")
+        f.inventory.BlueExtract=2;f.inventory.RoyalJelly=5;r=P.plan(f,c)
+        check(r.requiredRJ==30 and r.missingRJ==25,"Oil recipe uses the actual jelly already owned")
+        f.honey=25000000;r=P.plan(f,c)
+        check(r.action.reason=="saving-crafting-jelly"and r.fundsRequired==26000000,"Full recipe funding retains only safety reserve plus missing jelly cost")
+        f.honey=26000000;r=P.plan(f,c)
+        check(r.action.kind=="purchase-pack"and r.action.amount==10,"Existing supported pack path purchases recipe deficit when fully affordable")
+        f.inventory.Oil=3;f.inventory.RoyalJelly=0;f.ownedGear["Beekeeper's Boots"]=true;r=P.plan(f,c)
+        check(r.gear=="Beekeeper's Mask"and r.requiredRJ==20,"Next independently ready Glue recipe becomes the funding target")
+        c.useSuppliedRecipes=false;c.recipes={Glue=false,Oil=false,BlueExtract=false};r=P.plan(f,c)
+        check(r.action.kind~="craft"and r.action.item~="RoyalJelly"and not r.saveCraftingJelly,"Unavailable game recipes cannot authorize jelly purchases or crafting")
+        P.stages=stages
+    end
+    do
+        local f=facts();f.honey=1e12;f.inventory={Blueberry=0,SunflowerSeed=150,RoyalJelly=20}
+        local c=catalog("Clippers",100,{BlueExtract=20,Oil=3})
+        c.packs={RoyalJelly={{id="ten",amount=10,cost={Honey=10}}}}
+        local r=P.plan(f,c)
+        check(r.requiredRJ==30 and r.missingRJ==10,"An unready earlier Blue Extract recipe cannot hide 20 owned jelly from Oil")
+        f.inventory.RoyalJelly=30;r=P.plan(f,c)
+        check(r.action.kind=="craft"and r.action.item=="Oil"and r.action.amount==3,"Owned jelly can craft Oil while Blue Extract fruit is missing")
+        f.inventory={Blueberry=100,SunflowerSeed=150,RoyalJelly=30};c.gear.Clippers.items={BlueExtract=2,Oil=3};r=P.plan(f,c)
+        check(r.action.kind=="craft"and r.action.item=="BlueExtract","A ready recipe is preferred to funding another recipe")
+        f.craft={item="BlueExtract",count=2,ready=false};r=P.plan(f,c)
+        check(r.action.kind=="wait"and r.action.reason=="blender-busy","Independent selection never double-books the Blender")
     end
     return {passed=passed}
 end

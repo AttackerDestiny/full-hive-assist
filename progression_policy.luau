@@ -507,15 +507,23 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
     end
     local jellyCraft
     for _,craft in ipairs(materials.crafts) do
-        if craft.ready then
-            if facts.craft~=false then return wait("need-verified-idle-blender",base) end
-            base.nextCraft=craft
-            base.action=parallelAction(copy(craft)); base.action.gear=nextGear.id; return base
+        -- Choose one real order from actual inventory. Allocations for an
+        -- earlier unready recipe must not hide jelly from a ready recipe.
+        local candidate=copy(craft)
+        candidate.missingInputs={};candidate.ready=true
+        for item,amount in pairs(craft.ingredients) do
+            local actual=read(item)
+            if actual==nil then return wait("unknown-inventory:"..item,base) end
+            if actual<amount then candidate.missingInputs[item]=amount-actual;candidate.ready=false end
         end
-        if (craft.missingInputs.RoyalJelly or 0)>0
-            and next(craft.missingInputs)=="RoyalJelly" and next(craft.missingInputs,"RoyalJelly")==nil then
-            jellyCraft=craft
-            break
+        if candidate.ready then
+            if facts.craft~=false then return wait("need-verified-idle-blender",base) end
+            base.nextCraft=candidate
+            base.action=parallelAction(copy(candidate)); base.action.gear=nextGear.id; return base
+        end
+        if not jellyCraft and (candidate.missingInputs.RoyalJelly or 0)>0
+            and next(candidate.missingInputs)=="RoyalJelly" and next(candidate.missingInputs,"RoyalJelly")==nil then
+            jellyCraft=candidate
         end
     end
     local diamond=(catalog.sources or {}).Diamond
@@ -942,8 +950,18 @@ local function queuePlan(facts,catalog,primary)
             reserveHoney=gear.honey+(facts.honeyReserve or 0),optionalHiveAllowed=false,
             action={kind="buy-gear",gear=candidate.id,honey=gear.honey,items=copy(gear.items)}}
     end
-    -- Ready honey gear is independent of material collection and never invokes
-    -- the superseded egg-price diversion. One action is still sent per turn.
+    -- A verified recipe's jelly budget outranks honey-only gear funding or
+    -- spending. Keep it selected until its order queues, even if a cheaper
+    -- honey-only purchase becomes affordable while saving for the recipe.
+    local materialKind=material and material.action.kind
+    if material and (material.saveCraftingJelly and material.craftingJellyRequired
+        or materialKind=="craft" or materialKind=="collect-craft" or materialKind=="speedup-blender") then
+        for _,candidate in ipairs(queues.B) do
+            local result=readyPurchase(candidate)
+            if result then return finish(result) end
+        end
+        return finish(material)
+    end
     for _,candidate in ipairs(queues.A) do
         local result=readyPurchase(candidate)
         if result then return finish(result) end
