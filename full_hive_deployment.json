@@ -3289,15 +3289,15 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.92",
+    "version": "1.8.93",
     "bundle": "core.luau",
-    "sha256": "ab65443864f8787f983a9681062b5fe4622b56b3740acabd6bf4c0c765863aac",
+    "sha256": "570f3d9f1faf9f26c0f2499031b85fa1fc4d1bfbd9152153cd01176e131c074c",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795693575,
+        "startedAt": 1795693961,
         "running": true,
         "phase": "waiting",
         "activity": "Saving Royal Jelly for Diamond Mask"
@@ -3305,7 +3305,7 @@
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795693577,
+        "startedAt": 1795693954,
         "running": true,
         "phase": "waiting",
         "activity": "Saving Royal Jelly for Diamond Mask"
@@ -3313,7 +3313,7 @@
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795693577,
+        "startedAt": 1795693969,
         "running": true,
         "phase": "waiting",
         "activity": "Saving Royal Jelly for Diamond Mask"
@@ -3325,15 +3325,15 @@
     "naturalReadyQueueBypassObserved": false
   },
   "latestCandidate": {
-    "version": "1.8.92",
+    "version": "1.8.93",
     "bundle": "core.luau",
-    "sha256": "ab65443864f8787f983a9681062b5fe4622b56b3740acabd6bf4c0c765863aac",
+    "sha256": "570f3d9f1faf9f26c0f2499031b85fa1fc4d1bfbd9152153cd01176e131c074c",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795693575,
+        "startedAt": 1795693961,
         "running": true,
         "phase": "waiting",
         "activity": "Saving Royal Jelly for Diamond Mask"
@@ -3341,7 +3341,7 @@
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795693577,
+        "startedAt": 1795693954,
         "running": true,
         "phase": "waiting",
         "activity": "Saving Royal Jelly for Diamond Mask"
@@ -3349,7 +3349,7 @@
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795693577,
+        "startedAt": 1795693969,
         "running": true,
         "phase": "waiting",
         "activity": "Saving Royal Jelly for Diamond Mask"

@@ -65,8 +65,8 @@ return function(P)
     end
     do
         local f=facts();ownedThrough(f,"Basic Sprinkler");f.occupied=22
-        for _,expected in ipairs({"Basic Sprinkler","Candy Planter","Blue Port-O-Hive","Beekeeper's Mask","Beekeeper's Boots",
-            "Mondo Belt Bag","Blue Clay Planter","Red Clay Planter"}) do
+        for _,expected in ipairs({"Basic Sprinkler","Candy Planter","Blue Port-O-Hive","Beekeeper's Mask","Mondo Belt Bag",
+            "Beekeeper's Boots","Blue Clay Planter","Red Clay Planter"}) do
             check(P.nextGear(f).id==expected,"Follows the requested gear order at 22 bees: "..expected)
             f.ownedGear[expected]=true
         end
