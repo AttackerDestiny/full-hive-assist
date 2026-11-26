@@ -3319,33 +3319,11 @@
     "liveGiftedCountVerified": false
   },
   "latestCandidate": {
-    "version": "1.8.86",
+    "version": "1.8.87",
     "bundle": "core.luau",
-    "sha256": "c6d3cb95cc41213a0b748282b2df0a2d1bde48035ef877b923b7cf25c7671ca2",
-    "jobId": "5e02531d-d578-45c4-b439-c1db534c4fd1",
-    "accounts": [
-      {
-        "runtimeVerified": false,
-        "executionScheduled": true,
-        "account": "QuackAltear1"
-      },
-      {
-        "runtimeVerified": true,
-        "running": true,
-        "startedAt": 1795617337,
-        "account": "QuackAltear5"
-      },
-      {
-        "runtimeVerified": true,
-        "running": true,
-        "startedAt": 1795617336,
-        "account": "QuackAltear06"
-      }
-    ],
-    "offlineChecks": 4714,
-    "uiAdapterChecks": 34,
-    "materialFarmChecks": 34,
-    "liveFieldSwitchVerified": false,
-    "liveGiftedCountVerified": false
+    "sha256": "87b737cd3ac2e19ab7c2ca282fde07f1ac0b6d20659b5858a0ff7821c5dbdb0e",
+    "status": "tested-live-MCP-approval-blocked",
+    "offlineRelevantChecks": 387,
+    "liveDeployed": false
   }
 }
