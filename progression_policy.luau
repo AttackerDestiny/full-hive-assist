@@ -797,11 +797,11 @@ local function queuePlan(facts,catalog,primary)
             continue
         end
         local kind=next(gear.items) and "B" or "A"
-        if #queues[kind]<3 then
+        if #queues[kind]<5 then
             candidate.queueSelected=true;candidate.honey=gear.honey;candidate.order=#queues.A+#queues.B+1
             queues[kind][#queues[kind]+1]=candidate
         end
-        if #queues.A==3 and #queues.B==3 then break end
+        if #queues.A==5 and #queues.B==5 then break end
     end
     for _,queue in ipairs({queues.A,queues.B}) do
         table.sort(queue,function(a,b) return a.honey<b.honey or a.honey==b.honey and a.order<b.order end)

@@ -3289,36 +3289,36 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.98",
+    "version": "1.8.99",
     "bundle": "core.luau",
-    "sha256": "962a03758953a435d4460a0ec43e1ec0377f7b865b43b683433e4dd064843a08",
-    "deployedNormalizedUTF8Sha256": "66053247646f649559c130b2a066d6ebdb5c3d41d5403ec6610b82d25b77e4a1",
+    "sha256": "0e92ace47022ec3b88d77b81c00d8917a37df0200a5a346b94195ab41495bd78",
+    "deployedNormalizedUTF8Sha256": "935a0b0d7f29b300687a42af9796d1de35891bc19375f9a3465d2024acc56b04",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795695505,
+        "startedAt": 1795695912,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795695582,
+        "startedAt": 1795695933,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795695495,
+        "startedAt": 1795695921,
         "running": true,
         "paused": false
       }
     ],
-    "offlineChecks": 5047,
-    "connectedChecks": 5045,
+    "offlineChecks": 6612,
+    "connectedChecks": 6610,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3327,14 +3327,13 @@
     },
     "restartChecks": 32,
     "naturalRemoteLoaderButtonRestartObserved": true,
-    "dashboardChecks": 120,
+    "dashboardChecks": 1680,
     "dashboardLive": {
       "account": "QuackAltear5",
       "nodes": 39,
-      "worldChildren": 108,
-      "gearPreviewModels": 1,
-      "modelScripts": 0,
-      "selected": "Diamond Mask"
+      "overlappingHitAreasAtFit": 0,
+      "zoomCameraBefore": 77.073928833008,
+      "zoomCameraAfter": 61.694923400879
     },
     "restartButtonLive": {
       "account": "QuackAltear5",
@@ -3342,39 +3341,43 @@
       "afterStartedAt": 1795695582,
       "clickedAt": 1795695581,
       "version": "1.8.98"
+    },
+    "queueLimit": {
+      "honey": 5,
+      "material": 5
     }
   },
   "latestCandidate": {
-    "version": "1.8.98",
+    "version": "1.8.99",
     "bundle": "core.luau",
-    "sha256": "962a03758953a435d4460a0ec43e1ec0377f7b865b43b683433e4dd064843a08",
-    "deployedNormalizedUTF8Sha256": "66053247646f649559c130b2a066d6ebdb5c3d41d5403ec6610b82d25b77e4a1",
+    "sha256": "0e92ace47022ec3b88d77b81c00d8917a37df0200a5a346b94195ab41495bd78",
+    "deployedNormalizedUTF8Sha256": "935a0b0d7f29b300687a42af9796d1de35891bc19375f9a3465d2024acc56b04",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795695505,
+        "startedAt": 1795695912,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795695582,
+        "startedAt": 1795695933,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795695495,
+        "startedAt": 1795695921,
         "running": true,
         "paused": false
       }
     ],
-    "offlineChecks": 5047,
-    "connectedChecks": 5045,
+    "offlineChecks": 6612,
+    "connectedChecks": 6610,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3383,14 +3386,13 @@
     },
     "restartChecks": 32,
     "naturalRemoteLoaderButtonRestartObserved": true,
-    "dashboardChecks": 120,
+    "dashboardChecks": 1680,
     "dashboardLive": {
       "account": "QuackAltear5",
       "nodes": 39,
-      "worldChildren": 108,
-      "gearPreviewModels": 1,
-      "modelScripts": 0,
-      "selected": "Diamond Mask"
+      "overlappingHitAreasAtFit": 0,
+      "zoomCameraBefore": 77.073928833008,
+      "zoomCameraAfter": 61.694923400879
     },
     "restartButtonLive": {
       "account": "QuackAltear5",
@@ -3398,6 +3400,10 @@
       "afterStartedAt": 1795695582,
       "clickedAt": 1795695581,
       "version": "1.8.98"
+    },
+    "queueLimit": {
+      "honey": 5,
+      "material": 5
     }
   }
 }

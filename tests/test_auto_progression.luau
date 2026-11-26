@@ -677,14 +677,15 @@ return function(P)
     end
     do
         local stages=P.stages
-        P.stages={{gate=0,gear={"A1","B1","A2","B2","A3","B3","A4","B4"}}}
+        P.stages={{gate=0,gear={"A1","B1","A2","B2","A3","B3","A4","B4","A5","B5","A6","B6"}}}
         local f=facts();f.gearQueues=true;f.honey=1000
         local c={gear={A1={honey=100,items={}},A2={honey=200,items={}},A3={honey=300,items={}},A4={honey=400,items={}},
             B1={honey=500,items={SunflowerSeed=3}},B2={honey=450,items={Strawberry=2}},
-            B3={honey=600,items={SoftWax=1}},B4={honey=700,items={Blueberry=5}}}}
+            B3={honey=600,items={SoftWax=1}},B4={honey=700,items={Blueberry=5}},
+            A5={honey=500,items={}},A6={honey=600,items={}},B5={honey=800,items={Pineapple=5}},B6={honey=900,items={Oil=1}}}}
         local r=P.plan(f,c)
         check(r.action.kind=="buy-gear" and r.gear=="A1","Ready honey gear takes its turn while materials grow")
-        check(#r.gearQueues.A==3 and #r.gearQueues.B==3,"Both queues contain at most three targets")
+        check(#r.gearQueues.A==5 and #r.gearQueues.B==5,"Both queues contain five targets")
         check(r.gearQueues.B[1].id=="B2" and r.gearQueues.B[1].priority==1,"Material priority follows full honey price")
         check(r.farmMissing.Strawberry==2 and r.materialFarmGear=="B2","Farm follows material queue even during honey purchases")
         c.gear.A1.honey=300;c.gear.A2.honey=100;c.gear.A3.honey=200;r=P.plan(f,c)
@@ -694,6 +695,7 @@ return function(P)
         c.gear.A2.honey=200;c.gear.A3.honey=300
         f.ownedGear.A1=true;r=P.plan(f,c)
         check(r.gear=="A2" and r.gearQueues.A[3].id=="A4","Honey queue replenishes from its own category")
+        check(r.gearQueues.A[5].id=="A6","Honey queue replaces purchased gear with its sixth candidate")
         f.honey=0;r=P.plan(f,c)
         check(r.gear=="B2" and r.farmMissing.Strawberry==2,"Unfunded honey gear cannot block material collection")
         c.gear.B2.items={RedExtract=1};r=P.plan(f,c)
@@ -703,7 +705,9 @@ return function(P)
         c.gear.B2.items={Strawberry=2};f.inventory={}
         f.ownedGear.B2=true;r=P.plan(f,c)
         check(r.gearQueues.B[3].id=="B4" and r.materialFarmGear=="B1","Material queue replenishes from its own category")
+        check(r.gearQueues.B[5].id=="B6","Material queue replaces owned gear with its sixth candidate")
         f.ownedGear.A2=true;f.ownedGear.A3=true;f.ownedGear.A4=true
+        f.ownedGear.A5=true;f.ownedGear.A6=true
         f.honey=1000;f.inventory.SunflowerSeed=3;r=P.plan(f,c)
         check(r.action.kind=="buy-gear" and r.gear=="B1","Complete priority1 buys immediately")
         c.gear.B1.items.SoftWax=1;c.gear.B3.items={SunflowerSeed=3};r=P.plan(f,c)
@@ -711,6 +715,8 @@ return function(P)
         c.gear.B3.items={Blueberry=1};f.inventory.Blueberry=1;r=P.plan(f,c)
         check(r.action.kind=="buy-gear" and r.gear=="B3","Independent ready material gear may buy while priority1 is blocked")
         check(r.farmMissing.SoftWax==1 and not r.farmMissing.Blueberry,"Unsupported priority1 deficit never selects a different fruit")
+        c.gear.B3.shopAccess=false;f.inventory.Oil=1;r=P.plan(f,c)
+        check(r.action.kind=="buy-gear"and r.gear=="B6"and r.gearQueues.B[5].id=="B6","The fifth ready material target can buy past four blocked candidates")
         f.pending=true;r=P.plan(f,c)
         check(r.action.reason=="unresolved-progression-request","Queues preserve unresolved request guard")
         f.pending=false;f.redeemedCodes.Wax=false
@@ -792,6 +798,17 @@ return function(P)
         check(f.inventory.Oil==2 and not f.pending,"Route generation never consumes or requests")
         f.inventory.Oil=3;f.conditions.open=true
         check(P.routeStatus(f,c,{gear="Jar",stage=1}).stages[1].gear[2].items[1].actual==3,"Refreshed snapshot follows actual inventory")
+    end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"M1","M2","M3","M4","M5"}}}
+        local f=facts();f.gearQueues=true;f.discoveryPreparation=true;f.honey=0
+        local c={gear={}}
+        for i=1,5 do c.gear["M"..i]={honey=i*100,items={Oil=i}}end
+        local r=P.plan(f,c)
+        check(#r.gearQueues.B==5 and r.queueMaterialRequirements.Oil==15,"Combined material preparation includes all five targets")
+        f.ownedGear.M1=true;r=P.plan(f,c)
+        check(r.queueMaterialRequirements.Oil==14,"Combined materials refresh after ownership changes")
+        P.stages=stages
     end
     return {passed=passed}
 end
