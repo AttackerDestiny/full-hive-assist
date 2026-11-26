@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.106"
+local SCRIPT_VERSION = "1.8.108"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -935,6 +935,13 @@ local function plan(s)
         end
         if not invalid and not done then done,why,safe=Policy.reconcileRollTask(rollTask,current,cells,Types,p) end
         if invalid or done then
+            if why=="target-now-reserved" then
+                assert(not env.FullHivePending and not env.AutoHivePendingRequest
+                    and not env.FullHiveUncertain and not env.AutoHiveUncertain
+                    and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning,
+                    "Reserved target has unresolved work; lease preserved")
+                env.FullHiveJellyBatch=nil; Report.JellyBatch=nil
+            end
             Report.LastCompletedTarget={X=rollTask.x,Y=rollTask.y,Reason=invalid and "hive-or-stage-changed" or why}
             if invalid or not Policy.isRecoveryTask(rollTask) then
                 env.FullHiveJellyBatch=nil; Report.JellyBatch=nil

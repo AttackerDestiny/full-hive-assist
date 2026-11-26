@@ -297,5 +297,23 @@ return function(P,T,runtime)
             check(q.collectorFallback and report.RefillAmount==100,"Active repair persists despite an affordable normal top-up")
         end
     end
+    do
+        cells=fixture();local target
+        for _,c in ipairs(cells)do if c.bee.Type=="Cool"then target=c;break end end
+        local original=P.plan(cells,T,ctx(41))
+        local lease=P.startRollTask(target,cells,original)
+        lease.Owner=7;lease.Hive="TestHive";lease.Job="test";lease.InitialFingerprint="Brave:false"
+        local function state()return {FullHiveRollTask=lease,FullHiveJellyBatch={Version=1,Owner=7,Hive="TestHive",Job="test",Recovery=true,Amount=100}}end
+        local snapshot=stats(cells,0);snapshot.Eggs.RoyalJelly=50
+        local e=state();q,report=make(P,T,e,snapshot)
+        check(not e.FullHiveRollTask and not e.FullHiveJellyBatch,"Fresh reserved target closes stale lease and admission without spending leftovers")
+        check(report.LastCompletedTarget.Reason=="target-now-reserved"and target.bee.Type=="Cool","Runtime preserves the force bee and resumes fresh planning")
+        for _,flag in ipairs({"FullHivePending","AutoHivePendingRequest","FullHiveUncertain","AutoHiveUncertain","FullHiveStarRunning","AutoGiftedStarRunning"})do
+            e=state();local marker={};e[flag]=marker
+            local ok,err=pcall(make,P,T,e,snapshot)
+            check(not ok and tostring(err):find("Reserved target has unresolved work",1,true),"Unresolved work blocks force retirement: "..flag)
+            check(e.FullHiveRollTask==lease and e[flag]==marker,"Original lease and unresolved flag survive: "..flag)
+        end
+    end
     return {passed=passed}
 end

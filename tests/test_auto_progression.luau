@@ -686,7 +686,7 @@ return function(P)
         local r=P.plan(f,c)
         check(r.action.kind=="buy-gear" and r.gear=="A1","Ready honey gear takes its turn while materials grow")
         check(#r.gearQueues.A==5 and #r.gearQueues.B==5,"Both queues contain five targets")
-        check(r.gearQueues.B[1].id=="B3" and r.gearQueues.B[1].priority==1,"Material priority follows remaining requirements before honey price")
+        check(r.gearQueues.B[1].id=="B2" and r.gearQueues.B[1].priority==1,"Material priority follows honey price regardless of remaining requirements")
         check(r.farmMissing.Strawberry==2 and r.materialFarmGear=="B2","Farm follows material queue even during honey purchases")
         c.gear.A1.honey=300;c.gear.A2.honey=100;c.gear.A3.honey=200;r=P.plan(f,c)
         check(r.gear=="A2" and r.gearQueues.A[1].priority==1 and r.gearQueues.A[3].id=="A1","Honey queue ranks by price rather than route position")
@@ -718,7 +718,7 @@ return function(P)
         check(r.action.kind=="buy-gear" and r.gear=="B3","Independent ready material gear may buy while priority1 is blocked")
         check(r.materialFarmGear=="B3" and not r.farmMissing.SoftWax,"Passive priority1 shortage yields preparation to the next queue target")
         c.gear.B3.shopAccess=false;f.inventory.Oil=1;r=P.plan(f,c)
-        check(r.action.kind=="buy-gear"and r.gear=="B6"and r.gearQueues.B[1].id=="B6","Ready material target leads the queue after the locked candidate is excluded")
+        check(r.action.kind=="buy-gear"and r.gear=="B6"and r.gearQueues.B[1].id=="B1","Ready material target can buy while price-ranked earlier gear still lacks materials")
         f.pending=true;r=P.plan(f,c)
         check(r.action.reason=="unresolved-progression-request","Queues preserve unresolved request guard")
         f.pending=false;f.redeemedCodes.Wax=false
@@ -895,18 +895,18 @@ return function(P)
             ["Beekeeper's Mask"]={honey=20000000,items={Glue=2}},
             Honey1={honey=500,items={}},Honey2={honey=100,items={}}}}
         local r=P.plan(f,c);local q=r.gearQueues.B
-        check(q[1].id=="Beekeeper's Mask"and q[2].id=="Candy Planter"and q[3].id=="Beekeeper's Boots","Screenshot prioritizes small remaining material counts over cheap clay gear")
-        check(q[4].id=="Red Clay Planter"and q[5].id=="Blue Clay Planter","Larger clay shortages follow the smaller targets")
-        check(q[1].materialShortfall==2 and q[3].materialShortfall==5 and q[5].materialShortfall==32,"Unavailable recipes use their actual direct material deficits")
+        check(q[1].id=="Candy Planter"and q[2].id=="Blue Clay Planter"and q[3].id=="Red Clay Planter","Material queue ranks honey cost with route ties instead of remaining quantities")
+        check(q[4].id=="Beekeeper's Boots"and q[5].id=="Beekeeper's Mask","Expensive gear follows cheaper gear regardless of material count")
+        check(q[1].materialShortfall==nil and q[5].materialShortfall==nil,"Material quantities no longer create a priority score")
         check(r.gearQueues.A[1].id=="Honey2","Honey queue remains ranked by honey price")
         c.useSuppliedRecipes=true;r=P.plan(f,c);q=r.gearQueues.B
-        check(q[1].id=="Candy Planter"and q[2].id=="Beekeeper's Mask"and q[3].id=="Beekeeper's Boots","Known recipe expansion still prioritizes Mask and Boots before clay")
-        check(q[2].materialShortfall==120 and q[3].materialShortfall==300,"Known recipe score counts missing ingredients rather than one output item")
-        check(r.materialFarmGear=="Beekeeper's Mask"and r.deferredMaterialGear[1]=="Candy Planter","Passive Candy yields to the newly ranked active preparation target")
+        check(q[1].id=="Candy Planter"and q[2].id=="Blue Clay Planter"and q[3].id=="Red Clay Planter","Recipe availability does not reorder the queue")
+        check(q[4].honey==15000000 and q[5].honey==20000000,"Both queues retain verified honey price ordering")
+        check(r.materialFarmGear=="Blue Clay Planter"and r.deferredMaterialGear[1]=="Candy Planter","Passive Candy yields to the next active honey-ranked target")
         f.inventory={Gumdrops=100,RoyalJelly=20};r=P.plan(f,c)
-        check(r.gearQueues.B[1].id=="Beekeeper's Mask"and r.gearQueues.B[1].materialShortfall==0 and r.action.kind=="craft","An ingredient-complete recipe is promoted for crafting")
+        check(r.gearQueues.B[1].id=="Candy Planter"and r.gear=="Beekeeper's Mask"and r.action.kind=="craft","Ready crafting can execute without changing displayed queue priorities")
         f.ownedGear["Beekeeper's Mask"]=true;f.inventory={};r=P.plan(f,c)
-        check(r.materialFarmGear=="Beekeeper's Boots","After Mask ownership Boots becomes the next preparation goal")
+        check(r.materialFarmGear=="Blue Clay Planter","After a craft finishes material farming returns to the honey-ranked target")
         f.ownedGear.Honey1=true;f.ownedGear.Honey2=true
         f.inventory={BlueExtract=14,Oil=3};f.honey=15000000;r=P.plan(f,c)
         check(r.gear=="Beekeeper's Boots"and r.action.kind=="buy-gear","Actual completed gear remains purchasable after dynamic ranking")
@@ -985,6 +985,27 @@ return function(P)
         check(r.gearQueues.A[1].id=="H2"and r.deferredRequirementGear.H1,"Funded residual purchase ineligibility is excluded safely")
         f.conditions.lock=nil;r=P.plan(f,c)
         check(r.deferredRequirementGear["Locked Honey"]=="Purchase requirements not verified","Unknown unlock evidence cannot admit a target")
+        P.stages=stages
+    end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Honey","Fruit Gear","Craft Gear"}}}
+        local f=facts();f.gearQueues=true;f.honey=0;f.honeyReserve=5
+        f.inventory={SunflowerSeed=100,RoyalJelly=10}
+        local c={gear={Honey={honey=1000,items={}},["Fruit Gear"]={honey=2000,items={Strawberry=1}},
+            ["Craft Gear"]={honey=3000,items={Oil=2,SoftWax=100}}},
+            packs={RoyalJelly={{id="ten",amount=10,cost={Honey=10}}}}}
+        local r=P.plan(f,c)
+        check(r.gear=="Craft Gear" and r.saveCraftingJelly and not r.optionalHiveAllowed,"An independently complete non-jelly recipe wins over fruit and honey waits")
+        check(r.missingRJ==10 and r.fundsRequired==15 and r.reserveHoney==5,"Recipe funding needs only its deficit and safety reserve, not the honey queue price")
+        f.honey=14;check(P.plan(f,c).action.reason=="saving-crafting-jelly","Never buy a partial unaffordable recipe deficit")
+        f.honey=15;r=P.plan(f,c)
+        check(r.action.kind=="purchase-pack"and r.action.amount==10 and r.gear=="Craft Gear","Affordable missing recipe jelly is purchased despite unfunded honey gear")
+        f.inventory.RoyalJelly=20;r=P.plan(f,c)
+        check(r.action.kind=="craft"and r.action.item=="Oil"and r.action.amount==2,"Whole Oil deficit crafts before waiting for unrelated Soft Wax or fruit")
+        f.craft={item="Oil",count=2,ready=false};r=P.plan(f,c)
+        check(r.action.kind=="wait"and r.action.reason=="blender-busy","Busy Blender cannot receive a second order")
+        f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Craft selection cannot bypass a pending request")
+        f.pending=false;f.uncertain=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Craft selection cannot bypass an uncertain receipt")
         P.stages=stages
     end
     return {passed=passed}

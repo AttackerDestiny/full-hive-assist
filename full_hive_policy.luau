@@ -349,6 +349,11 @@ function P.reconcileRollTask(task, cell, cells, types, plan)
     if plan.starter and task.Rolled and plan.keep[P.key(cell)] then
         return true,"starter-bee-kept"
     end
+    -- A fresh reservation can supersede an older goal. Retire the lease
+    -- without rolling this bee; unreserved unsafe/unknown cells still stop.
+    if cell and cell.bee and (plan.keep or {})[P.key(cell)] then
+        return true,"target-now-reserved"
+    end
     return false
 end
 function P.legendaryRoute(history,owned)

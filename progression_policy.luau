@@ -833,22 +833,12 @@ local function queuePlan(facts,catalog,primary)
         local kind=next(gear.items) and "B" or "A"
         if #queues[kind]<5 then
             candidate.queueSelected=true;candidate.honey=gear.honey;candidate.order=#queues.A+#queues.B+1
-            if kind=="B" then
-                local materials=P.materials(gear.items,facts,catalog)
-                if not materials and candidate.id==primary.gear then return nil end
-                candidate.materialShortfall=math.huge
-                if materials then
-                    candidate.materialShortfall=0
-                    for _,count in pairs(materials.missingItems)do candidate.materialShortfall+=count end
-                end
-            end
             queues[kind][#queues[kind]+1]=candidate
         end
         if #queues.A==5 and #queues.B==5 then break end
     end
     for kind,queue in pairs(queues) do
         table.sort(queue,function(a,b)
-            if kind=="B"and a.materialShortfall~=b.materialShortfall then return a.materialShortfall<b.materialShortfall end
             return a.honey<b.honey or a.honey==b.honey and a.order<b.order
         end)
         for priority,candidate in ipairs(queue) do candidate.priority=priority end
@@ -886,6 +876,23 @@ local function queuePlan(facts,catalog,primary)
             deferredMaterials[#deferredMaterials+1]=candidate.id
             deferredReasons[candidate.id]=reasons
         end
+    end
+    -- Search the eligible queue for a complete recipe before waiting on a
+    -- different gear's fruit, passive drops or final honey price. Keep the
+    -- selected recipe's jelly reservation even while its deficit is unfunded.
+    if not facts.discoveryPreparation then
+        local fundingCandidate
+        for _,candidate in ipairs(queues.B) do
+            local decision=decide(candidate)
+            local kind=decision.action.kind
+            if kind=="craft" or kind=="collect-craft" or kind=="speedup-blender" then
+                materialCandidate=candidate;fundingCandidate=nil;break
+            end
+            if not fundingCandidate and decision.saveCraftingJelly and decision.craftingJellyRequired then
+                fundingCandidate=candidate
+            end
+        end
+        if fundingCandidate then materialCandidate=fundingCandidate end
     end
     local priorityMaterial=decide(materialCandidate)
     local material=priorityMaterial

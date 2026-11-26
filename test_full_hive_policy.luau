@@ -581,5 +581,20 @@ return function(P,T)
     check(P.rollWait(10,10.5,0.3)==0,"Slow server responses need no extra fixed delay")
     check(P.rollWait(10,10,0)==0.3,"Roll interval keeps conservative300ms floor")
     check(P.rollWait(10,10.5,1)==0.5,"Explicit slower roll settings are honored")
+    do
+        local cell={x=1,y=1,bee={Type="Baby",Traits={}}}
+        local cells={cell};local key=P.key(cell)
+        local task={Rolled=true,Reason="fixed-targets",InitialTotal={Baby=4},InitialGifted={},Goals={{name="Music",before=0,target=4}}}
+        local plan={stage="mid",keep={[key]=true},protected={},questRetired={}}
+        local done,reason,safe=P.reconcileRollTask(task,cell,cells,T,plan)
+        check(done and reason=="target-now-reserved" and not safe,"A newly reserved force ends an obsolete goal without overwriting the bee")
+        cell.bee={Type="Bubble",Traits={"Gifted"}};task.InitialGifted.Bubble=1
+        done,reason=P.reconcileRollTask(task,cell,cells,T,plan)
+        check(done and reason=="target-now-reserved","Reserved gifted collector survives an old incompatible task")
+        plan.keep={};done,reason,safe=P.reconcileRollTask(task,cell,cells,T,plan)
+        check(not done and not safe,"Unknown unreserved unsafe cells still fail closed")
+        cell.bee={Type="Hasty",Traits={}};done,reason,safe=P.reconcileRollTask(task,cell,cells,T,plan)
+        check(not done and safe,"An eligible intermediate result keeps the same unfinished task")
+    end
     return {passed=checked}
 end

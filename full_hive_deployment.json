@@ -3289,39 +3289,45 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.106",
+    "version": "1.8.108",
     "bundle": "core.luau",
-    "sha256": "a74db92530fa0c2b89f3a7658f45cda8ca4c7c11b4203e4fbcbdbaf6efbf2e2f",
-    "deployedNormalizedUTF8Sha256": "3b78498c9ae65bd144b3989a7fa379baccb30d6ab2a005b56270a218d011ecba",
+    "sha256": "0636a18cb85293e416200c9725aed5f71b5edb697bd40bebedc2380f9b712901",
+    "deployedNormalizedUTF8Sha256": "bf7a02efefbc60736906e2ffde5933643cf475dd6714a55905f4b22c4a404806",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
-        "version": "1.8.106",
-        "startedAt": 1795699851,
+        "version": "1.8.108",
+        "startedAt": 1795700551,
         "running": true,
         "paused": false,
-        "uiVerified": true
+        "uiVerified": true,
+        "actualAtlasStopEverything": false,
+        "savingCraftingJelly": true
       },
       {
         "account": "QuackAltear5",
-        "version": "1.8.106",
-        "startedAt": 1795699852,
+        "version": "1.8.108",
+        "startedAt": 1795700520,
         "running": true,
         "paused": false,
-        "uiVerified": true
+        "uiVerified": true,
+        "actualAtlasStopEverything": false,
+        "savingCraftingJelly": true
       },
       {
         "account": "QuackAltear06",
-        "version": "1.8.106",
-        "startedAt": 1795699853,
+        "version": "1.8.108",
+        "startedAt": 1795700505,
         "running": true,
         "paused": false,
-        "uiVerified": true
+        "uiVerified": true,
+        "actualAtlasStopEverything": false,
+        "savingCraftingJelly": true
       }
     ],
-    "offlineChecks": 6745,
-    "connectedChecks": 6739,
+    "offlineChecks": 6771,
+    "connectedChecks": 6765,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3349,7 +3355,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 443,
+    "progressionChecks": 451,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3366,9 +3372,8 @@
       "QuackAltear5",
       "QuackAltear06"
     ],
-    "materialPriority": "remaining material quantities after verified recipe expansion, then honey, then route order",
+    "materialPriority": "honey price, then route order; remaining material quantities do not rank gear",
     "liveMaterialOrder": [
-      "Petal Belt",
       "Diamond Mask",
       "Coconut Canister"
     ],
@@ -3378,42 +3383,54 @@
     "naturalGumdropPurchaseAfterFixObserved": false,
     "fundedUnlockDeferral": true,
     "naturalSilverBadgeUnlockTransitionObserved": false,
-    "unlockFilteredQueues": true
+    "unlockFilteredQueues": true,
+    "policyChecks": 1261,
+    "collectorRecoveryChecks": 910,
+    "actionableQueueCrafting": true,
+    "reservedTargetRetirement": true,
+    "naturalReservedTargetTransitionObserved": false,
+    "naturalCrossQueueCraftPurchaseObserved": false
   },
   "latestCandidate": {
-    "version": "1.8.106",
+    "version": "1.8.108",
     "bundle": "core.luau",
-    "sha256": "a74db92530fa0c2b89f3a7658f45cda8ca4c7c11b4203e4fbcbdbaf6efbf2e2f",
-    "deployedNormalizedUTF8Sha256": "3b78498c9ae65bd144b3989a7fa379baccb30d6ab2a005b56270a218d011ecba",
+    "sha256": "0636a18cb85293e416200c9725aed5f71b5edb697bd40bebedc2380f9b712901",
+    "deployedNormalizedUTF8Sha256": "bf7a02efefbc60736906e2ffde5933643cf475dd6714a55905f4b22c4a404806",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
-        "version": "1.8.106",
-        "startedAt": 1795699851,
+        "version": "1.8.108",
+        "startedAt": 1795700551,
         "running": true,
         "paused": false,
-        "uiVerified": true
+        "uiVerified": true,
+        "actualAtlasStopEverything": false,
+        "savingCraftingJelly": true
       },
       {
         "account": "QuackAltear5",
-        "version": "1.8.106",
-        "startedAt": 1795699852,
+        "version": "1.8.108",
+        "startedAt": 1795700520,
         "running": true,
         "paused": false,
-        "uiVerified": true
+        "uiVerified": true,
+        "actualAtlasStopEverything": false,
+        "savingCraftingJelly": true
       },
       {
         "account": "QuackAltear06",
-        "version": "1.8.106",
-        "startedAt": 1795699853,
+        "version": "1.8.108",
+        "startedAt": 1795700505,
         "running": true,
         "paused": false,
-        "uiVerified": true
+        "uiVerified": true,
+        "actualAtlasStopEverything": false,
+        "savingCraftingJelly": true
       }
     ],
-    "offlineChecks": 6745,
-    "connectedChecks": 6739,
+    "offlineChecks": 6771,
+    "connectedChecks": 6765,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3441,7 +3458,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 443,
+    "progressionChecks": 451,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3458,9 +3475,8 @@
       "QuackAltear5",
       "QuackAltear06"
     ],
-    "materialPriority": "remaining material quantities after verified recipe expansion, then honey, then route order",
+    "materialPriority": "honey price, then route order; remaining material quantities do not rank gear",
     "liveMaterialOrder": [
-      "Petal Belt",
       "Diamond Mask",
       "Coconut Canister"
     ],
@@ -3470,6 +3486,12 @@
     "naturalGumdropPurchaseAfterFixObserved": false,
     "fundedUnlockDeferral": true,
     "naturalSilverBadgeUnlockTransitionObserved": false,
-    "unlockFilteredQueues": true
+    "unlockFilteredQueues": true,
+    "policyChecks": 1261,
+    "collectorRecoveryChecks": 910,
+    "actionableQueueCrafting": true,
+    "reservedTargetRetirement": true,
+    "naturalReservedTargetTransitionObserved": false,
+    "naturalCrossQueueCraftPurchaseObserved": false
   }
 }
