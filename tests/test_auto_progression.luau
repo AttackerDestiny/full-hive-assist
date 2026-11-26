@@ -707,7 +707,7 @@ return function(P)
         f.honey=1000;f.inventory.SunflowerSeed=3;r=P.plan(f,c)
         check(r.action.kind=="buy-gear" and r.gear=="B1","Complete priority1 buys immediately")
         c.gear.B1.items.SoftWax=1;c.gear.B3.items={SunflowerSeed=3};r=P.plan(f,c)
-        check(r.action.kind~="buy-gear" and r.reservedItems.SunflowerSeed==3,"Lower priority cannot consume priority1 ingredients")
+        check(r.action.kind=="buy-gear" and r.gear=="B3","A ready queued purchase may use blocked priority1 ingredients")
         c.gear.B3.items={Blueberry=1};f.inventory.Blueberry=1;r=P.plan(f,c)
         check(r.action.kind=="buy-gear" and r.gear=="B3","Independent ready material gear may buy while priority1 is blocked")
         check(r.farmMissing.SoftWax==1 and not r.farmMissing.Blueberry,"Unsupported priority1 deficit never selects a different fruit")
@@ -717,6 +717,46 @@ return function(P)
         check(P.plan(f,c).action.kind=="redeem-code","Queues preserve code task ordering")
         f.redeemedCodes.Wax=true;c.gear.B1=nil
         check(not P.plan(f,c).gearQueues,"Unknown primary gear quote retains fail-closed planning")
+        P.stages=stages
+    end
+    do
+        local stages=P.stages
+        P.stages={{gate=0,gear={"Candy Planter","Blue Port-O-Hive","Beekeeper's Mask","HoneyGear"}}}
+        local f=facts();f.gearQueues=true;f.honey=30746216
+        f.inventory={SoftWax=5,Gumdrops=253,JellyBeans=5,MagicBean=4,BlueExtract=2,Oil=2}
+        local c={gear={
+            ["Candy Planter"]={honey=5000000,items={SoftWax=5,Gumdrops=30,JellyBeans=3,MagicBean=5}},
+            ["Blue Port-O-Hive"]={honey=12500000,items={BlueExtract=2,Oil=2},conditions={"blue-open"}},
+            ["Beekeeper's Mask"]={honey=20000000,items={Oil=2,MagicBean=5}},
+            HoneyGear={honey=60000000,items={}}}}
+        f.conditions["blue-open"]=true
+        local r=P.plan(f,c)
+        check(r.action.kind=="buy-gear" and r.gear=="Blue Port-O-Hive","Screenshot case buys ready Blue backpack before blocked Candy")
+        check(not r.deferredGear and not r.reservedItems.MagicBean,"Ready purchase does not inherit blocked target reservations")
+        f.craft={item="Oil",count=5,ready=false}
+        check(P.plan(f,c).gear=="Blue Port-O-Hive" and P.plan(f,c).action.kind=="buy-gear","Unrelated running Blender order cannot block ready purchase")
+        f.craft.ready=true
+        check(P.plan(f,c).action.kind=="buy-gear","Ready purchase can precede Blender collection")
+        f.craft=false;f.inventory.Oil=1
+        check(P.plan(f,c).action.kind~="buy-gear","Missing actual gear material cannot purchase")
+        f.craft={item="Oil",count=1,ready=false}
+        check(P.plan(f,c).action.kind~="buy-gear","Queued output cannot count as actual inventory")
+        f.craft=false;f.inventory.Oil=2;f.honey=12500000;f.honeyReserve=1
+        check(P.plan(f,c).action.kind~="buy-gear","Safety honey reserve is preserved")
+        f.honeyReserve=0
+        check(P.plan(f,c).action.kind=="buy-gear","Exact affordable cost buys")
+        c.gear["Blue Port-O-Hive"].shopAccess=false
+        check(P.plan(f,c).action.kind~="buy-gear","Locked shop cannot be bypassed")
+        c.gear["Blue Port-O-Hive"].shopAccess=true;f.conditions["blue-open"]=false
+        check(P.plan(f,c).action.kind~="buy-gear","Unmet purchase requirement cannot be bypassed")
+        f.conditions["blue-open"]=nil
+        check(P.plan(f,c).action.kind~="buy-gear","Unknown requirement fails closed")
+        f.conditions["blue-open"]=true;f.uncertain=true
+        check(P.plan(f,c).action.reason=="unresolved-progression-request","Uncertain receipt blocks ready queue purchase")
+        f.uncertain=false;f.ownedGear["Blue Port-O-Hive"]=true;f.inventory.Oil=0;f.inventory.BlueExtract=0
+        check(P.plan(f,c).gear=="Candy Planter","After ownership update blocked Candy remains a future target")
+        f.honey=30746216;f.inventory.MagicBean=5
+        check(P.plan(f,c).gear=="Candy Planter" and P.plan(f,c).action.kind=="buy-gear","Skipped Candy returns once its own requirements are met")
         P.stages=stages
     end
     do

@@ -835,23 +835,37 @@ local function queuePlan(facts,catalog,primary)
             result.farmMissing={}
         end
         result.materialFarmGear=facts.discoveryPreparation and "Combined material queue" or queues.B[1] and queues.B[1].id
-        for item,count in pairs(held) do result.reservedItems[item]=math.max(result.reservedItems[item] or 0,count) end
+        if result.action.kind~="buy-gear" then
+            for item,count in pairs(held) do result.reservedItems[item]=math.max(result.reservedItems[item] or 0,count) end
+        end
         return result
+    end
+    local function readyPurchase(candidate)
+        local gear=catalog.gear[candidate.id]
+        if candidate.gate>facts.occupied or candidate.gate>facts.capacity or gear.shopAccess==false
+            or conditionState(gear.conditions,facts)~=true then return nil end
+        local read=inventoryReader(facts)
+        for item,count in pairs(gear.items) do
+            if type(item)~="string" or item=="Honey" or not integer(count) then return nil end
+        end
+        local cost=copy(gear.items);cost.Honey=gear.honey
+        if not read or not afford(cost,facts.honey,read,facts.honeyReserve or 0,{}) then return nil end
+        -- A fully ready purchase precedes blocked material targets and Blender
+        -- work. Its actual spend is revalidated by the host after travel.
+        return {gear=candidate.id,stage=candidate.stage,requiredHive=candidate.gate,
+            gearItems=copy(gear.items),reservedItems=copy(gear.items),materialDemand={},missingItems={},queuedItems={},
+            reserveHoney=gear.honey+(facts.honeyReserve or 0),optionalHiveAllowed=false,
+            action={kind="buy-gear",gear=candidate.id,honey=gear.honey,items=copy(gear.items)}}
     end
     -- Ready honey gear is independent of material collection and never invokes
     -- the superseded egg-price diversion. One action is still sent per turn.
     for _,candidate in ipairs(queues.A) do
-        local result=decide(candidate)
-        if result.action.kind=="buy-gear" then return finish(result) end
+        local result=readyPurchase(candidate)
+        if result then return finish(result) end
     end
-    for index,candidate in ipairs(queues.B) do
-        local available=facts
-        if index>1 then
-            available=copy(facts);available.inventory=copy(facts.inventory)
-            for item,count in pairs(priorityMaterial and priorityMaterial.reservedItems or {}) do available.inventory[item]=math.max(0,(available.inventory[item] or 0)-count) end
-        end
-        local result=index==1 and priorityMaterial or decide(candidate,available)
-        if result.action.kind=="buy-gear" then return finish(result) end
+    for _,candidate in ipairs(queues.B) do
+        local result=readyPurchase(candidate)
+        if result then return finish(result) end
     end
     if material then return finish(material) end
     return finish(decide(queues.A[1]))

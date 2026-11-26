@@ -3289,87 +3289,75 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.91",
+    "version": "1.8.92",
     "bundle": "core.luau",
-    "sha256": "eb4693360814facd05efae43eeb6030e4b11ca554f315e84eee5881e66c4d318",
-    "jobId": "cc6a7a55-2baa-4186-813e-7ef21e859242",
+    "sha256": "ab65443864f8787f983a9681062b5fe4622b56b3740acabd6bf4c0c765863aac",
+    "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795689918,
+        "startedAt": 1795693575,
         "running": true,
         "phase": "waiting",
-        "activity": "Saving Royal Jelly for Diamond Mask",
-        "atlasOwned": false
+        "activity": "Saving Royal Jelly for Diamond Mask"
       },
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795689918,
+        "startedAt": 1795693577,
         "running": true,
         "phase": "waiting",
-        "activity": "Saving Royal Jelly for Diamond Mask",
-        "atlasOwned": false
+        "activity": "Saving Royal Jelly for Diamond Mask"
       },
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795689917,
+        "startedAt": 1795693577,
         "running": true,
         "phase": "waiting",
-        "activity": "Saving Royal Jelly for Diamond Mask",
-        "atlasOwned": false
+        "activity": "Saving Royal Jelly for Diamond Mask"
       }
     ],
-    "offlineChecks": 4860,
-    "connectedChecks": 4866,
-    "rollLeaseChecks": 59,
-    "actualAtlasResumeVerified": [
-      "QuackAltear5"
-    ],
-    "naturalContinuousRollingObserved": false
+    "offlineChecks": 4874,
+    "connectedChecks": 4880,
+    "progressionChecks": 359,
+    "naturalReadyQueueBypassObserved": false
   },
   "latestCandidate": {
-    "version": "1.8.91",
+    "version": "1.8.92",
     "bundle": "core.luau",
-    "sha256": "eb4693360814facd05efae43eeb6030e4b11ca554f315e84eee5881e66c4d318",
-    "jobId": "cc6a7a55-2baa-4186-813e-7ef21e859242",
+    "sha256": "ab65443864f8787f983a9681062b5fe4622b56b3740acabd6bf4c0c765863aac",
+    "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795689918,
+        "startedAt": 1795693575,
         "running": true,
         "phase": "waiting",
-        "activity": "Saving Royal Jelly for Diamond Mask",
-        "atlasOwned": false
+        "activity": "Saving Royal Jelly for Diamond Mask"
       },
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795689918,
+        "startedAt": 1795693577,
         "running": true,
         "phase": "waiting",
-        "activity": "Saving Royal Jelly for Diamond Mask",
-        "atlasOwned": false
+        "activity": "Saving Royal Jelly for Diamond Mask"
       },
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795689917,
+        "startedAt": 1795693577,
         "running": true,
         "phase": "waiting",
-        "activity": "Saving Royal Jelly for Diamond Mask",
-        "atlasOwned": false
+        "activity": "Saving Royal Jelly for Diamond Mask"
       }
     ],
-    "offlineChecks": 4860,
-    "connectedChecks": 4866,
-    "rollLeaseChecks": 59,
-    "actualAtlasResumeVerified": [
-      "QuackAltear5"
-    ],
-    "naturalContinuousRollingObserved": false
+    "offlineChecks": 4874,
+    "connectedChecks": 4880,
+    "progressionChecks": 359,
+    "naturalReadyQueueBypassObserved": false
   }
 }
