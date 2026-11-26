@@ -3305,7 +3305,7 @@
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795695493,
+        "startedAt": 1795695582,
         "running": true,
         "paused": false
       },
@@ -3326,7 +3326,7 @@
       "currentGear": "Diamond Mask"
     },
     "restartChecks": 32,
-    "naturalRemoteLoaderButtonRestartObserved": false,
+    "naturalRemoteLoaderButtonRestartObserved": true,
     "dashboardChecks": 120,
     "dashboardLive": {
       "account": "QuackAltear5",
@@ -3335,6 +3335,13 @@
       "gearPreviewModels": 1,
       "modelScripts": 0,
       "selected": "Diamond Mask"
+    },
+    "restartButtonLive": {
+      "account": "QuackAltear5",
+      "beforeStartedAt": 1795695493,
+      "afterStartedAt": 1795695582,
+      "clickedAt": 1795695581,
+      "version": "1.8.98"
     }
   },
   "latestCandidate": {
@@ -3354,7 +3361,7 @@
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795695493,
+        "startedAt": 1795695582,
         "running": true,
         "paused": false
       },
@@ -3375,7 +3382,7 @@
       "currentGear": "Diamond Mask"
     },
     "restartChecks": 32,
-    "naturalRemoteLoaderButtonRestartObserved": false,
+    "naturalRemoteLoaderButtonRestartObserved": true,
     "dashboardChecks": 120,
     "dashboardLive": {
       "account": "QuackAltear5",
@@ -3384,6 +3391,13 @@
       "gearPreviewModels": 1,
       "modelScripts": 0,
       "selected": "Diamond Mask"
+    },
+    "restartButtonLive": {
+      "account": "QuackAltear5",
+      "beforeStartedAt": 1795695493,
+      "afterStartedAt": 1795695582,
+      "clickedAt": 1795695581,
+      "version": "1.8.98"
     }
   }
 }

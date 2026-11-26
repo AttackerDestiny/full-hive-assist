@@ -3,7 +3,7 @@
 Run the public launcher:
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/start.luau?reload="..os.time()))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-hive-assist/main/start.luau?reload="..os.time(),true))()
 ```
 
 The launcher downloads `core.luau` from `main`. Feather opens as soon as the player UI is available, and gameplay starts when the game and Atlas controls are ready.
