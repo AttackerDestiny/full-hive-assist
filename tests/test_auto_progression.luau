@@ -847,7 +847,15 @@ return function(P)
         f.inventory={};r=P.plan(f,c)
         check(r.gear=="Third Gear"and #r.deferredMaterialGear==2,"Multiple passive-only targets yield to an obtainable third target")
         c.gear["Third Gear"].items={MagicBean=2};r=P.plan(f,c)
-        check(r.gear=="Candy Planter"and #r.deferredMaterialGear==3,"All-passive queues wait deterministically without a cycling target")
+        check(not r.gear and not r.materialFarmGear and r.allMaterialDeferred and #r.deferredMaterialGear==3,"All-passive queue has no falsely active material target")
+        check(r.action.reason=="waiting-passive-materials"and r.optionalHiveAllowed,"All-passive wait keeps hive progression available")
+        check(r.deferredMaterialReasons["Candy Planter"].SoftWax==5,"Deferred target reports its exact remaining drop requirement")
+        P.stages[1].gear[#P.stages[1].gear+1]="Honey Gear"
+        c.gear["Honey Gear"]={honey=200000000,items={}};f.honey=100000000
+        r=P.plan(f,c)
+        check(r.gear=="Honey Gear"and r.savingGearHoney and r.allMaterialDeferred,"All-passive material queues yield to real honey gear funding")
+        check(not r.materialFarmGear and not next(r.farmMissing),"No material field is falsely selected for passive drops")
+        f.ownedGear["Honey Gear"]=true
         f.discoveryPreparation=true;r=P.plan(f,c)
         check(r.discoveryPreparation and r.queueMaterialRequirements.SoftWax==5 and #r.deferredMaterialGear==0,"Combined SSA material accounting remains intact")
         P.stages=stages

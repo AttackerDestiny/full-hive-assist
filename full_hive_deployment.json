@@ -3289,36 +3289,36 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.100",
+    "version": "1.8.101",
     "bundle": "core.luau",
-    "sha256": "38b597d8101cb59a239a8ce07bef64cd3e7438fd37f076d112af3db7a0662466",
-    "deployedNormalizedUTF8Sha256": "a24b90dbe31aed2afb64f2ebe273e7292425ef184eef14b0f4df5dd7d38cae3b",
+    "sha256": "3818739abe2130b96cb9cea5bc12fe3a42a1d158ca516d56ad177946db2a9ac0",
+    "deployedNormalizedUTF8Sha256": "fb21a70d0ec246bca65778e0ecc9a3b482854969b13d97ec723fbb37b4de0f2c",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795696381,
+        "startedAt": 1795696889,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795696394,
+        "startedAt": 1795696889,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795696383,
+        "startedAt": 1795696889,
         "running": true,
         "paused": false
       }
     ],
-    "offlineChecks": 6638,
-    "connectedChecks": 6636,
+    "offlineChecks": 6644,
+    "connectedChecks": 6640,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3346,7 +3346,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 397,
+    "progressionChecks": 401,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3354,39 +3354,42 @@
       "QuackAltear5": 40,
       "QuackAltear06": 42
     },
-    "naturalPassiveCandyDeferralObserved": false
+    "naturalPassiveCandyDeferralObserved": false,
+    "uiChecks": 44,
+    "allPassiveFallbackFixed": true,
+    "cleanOverviewLiveVerified": "QuackAltear5"
   },
   "latestCandidate": {
-    "version": "1.8.100",
+    "version": "1.8.101",
     "bundle": "core.luau",
-    "sha256": "38b597d8101cb59a239a8ce07bef64cd3e7438fd37f076d112af3db7a0662466",
-    "deployedNormalizedUTF8Sha256": "a24b90dbe31aed2afb64f2ebe273e7292425ef184eef14b0f4df5dd7d38cae3b",
+    "sha256": "3818739abe2130b96cb9cea5bc12fe3a42a1d158ca516d56ad177946db2a9ac0",
+    "deployedNormalizedUTF8Sha256": "fb21a70d0ec246bca65778e0ecc9a3b482854969b13d97ec723fbb37b4de0f2c",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795696381,
+        "startedAt": 1795696889,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795696394,
+        "startedAt": 1795696889,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795696383,
+        "startedAt": 1795696889,
         "running": true,
         "paused": false
       }
     ],
-    "offlineChecks": 6638,
-    "connectedChecks": 6636,
+    "offlineChecks": 6644,
+    "connectedChecks": 6640,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3414,7 +3417,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 397,
+    "progressionChecks": 401,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3422,6 +3425,9 @@
       "QuackAltear5": 40,
       "QuackAltear06": 42
     },
-    "naturalPassiveCandyDeferralObserved": false
+    "naturalPassiveCandyDeferralObserved": false,
+    "uiChecks": 44,
+    "allPassiveFallbackFixed": true,
+    "cleanOverviewLiveVerified": "QuackAltear5"
   }
 }

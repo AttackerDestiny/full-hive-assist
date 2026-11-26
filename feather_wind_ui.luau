@@ -31,6 +31,7 @@ end
 
 function UI.describeGear(report)
     if not report.Gear then
+        if report.AllMaterialDeferred then return "Material targets are waiting for drops.\nHive progression continues.\nSee Progression for missing materials."end
         return report.Reason=="ordered-gear-complete" and "Gear route complete" or "Inspecting gear..."
     end
     local status=report.Status or {}
@@ -56,16 +57,12 @@ function UI.describeGear(report)
         lines[#lines+1]=line
     end
     if report.GearQueues then
-        for _,kind in ipairs({"A","B"}) do
-            local names={}
-            for index,entry in ipairs(report.GearQueues[kind] or {}) do names[#names+1]=index..". "..entry.id end
-            lines[#lines+1]=(kind=="A" and "Honey queue: " or "Material queue: ")..(#names>0 and table.concat(names," → ") or "Complete")
-        end
-        if report.MaterialFarmGear then lines[#lines+1]="Material farm target: "..report.MaterialFarmGear end
+        lines[#lines+1]="Queues · "..#(report.GearQueues.A or {}).." honey / "..#(report.GearQueues.B or {}).." material"
+        if report.MaterialFarmGear then lines[#lines+1]="Material prep: "..report.MaterialFarmGear
+        elseif report.AllMaterialDeferred then lines[#lines+1]="Material prep: waiting for drops"end
         if report.DeferredMaterialGear and #report.DeferredMaterialGear>0 then
-            lines[#lines+1]="Waiting for drops: "..table.concat(report.DeferredMaterialGear,", ")
+            lines[#lines+1]=#report.DeferredMaterialGear.." deferred · details in Progression"
         end
-        if report.MaterialFarmEnabled~=nil then lines[#lines+1]="Super Material Farm: "..(report.MaterialFarmEnabled and "ON" or "OFF") end
         if report.MaterialFarmStatus then lines[#lines+1]=report.MaterialFarmStatus end
         if report.DiscoveryPreparation then
             lines[#lines+1]=report.QueueMaterialsReady and "Combined queue materials: ready" or "Preparing combined queue materials before Mythic feeding"
@@ -90,6 +87,27 @@ function UI.describeRouteGear(row,honey)
         lines[#lines+1]="Entry or purchase requirements not met"
     end
     if row.capacityRequired then lines[#lines+1]="Requires "..row.capacityRequired.." unlocked hive slots"end
+    return table.concat(lines,"\n")
+end
+
+function UI.describeQueues(report)
+    local lines={}
+    for _,kind in ipairs({"A","B"})do
+        lines[#lines+1]=kind=="A" and "HONEY QUEUE" or "MATERIAL QUEUE"
+        local queue=(report.GearQueues or {})[kind]or{}
+        if #queue==0 then lines[#lines+1]="No queued gear"end
+        for index,entry in ipairs(queue)do
+            local line=index..". "..entry.id
+            local reasons=(report.DeferredMaterialReasons or{})[entry.id]
+            if reasons then
+                local items={};for name,n in pairs(reasons)do items[#items+1]=name:gsub("(%l)(%u)","%1 %2").." ×"..amount(n)end
+                table.sort(items);line..="\n   Waiting: "..table.concat(items,", ")
+            elseif entry.id==report.Gear then line..=" · active"end
+            lines[#lines+1]=line
+        end
+        lines[#lines+1]=""
+    end
+    lines[#lines+1]="Material farming: "..(report.MaterialFarmEnabled and "ON"or"OFF")
     return table.concat(lines,"\n")
 end
 
@@ -249,6 +267,7 @@ function UI.mount(parent,overlay,version,callbacks)
         local hive=overview:Paragraph({Title="Hive",Desc="Waiting for hive data..."})
         local jellyGoal=overview:Paragraph({Title="Jelly rolling",Desc="Waiting for a hive plan"})
         local gear=progression:Paragraph({Title="Gear and Blender",Desc="Inspecting gear..."})
+        local queues=progression:Paragraph({Title="Gear queues",Desc="Reading queued gear..."})
         local background=progression:Paragraph({Title="Amulets and quests",Desc="Inspecting..."})
         overview:Button({Title="View hive",Icon="eye",Callback=function() callbacks.viewHive() end})
         local gearTarget=overview:Paragraph({Title="Gear target",Desc="Inspecting gear..."})
@@ -296,6 +315,7 @@ function UI.mount(parent,overlay,version,callbacks)
                 update(jellyGoal,"SetDesc","jellyGoal",state.jellyGoal or "Waiting for a hive plan")
                 update(gearTarget,"SetDesc","gearTarget",state.gearTarget)
                 update(gear,"SetDesc","gear",state.gear)
+                update(queues,"SetDesc","queues",state.gearQueues or "Reading queued gear...")
                 update(background,"SetDesc","background",state.background)
                 update(giftedTypes,"SetDesc","giftedTypes",state.giftedTypes~=nil and tostring(state.giftedTypes).." discovered gifted bee types" or "Waiting for discovery data...")
                 update(mythicProgress,"SetDesc","mythicProgress",state.mythicDiscovery or "Waiting for post-Star preparation")

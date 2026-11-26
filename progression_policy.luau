@@ -692,6 +692,7 @@ function P.describe(result,facts,catalog)
         ['speedup-blender']='Completing Blender order',['redeem-code']='Redeeming code',hive='Hive progression'}
     local reason=action.reason or result.reason
     local label=labels[action.kind] or (reason=="blender-busy" and "Blender running; hive continues")
+        or (reason=="waiting-passive-materials"and"Waiting for material drops; hive continues")
         or (reason=="saving-crafting-jelly" and "Saving honey for crafting jelly")
         or (reason=="saving-diamond-tickets"and"Saving honey for Diamond Egg tickets")
         or (phase=="saving-gear-honey" and "Saving honey for gear") or "Waiting for materials or requirements"
@@ -814,6 +815,7 @@ local function queuePlan(facts,catalog,primary)
     end
     local materialCandidate=queues.B[1]
     local deferredMaterials={}
+    local deferredReasons={}
     local farmable={Strawberry=true,Blueberry=true,SunflowerSeed=true,Pineapple=true}
     local function passiveShortages(candidate)
         local gear=catalog.gear[candidate.id]
@@ -827,12 +829,15 @@ local function queuePlan(facts,catalog,primary)
             if farmable[item] or item=="RoyalJelly" or item=="Gumdrops"
                 or (catalog.sources or {})[item] or (catalog.purchases or {})[item] then return false end
         end
-        return true
+        return true,copy(materials.missingItems)
     end
     if not facts.discoveryPreparation then
+        materialCandidate=nil
         for _,candidate in ipairs(queues.B) do
-            if not passiveShortages(candidate) then materialCandidate=candidate;break end
+            local passive,reasons=passiveShortages(candidate)
+            if not passive then materialCandidate=candidate;break end
             deferredMaterials[#deferredMaterials+1]=candidate.id
+            deferredReasons[candidate.id]=reasons
         end
     end
     local priorityMaterial=decide(materialCandidate)
@@ -852,6 +857,8 @@ local function queuePlan(facts,catalog,primary)
         if not result then return nil end
         result.gearQueues=queues
         result.deferredMaterialGear=deferredMaterials
+        result.deferredMaterialReasons=deferredReasons
+        result.allMaterialDeferred=#queues.B>0 and materialCandidate==nil
         result.discoveryPreparation=facts.discoveryPreparation==true
         result.queueMaterialRequirements=requirements
         result.queueMaterialsReady=aggregate~=nil and not next(aggregate.missingItems) and #aggregate.crafts==0 and not next(aggregate.queuedItems)
@@ -894,7 +901,11 @@ local function queuePlan(facts,catalog,primary)
         if result then return finish(result) end
     end
     if material then return finish(material) end
-    return finish(decide(queues.A[1]))
+    local honey=decide(queues.A[1])
+    if honey then return finish(honey)end
+    return finish({optionalHiveAllowed=true,reserveHoney=facts.honeyReserve or 0,reservedItems={},
+        materialDemand={},missingItems={},reason="waiting-passive-materials",
+        action=parallelAction({kind="wait",reason="waiting-passive-materials"})})
 end
 function P.plan(facts,catalog)
     local result=plan(facts,catalog)

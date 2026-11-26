@@ -17,6 +17,7 @@ return function(H)
             ReservedItems=decision.reservedItems,MissingItems=decision.missingItems,GrowthHoney=decision.growthHoney,
             GearQueues=decision.gearQueues,MaterialFarmGear=decision.materialFarmGear,
             DeferredMaterialGear=decision.deferredMaterialGear,
+            DeferredMaterialReasons=decision.deferredMaterialReasons,AllMaterialDeferred=decision.allMaterialDeferred,
             DiscoveryPreparation=decision.discoveryPreparation,QueueMaterialsReady=decision.queueMaterialsReady,
             QueueMaterialRequirements=decision.queueMaterialRequirements,QueueMaterialMissing=decision.queueMaterialMissing,
             MaterialFarmEnabled=H.Config.SuperMaterialFarm==true,MaterialFarmStatus=env.FullHiveMaterialFarm and env.FullHiveMaterialFarm.error,

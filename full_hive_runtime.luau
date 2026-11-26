@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.100"
+local SCRIPT_VERSION = "1.8.101"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -2104,7 +2104,7 @@ local function readUIStatus()
     end
     local pg=Report.Progression or {}
     local status=pg.Status or {}
-    local title=pg.Gear and ("Target: "..pg.Gear) or "Gear route complete"
+    local title=pg.Gear and ("Target: "..pg.Gear) or pg.AllMaterialDeferred and "Waiting for material drops" or "Gear route complete"
     local lines={title}
     lines[#lines+1]=status.label or pg.Reason or pg.Action or "Inspecting gear"
     local counts={}
@@ -2150,6 +2150,7 @@ local function readUIStatus()
             or Report.Activity or Report.Phase),
         progress=progress,gear=table.concat(lines,"\n"),
         gearTarget=FeatherWindUI.describeGear(pg),
+        gearQueues=FeatherWindUI.describeQueues(pg),
         jellyGoal=FeatherWindUI.describeJelly(Report.JellyGoal),
         nextSlot=FeatherWindUI.describeSlot(Report.Slots,Report.NextHiveSlotPrice),
         background="Amulets: "..tostring(bg.Amulet or "Inspecting").."\nQuest assist: "..tostring(bg.Quest or "Inspecting"),
