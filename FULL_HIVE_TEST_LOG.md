@@ -1359,3 +1359,11 @@ Loaded the exact authorized Atlas URL once while absent, then verified one Stop 
 - No live execution was performed. Native list-clients was rejected with: MCP tool call requires approval, but approval policy is never. Did not retry via SDK/CLI or another execution surface. latestDeployment remains the previous observations; latestCandidate records1.8.87 and approval block.
 - Bundle SHA-256 87b737cd3ac2e19ab7c2ca282fde07f1ac0b6d20659b5858a0ff7821c5dbdb0e.
 
+
+## v1.8.88 — Candy Planter before Blue Port-O-Hive
+
+- Latest correction sets route Basic Sprinkler / Candy Planter / Blue Port-O-Hive / Beekeeper's Mask / Beekeeper's Boots / Mondo Belt Bag / Blue Clay Planter / Red Clay Planter. Updated existing route regression; queue price priorities continue to apply.
+- Rebuild/header1.8.88 and42 compatibility markers passed. Relevant offline338 progression+34 UI+15 event checks passed (387).
+- MCP access is available again. Rediscovered intended Delta accounts/place1537690962/job5e02531d-d578-45c4-b439-c1db534c4fd1; pre-read06/5 healthy1.8.86 with no unresolved flags. Quack1 pre-read timed out. Guarded native maintenance files still independently block human stop/pause or unresolved requests, wait for clean release and execute once per intended account. Fresh version/report/Running verified1.8.88 on QuackAltear1 StartedAt1795666651, QuackAltear5/06 StartedAt1795666657, no reported errors. Larger route/GC probes timed out; compact reads succeeded. No natural purchase or visual UI claim is made for this route edit.
+- SHA-256 2f4a9182e2523d34c72ffafb2c03d7af304f9973b69274fc26ab9368b57830ba.
+

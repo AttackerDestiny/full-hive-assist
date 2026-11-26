@@ -6,7 +6,7 @@ P.stages = {
     {gate=0, gear={"Clippers", "Jar", "Canister", "Vacuum", "Basic Boots", "Belt Pocket", "Helmet",
         "Super-Scooper", "Compressor", "Electro-Magnet", "Port-O-Hive", "Honey Dipper", "Propeller Hat",
         "Hiking Boots", "Brave Guard", "Looker Guard", "Bubble Wand"}},
-    {gate=0, gear={"Basic Sprinkler", "Blue Port-O-Hive", "Candy Planter", "Beekeeper's Mask", "Beekeeper's Boots",
+    {gate=0, gear={"Basic Sprinkler", "Candy Planter", "Blue Port-O-Hive", "Beekeeper's Mask", "Beekeeper's Boots",
         "Mondo Belt Bag", "Blue Clay Planter", "Red Clay Planter"}},
     {gate=0, gear={"Porcelain Dipper"}},
     {gate=35, gear={"Porcelain Port-O-Hive", "Bubble Mask"}},
