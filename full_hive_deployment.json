@@ -3289,36 +3289,36 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.102",
+    "version": "1.8.103",
     "bundle": "core.luau",
-    "sha256": "b6f1249a1a297dd731910fb7bc65c5aa316fbdd7d2eee4c163a8931f6d28cefa",
-    "deployedNormalizedUTF8Sha256": "b8a1854c0c5c74c42f9d7996e1a34da6af02fc2f03dacf2eb41c8ba5dc02ebbc",
+    "sha256": "20443a88a2a528f65fdc392bbe8ab6aa3489073f31b5b3e9e5fa00596235b5f0",
+    "deployedNormalizedUTF8Sha256": "255df4d135700e11f9663ac7da3ff60c74096edf6adb94169fc992cc7e2caf37",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795697263,
+        "startedAt": 1795697528,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795697263,
+        "startedAt": 1795697523,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795697264,
+        "startedAt": 1795697546,
         "running": true,
         "paused": false
       }
     ],
-    "offlineChecks": 6645,
-    "connectedChecks": 6640,
+    "offlineChecks": 6657,
+    "connectedChecks": 6652,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3346,7 +3346,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 401,
+    "progressionChecks": 413,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3362,39 +3362,45 @@
       "QuackAltear1",
       "QuackAltear5",
       "QuackAltear06"
+    ],
+    "materialPriority": "remaining material quantities after verified recipe expansion, then honey, then route order",
+    "liveMaterialOrder": [
+      "Petal Belt",
+      "Diamond Mask",
+      "Coconut Canister"
     ]
   },
   "latestCandidate": {
-    "version": "1.8.102",
+    "version": "1.8.103",
     "bundle": "core.luau",
-    "sha256": "b6f1249a1a297dd731910fb7bc65c5aa316fbdd7d2eee4c163a8931f6d28cefa",
-    "deployedNormalizedUTF8Sha256": "b8a1854c0c5c74c42f9d7996e1a34da6af02fc2f03dacf2eb41c8ba5dc02ebbc",
+    "sha256": "20443a88a2a528f65fdc392bbe8ab6aa3489073f31b5b3e9e5fa00596235b5f0",
+    "deployedNormalizedUTF8Sha256": "255df4d135700e11f9663ac7da3ff60c74096edf6adb94169fc992cc7e2caf37",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
         "account": "QuackAltear1",
         "uiVerified": true,
-        "startedAt": 1795697263,
+        "startedAt": 1795697528,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear5",
         "uiVerified": true,
-        "startedAt": 1795697263,
+        "startedAt": 1795697523,
         "running": true,
         "paused": false
       },
       {
         "account": "QuackAltear06",
         "uiVerified": true,
-        "startedAt": 1795697264,
+        "startedAt": 1795697546,
         "running": true,
         "paused": false
       }
     ],
-    "offlineChecks": 6645,
-    "connectedChecks": 6640,
+    "offlineChecks": 6657,
+    "connectedChecks": 6652,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3422,7 +3428,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 401,
+    "progressionChecks": 413,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3438,6 +3444,12 @@
       "QuackAltear1",
       "QuackAltear5",
       "QuackAltear06"
+    ],
+    "materialPriority": "remaining material quantities after verified recipe expansion, then honey, then route order",
+    "liveMaterialOrder": [
+      "Petal Belt",
+      "Diamond Mask",
+      "Coconut Canister"
     ]
   }
 }

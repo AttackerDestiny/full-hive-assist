@@ -93,7 +93,7 @@ end
 function UI.describeQueues(report)
     local lines={}
     for _,kind in ipairs({"A","B"})do
-        lines[#lines+1]=kind=="A" and "HONEY QUEUE" or "MATERIAL QUEUE"
+        lines[#lines+1]=kind=="A" and "HONEY QUEUE · honey cost" or "MATERIAL QUEUE · remaining materials"
         local queue=(report.GearQueues or {})[kind]or{}
         if #queue==0 then lines[#lines+1]="No queued gear"end
         for index,entry in ipairs(queue)do

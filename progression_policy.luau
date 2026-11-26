@@ -802,12 +802,24 @@ local function queuePlan(facts,catalog,primary)
         local kind=next(gear.items) and "B" or "A"
         if #queues[kind]<5 then
             candidate.queueSelected=true;candidate.honey=gear.honey;candidate.order=#queues.A+#queues.B+1
+            if kind=="B" then
+                local materials=P.materials(gear.items,facts,catalog)
+                if not materials and candidate.id==primary.gear then return nil end
+                candidate.materialShortfall=math.huge
+                if materials then
+                    candidate.materialShortfall=0
+                    for _,count in pairs(materials.missingItems)do candidate.materialShortfall+=count end
+                end
+            end
             queues[kind][#queues[kind]+1]=candidate
         end
         if #queues.A==5 and #queues.B==5 then break end
     end
-    for _,queue in ipairs({queues.A,queues.B}) do
-        table.sort(queue,function(a,b) return a.honey<b.honey or a.honey==b.honey and a.order<b.order end)
+    for kind,queue in pairs(queues) do
+        table.sort(queue,function(a,b)
+            if kind=="B"and a.materialShortfall~=b.materialShortfall then return a.materialShortfall<b.materialShortfall end
+            return a.honey<b.honey or a.honey==b.honey and a.order<b.order
+        end)
         for priority,candidate in ipairs(queue) do candidate.priority=priority end
     end
     local function decide(candidate,f)
