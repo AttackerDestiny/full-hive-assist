@@ -84,6 +84,30 @@ return function(M,runtime)
     check(failedState.field==nil and failedState.error~=nil,"Failed switch never reports active farming")
     succeeds=true;retry.update(true,{SunflowerSeed=1})
     check(failedState.field=="Sunflower Field" and failedState.error==nil,"Failed switch retries and verifies")
+    do
+        local function button(text,parent)
+            return {Text=text,Parent=parent,IsA=function(_,class)return class=="TextButton"end}
+        end
+        local function folder(title)
+            local f={Name="Folder"};local h=button(title,f)
+            f.GetChildren=function()return {h}end
+            return f
+        end
+        local farming=folder("   Farming");local quests=folder("   Auto Quest")
+        local main=button("   Field: Pine Tree Forest",{Parent=farming})
+        local other=button("   Field: Strawberry Field",{Parent=quests})
+        local root={QueryDescendants=function()return {other,main}end}
+        check(M.mainFieldControl({root})==main,"Main Farming selector wins over unrelated Field controls")
+        check(M.mainFieldControl({root,root})==main,"Repeated visible and detached roots deduplicate")
+        check(M.mainFieldControl({{QueryDescendants=function()return {other}end}})==nil,"Unrelated selector alone never substitutes for main field")
+        local second=button("Field: Bamboo Field",{Parent=folder("Farming")})
+        check(M.mainFieldControl({{QueryDescendants=function()return {main,second}end}})==nil,"Two actual main controls remain ambiguous")
+        check(M.mainFieldControl({{QueryDescendants=function()return {}end},root})==main,"Detached Farming tab remains discoverable")
+        main.Text="Field: Sunflower Field"
+        check(M.isMainField(main),"Main control stays valid after switching")
+        main.Parent=nil
+        check(not M.isMainField(main),"Detached or destroyed control cannot remain cached")
+    end
     if runtime then
         local body=assert(runtime:match("set=function%(field%)(.-)\n        end,\n        allowed"))
         local factory=assert(loadstring("return function(MaterialFarm,fieldControl,fieldAccess,getconnections,task,os) local function set(field) "..body.." end return set end"))()

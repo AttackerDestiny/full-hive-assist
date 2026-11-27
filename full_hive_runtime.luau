@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.116"
+local SCRIPT_VERSION = "1.8.117"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1065,45 +1065,13 @@ local function initializeProgression()
     end
     local cachedFieldControl
     local function fieldControl()
-        if cachedFieldControl and cachedFieldControl.Parent and cachedFieldControl.Text:match("^%s*Field:") then
+        if cachedFieldControl and cachedFieldControl.Parent and MaterialFarm.isMainField(cachedFieldControl)then
             return cachedFieldControl
         end
         local roots={uiParent()}
-        for _,button in ipairs(descendants(roots[1],"TextButton")) do
-            if button.Text:match("^%s*Field:") then
-                cachedFieldControl=button
-                return button
-            end
-        end
-        for _,tabs in ipairs(descendants(roots[1],"Frame")) do
-            if tabs.Name=="TabButtons" then
-            local buttons=tabs:FindFirstChild("ScrollingFrame")
-            for _,button in ipairs(buttons and buttons:GetChildren() or {}) do
-                if button:IsA("TextButton") then
-                    for _,connection in ipairs(getconnections(button.MouseButton1Click)) do
-                        if type(connection.Function)=="function" then
-                            for _,value in pairs(reader(connection.Function) or {}) do
-                                if typeof(value)=="Instance" and value:IsA("ScrollingFrame") and not value.Parent then
-                                    roots[#roots+1]=value
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-            end
-        end
-        local found
-        for _,searchRoot in ipairs(roots) do
-        for _,button in ipairs(searchRoot:QueryDescendants("TextButton")) do
-            if button.Text:match("^%s*Field:") then
-                if found and found~=button then return nil end
-                found=button
-            end
-        end
-        end
-        cachedFieldControl=found
-        return found
+        for _,tab in ipairs(atlasTabs(roots[1]))do roots[#roots+1]=tab end
+        cachedFieldControl=MaterialFarm.mainFieldControl(roots)
+        return cachedFieldControl
     end
     materialFarm=MaterialFarm.new({state=env.FullHiveMaterialFarm,
         occupied=function() return #scan(Cache:Get()) end,

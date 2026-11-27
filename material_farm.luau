@@ -1,5 +1,35 @@
 -- Tracks crafting fruit shortages and selects the return field by occupied bees.
 local M={}
+-- Bind the main Farming section, not an Auto Quest or other field selector.
+function M.isMainField(control)
+    if not control or not control:IsA("TextButton")or not control.Text:match("^%s*Field:")then return false end
+    local parent=control.Parent
+    while parent do
+        if parent.Name=="Folder"then
+            for _,header in ipairs(parent:GetChildren())do
+                if header:IsA("TextButton")and header.Text:match("^%s*(.-)%s*$")=="Farming"then return true end
+            end
+            return false
+        end
+        parent=parent.Parent
+    end
+    return false
+end
+function M.mainFieldControl(roots)
+    local found,seen=nil,{}
+    for _,root in ipairs(roots)do
+        if not seen[root]then
+            seen[root]=true
+            for _,control in ipairs(root:QueryDescendants("TextButton"))do
+                if M.isMainField(control)then
+                    if found and found~=control then return nil end
+                    found=control
+                end
+            end
+        end
+    end
+    return found
+end
 function M.fieldOptions(control)
     local parent=control and control.Parent
     if not parent then return nil end

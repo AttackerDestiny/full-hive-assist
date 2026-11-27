@@ -3289,22 +3289,21 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.116",
+    "version": "1.8.117",
     "bundle": "core.luau",
-    "sha256": "40b89aeba2cfeb3adbeadc9ec1dc983f4ef7f72e1601311c2e5647d35c6e3c4d",
-    "deployedNormalizedUTF8Sha256": "459e8e6bceb4aefc98bc325b78d6aeec3363e4f9db9b15f614eeb5dd3b12c1e9",
-    "jobId": "aabfea9d-2086-42e9-ba9c-f0a6611f7368",
+    "sha256": "f6aa8ba9a2580988bef43b5cadea5d5545d4209abf93820160cf08a635300ee7",
+    "deployedNormalizedUTF8Sha256": "3fdcfa5882afa4379f0786288dad6bda46796234565ccee12cf42f6fa2221a51",
+    "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
-        "account": "QuackTest03",
+        "account": "QuackAltear1",
         "executor": "Delta",
-        "version": "1.8.116",
-        "startedAt": 1795748607,
+        "version": "1.8.117",
+        "startedAt": 1795749124,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "actualAtlasStopped": false,
         "pendingRequests": false,
         "uncertainRequests": false
       }
@@ -3313,49 +3312,38 @@
       "QuackTest02"
     ],
     "offlineChecks": 6996,
-    "connectedChecks": 6988,
+    "separateMaterialFarmChecks": 45,
+    "connectedChecks": 6995,
     "connectedAllPassed": true,
     "progressionChecks": 534,
-    "materialFarmChecks": 38,
     "compatibilityMarkers": 42,
-    "queueLimit": {
-      "honey": 5,
-      "material": 5
-    },
-    "materialPriority": "remaining leaf ingredients after inventory and queued output; honey then route ties",
-    "honeyPriority": "honey price then route",
-    "liveTarget": "Beekeeper's Boots",
-    "liveBlender": {
-      "item": "Oil",
-      "count": 1,
-      "startTime": 159506.14544296
-    },
-    "naturalBootsPurchaseObserved": false,
     "materialFarmStatusLive": {
-      "rendered": true,
-      "actualField": "unavailable",
-      "fruit": "none",
-      "active": false
+      "field": "Pine Tree Forest",
+      "fruit": "Blueberry",
+      "held": 5776,
+      "remaining": 6474,
+      "active": true,
+      "gear": "Diamond Mask"
     },
-    "deploymentScope": "QuackTest03 only"
+    "naturalCrossFieldSwitchObserved": false,
+    "deploymentScope": "QuackAltear1 only"
   },
   "latestCandidate": {
-    "version": "1.8.116",
+    "version": "1.8.117",
     "bundle": "core.luau",
-    "sha256": "40b89aeba2cfeb3adbeadc9ec1dc983f4ef7f72e1601311c2e5647d35c6e3c4d",
-    "deployedNormalizedUTF8Sha256": "459e8e6bceb4aefc98bc325b78d6aeec3363e4f9db9b15f614eeb5dd3b12c1e9",
-    "jobId": "aabfea9d-2086-42e9-ba9c-f0a6611f7368",
+    "sha256": "f6aa8ba9a2580988bef43b5cadea5d5545d4209abf93820160cf08a635300ee7",
+    "deployedNormalizedUTF8Sha256": "3fdcfa5882afa4379f0786288dad6bda46796234565ccee12cf42f6fa2221a51",
+    "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [
       {
-        "account": "QuackTest03",
+        "account": "QuackAltear1",
         "executor": "Delta",
-        "version": "1.8.116",
-        "startedAt": 1795748607,
+        "version": "1.8.117",
+        "startedAt": 1795749124,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "actualAtlasStopped": false,
         "pendingRequests": false,
         "uncertainRequests": false
       }
@@ -3364,31 +3352,21 @@
       "QuackTest02"
     ],
     "offlineChecks": 6996,
-    "connectedChecks": 6988,
+    "separateMaterialFarmChecks": 45,
+    "connectedChecks": 6995,
     "connectedAllPassed": true,
     "progressionChecks": 534,
-    "materialFarmChecks": 38,
     "compatibilityMarkers": 42,
-    "queueLimit": {
-      "honey": 5,
-      "material": 5
-    },
-    "materialPriority": "remaining leaf ingredients after inventory and queued output; honey then route ties",
-    "honeyPriority": "honey price then route",
-    "liveTarget": "Beekeeper's Boots",
-    "liveBlender": {
-      "item": "Oil",
-      "count": 1,
-      "startTime": 159506.14544296
-    },
-    "naturalBootsPurchaseObserved": false,
     "materialFarmStatusLive": {
-      "rendered": true,
-      "actualField": "unavailable",
-      "fruit": "none",
-      "active": false
+      "field": "Pine Tree Forest",
+      "fruit": "Blueberry",
+      "held": 5776,
+      "remaining": 6474,
+      "active": true,
+      "gear": "Diamond Mask"
     },
-    "deploymentScope": "QuackTest03 only"
+    "naturalCrossFieldSwitchObserved": false,
+    "deploymentScope": "QuackAltear1 only"
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -3655,5 +3633,56 @@
       "phone4": "status timeout",
       "phone5": "status and screenshot reachable; no device mutation"
     }
+  },
+  "deploymentBeforeFieldDiscovery117": {
+    "version": "1.8.116",
+    "bundle": "core.luau",
+    "sha256": "40b89aeba2cfeb3adbeadc9ec1dc983f4ef7f72e1601311c2e5647d35c6e3c4d",
+    "deployedNormalizedUTF8Sha256": "459e8e6bceb4aefc98bc325b78d6aeec3363e4f9db9b15f614eeb5dd3b12c1e9",
+    "jobId": "aabfea9d-2086-42e9-ba9c-f0a6611f7368",
+    "accounts": [
+      {
+        "account": "QuackTest03",
+        "executor": "Delta",
+        "version": "1.8.116",
+        "startedAt": 1795748607,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "actualAtlasStopped": false,
+        "pendingRequests": false,
+        "uncertainRequests": false
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "offlineChecks": 6996,
+    "connectedChecks": 6988,
+    "connectedAllPassed": true,
+    "progressionChecks": 534,
+    "materialFarmChecks": 38,
+    "compatibilityMarkers": 42,
+    "queueLimit": {
+      "honey": 5,
+      "material": 5
+    },
+    "materialPriority": "remaining leaf ingredients after inventory and queued output; honey then route ties",
+    "honeyPriority": "honey price then route",
+    "liveTarget": "Beekeeper's Boots",
+    "liveBlender": {
+      "item": "Oil",
+      "count": 1,
+      "startTime": 159506.14544296
+    },
+    "naturalBootsPurchaseObserved": false,
+    "materialFarmStatusLive": {
+      "rendered": true,
+      "actualField": "unavailable",
+      "fruit": "none",
+      "active": false
+    },
+    "deploymentScope": "QuackTest03 only"
   }
 }
