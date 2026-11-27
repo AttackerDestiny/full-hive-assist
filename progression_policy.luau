@@ -30,11 +30,11 @@ P.stages = {
 -- stays intact below that capacity; this catch-up intentionally puts Red
 -- before Blue in the order given by the newer instruction.
 P.planterCatchup={"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}
-P.capacityRequirements={["Pesticide Planter"]=45,["Porcelain Port-O-Hive"]=35,["Diamond Mask"]=41}
+P.capacityRequirements={["Pesticide Planter"]=45,["Porcelain Port-O-Hive"]=35,["Diamond Mask"]=40}
 P.inventoryRequirements={["Petal Belt"]={item="SpiritPetal",amount=1}}
-P.ownershipRequirements={["Coconut Canister"]="Diamond Mask",["Pesticide Planter"]="Diamond Mask",
+P.ownershipRequirements={["Diamond Mask"]="Diamond Drenchers",["Coconut Canister"]="Diamond Mask",["Pesticide Planter"]="Diamond Mask",
     ["Red Clay Planter"]="Porcelain Dipper",["Blue Clay Planter"]="Porcelain Dipper"}
-P.equipmentRequirements={["Coconut Canister"]="Diamond Mask",
+P.equipmentRequirements={["Diamond Mask"]="Diamond Drenchers",["Coconut Canister"]="Diamond Mask",
     ["Red Clay Planter"]="Porcelain Dipper",["Blue Clay Planter"]="Porcelain Dipper"}
 P.loadoutRequirements={["Bubble Mask"]={"Porcelain Dipper","Porcelain Port-O-Hive","Beekeeper's Mask","Beekeeper's Boots","Mondo Belt Bag"}}
 P.beeRequirements={["Cobalt Guard"]={Baby=4,Music=4,Shy=3},["Crimson Guard"]={Baby=4,Music=4,Shy=3}}

@@ -80,6 +80,7 @@ return function(P,workerSource,BlenderReceipt)
             -- Isolate normal route order; 36+ catch-up has its own cases below.
             for _,planter in ipairs(P.planterCatchup) do f.ownedGear[planter]=true end
             f.ownedGear[name]=false
+            if name=="Diamond Mask"then f.ownedGear["Diamond Drenchers"]=true;f.equippedGear["Diamond Drenchers"]=true end
             if name=="Bubble Mask"then for _,id in ipairs(P.loadoutRequirements[name])do f.ownedGear[id]=true;f.equippedGear[id]=true end end
             if name=="Blue Clay Planter"or name=="Red Clay Planter"then f.ownedGear["Porcelain Dipper"]=true;f.equippedGear["Porcelain Dipper"]=true end
             local r=P.plan(f,catalog(name,100,{}))
@@ -1360,19 +1361,41 @@ return function(P,workerSource,BlenderReceipt)
         local f=facts();f.gearQueues=true;f.occupied=25;f.honey=1000
         for _,id in ipairs(P.planterCatchup)do f.ownedGear[id]=true end
         local c={gear={["Diamond Mask"]={honey=100,items={Glitter=3}},["Next Gear"]={honey=2000,items={}}}}
-        for _,capacity in ipairs({25,35,40})do
+        f.ownedGear["Diamond Drenchers"]=true;f.equippedGear={["Diamond Drenchers"]=true}
+        for _,capacity in ipairs({25,35,39})do
             f.capacity=capacity;local r=P.plan(f,c)
-            check(r.gear=="Next Gear"and #r.gearQueues.B==0,"Diamond Mask waits for slot41 at "..capacity)
+            check(r.gear=="Next Gear"and #r.gearQueues.B==0,"Diamond Mask waits for slot40 at "..capacity)
             check(not r.reservedItems.Glitter and not r.reservedItems.RoyalJelly,"Excluded Diamond Mask reserves no materials or jelly")
-            check(r.deferredRequirementGear["Diamond Mask"]=="Requires 41 unlocked hive slots","Diamond Mask explains its capacity gate")
+            check(r.deferredRequirementGear["Diamond Mask"]=="Requires 40 unlocked hive slots","Diamond Mask explains its capacity gate")
             f.discoveryPreparation=true;r=P.plan(f,c)
             check(not r.queueMaterialRequirements or not r.queueMaterialRequirements.Glitter,"Excluded Diamond Mask contributes no aggregate demand")
             f.discoveryPreparation=nil
         end
-        f.capacity=41;f.inventory.Glitter=3;local r=P.plan(f,c)
-        check(r.gear=="Diamond Mask"and r.action.kind=="buy-gear","Slot41 admits Diamond Mask with only25 occupied bees")
+        f.capacity=40;f.inventory.Glitter=3;local r=P.plan(f,c)
+        check(r.gear=="Diamond Mask"and r.action.kind=="buy-gear","Slot40 admits Diamond Mask with only25 occupied bees")
         f.ownedGear["Diamond Mask"]=true;f.capacity=40
         check(P.plan(f,c).gear~="Diamond Mask","Existing Diamond Mask is not repurchased")
+        P.stages=stages
+    end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Diamond Mask","Next Gear"}}}
+        local f=facts();f.gearQueues=true;f.capacity=40;f.occupied=25;f.honey=0
+        for _,id in ipairs(P.planterCatchup)do f.ownedGear[id]=true end
+        local c={gear={["Diamond Mask"]={honey=100,items={Oil=2}},["Next Gear"]={honey=200,items={}}}}
+        for _,owned in ipairs({false,true})do for _,equipped in ipairs({false,true})do
+            f.ownedGear["Diamond Drenchers"]=owned;f.equippedGear={["Diamond Drenchers"]=equipped}
+            local r=P.plan(f,c)
+            check((r.gear=="Diamond Mask")== (owned and equipped),"Diamond Mask requires Drenchers actually owned AND equipped")
+            if not(owned and equipped)then
+                check(not r.reservedItems.RoyalJelly and #r.gearQueues.B==0,"Excluded mask reserves no recipe jelly")
+                f.discoveryPreparation=true;r=P.plan(f,c);f.discoveryPreparation=nil
+                check(not r.queueMaterialRequirements or not r.queueMaterialRequirements.Oil,"Excluded mask demands no aggregate materials")
+            end
+        end end
+        f.ownedGear["Diamond Drenchers"]=true;f.equippedGear={["Diamond Drenchers"]="unknown"}
+        check(not P.gearPrerequisite(f,"Diamond Mask"),"Unknown sprinkler equipment fails closed")
+        f.equippedGear["Diamond Drenchers"]=nil
+        check(not P.gearPrerequisite(f,"Diamond Mask"),"Absent equipment cannot authorize the mask")
         P.stages=stages
     end
     return {passed=passed}

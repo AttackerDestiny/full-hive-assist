@@ -331,5 +331,24 @@ return function(factory,Policy)
         s.owns["Beekeeper's Boots"]=false;s.owns["Coconut Clogs"]=true;f=factory(deps)(s)
         check(f.ownedGear["Beekeeper's Boots"]==false,"Dependency normalization preserves actual false ownership after upgrade-chain normalization")
     end
+    do
+        local deps,s=fixture();local original=deps.Packages.PlayerHas;local category
+        deps.Packages.PlayerHas=function(package,snapshot)
+            if package.Type=="Diamond Drenchers"then category=package.Category;return true end
+            return original(package,snapshot)
+        end
+        deps.Packages.PlayerHasEquipped=function(package,snapshot)
+            if package.Type=="Diamond Drenchers"then assert(snapshot==s);return true end
+            return false
+        end
+        local f=factory(deps)(s)
+        check(category=="Sprinkler"and f.ownedGear["Diamond Drenchers"]and f.equippedGear["Diamond Drenchers"],"Drenchers dependency uses actual Sprinkler package and fresh equipment")
+        deps.Packages.PlayerHasEquipped=function()return false end
+        check(factory(deps)(s).equippedGear["Diamond Drenchers"]==false,"Unequipped sprinkler remains false")
+        deps.Packages.PlayerHasEquipped=function()return "yes"end
+        check(factory(deps)(s).equippedGear["Diamond Drenchers"]==nil,"Malformed equipment stays unknown")
+        deps.Packages.PlayerHasEquipped=function()error("unavailable")end
+        check(factory(deps)(s).equippedGear["Diamond Drenchers"]==nil,"Failed equipment read cannot admit the mask")
+    end
     return {passed=passed}
 end

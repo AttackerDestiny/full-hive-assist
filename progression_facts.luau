@@ -286,7 +286,7 @@ return function(deps)
         for _,required in ipairs(requirements)do
             if not inspected[required]then
                 inspected[required]=true
-                local package={Category=collectorRanks[required]and"Collector"or"Accessory",Type=required}
+                local package={Category=collectorRanks[required]and"Collector"or sprinklerRanks[required]and"Sprinkler"or"Accessory",Type=required}
                 local owned,ownedKnown=call(deps.Packages,"PlayerHas",package,s)
                 if ownedKnown and type(owned)=="boolean"then facts.ownedGear[required]=owned
                 else facts.ownedGear[required]=nil end

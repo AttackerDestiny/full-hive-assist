@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- November27/v1.8.137: Diamond Mask queue/saving/material preparation requires40+ unlocked slots AND Diamond Drenchers actually owned AND equipped. This supersedes135's41-slot threshold. Drenchers dependency uses fresh CategorySprinkler PlayerHas/PlayerHasEquipped,notAccessory;unknown/error/nonboolean blocks. Do not auto-equip or repurchase owned masks. Existing last-moment action replan,route/ranking,othergear gates and receipts remain.
+
 - November27/v1.8.136: intermittent hive-pad fall hardening. Probe actual collidable support under HivePlatforms landing,derive standing clearance from humanoid/root with3.5minimum,wait instead of moving when floor is unavailable. Hive final tween tolerance0.75,retain rigid AlignPosition arrival hold and remove residual linear/angular velocity. Restore original collisions and humanoid state BEFORE destroying owned constraints. Keep noclip transit,existing release ownership,pending receipts and all progression rules;do not fabricate natural fall-reproduction/landing verification from isolated tests.
 
 - November27/v1.8.135: Diamond Mask enters queues/saving/material preparation only at41+ unlocked hive slots (capacity,not occupied count). Exclude its honey/jelly/aggregate materials below41 and expose the reason. Already-owned mask remains owned;preserve other dependencies,material ranking,route and final revalidation/receipts.
