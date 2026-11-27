@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- November27/v1.8.138: Super Material Farm supports Coconut -> Coconut Field using the verified35 Bee Gate requirements through the existing fresh Reqs.Check path. Mark Coconut farmable in queue preparation so shortages are not passive-only deferrals. Preserve prior fruit priority/active deficit,access checks,return-field rules,toggle and confirmed status. No gate bypass,manual movement or forced Coconut drops.
+
 - November27/v1.8.137: Diamond Mask queue/saving/material preparation requires40+ unlocked slots AND Diamond Drenchers actually owned AND equipped. This supersedes135's41-slot threshold. Drenchers dependency uses fresh CategorySprinkler PlayerHas/PlayerHasEquipped,notAccessory;unknown/error/nonboolean blocks. Do not auto-equip or repurchase owned masks. Existing last-moment action replan,route/ranking,othergear gates and receipts remain.
 
 - November27/v1.8.136: intermittent hive-pad fall hardening. Probe actual collidable support under HivePlatforms landing,derive standing clearance from humanoid/root with3.5minimum,wait instead of moving when floor is unavailable. Hive final tween tolerance0.75,retain rigid AlignPosition arrival hold and remove residual linear/angular velocity. Restore original collisions and humanoid state BEFORE destroying owned constraints. Keep noclip transit,existing release ownership,pending receipts and all progression rules;do not fabricate natural fall-reproduction/landing verification from isolated tests.

@@ -44,6 +44,7 @@ M.routes={
     {item="Blueberry",field="Pine Tree Forest",gate="15 Bee Gate"},
     {item="SunflowerSeed",field="Sunflower Field"},
     {item="Pineapple",field="Pineapple Patch",gate="10 Bee Gate"},
+    {item="Coconut",field="Coconut Field",gate="35 Bee Gate"},
 }
 function M.choose(missing,allowed)
     for _,route in ipairs(M.routes) do

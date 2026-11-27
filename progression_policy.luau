@@ -987,7 +987,7 @@ local function queuePlan(facts,catalog,primary)
     local materialCandidate=queues.B[1]
     local deferredMaterials={}
     local deferredReasons={}
-    local farmable={Strawberry=true,Blueberry=true,SunflowerSeed=true,Pineapple=true}
+    local farmable={Strawberry=true,Blueberry=true,SunflowerSeed=true,Pineapple=true,Coconut=true}
     local function passiveShortages(candidate)
         local gear=catalog.gear[candidate.id]
         local materials=P.materials(gear.items,facts,catalog)

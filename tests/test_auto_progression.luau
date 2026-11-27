@@ -1398,5 +1398,16 @@ return function(P,workerSource,BlenderReceipt)
         check(not P.gearPrerequisite(f,"Diamond Mask"),"Absent equipment cannot authorize the mask")
         P.stages=stages
     end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Clippers"}}}
+        local f=facts();f.gearQueues=true;f.honey=0
+        local c={gear={Clippers={honey=100,items={Coconut=20,SoftWax=2}}}}
+        local r=P.plan(f,c)
+        check(r.materialFarmGear=="Clippers"and r.farmMissing.Coconut==20,"Coconut demand remains active for material farming")
+        check(not r.allMaterialDeferred,"Farmable Coconut is not treated as passive-only drops")
+        f.inventory.Coconut=20;r=P.plan(f,c)
+        check(r.allMaterialDeferred and not r.materialFarmGear,"After Coconut goal only passive shortage remains deferred")
+        P.stages=stages
+    end
     return {passed=passed}
 end

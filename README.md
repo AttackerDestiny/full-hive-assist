@@ -124,7 +124,7 @@ For authorized disconnect recovery, corroborate discovery with foreground/screen
 - Pure policy tests cannot prove a real purchase, field switch or RNG result. Label isolated coverage, live configuration verification and naturally observed actions separately.
 - No subagents. Do not alter the existing recurring schedule unless asked. No duplicate automation.
 
-## Current rules to preserve (v1.8.137 snapshot)
+## Current rules to preserve (v1.8.138 snapshot)
 
 This section is a handoff snapshot; consult later log entries and AGENTS.md for subsequent changes.
 
@@ -148,7 +148,7 @@ This section is a handoff snapshot; consult later log entries and AGENTS.md for 
 - The46-slot normal threshold/refill is10000 Royal Jelly (human correction126);47+ thresholds retain their existing values.127 records copied roll baselines and preserves the existing exact-task surplus-Fuzzy exception during response protection.
 - Planner reservations honor existing configured gifted roll shields at every stage; incidental gifted Bomber cannot become a later-stage repair target. This adds no gifted hunting goals. Reserved stale leases retire through guarded reconciliation; unfinished unsafe leases and unresolved receipts retain admission. Repair completion restores normal stage qualification.
 - A gifted Baby/Music upgrade releases surplus normal copies for cleanup before unrelated collector/fixed goals; total reservations remain the existing goals,Music4. Post-Star selection reserves the four existing gifted Bubble/Frosty copies required by its final roll guard, so a protected four-copy Frosty cannot become a new blocked task. Temporary duplicate RNG outcomes can appear while a task is active; they must not become persistent idle keeps.
-- Supported material fruit routes: Strawberry → Strawberry Field; Blueberry → Pine Tree Forest; SunflowerSeed → Sunflower Field; Pineapple → Pineapple Patch, subject to real entry access. Return field is Blue Flower below5 bees, Bamboo from5, Pine Tree from15. Only bind Atlas's main Farming selector, not quest field selectors.
+- Supported material fruit routes: Strawberry → Strawberry Field; Blueberry → Pine Tree Forest; SunflowerSeed → Sunflower Field; Pineapple → Pineapple Patch; Coconut → Coconut Field (verified35 Bee Gate), subject to real entry access. Return field is Blue Flower below5 bees, Bamboo from5, Pine Tree from15. Only bind Atlas's main Farming selector, not quest field selectors.
 - Star Egg paths use actual Seven To Seven / Royal Rumble completion, current Star inventory and use counters. Six path targets gifted Music/Baby/Shy/Diamond/Lion/Demon. Never infer history solely from current hive composition.
 
 Full route and all nuanced amulet, quest, Star, keep and spending rules remain in source and AGENTS.md; this README is not permission to simplify them.
@@ -177,4 +177,4 @@ Application changes:
 
 Documentation-only updates do not require version bumps, game spending or live re-execution. A healthy unchanged application should stay running.
 
-Latest published application candidate: **v1.8.137**. Runtime/report/UI and new StartedAt verified on **xd_Glen09, SpidermanXD56 and QuackTest03 (job97097a2d-929f-4d10-abe8-71188b130c54)**. QuackAltear1 and an older QuackTest03 job were initially listed but became unreachable before final verification; their current deployment remains unverified. QuackAltear5/06 were not listed during this run. QuackTest02 was excluded. Do not claim all historical accounts were updated. See deployment JSON/latest log for exact identities,tests,hashes and observations.
+Latest published application candidate: **v1.8.138**. Runtime/report/UI and new StartedAt verified on **xd_Glen09, SpidermanXD56 and QuackTest03 (job97097a2d-929f-4d10-abe8-71188b130c54)**. QuackAltear1 and an older QuackTest03 job were initially listed but became unreachable before final verification; their current deployment remains unverified. QuackAltear5/06 were not listed during this run. QuackTest02 was excluded. Do not claim all historical accounts were updated. See deployment JSON/latest log for exact identities,tests,hashes and observations.

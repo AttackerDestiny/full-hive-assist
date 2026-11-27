@@ -3289,46 +3289,46 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.137",
+    "version": "1.8.138",
     "bundle": "core.luau",
-    "sha256": "bcbdb7d92ee2d6287c83ab98e48912b7377c134f4ec8b2d4b7344225c09ef75b",
-    "deployedNormalizedUTF8Sha256": "4861b05903bf59e83b8edacd288b9079c3a4e09391f20b24e609f8ceae5a088a",
+    "sha256": "69b35980b7f5e6386e1a68b4c299d816d3c14fd68da11297a25de4e171bbf82d",
+    "deployedNormalizedUTF8Sha256": "ac246f90346dd933e15850ba32af83653bc071877ba9ffd3e712aa84086a727b",
     "accounts": [
       {
         "account": "xd_Glen09",
         "jobId": "36c58970-9fe4-433c-a68c-6a76a4ae1d93",
         "executor": "Arceus X",
-        "version": "1.8.137",
-        "startedAt": 1795787622,
+        "version": "1.8.138",
+        "startedAt": 1795787990,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.137-diamond-drenchers40-final"
+        "connectedFinalMarker": "1.8.138-coconut-field-final"
       },
       {
         "account": "SpidermanXD56",
         "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
         "executor": "Arceus X",
-        "version": "1.8.137",
-        "startedAt": 1795787624,
+        "version": "1.8.138",
+        "startedAt": 1795787993,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.137-diamond-drenchers40-final"
+        "connectedFinalMarker": "1.8.138-coconut-field-final"
       },
       {
         "account": "QuackTest03",
         "jobId": "97097a2d-929f-4d10-abe8-71188b130c54",
         "executor": "Delta",
-        "version": "1.8.137",
-        "startedAt": 1795787623,
+        "version": "1.8.138",
+        "startedAt": 1795788043,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.137-diamond-drenchers40-final"
+        "connectedFinalMarker": "1.8.138-coconut-field-final"
       }
     ],
     "incompleteTargets": [
@@ -3351,9 +3351,9 @@
       "QuackAltear5",
       "QuackAltear06"
     ],
-    "offlineChecks": 8470,
-    "connectedChecksPerAccount": 8469,
-    "progressionChecks": 684,
+    "offlineChecks": 8473,
+    "connectedChecksPerAccount": 8478,
+    "progressionChecks": 687,
     "factsChecks": 220,
     "compatibilityMarkers": 42,
     "bubbleMaskPrerequisites": [
@@ -3375,7 +3375,15 @@
     "collisionRestorationBeforeHoldRemoval": true,
     "naturalHiveArrivalAfterFixObserved": false,
     "intermittentUnderMapFallReproduced": false,
-    "diamondMaskRequiresDrenchersOwnedAndEquipped": true
+    "diamondMaskRequiresDrenchersOwnedAndEquipped": true,
+    "separateMaterialFarmChecks": 51,
+    "materialFarmChecks": 51,
+    "coconutFieldRoute": {
+      "item": "Coconut",
+      "field": "Coconut Field",
+      "gate": "35 Bee Gate"
+    },
+    "naturalCoconutFieldSwitchObserved": false
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -4097,46 +4105,46 @@
     "noFlagsManuallyCleared": true
   },
   "latestCandidate": {
-    "version": "1.8.137",
+    "version": "1.8.138",
     "bundle": "core.luau",
-    "sha256": "bcbdb7d92ee2d6287c83ab98e48912b7377c134f4ec8b2d4b7344225c09ef75b",
-    "deployedNormalizedUTF8Sha256": "4861b05903bf59e83b8edacd288b9079c3a4e09391f20b24e609f8ceae5a088a",
+    "sha256": "69b35980b7f5e6386e1a68b4c299d816d3c14fd68da11297a25de4e171bbf82d",
+    "deployedNormalizedUTF8Sha256": "ac246f90346dd933e15850ba32af83653bc071877ba9ffd3e712aa84086a727b",
     "accounts": [
       {
         "account": "xd_Glen09",
         "jobId": "36c58970-9fe4-433c-a68c-6a76a4ae1d93",
         "executor": "Arceus X",
-        "version": "1.8.137",
-        "startedAt": 1795787622,
+        "version": "1.8.138",
+        "startedAt": 1795787990,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.137-diamond-drenchers40-final"
+        "connectedFinalMarker": "1.8.138-coconut-field-final"
       },
       {
         "account": "SpidermanXD56",
         "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
         "executor": "Arceus X",
-        "version": "1.8.137",
-        "startedAt": 1795787624,
+        "version": "1.8.138",
+        "startedAt": 1795787993,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.137-diamond-drenchers40-final"
+        "connectedFinalMarker": "1.8.138-coconut-field-final"
       },
       {
         "account": "QuackTest03",
         "jobId": "97097a2d-929f-4d10-abe8-71188b130c54",
         "executor": "Delta",
-        "version": "1.8.137",
-        "startedAt": 1795787623,
+        "version": "1.8.138",
+        "startedAt": 1795788043,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.137-diamond-drenchers40-final"
+        "connectedFinalMarker": "1.8.138-coconut-field-final"
       }
     ],
     "incompleteTargets": [
@@ -4159,9 +4167,9 @@
       "QuackAltear5",
       "QuackAltear06"
     ],
-    "offlineChecks": 8470,
-    "connectedChecksPerAccount": 8469,
-    "progressionChecks": 684,
+    "offlineChecks": 8473,
+    "connectedChecksPerAccount": 8478,
+    "progressionChecks": 687,
     "factsChecks": 220,
     "compatibilityMarkers": 42,
     "bubbleMaskPrerequisites": [
@@ -4183,7 +4191,15 @@
     "collisionRestorationBeforeHoldRemoval": true,
     "naturalHiveArrivalAfterFixObserved": false,
     "intermittentUnderMapFallReproduced": false,
-    "diamondMaskRequiresDrenchersOwnedAndEquipped": true
+    "diamondMaskRequiresDrenchersOwnedAndEquipped": true,
+    "separateMaterialFarmChecks": 51,
+    "materialFarmChecks": 51,
+    "coconutFieldRoute": {
+      "item": "Coconut",
+      "field": "Coconut Field",
+      "gate": "35 Bee Gate"
+    },
+    "naturalCoconutFieldSwitchObserved": false
   },
   "deploymentV1_8_126": {
     "version": "1.8.126",
@@ -5421,5 +5437,94 @@
     "collisionRestorationBeforeHoldRemoval": true,
     "naturalHiveArrivalAfterFixObserved": false,
     "intermittentUnderMapFallReproduced": false
+  },
+  "deploymentBeforeCoconutFarm138": {
+    "version": "1.8.137",
+    "bundle": "core.luau",
+    "sha256": "bcbdb7d92ee2d6287c83ab98e48912b7377c134f4ec8b2d4b7344225c09ef75b",
+    "deployedNormalizedUTF8Sha256": "4861b05903bf59e83b8edacd288b9079c3a4e09391f20b24e609f8ceae5a088a",
+    "accounts": [
+      {
+        "account": "xd_Glen09",
+        "jobId": "36c58970-9fe4-433c-a68c-6a76a4ae1d93",
+        "executor": "Arceus X",
+        "version": "1.8.138",
+        "startedAt": 1795787990,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.138-coconut-field-final"
+      },
+      {
+        "account": "SpidermanXD56",
+        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
+        "executor": "Arceus X",
+        "version": "1.8.138",
+        "startedAt": 1795787993,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.138-coconut-field-final"
+      },
+      {
+        "account": "QuackTest03",
+        "jobId": "97097a2d-929f-4d10-abe8-71188b130c54",
+        "executor": "Delta",
+        "version": "1.8.138",
+        "startedAt": 1795788043,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.138-coconut-field-final"
+      }
+    ],
+    "incompleteTargets": [
+      {
+        "account": "QuackAltear1",
+        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
+        "reason": "Initial probe timed out; later absent from discovery; application not dispatched"
+      },
+      {
+        "account": "QuackTest03",
+        "jobId": "aabfea9d-2086-42e9-ba9c-f0a6611f7368",
+        "reason": "Initial probe timed out; later absent; distinct session not substituted or deployed"
+      }
+    ],
+    "allConnectedEligibleAccountsReexecuted": false,
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "notDiscoveredHistoricalAccounts": [
+      "QuackAltear5",
+      "QuackAltear06"
+    ],
+    "offlineChecks": 8470,
+    "connectedChecksPerAccount": 8469,
+    "progressionChecks": 684,
+    "factsChecks": 220,
+    "compatibilityMarkers": 42,
+    "bubbleMaskPrerequisites": [
+      "Porcelain Dipper",
+      "Porcelain Port-O-Hive",
+      "Beekeeper's Mask",
+      "Beekeeper's Boots",
+      "Mondo Belt Bag"
+    ],
+    "naturalBubblePurchaseObserved": false,
+    "porcelainPortCapacityRequired": 35,
+    "naturalBelow35ExclusionObserved": true,
+    "allCurrentlyReachableEligibleSessionsReexecuted": true,
+    "diamondMaskCapacityRequired": 40,
+    "naturalBelow41ExclusionObserved": true,
+    "characterChecks": 538,
+    "hiveLandingClearanceMinimum": 3.5,
+    "hiveFinalTolerance": 0.75,
+    "collisionRestorationBeforeHoldRemoval": true,
+    "naturalHiveArrivalAfterFixObserved": false,
+    "intermittentUnderMapFallReproduced": false,
+    "diamondMaskRequiresDrenchersOwnedAndEquipped": true
   }
 }
