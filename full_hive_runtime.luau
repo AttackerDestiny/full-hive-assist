@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.121"
+local SCRIPT_VERSION = "1.8.123"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -236,7 +236,7 @@ local function invokeRequest(remote, receiptBefore, ...)
         assert(not env.FullHiveUncertain,"An earlier mutation needs reconciliation")
         if remote.Name=="ConstructHiveCellFromEgg" then
             request.X,request.Y,request.Item,request.Amount=args[1],args[2],args[3],args[4]
-            if receiptBefore and receiptBefore.Kind=="ssa-feed" then request.FeedBefore=receiptBefore
+            if receiptBefore and (receiptBefore.Kind=="ssa-feed" or receiptBefore.Kind=="vicious-feed") then request.FeedBefore=receiptBefore
             else request.HatchBefore=receiptBefore end -- Copied before the request can yield.
         elseif remote.Name=="ItemPackageEvent" and type(args[2])=="table" then
             request.Item,request.Amount=args[2].Type,args[2].Amount
@@ -1232,12 +1232,38 @@ local function initializeProgression()
         end,
     })
     if createBackground then
+        local crabSwitch=createAtlasSwitchControl({
+            tables=function()
+                assert(type(filtergc)=="function","Atlas switch API discovery unavailable")
+                return filtergc("table",{Keys={"Auto Coconut Crab","Stop Everything"}},false)
+            end,
+            values=atlasValues,clock=os.clock,wait=task.wait,
+            connections=getconnections,
+            buttons=function(name)
+                local roots={uiParent()};for _,tab in ipairs(atlasTabs(uiParent())) do roots[#roots+1]=tab end
+                local buttons,seen={},{}
+                for _,root in ipairs(roots) do
+                    for _,label in ipairs(root:QueryDescendants('TextLabel[Text = "Auto Kill Coconut Crab"]')) do
+                        local b=label.Parent
+                        if b and b:IsA("TextButton") and not seen[b] then seen[b]=true;buttons[#buttons+1]=b end
+                    end
+                end
+                return buttons
+            end,
+            isButton=function(v,name)
+                if typeof(v)~="Instance" or not v:IsA("TextButton") or not v.Parent then return false end
+                local title=v:FindFirstChild("Title")
+                return title and title:IsA("TextLabel") and title.Text==name or false
+            end,
+            checked=function(button) return button.Text==utf8.char(10003) end,
+        })
         background=createBackground({AmuletPolicy=AmuletPolicy,QuestPolicy=QuestAssistPolicy,
             env=env,Report=Report,Config=Config,RS=RS,player=player,load=loadModule,
             Events=Events,Reqs=Reqs,Packages=Packages,Funds=ProgressionFunds,
             checkStop=checkStop,refresh=refresh,invoke=invoke,move=move,near=near,release=releaseIdle,
             assertAtlasPaused=assertAtlasPaused,scan=scan,hiveFloor=hiveFloor,
-            honeyReserve=hiveHoneyReserve,
+            honeyReserve=hiveHoneyReserve,crabSwitch=crabSwitch,
+            invokeFeed=function(before,...) return invokeRequest(Events.ConstructHiveCellFromEgg,before,...) end,
             shopFloor=function(name)return shopFloor(name)end,
             fixedShopPackage=function(...)return fixedShopPackage(...)end,
             customShopPackage=function(...)return customShopPackage(...)end,
@@ -1874,6 +1900,7 @@ local function run()
             if did then
                 if Config.DryRun then Report.Phase="dry-run";return end
                 if why then
+                    if background and background.vicious(s) then s=refresh();continue end
                     local eventPlan,eventCells=plan(s)
                     if eventAction(s,eventCells,eventPlan) then s=refresh();continue end
                     if background and background.questGold(s) then s=refresh();continue end
@@ -1883,6 +1910,7 @@ local function run()
             end
         end
         if background then
+            if background.vicious(s) then s=refresh();continue end
             if background.questGold(s) then s=refresh();continue end
             local did,why=background.step(s)
             if did then if why then waitFor(why)end;s=refresh();continue end
@@ -2156,7 +2184,9 @@ local function readUIStatus()
             Config.SuperMaterialFarm and not Config.DryRun,Report.PauseRequested or not env.FullHiveRunning),
         jellyGoal=FeatherWindUI.describeJelly(Report.JellyGoal),
         nextSlot=FeatherWindUI.describeSlot(Report.Slots,Report.NextHiveSlotPrice),
-        background="Amulets: "..tostring(bg.Amulet or "Inspecting").."\nQuest assist: "..tostring(bg.Quest or "Inspecting"),
+        background="Amulets: "..tostring(bg.Amulet or "Inspecting").."\nQuest assist: "..tostring(bg.Quest or "Inspecting")
+            .."\nVicious: "..tostring(bg.Vicious or "Waiting for Mother Bear completion")
+            .."\nAtlas Coconut Crab: "..tostring(bg.CoconutCrab or "Waiting for Vicious level 12"),
         slots=slots,jelly=jelly,refill=refill,metrics=slots.."  |  "..jelly.."  |  "..refill,
         finished=not env.FullHiveRunning,
         enabled=not Report.PauseRequested and env.FullHiveRunning,

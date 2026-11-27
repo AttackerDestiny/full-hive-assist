@@ -87,4 +87,25 @@ function P.motherLevelTarget(quests,cells,levelBond,treatValue,treatMultiplier)
     end
     if best then return objective,best end
 end
+function P.motherComplete(completed,quests)
+    if type(completed)~="table" or type(quests)~="table" then return false end
+    for _,q in ipairs(quests) do if q.npc=="Mother Bear" and q.active then return false end end
+    return table.find(completed,"The Family Final")~=nil
+end
+function P.viciousTarget(complete,cells,owned,threshold,multiplier)
+    if complete~=true or type(owned)~="number" or owned<0 or owned%1~=0
+        or type(threshold)~="number" or threshold<=0 or threshold==math.huge
+        or type(multiplier)~="number" or multiplier<=0 or multiplier==math.huge then return nil end
+    local target
+    for _,c in ipairs(cells) do if c.bee.Type=="Vicious" then
+        if target then return nil end
+        target=c
+    end end
+    local b=target and target.bee
+    if not b or type(b.Lvl)~="number" or b.Lvl%1~=0 or b.Lvl<1 or b.Lvl>25
+        or type(b.Bond)~="number" or b.Bond<0 or b.Bond==math.huge or not b.Birth then return nil end
+    if b.Lvl>=12 then return {ready=true,x=target.x,y=target.y,bee=b} end
+    if b.Bond>=threshold or owned<1 then return nil end
+    return {x=target.x,y=target.y,bee=b,amount=math.min(owned,math.ceil((threshold-b.Bond)/(10*multiplier)))}
+end
 return P

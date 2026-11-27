@@ -22,7 +22,8 @@ return function(H)
     end
     local function fingerprint(a) return a and key({Type=a.Type,Mods=a.Mods})or"none"end
     local function pending()
-        return env.FullHivePending or env.AutoHivePendingRequest or env.FullHiveUncertain or env.AutoGiftedStarRunning
+        return env.FullHivePending or env.AutoHivePendingRequest or env.FullHiveUncertain or env.AutoHiveUncertain
+            or env.FullHiveStarRunning or env.AutoGiftedStarRunning
     end
     local function offers(s)
         local out,seen={},{}
@@ -276,9 +277,7 @@ return function(H)
         local target=A.starTarget(type(s.DiscGiftTypes)=="table"and #s.DiscGiftTypes or nil,(s.Amulets or{}).Star)
         return target==nil or not canSpendHoney(s,target.price)
     end
-    local function levelTarget(s)
-        local quests=questFacts(s,nil,true)
-        if #quests==0 then return nil end
+    local function treatMultiplier(s)
         local cells=H.scan(s)
         local multiplier=1
         for _,c in ipairs(cells) do
@@ -288,11 +287,62 @@ return function(H)
         for _,mod in ipairs(moon and moon.Mods or {}) do
             if mod.Type=="TreatBondMultiplier" and type(mod.Value)=="number" then multiplier+=mod.Value end
         end
+        return multiplier
+    end
+    local function levelTarget(s)
+        local quests=questFacts(s,nil,true)
+        if #quests==0 then return nil end
+        local cells=H.scan(s)
         return Q.motherLevelTarget(quests,cells,BeeStats.LvlToTotalBond,function(name)
             local def=BeeTypes:Get(name)
             local likes=def and def.Tastes and def.Tastes.Treats and def.Tastes.Treats.Likes
             return likes and table.find(likes,"Treat") and 20 or 10
-        end,multiplier)
+        end,treatMultiplier(s))
+    end
+    local function viciousTarget(s)
+        local quests=s.Quests
+        local complete=type(quests)=="table" and type(quests.Active)=="table"
+            and Q.motherComplete(quests.Completed,questFacts(s,nil,true))
+        return Q.viciousTarget(complete,H.scan(s),(s.Eggs or {}).Treat,BeeStats.LvlToTotalBond(12),treatMultiplier(s))
+    end
+    function R.vicious(s)
+        if pending() or env.FullHiveStop or report.PauseRequested or H.Config.DryRun or not H.Config.AutoQuestAssist then return false end
+        local target=viciousTarget(s)
+        state.Vicious=target and (target.ready and "Vicious level 12 ready" or "Feeding owned Treats to Vicious toward level 12")
+            or "Waiting for Mother Bear completion, Vicious or owned Treats"
+        if not target then return false end
+        target=clone(target) -- identity must survive refresh/travel cache updates
+        -- Every action uses a fresh server snapshot, including after travel.
+        H.checkStop();s=H.refresh();local current=viciousTarget(s)
+        if not current or current.x~=target.x or current.y~=target.y or current.bee.Birth~=target.bee.Birth then return false end
+        if current.ready then
+            H.checkStop()
+            local ok,why,enabled=H.crabSwitch("Auto Kill Coconut Crab",true,true)
+            state.CoconutCrab=enabled==true and "Enabled" or (why or "Unavailable")
+            if ok then state.Vicious="Vicious level 12 reached; Atlas Coconut Crab enabled" end
+            return false
+        end
+        local floor=H.hiveFloor();H.move(floor);s=H.refresh();current=viciousTarget(s)
+        if not current or current.ready or current.x~=target.x or current.y~=target.y
+            or current.bee.Birth~=target.bee.Birth then H.release();return false end
+        local before={Kind="vicious-feed",Treats=s.Eggs.Treat,Cells=clone(H.scan(s)),
+            X=current.x,Y=current.y,Amount=current.amount}
+        local oldBee=clone(current.bee)
+        H.near(floor);H.assertAtlasPaused();H.checkStop()
+        report.Phase="background";report.Activity="Feeding Vicious Bee toward level 12"
+        local remaining,ok=H.invokeFeed(before,current.x,current.y,"Treat",current.amount,false)
+        local receipt=env.FullHiveUncertain;local fresh=H.refresh()
+        assert(ok and remaining==before.Treats-before.Amount and fresh.Eggs.Treat==remaining,
+            "Vicious feeding uncertain; receipt retained; no retry")
+        for _,c in ipairs(before.Cells) do
+            local b=(fresh.Honeycomb["x"..c.x] or {})["y"..c.y]
+            assert(b and b.Birth==c.bee.Birth and b.Type==c.bee.Type and key(b.Traits or {})==key(c.bee.Traits or {}),
+                "Hive changed during Vicious feeding; receipt retained; no retry")
+        end
+        local after=(fresh.Honeycomb["x"..current.x] or {})["y"..current.y]
+        assert(after and type(after.Bond)=="number" and after.Bond>oldBee.Bond and after.Lvl>=oldBee.Lvl,
+            "Vicious bond increase unconfirmed; receipt retained; no retry")
+        receipt.Kind="vicious-feed";finish(receipt,fresh);H.release();return true
     end
     function R.level(s,allowBuy)
         if pending() or H.Config.DryRun or not H.Config.AutoQuestAssist then return false end

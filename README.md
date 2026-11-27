@@ -44,6 +44,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/AttackerDestiny/full-
 | `star_progress.luau`, bundled Star sources | Quest/egg history, coverage and Star workflow |
 | `material_farm.luau` | Supported crafting-fruit field switching and confirmed status |
 | `atlas_progression_control.luau`, `atlas_callback_values.luau` | Atlas controls and wrapped callback discovery |
+| `atlas_switch_control.luau` | Verified Atlas Coconut Crab setter, config/UI confirmation and detached-tab binding |
 | `feather_wind_ui.luau`, `hive_view_ui.luau`, `route_dashboard.luau`, `feather_theme.luau` | WindUI interface, hive viewer and animated route display |
 | `feather_restart.luau`, `feather_settings.luau` | Safe re-execution and persistent user settings |
 | `build_full_hive.ps1`, `validate_arceus_bundle.ps1` | Bundle generation and compatibility validation |
@@ -123,13 +124,14 @@ For authorized disconnect recovery, corroborate discovery with foreground/screen
 - Pure policy tests cannot prove a real purchase, field switch or RNG result. Label isolated coverage, live configuration verification and naturally observed actions separately.
 - No subagents. Do not alter the existing recurring schedule unless asked. No duplicate automation.
 
-## Current rules to preserve (v1.8.121 snapshot)
+## Current rules to preserve (v1.8.123 snapshot)
 
 This section is a handoff snapshot; consult later log entries and AGENTS.md for subsequent changes.
 
 - Both gear queues contain up to five eligible entries. Honey queue sorts by honey price; material queue sorts by remaining leaf ingredients after owned stock and queued output, then honey and route order. Ready purchases/crafts can bypass blocked targets. Passive drops must not monopolize active material farming.
 - Crimson Guard follows Coconut Canister in the route, before Supreme Saturator. Route order is not an additional ownership prerequisite.
 - BOTH Cobalt and Crimson require Baby4/Music4/Shy3. Once verified Star Journey2 Red Boost5000/completed quest evidence retires Shy, require Baby4/Music4 only. Music3 was a corrected typo and is NOT valid.
+- After completed The Family Final and no active Mother Bear quest, feed owned Treats to Vicious up to level12 without buying more or overspending the bond deficit. Once fresh level12 is verified, enable Atlas Auto Kill Coconut Crab through its own Set API and confirm config plus UI; preserve other combat settings and intentional stops.
 - Normal early/mid force filling uses one Royal Jelly per request, roll-to off and50 refill. Completion restores normal stage refill. Preserve starter <33 inventory-only rolling and explicit late/Star/post-Star workflows.
 - Ordinary gifted failsafe hunting requires the existing force quotas and Bubble Mask. Keep incidental gifted results under existing keep rules.
 - Coconut Canister needs Diamond Mask owned AND equipped for queue admission. Pesticide Planter needs Diamond Mask owned and45 unlocked hive slots. Petal Belt needs one actual Spirit Petal in inventory.
@@ -165,4 +167,4 @@ Application changes:
 
 Documentation-only updates do not require version bumps, game spending or live re-execution. A healthy unchanged application should stay running.
 
-Last verified application release when this README was written: **v1.8.121**, deployed on **xd_Glen09 and SpidermanXD56**. QuackTest02 is explicitly excluded. These are historical observations, not a guarantee those accounts are connected now. See the deployment JSON and latest log for evidence and any newer changes.
+Last verified application release when this README was written: **v1.8.123**, deployed on **SpidermanXD56**. Vicious reached level12 and Atlas Coconut Crab was confirmed enabled. Other accounts except QuackTest02 are in scope for requested work, but were not restarted for this account-specific task. These are historical observations, not a guarantee those accounts are connected now. See the deployment JSON and latest log for evidence and any newer changes.

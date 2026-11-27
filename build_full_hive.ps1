@@ -27,6 +27,7 @@ try {
     $mythicSource = Get-Content -LiteralPath mythic_discovery.luau -Raw
     $atlasCallbackValues = Get-Content -LiteralPath atlas_callback_values.luau -Raw
     $atlasProgressionControl = Get-Content -LiteralPath atlas_progression_control.luau -Raw
+    $atlasSwitchControl = Get-Content -LiteralPath atlas_switch_control.luau -Raw
     $versionMatch = [regex]::Match($runtime, 'local SCRIPT_VERSION = "(\d+\.\d+\.\d+)"')
     if (-not $versionMatch.Success) { throw 'Runtime SCRIPT_VERSION must use major.minor.patch' }
     $version = $versionMatch.Groups[1].Value
@@ -64,6 +65,7 @@ try {
     $progressionSources="local MythicDiscovery = (function()`n$mythicSource`nend)()`n"+$progressionSources
     $progressionSources="local atlasCallbackValues = (function()`n$atlasCallbackValues`nend)()`n"+$progressionSources
     $progressionSources="local FeatherRestart = (function()`n$restartSource`nend)()`n"+$progressionSources
+    $progressionSources="local createAtlasSwitchControl = (function()`n$atlasSwitchControl`nend)()`n"+$progressionSources
     if ([version]$version -ge [version]'1.8.0') {
         $windSources = & "$PSScriptRoot/build_feather_windui.ps1"
     }

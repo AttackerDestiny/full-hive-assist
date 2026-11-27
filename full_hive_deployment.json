@@ -3289,27 +3289,18 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.121",
+    "version": "1.8.123",
     "bundle": "core.luau",
-    "sha256": "c977a6f96ac597215759d44d7cc57b8a4bf25e2e96fc3077f6a83da7ddce008e",
-    "deployedNormalizedUTF8Sha256": "b45a6a66f538e4c3258b4caf498ac37b03cd43bb64fb2f0d988fc2b1b5afb367",
+    "sha256": "544a96b74b7fd4dd4d0d4cf60fe756ae594c254015ba846d93571e127dbb6305",
+    "deployedNormalizedUTF8Sha256": "8cbead82a2d414cbd5e53212ba9c831967fd15f8af17e30798e1ae128b5b01ad",
     "accounts": [
-      {
-        "account": "xd_Glen09",
-        "executor": "Arceus X",
-        "version": "1.8.121",
-        "startedAt": 1795751377,
-        "running": true,
-        "paused": false,
-        "runtimeReportVerified": true,
-        "uiVerified": true,
-        "uncertainRequests": false
-      },
       {
         "account": "SpidermanXD56",
         "executor": "Arceus X",
-        "version": "1.8.121",
-        "startedAt": 1795751379,
+        "placeId": 1537690962,
+        "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+        "version": "1.8.123",
+        "startedAt": 1795755318,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
@@ -3320,29 +3311,42 @@
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "offlineChecks": 7136,
-    "connectedChecksPerAccount": 7135,
-    "connectedAllPassed": true,
-    "connectedMarker": "1.8.121-final-four-music",
-    "progressionChecks": 565,
-    "factsChecks": 76,
-    "compatibilityMarkers": 42,
-    "guardRequirementsBeforeRetirement": {
-      "Baby": 4,
-      "Music": 4,
-      "Shy": 3
-    },
-    "guardRequirementsAfterVerifiedShyRetirement": {
-      "Baby": 4,
-      "Music": 4
-    },
-    "xdGlenBothGuardsExcludedLive": true,
-    "spidermanShyRetirementLive": true,
-    "naturalGuardPurchaseObserved": false,
     "deploymentScope": [
-      "xd_Glen09",
       "SpidermanXD56"
-    ]
+    ],
+    "offlineChecks": 7171,
+    "connectedChecksPerAccount": 7170,
+    "connectedAllPassed": true,
+    "connectedMarker": "1.8.123-vicious-crab-final",
+    "viciousCrabChecks": 35,
+    "compatibilityMarkers": 42,
+    "motherFinalCompleted": true,
+    "activeMotherQuests": 0,
+    "vicious": {
+      "x": 4,
+      "y": 5,
+      "birth": 1577372764,
+      "beforeLevel": 10,
+      "afterLevel": 12,
+      "afterBond": 4000002,
+      "observedTreatsAfterFeed": 77024,
+      "latestTreats": 77029
+    },
+    "atlasCoconutCrabEnabled": true,
+    "actualConfigAndCheckboxVerified": true,
+    "crabKillObserved": false,
+    "intermediateDeployment": {
+      "version": "1.8.122",
+      "startedAt": 1795755215,
+      "rawSha256": "2ded8a0ddda3516178c70a09aff5ae76115296dd9739c1b9626acc7dc1cf3dc8",
+      "normalizedSha256": "243cdcef5c02ede11635224752fe610140ea4c31f547389c7a4976c02286104a",
+      "offlineChecks": 7170,
+      "connectedChecks": 7169,
+      "viciousCrabChecks": 34,
+      "observedFeedAt": 1795755229,
+      "naturalFeedAndCrabEnableVerified": true,
+      "supersededReason": "Corrected success-only switch diagnostic; no additional feed on123"
+    }
   },
   "latestCandidate": {
     "version": "1.8.121",
@@ -3891,6 +3895,62 @@
     "deploymentScope": [
       "SpidermanXD56",
       "xd_Glen09"
+    ]
+  },
+  "deploymentV1_8_121": {
+    "version": "1.8.121",
+    "bundle": "core.luau",
+    "sha256": "c977a6f96ac597215759d44d7cc57b8a4bf25e2e96fc3077f6a83da7ddce008e",
+    "deployedNormalizedUTF8Sha256": "b45a6a66f538e4c3258b4caf498ac37b03cd43bb64fb2f0d988fc2b1b5afb367",
+    "accounts": [
+      {
+        "account": "xd_Glen09",
+        "executor": "Arceus X",
+        "version": "1.8.121",
+        "startedAt": 1795751377,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "uncertainRequests": false
+      },
+      {
+        "account": "SpidermanXD56",
+        "executor": "Arceus X",
+        "version": "1.8.121",
+        "startedAt": 1795751379,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "uncertainRequests": false
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "offlineChecks": 7136,
+    "connectedChecksPerAccount": 7135,
+    "connectedAllPassed": true,
+    "connectedMarker": "1.8.121-final-four-music",
+    "progressionChecks": 565,
+    "factsChecks": 76,
+    "compatibilityMarkers": 42,
+    "guardRequirementsBeforeRetirement": {
+      "Baby": 4,
+      "Music": 4,
+      "Shy": 3
+    },
+    "guardRequirementsAfterVerifiedShyRetirement": {
+      "Baby": 4,
+      "Music": 4
+    },
+    "xdGlenBothGuardsExcludedLive": true,
+    "spidermanShyRetirementLive": true,
+    "naturalGuardPurchaseObserved": false,
+    "deploymentScope": [
+      "xd_Glen09",
+      "SpidermanXD56"
     ]
   }
 }
