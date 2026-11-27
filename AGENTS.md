@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- November 27 / v1.8.120: route order moves Crimson Guard directly after Coconut Canister and before The Supreme Saturator. This changes route/queue admission order, not the remaining-material sorting rule or gear prerequisites. Keep all119 quota rules and existing reservations/receipts.
+
 - November 27 / v1.8.119: normal Baby4/Music4/Shy3 quota filling in early/mid progression uses normal single-Royal-Jelly requests (roll-to off) and50-jelly refill/admission instead of the ordinary slot refill. Recheck fresh policy before spending; an existing task adopts off mode without switching its coordinate. Restore stage refill when quotas complete; preserve starter <33 inventory-only behavior, explicit late/Star/post-Star workflows, quest-retired Shy, all keeps, crafting reservations and unresolved requests. Latest live deployment scope remains xd_Glen09.
 
 - November 27 / v1.8.118: Cobalt Guard is excluded from saving, crafting reservations, queue and combined material preparation until fresh validated hive counts reach Baby4,Music4,Shy3. Count existing species copies consistently with force quotas (normal/gifted); unknown/malformed counts fail closed. Re-evaluate every snapshot; existing owned gear is unaffected. Latest live deployment scope is xd_Glen09; this specific gear dependency does not introduce new gates for other gear.

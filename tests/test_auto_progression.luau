@@ -4,6 +4,8 @@ return function(P,workerSource,BlenderReceipt)
     local passed=0
     local function check(value,message) assert(value,message);passed+=1 end
     local function copy(t) local r={};for k,v in pairs(t) do r[k]=type(v)=="table" and copy(v) or v end;return r end
+    check(table.find(P.stages[6].gear,"Crimson Guard")==table.find(P.stages[6].gear,"Coconut Canister")+1,
+        "Crimson Guard follows Coconut Canister directly in the route")
     local function facts()
         local f={honey=1e12,honeyReserve=0,inventory={},inventoryKnown=true,
             ownedGear={},ownedGearKnown=true,redeemedCodes={},codesKnown=true,
@@ -103,7 +105,7 @@ return function(P,workerSource,BlenderReceipt)
         check(P.nextGear(f)==nil,"Unknown catch-up ownership cannot be treated as missing or skipped")
         local route=P.stages[6].gear
         local at=table.find(route,"Petal Belt")
-        check(route[at+1]=="Coconut Canister" and route[at+2]=="The Supreme Saturator" and route[at+3]=="Pesticide Planter","Pesticide Planter follows Supreme Saturator")
+        check(route[at+1]=="Coconut Canister" and route[at+2]=="Crimson Guard"and route[at+3]=="The Supreme Saturator" and route[at+4]=="Pesticide Planter","Pesticide Planter follows Supreme Saturator")
     end
     do
         local f=facts()
@@ -933,7 +935,7 @@ return function(P,workerSource,BlenderReceipt)
         check(blocked.deferredRequirementGear["Petal Belt"]=="Requires 1 Spirit Petal in inventory","Queue explains the restored prerequisite")
         f.inventory.SpiritPetal=1;f.craft={item="SpiritPetal",count=1,ready=false};f.inventory.SpiritPetal=0
         check(P.plan(f,c).action.kind~="buy-gear","Queued or expected Spirit Petals cannot pay the actual cost")
-        local row=P.routeStatus(f,c,{}).stages[6].gear[6]
+        local row=P.routeStatus(f,c,{}).stages[6].gear[table.find(P.stages[6].gear,"Petal Belt")]
         check(row.id=="Petal Belt"and row.inventoryRequired.item=="SpiritPetal"and not row.hiveReady,"Route shows the restored Spirit Petal prerequisite")
         f.craft=false;f.discoveryPreparation=true
         local aggregate=P.plan(f,c)

@@ -3289,17 +3289,28 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.119",
+    "version": "1.8.120",
     "bundle": "core.luau",
-    "sha256": "f028515dcfdab3841e067e9e75965096d32c06120db74ad03c2a5baa6cc0e980",
-    "deployedNormalizedUTF8Sha256": "5d8f05bed762f7b8ff35aba6f1523801f708780e30d04c99222006b57dc10377",
-    "jobId": "8215595f-fa36-4f4b-8453-1b2f1dab44a4",
+    "sha256": "309774c1ef0bbf884e2bc1086c05704f944c98b6b5cf996899e8a87b4c938f82",
+    "deployedNormalizedUTF8Sha256": "f1a06195e927a2916b73101cdcf1a2fcc7671904a6ef37fa7723feee8ec0ffb6",
     "accounts": [
+      {
+        "account": "SpidermanXD56",
+        "executor": "Arceus X",
+        "version": "1.8.120",
+        "startedAt": 1795750967,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "pendingRequests": false,
+        "uncertainRequests": false
+      },
       {
         "account": "xd_Glen09",
         "executor": "Arceus X",
-        "version": "1.8.119",
-        "startedAt": 1795750384,
+        "version": "1.8.120",
+        "startedAt": 1795751029,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
@@ -3311,41 +3322,45 @@
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "offlineChecks": 7115,
-    "connectedChecks": 7114,
+    "offlineChecks": 7116,
+    "connectedChecksPerAccount": 7115,
     "connectedAllPassed": true,
-    "collectorRecoveryChecks": 1015,
+    "progressionChecks": 549,
     "compatibilityMarkers": 42,
-    "liveForces": {
-      "Baby": 0,
-      "Music": 4,
-      "Shy": 3
-    },
-    "quotaRefill": 50,
-    "rollMode": "off",
-    "naturalSingleRoll": {
-      "x": 1,
-      "y": 6,
-      "result": "Cool",
-      "gifted": false,
-      "item": "RoyalJelly",
-      "consumed": 1
-    },
-    "natural50PurchaseObserved": false,
-    "deploymentScope": "xd_Glen09 only"
+    "routeAdjacency": [
+      "Coconut Canister",
+      "Crimson Guard",
+      "The Supreme Saturator"
+    ],
+    "remainingMaterialRankingPreserved": true,
+    "deploymentScope": [
+      "SpidermanXD56",
+      "xd_Glen09"
+    ]
   },
   "latestCandidate": {
-    "version": "1.8.119",
+    "version": "1.8.120",
     "bundle": "core.luau",
-    "sha256": "f028515dcfdab3841e067e9e75965096d32c06120db74ad03c2a5baa6cc0e980",
-    "deployedNormalizedUTF8Sha256": "5d8f05bed762f7b8ff35aba6f1523801f708780e30d04c99222006b57dc10377",
-    "jobId": "8215595f-fa36-4f4b-8453-1b2f1dab44a4",
+    "sha256": "309774c1ef0bbf884e2bc1086c05704f944c98b6b5cf996899e8a87b4c938f82",
+    "deployedNormalizedUTF8Sha256": "f1a06195e927a2916b73101cdcf1a2fcc7671904a6ef37fa7723feee8ec0ffb6",
     "accounts": [
+      {
+        "account": "SpidermanXD56",
+        "executor": "Arceus X",
+        "version": "1.8.120",
+        "startedAt": 1795750967,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "pendingRequests": false,
+        "uncertainRequests": false
+      },
       {
         "account": "xd_Glen09",
         "executor": "Arceus X",
-        "version": "1.8.119",
-        "startedAt": 1795750384,
+        "version": "1.8.120",
+        "startedAt": 1795751029,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
@@ -3357,28 +3372,21 @@
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "offlineChecks": 7115,
-    "connectedChecks": 7114,
+    "offlineChecks": 7116,
+    "connectedChecksPerAccount": 7115,
     "connectedAllPassed": true,
-    "collectorRecoveryChecks": 1015,
+    "progressionChecks": 549,
     "compatibilityMarkers": 42,
-    "liveForces": {
-      "Baby": 0,
-      "Music": 4,
-      "Shy": 3
-    },
-    "quotaRefill": 50,
-    "rollMode": "off",
-    "naturalSingleRoll": {
-      "x": 1,
-      "y": 6,
-      "result": "Cool",
-      "gifted": false,
-      "item": "RoyalJelly",
-      "consumed": 1
-    },
-    "natural50PurchaseObserved": false,
-    "deploymentScope": "xd_Glen09 only"
+    "routeAdjacency": [
+      "Coconut Canister",
+      "Crimson Guard",
+      "The Supreme Saturator"
+    ],
+    "remainingMaterialRankingPreserved": true,
+    "deploymentScope": [
+      "SpidermanXD56",
+      "xd_Glen09"
+    ]
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -3775,6 +3783,52 @@
     "cobaltExcludedLive": true,
     "nextEligibleGear": "Crimson Guard",
     "naturalQuotaCompletionObserved": false,
+    "deploymentScope": "xd_Glen09 only"
+  },
+  "deploymentBeforeCrimsonRoute120": {
+    "version": "1.8.119",
+    "bundle": "core.luau",
+    "sha256": "f028515dcfdab3841e067e9e75965096d32c06120db74ad03c2a5baa6cc0e980",
+    "deployedNormalizedUTF8Sha256": "5d8f05bed762f7b8ff35aba6f1523801f708780e30d04c99222006b57dc10377",
+    "jobId": "8215595f-fa36-4f4b-8453-1b2f1dab44a4",
+    "accounts": [
+      {
+        "account": "xd_Glen09",
+        "executor": "Arceus X",
+        "version": "1.8.119",
+        "startedAt": 1795750384,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "pendingRequests": false,
+        "uncertainRequests": false
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "offlineChecks": 7115,
+    "connectedChecks": 7114,
+    "connectedAllPassed": true,
+    "collectorRecoveryChecks": 1015,
+    "compatibilityMarkers": 42,
+    "liveForces": {
+      "Baby": 0,
+      "Music": 4,
+      "Shy": 3
+    },
+    "quotaRefill": 50,
+    "rollMode": "off",
+    "naturalSingleRoll": {
+      "x": 1,
+      "y": 6,
+      "result": "Cool",
+      "gifted": false,
+      "item": "RoyalJelly",
+      "consumed": 1
+    },
+    "natural50PurchaseObserved": false,
     "deploymentScope": "xd_Glen09 only"
   }
 }

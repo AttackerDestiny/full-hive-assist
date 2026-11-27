@@ -23,8 +23,8 @@ P.stages = {
     {gate=0, gear={"Porcelain Dipper"}},
     {gate=0, gear={"Porcelain Port-O-Hive", "Bubble Mask"}},
     {gate=0, gear={"Silver Soakers", "Cobalt Guard"}},
-    {gate=0, gear={"Golden Gushers", "TackyPlanter", "Crimson Guard", "Diamond Drenchers", "Diamond Mask",
-        "Petal Belt", "Coconut Canister", "The Supreme Saturator", "Pesticide Planter"}},
+    {gate=0, gear={"Golden Gushers", "TackyPlanter", "Diamond Drenchers", "Diamond Mask",
+        "Petal Belt", "Coconut Canister", "Crimson Guard", "The Supreme Saturator", "Pesticide Planter"}},
 }
 -- Latest human priority for existing 36+-slot accounts. The original route
 -- stays intact below that capacity; this catch-up intentionally puts Red
