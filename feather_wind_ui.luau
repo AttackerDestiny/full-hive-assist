@@ -94,10 +94,29 @@ function UI.describeRouteGear(row,honey)
     return table.concat(lines,"\n")
 end
 
+function UI.describeMaterialFarm(farm,enabled,paused)
+    farm=farm or {}
+    if enabled==nil then enabled=farm.enabled end
+    local active=enabled and not paused and farm.active==true
+    local status=not enabled and "OFF"or paused and "Paused"or active and "Farming crafting fruit"or "Idle / waiting"
+    local lines={status,(paused and "Last Atlas field: "or"Atlas field: ")..tostring(farm.currentField or "Unavailable")}
+    local fruit=type(farm.item)=="string"and farm.item:gsub("(%l)(%u)","%1 %2")
+    lines[#lines+1]="Fruit: "..(active and fruit or "None")
+    if active then
+        if type(farm.held)=="number"then lines[#lines+1]="Inventory: "..amount(farm.held)end
+        if type(farm.remaining)=="number"then lines[#lines+1]="Still needed: "..amount(farm.remaining)end
+        if farm.gear then lines[#lines+1]="For: "..farm.gear end
+    elseif enabled and not paused and farm.targetField then
+        lines[#lines+1]="Switch target: "..farm.targetField..(fruit and " ("..fruit..")"or"")
+    end
+    if enabled and not paused and farm.error then lines[#lines+1]=tostring(farm.error)end
+    return table.concat(lines,"\n")
+end
+
 function UI.describeQueues(report)
     local lines={}
     for _,kind in ipairs({"A","B"})do
-        lines[#lines+1]=kind=="A" and "HONEY QUEUE · honey cost" or "MATERIAL QUEUE · honey cost"
+        lines[#lines+1]=kind=="A" and "HONEY QUEUE · honey cost" or "MATERIAL QUEUE · remaining materials"
         local queue=(report.GearQueues or {})[kind]or{}
         if #queue==0 then lines[#lines+1]="No queued gear"end
         for index,entry in ipairs(queue)do
@@ -285,6 +304,7 @@ function UI.mount(parent,overlay,version,callbacks)
         local hive=overview:Paragraph({Title="Hive",Desc="Waiting for hive data..."})
         local jellyGoal=overview:Paragraph({Title="Jelly rolling",Desc="Waiting for a hive plan"})
         local gear=progression:Paragraph({Title="Gear and Blender",Desc="Inspecting gear..."})
+        local materialFarm=progression:Paragraph({Title="Super Material Farm",Desc="Reading Atlas field..."})
         local queues=progression:Paragraph({Title="Gear queues",Desc="Reading queued gear..."})
         local background=progression:Paragraph({Title="Amulets and quests",Desc="Inspecting..."})
         overview:Button({Title="View hive",Icon="eye",Callback=function() callbacks.viewHive() end})
@@ -333,6 +353,7 @@ function UI.mount(parent,overlay,version,callbacks)
                 update(jellyGoal,"SetDesc","jellyGoal",state.jellyGoal or "Waiting for a hive plan")
                 update(gearTarget,"SetDesc","gearTarget",state.gearTarget)
                 update(gear,"SetDesc","gear",state.gear)
+                update(materialFarm,"SetDesc","materialFarm",state.materialFarm or "Reading Atlas field...")
                 update(queues,"SetDesc","queues",state.gearQueues or "Reading queued gear...")
                 update(background,"SetDesc","background",state.background)
                 update(giftedTypes,"SetDesc","giftedTypes",state.giftedTypes~=nil and tostring(state.giftedTypes).." discovered gifted bee types" or "Waiting for discovery data...")

@@ -3289,314 +3289,106 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.114",
+    "version": "1.8.116",
     "bundle": "core.luau",
-    "sha256": "bb5bb8f930d095411b76847e9025888e5661d2c916c526faec875c045f782d0f",
-    "deployedNormalizedUTF8Sha256": "e56af75a1e967ae1d0b5b760fba7f30f6c1bf8c0ef2c52e70bea5788dbd2b35a",
-    "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+    "sha256": "40b89aeba2cfeb3adbeadc9ec1dc983f4ef7f72e1601311c2e5647d35c6e3c4d",
+    "deployedNormalizedUTF8Sha256": "459e8e6bceb4aefc98bc325b78d6aeec3363e4f9db9b15f614eeb5dd3b12c1e9",
+    "jobId": "aabfea9d-2086-42e9-ba9c-f0a6611f7368",
     "accounts": [
       {
-        "account": "SpidermanXD56",
-        "executor": "Arceus X",
-        "version": "1.8.114",
-        "startedAt": 1795746928,
-        "running": true,
-        "paused": false,
-        "uiVerified": true,
-        "atlasOwned": false
-      },
-      {
-        "account": "QuackAltear06",
+        "account": "QuackTest03",
         "executor": "Delta",
-        "version": "1.8.114",
-        "startedAt": 1795747253,
+        "version": "1.8.116",
+        "startedAt": 1795748607,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
-        "uiVerified": false
+        "uiVerified": true,
+        "actualAtlasStopped": false,
+        "pendingRequests": false,
+        "uncertainRequests": false
       }
     ],
-    "offlineChecks": 6985,
-    "connectedChecks": 6978,
-    "routeViewerLive": {
-      "account": "QuackAltear5",
-      "gearRows": 39,
-      "currentStage": 6,
-      "currentGear": "Diamond Mask"
-    },
-    "restartChecks": 32,
-    "naturalRemoteLoaderButtonRestartObserved": true,
-    "dashboardChecks": 1680,
-    "dashboardLive": {
-      "account": "QuackAltear5",
-      "nodes": 39,
-      "overlappingHitAreasAtFit": 0,
-      "zoomCameraBefore": 77.073928833008,
-      "zoomCameraAfter": 61.694923400879
-    },
-    "restartButtonLive": {
-      "account": "QuackAltear5",
-      "beforeStartedAt": 1795695493,
-      "afterStartedAt": 1795695582,
-      "clickedAt": 1795695581,
-      "version": "1.8.98"
-    },
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "offlineChecks": 6996,
+    "connectedChecks": 6988,
+    "connectedAllPassed": true,
+    "progressionChecks": 534,
+    "materialFarmChecks": 38,
+    "compatibilityMarkers": 42,
     "queueLimit": {
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 528,
-    "pesticideUnlockedCapacityRequirement": 47,
-    "passiveMaterialDeferral": true,
-    "livePesticideExcludedBelow47": {
-      "QuackAltear1": 40,
-      "QuackAltear5": 40,
-      "QuackAltear06": 42
+    "materialPriority": "remaining leaf ingredients after inventory and queued output; honey then route ties",
+    "honeyPriority": "honey price then route",
+    "liveTarget": "Beekeeper's Boots",
+    "liveBlender": {
+      "item": "Oil",
+      "count": 1,
+      "startTime": 159506.14544296
     },
-    "naturalPassiveCandyDeferralObserved": false,
-    "uiChecks": 47,
-    "allPassiveFallbackFixed": true,
-    "cleanOverviewLiveVerified": "QuackAltear5",
-    "gearAndBlenderRequirementsLiveVerified": [
-      "QuackAltear1",
-      "QuackAltear5",
-      "QuackAltear06"
-    ],
-    "materialPriority": "honey price, then route order; remaining material quantities do not rank gear",
-    "liveMaterialOrder": [
-      "Diamond Mask",
-      "Coconut Canister"
-    ],
-    "characterChecks": 514,
-    "petalBeltRequiresOwnedSpiritPetal": true,
-    "arrivalHoldRetained": true,
-    "naturalGumdropPurchaseAfterFixObserved": false,
-    "fundedUnlockDeferral": true,
-    "naturalSilverBadgeUnlockTransitionObserved": false,
-    "unlockFilteredQueues": true,
-    "policyChecks": 1339,
-    "collectorRecoveryChecks": 914,
-    "actionableQueueCrafting": true,
-    "reservedTargetRetirement": true,
-    "naturalReservedTargetTransitionObserved": false,
-    "naturalCrossQueueCraftPurchaseObserved": false,
-    "craftFundingBeforeHoneyQueue": true,
-    "independentRecipeInventory": true,
-    "naturalOfflineScreenshotAccountVerified": false,
-    "naturalCraftPurchaseAfterFixObserved": false,
-    "catalogChecks": 68,
-    "recipeBlockerDiagnostics": true,
-    "connectedLatestRegressionAccounts": [
-      "SpidermanXD56",
-      "QuackAltear5",
-      "QuackAltear06"
-    ],
-    "falseCraftBadgeGateRemoved": true,
-    "customGearGatesRemoved": true,
-    "unsafeRollWait": true,
-    "forceQuotasBeforeFailsafes": true,
-    "liveDeploymentVerified": true,
-    "pendingLiveDeploymentAccounts": [
-      "QuackAltear1",
-      "QuackAltear5"
-    ],
-    "scheduledNotVerified": [
-      "QuackAltear5"
-    ],
-    "note": "SpidermanXD56 runtime/report/UI114 and natural Gold purchase verified. QuackAltear06 runtime/report114 and new StartedAt verified after publication; its UI/matching-order path has not been freshly checked. QuackAltear1/5 upgrades remain unverified; no blanket all-client deployment claim.",
-    "expectedConnectedChecks": 6978,
-    "queuePrerequisites": {
-      "Coconut Canister": {
-        "owned": "Diamond Mask",
-        "equipped": "Diamond Mask"
-      },
-      "Pesticide Planter": {
-        "owned": "Diamond Mask",
-        "minimumUnlockedSlots": 45
-      },
-      "Petal Belt": {
-        "inventory": {
-          "SpiritPetal": 1
-        }
-      }
+    "naturalBootsPurchaseObserved": false,
+    "materialFarmStatusLive": {
+      "rendered": true,
+      "actualField": "unavailable",
+      "fruit": "none",
+      "active": false
     },
-    "blenderReceiptChecks": 51,
-    "autoCancelUnrelatedBlender": true,
-    "naturalCancellationLiveVerified": false,
-    "blenderGoalLease": true,
-    "rollLeaseAndQuestChecks": 83,
-    "allIntendedAccountsVerified": false,
-    "goldEggShopFixNaturalVerified": true,
-    "goldEggLiveReceipt": {
-      "account": "SpidermanXD56",
-      "at": 1795746971,
-      "item": "Gold",
-      "noReplay": true,
-      "postPurchaseLedger": 12,
-      "laterGoldInventory": 0,
-      "laterGoldHatchLedger": 11,
-      "subsequentConsumerObserved": false
-    },
-    "cloudphoneInspection": {
-      "phone2": "status timeout",
-      "phone4": "status timeout",
-      "phone5": "status and screenshot reachable; no device mutation"
-    }
+    "deploymentScope": "QuackTest03 only"
   },
   "latestCandidate": {
-    "version": "1.8.114",
+    "version": "1.8.116",
     "bundle": "core.luau",
-    "sha256": "bb5bb8f930d095411b76847e9025888e5661d2c916c526faec875c045f782d0f",
-    "deployedNormalizedUTF8Sha256": "e56af75a1e967ae1d0b5b760fba7f30f6c1bf8c0ef2c52e70bea5788dbd2b35a",
-    "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+    "sha256": "40b89aeba2cfeb3adbeadc9ec1dc983f4ef7f72e1601311c2e5647d35c6e3c4d",
+    "deployedNormalizedUTF8Sha256": "459e8e6bceb4aefc98bc325b78d6aeec3363e4f9db9b15f614eeb5dd3b12c1e9",
+    "jobId": "aabfea9d-2086-42e9-ba9c-f0a6611f7368",
     "accounts": [
       {
-        "account": "SpidermanXD56",
-        "executor": "Arceus X",
-        "version": "1.8.114",
-        "startedAt": 1795746928,
-        "running": true,
-        "paused": false,
-        "uiVerified": true,
-        "atlasOwned": false
-      },
-      {
-        "account": "QuackAltear06",
+        "account": "QuackTest03",
         "executor": "Delta",
-        "version": "1.8.114",
-        "startedAt": 1795747253,
+        "version": "1.8.116",
+        "startedAt": 1795748607,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
-        "uiVerified": false
+        "uiVerified": true,
+        "actualAtlasStopped": false,
+        "pendingRequests": false,
+        "uncertainRequests": false
       }
     ],
-    "offlineChecks": 6985,
-    "connectedChecks": 6978,
-    "routeViewerLive": {
-      "account": "QuackAltear5",
-      "gearRows": 39,
-      "currentStage": 6,
-      "currentGear": "Diamond Mask"
-    },
-    "restartChecks": 32,
-    "naturalRemoteLoaderButtonRestartObserved": true,
-    "dashboardChecks": 1680,
-    "dashboardLive": {
-      "account": "QuackAltear5",
-      "nodes": 39,
-      "overlappingHitAreasAtFit": 0,
-      "zoomCameraBefore": 77.073928833008,
-      "zoomCameraAfter": 61.694923400879
-    },
-    "restartButtonLive": {
-      "account": "QuackAltear5",
-      "beforeStartedAt": 1795695493,
-      "afterStartedAt": 1795695582,
-      "clickedAt": 1795695581,
-      "version": "1.8.98"
-    },
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "offlineChecks": 6996,
+    "connectedChecks": 6988,
+    "connectedAllPassed": true,
+    "progressionChecks": 534,
+    "materialFarmChecks": 38,
+    "compatibilityMarkers": 42,
     "queueLimit": {
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 528,
-    "pesticideUnlockedCapacityRequirement": 47,
-    "passiveMaterialDeferral": true,
-    "livePesticideExcludedBelow47": {
-      "QuackAltear1": 40,
-      "QuackAltear5": 40,
-      "QuackAltear06": 42
+    "materialPriority": "remaining leaf ingredients after inventory and queued output; honey then route ties",
+    "honeyPriority": "honey price then route",
+    "liveTarget": "Beekeeper's Boots",
+    "liveBlender": {
+      "item": "Oil",
+      "count": 1,
+      "startTime": 159506.14544296
     },
-    "naturalPassiveCandyDeferralObserved": false,
-    "uiChecks": 47,
-    "allPassiveFallbackFixed": true,
-    "cleanOverviewLiveVerified": "QuackAltear5",
-    "gearAndBlenderRequirementsLiveVerified": [
-      "QuackAltear1",
-      "QuackAltear5",
-      "QuackAltear06"
-    ],
-    "materialPriority": "honey price, then route order; remaining material quantities do not rank gear",
-    "liveMaterialOrder": [
-      "Diamond Mask",
-      "Coconut Canister"
-    ],
-    "characterChecks": 514,
-    "petalBeltRequiresOwnedSpiritPetal": true,
-    "arrivalHoldRetained": true,
-    "naturalGumdropPurchaseAfterFixObserved": false,
-    "fundedUnlockDeferral": true,
-    "naturalSilverBadgeUnlockTransitionObserved": false,
-    "unlockFilteredQueues": true,
-    "policyChecks": 1339,
-    "collectorRecoveryChecks": 914,
-    "actionableQueueCrafting": true,
-    "reservedTargetRetirement": true,
-    "naturalReservedTargetTransitionObserved": false,
-    "naturalCrossQueueCraftPurchaseObserved": false,
-    "craftFundingBeforeHoneyQueue": true,
-    "independentRecipeInventory": true,
-    "naturalOfflineScreenshotAccountVerified": false,
-    "naturalCraftPurchaseAfterFixObserved": false,
-    "catalogChecks": 68,
-    "recipeBlockerDiagnostics": true,
-    "connectedLatestRegressionAccounts": [
-      "SpidermanXD56",
-      "QuackAltear5",
-      "QuackAltear06"
-    ],
-    "falseCraftBadgeGateRemoved": true,
-    "customGearGatesRemoved": true,
-    "unsafeRollWait": true,
-    "forceQuotasBeforeFailsafes": true,
-    "liveDeploymentVerified": true,
-    "pendingLiveDeploymentAccounts": [
-      "QuackAltear1",
-      "QuackAltear5"
-    ],
-    "scheduledNotVerified": [
-      "QuackAltear5"
-    ],
-    "note": "SpidermanXD56 runtime/report/UI114 and natural Gold purchase verified. QuackAltear06 runtime/report114 and new StartedAt verified after publication; its UI/matching-order path has not been freshly checked. QuackAltear1/5 upgrades remain unverified; no blanket all-client deployment claim.",
-    "expectedConnectedChecks": 6978,
-    "queuePrerequisites": {
-      "Coconut Canister": {
-        "owned": "Diamond Mask",
-        "equipped": "Diamond Mask"
-      },
-      "Pesticide Planter": {
-        "owned": "Diamond Mask",
-        "minimumUnlockedSlots": 45
-      },
-      "Petal Belt": {
-        "inventory": {
-          "SpiritPetal": 1
-        }
-      }
+    "naturalBootsPurchaseObserved": false,
+    "materialFarmStatusLive": {
+      "rendered": true,
+      "actualField": "unavailable",
+      "fruit": "none",
+      "active": false
     },
-    "blenderReceiptChecks": 51,
-    "autoCancelUnrelatedBlender": true,
-    "naturalCancellationLiveVerified": false,
-    "blenderGoalLease": true,
-    "rollLeaseAndQuestChecks": 83,
-    "allIntendedAccountsVerified": false,
-    "goldEggShopFixNaturalVerified": true,
-    "goldEggLiveReceipt": {
-      "account": "SpidermanXD56",
-      "at": 1795746971,
-      "item": "Gold",
-      "noReplay": true,
-      "postPurchaseLedger": 12,
-      "laterGoldInventory": 0,
-      "laterGoldHatchLedger": 11,
-      "subsequentConsumerObserved": false
-    },
-    "cloudphoneInspection": {
-      "phone2": "status timeout",
-      "phone4": "status timeout",
-      "phone5": "status and screenshot reachable; no device mutation"
-    }
+    "deploymentScope": "QuackTest03 only"
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -3708,5 +3500,160 @@
       "QuackAltear5",
       "QuackAltear06"
     ]
+  },
+  "deploymentBeforeMaterialPriority116": {
+    "version": "1.8.114",
+    "bundle": "core.luau",
+    "sha256": "bb5bb8f930d095411b76847e9025888e5661d2c916c526faec875c045f782d0f",
+    "deployedNormalizedUTF8Sha256": "e56af75a1e967ae1d0b5b760fba7f30f6c1bf8c0ef2c52e70bea5788dbd2b35a",
+    "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+    "accounts": [
+      {
+        "account": "SpidermanXD56",
+        "executor": "Arceus X",
+        "version": "1.8.114",
+        "startedAt": 1795746928,
+        "running": true,
+        "paused": false,
+        "uiVerified": true,
+        "atlasOwned": false
+      },
+      {
+        "account": "QuackAltear06",
+        "executor": "Delta",
+        "version": "1.8.114",
+        "startedAt": 1795747253,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": false
+      }
+    ],
+    "offlineChecks": 6985,
+    "connectedChecks": 6978,
+    "routeViewerLive": {
+      "account": "QuackAltear5",
+      "gearRows": 39,
+      "currentStage": 6,
+      "currentGear": "Diamond Mask"
+    },
+    "restartChecks": 32,
+    "naturalRemoteLoaderButtonRestartObserved": true,
+    "dashboardChecks": 1680,
+    "dashboardLive": {
+      "account": "QuackAltear5",
+      "nodes": 39,
+      "overlappingHitAreasAtFit": 0,
+      "zoomCameraBefore": 77.073928833008,
+      "zoomCameraAfter": 61.694923400879
+    },
+    "restartButtonLive": {
+      "account": "QuackAltear5",
+      "beforeStartedAt": 1795695493,
+      "afterStartedAt": 1795695582,
+      "clickedAt": 1795695581,
+      "version": "1.8.98"
+    },
+    "queueLimit": {
+      "honey": 5,
+      "material": 5
+    },
+    "progressionChecks": 528,
+    "pesticideUnlockedCapacityRequirement": 47,
+    "passiveMaterialDeferral": true,
+    "livePesticideExcludedBelow47": {
+      "QuackAltear1": 40,
+      "QuackAltear5": 40,
+      "QuackAltear06": 42
+    },
+    "naturalPassiveCandyDeferralObserved": false,
+    "uiChecks": 47,
+    "allPassiveFallbackFixed": true,
+    "cleanOverviewLiveVerified": "QuackAltear5",
+    "gearAndBlenderRequirementsLiveVerified": [
+      "QuackAltear1",
+      "QuackAltear5",
+      "QuackAltear06"
+    ],
+    "materialPriority": "honey price, then route order; remaining material quantities do not rank gear",
+    "liveMaterialOrder": [
+      "Diamond Mask",
+      "Coconut Canister"
+    ],
+    "characterChecks": 514,
+    "petalBeltRequiresOwnedSpiritPetal": true,
+    "arrivalHoldRetained": true,
+    "naturalGumdropPurchaseAfterFixObserved": false,
+    "fundedUnlockDeferral": true,
+    "naturalSilverBadgeUnlockTransitionObserved": false,
+    "unlockFilteredQueues": true,
+    "policyChecks": 1339,
+    "collectorRecoveryChecks": 914,
+    "actionableQueueCrafting": true,
+    "reservedTargetRetirement": true,
+    "naturalReservedTargetTransitionObserved": false,
+    "naturalCrossQueueCraftPurchaseObserved": false,
+    "craftFundingBeforeHoneyQueue": true,
+    "independentRecipeInventory": true,
+    "naturalOfflineScreenshotAccountVerified": false,
+    "naturalCraftPurchaseAfterFixObserved": false,
+    "catalogChecks": 68,
+    "recipeBlockerDiagnostics": true,
+    "connectedLatestRegressionAccounts": [
+      "SpidermanXD56",
+      "QuackAltear5",
+      "QuackAltear06"
+    ],
+    "falseCraftBadgeGateRemoved": true,
+    "customGearGatesRemoved": true,
+    "unsafeRollWait": true,
+    "forceQuotasBeforeFailsafes": true,
+    "liveDeploymentVerified": true,
+    "pendingLiveDeploymentAccounts": [
+      "QuackAltear1",
+      "QuackAltear5"
+    ],
+    "scheduledNotVerified": [
+      "QuackAltear5"
+    ],
+    "note": "SpidermanXD56 runtime/report/UI114 and natural Gold purchase verified. QuackAltear06 runtime/report114 and new StartedAt verified after publication; its UI/matching-order path has not been freshly checked. QuackAltear1/5 upgrades remain unverified; no blanket all-client deployment claim.",
+    "expectedConnectedChecks": 6978,
+    "queuePrerequisites": {
+      "Coconut Canister": {
+        "owned": "Diamond Mask",
+        "equipped": "Diamond Mask"
+      },
+      "Pesticide Planter": {
+        "owned": "Diamond Mask",
+        "minimumUnlockedSlots": 45
+      },
+      "Petal Belt": {
+        "inventory": {
+          "SpiritPetal": 1
+        }
+      }
+    },
+    "blenderReceiptChecks": 51,
+    "autoCancelUnrelatedBlender": true,
+    "naturalCancellationLiveVerified": false,
+    "blenderGoalLease": true,
+    "rollLeaseAndQuestChecks": 83,
+    "allIntendedAccountsVerified": false,
+    "goldEggShopFixNaturalVerified": true,
+    "goldEggLiveReceipt": {
+      "account": "SpidermanXD56",
+      "at": 1795746971,
+      "item": "Gold",
+      "noReplay": true,
+      "postPurchaseLedger": 12,
+      "laterGoldInventory": 0,
+      "laterGoldHatchLedger": 11,
+      "subsequentConsumerObserved": false
+    },
+    "cloudphoneInspection": {
+      "phone2": "status timeout",
+      "phone4": "status timeout",
+      "phone5": "status and screenshot reachable; no device mutation"
+    }
   }
 }

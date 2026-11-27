@@ -36,6 +36,15 @@ function M.new(H)
         state.previous=nil;state.field=nil;state.item=nil;state.error=nil
     end
     local worker={restore=restore}
+    function worker.snapshot(enabled,missing)
+        local ok,current=pcall(H.get)
+        if not ok or type(current)~="string"or current==""then current=nil end
+        local remaining=state.item and (missing or {})[state.item]
+        if type(remaining)~="number"or remaining<0 or remaining~=remaining then remaining=nil end
+        return {enabled=enabled==true,currentField=current,targetField=state.field,item=state.item,
+            active=enabled==true and current~=nil and current==state.field and state.item~=nil,
+            remaining=remaining,error=state.error}
+    end
     function worker.update(enabled,missing)
         if not enabled then restore();return end
         if state.field then

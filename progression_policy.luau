@@ -933,6 +933,13 @@ local function queuePlan(facts,catalog,primary)
             if kind=="B"then
                 local materials=P.materials(gear.items,facts,catalog)
                 candidate.recipeBlocks=materials and materials.blockedRecipes
+                -- Compare outstanding leaf ingredients after actual stock and
+                -- queued output, including recipe inputs. Unknown stays last.
+                candidate.materialShortfall=math.huge
+                if materials then
+                    candidate.materialShortfall=0
+                    for _,count in pairs(materials.missingItems)do candidate.materialShortfall+=count end
+                end
             end
             queues[kind][#queues[kind]+1]=candidate
         end
@@ -940,6 +947,7 @@ local function queuePlan(facts,catalog,primary)
     end
     for kind,queue in pairs(queues) do
         table.sort(queue,function(a,b)
+            if kind=="B"and a.materialShortfall~=b.materialShortfall then return a.materialShortfall<b.materialShortfall end
             return a.honey<b.honey or a.honey==b.honey and a.order<b.order
         end)
         for priority,candidate in ipairs(queue) do candidate.priority=priority end

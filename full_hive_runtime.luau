@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.114"
+local SCRIPT_VERSION = "1.8.116"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1247,7 +1247,12 @@ local function initializeProgression()
         scan=scan,hiveFloor=hiveFloor,toyPart=progressionToyPart,jellyBatchSpent=jellyBatchSpent,
         Types=Types,
         materialFarm=function(s,decision)
-            materialFarm.update(Config.SuperMaterialFarm and not Config.DryRun,decision.farmMissing or decision.missingItems or {})
+            local missing=decision.farmMissing or decision.missingItems or {}
+            materialFarm.update(Config.SuperMaterialFarm and not Config.DryRun,missing)
+            local status=materialFarm.snapshot(Config.SuperMaterialFarm and not Config.DryRun,missing)
+            status.held=status.item and ((s.Eggs or {})[status.item]or 0)or nil
+            status.gear=decision.materialFarmGear or decision.gear
+            Report.SuperMaterialFarm=status
             Report.MaterialFarm=env.FullHiveMaterialFarm.item
         end,
     })
@@ -2172,6 +2177,8 @@ local function readUIStatus()
         progress=progress,gear=table.concat(lines,"\n"),
         gearTarget=FeatherWindUI.describeGear(pg),
         gearQueues=FeatherWindUI.describeQueues(pg),
+        materialFarm=FeatherWindUI.describeMaterialFarm(Report.SuperMaterialFarm,
+            Config.SuperMaterialFarm and not Config.DryRun,Report.PauseRequested or not env.FullHiveRunning),
         jellyGoal=FeatherWindUI.describeJelly(Report.JellyGoal),
         nextSlot=FeatherWindUI.describeSlot(Report.Slots,Report.NextHiveSlotPrice),
         background="Amulets: "..tostring(bg.Amulet or "Inspecting").."\nQuest assist: "..tostring(bg.Quest or "Inspecting"),

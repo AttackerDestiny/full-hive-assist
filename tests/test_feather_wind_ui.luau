@@ -118,7 +118,14 @@ return function(adapter)
             {item="DiamondEgg",actual=5,required=5,queued=0,deficit=0},
         },
     }})
+    state.materialFarm=UI.describeMaterialFarm({enabled=true,active=true,currentField="Sunflower Field",item="SunflowerSeed",held=2,remaining=1,gear="Basic Boots"})
     mounted.render(state)
+    check(registered["Progression/Paragraph/Super Material Farm"].desc:find("Sunflower Field",1,true)and registered["Progression/Paragraph/Super Material Farm"].desc:find("Sunflower Seed",1,true),"Progression shows the confirmed field and active crafting fruit")
+    check(state.materialFarm:find("Inventory: 2",1,true)and state.materialFarm:find("Still needed: 1",1,true),"Material status shows owned and missing fruit amounts")
+    local pending=UI.describeMaterialFarm({enabled=true,active=false,currentField="Bamboo Field",targetField="Sunflower Field",item="SunflowerSeed",error="Waiting for Atlas"})
+    check(pending:find("Fruit: None",1,true)and pending:find("Switch target: Sunflower Field",1,true),"Unconfirmed switches never claim the fruit is being farmed")
+    check(UI.describeMaterialFarm({active=true,currentField="Pine Tree Forest",item="Blueberry"},false):find("OFF",1,true),"Disabled toggle is shown immediately even with a previous active snapshot")
+    check(UI.describeMaterialFarm({enabled=true,active=true,item="Blueberry"},true,true):find("Paused",1,true),"Paused assist does not claim active material farming")
     check(registered["Stats/Paragraph/Different Gifted type"].desc=="12 discovered gifted bee types","Stats tab shows discovered gifted count")
     check(registered["Overview/Paragraph/Hive"].desc:find("Slot 42 · 152,902,986 honey",1,true)~=nil,
         "Shows the next slot and exact quoted honey price")
