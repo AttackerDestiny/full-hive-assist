@@ -209,7 +209,7 @@ return function(runtime)
         "local Config={Speed=65,NearDistance=16}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance(part) local d=part.CFrame:PointToObjectSpace(player.Character:FindFirstChild().Position); local h=part.Size*0.5; return (d-Vector3.new(math.clamp(d.X,-h.X,h.X),math.clamp(d.Y,-h.Y,h.Y),math.clamp(d.Z,-h.Z,h.Z))).Magnitude end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT,Config\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","already-near","speed-change","rotated-pad","obstructed","lateral","blocked-direct","no-route","shop-path","shop-alternate","shop-floor-arrival","shop-no-floor","guild-floor-arrival","ticket-floor-arrival","ticket-underfloor","ticket-reject-underfloor","dapper-entrance","star-hall-entrance","mountaintop-floor-arrival","blender-approach"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","already-near","speed-change","rotated-pad","obstructed","lateral","blocked-direct","no-route","shop-path","shop-alternate","shop-floor-arrival","shop-no-floor","guild-floor-arrival","ticket-floor-arrival","ticket-underfloor","ticket-reject-underfloor","dapper-entrance","star-hall-entrance","mountaintop-floor-arrival","blender-approach","hive-floor","hive-no-floor"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -230,6 +230,7 @@ return function(runtime)
         local bronze=failure=="star-hall-entrance"
         local noFloor=failure=="shop-no-floor"
         local shopFloor=failure=="shop-floor-arrival" or noFloor or guild or ticketShop or mountaintop
+        local hivePad=failure=="hive-floor"or failure=="hive-no-floor"
         local grounded=failure=="shop-path" or alternate or shopFloor or blender
         local humanoid={Health=100,Parent=c}
         local state=Enum.HumanoidStateType.Running
@@ -237,7 +238,7 @@ return function(runtime)
         function humanoid:ChangeState(value) state=value end
         function humanoid:MoveTo() error("Movement must never walk") end
         function humanoid:Move(direction) assert(direction==Vector3.zero,"Movement must never walk") end
-        if grounded or failure=="speed-change" then c.FindFirstChildOfClass=function() return humanoid end end
+        if grounded or hivePad or failure=="speed-change" then c.FindFirstChildOfClass=function() return humanoid end end
         local floorProbes=0
         local landingPart
         local callbacks={}
@@ -280,7 +281,7 @@ return function(runtime)
                     elseif failure=="replacement" then player.Character=character(100,true)
                     elseif failure=="detached" then r.Parent=nil
                     elseif failure=="play-error" then error("Fake tween play failed",0)
-                    elseif failure=="success" or failure=="already-near" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" or dapper or bronze then r.Position=goal.Position
+                    elseif failure=="success" or failure=="already-near" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" or dapper or bronze or hivePad then r.Position=goal.Position
                     elseif failure=="timeout" or failure=="no-route" or (alternate and #goals==1) then return
                     elseif grounded or failure=="blocked-direct" then r.Position=goal.Position
                     else c.FindFirstChildOfClass=function() return {Health=0} end end
@@ -305,6 +306,10 @@ return function(runtime)
             end
         end,
             Raycast=function(_,origin,direction,params)
+                if hivePad and direction.Y<-10 and direction.X==0 and direction.Z==0 then
+                    if failure=="hive-no-floor"then return nil end
+                    return {Position=Vector3.new(origin.X,2,origin.Z),Instance=landingPart}
+                end
                 if grounded then
                     if direction.Y<-10 and direction.X==0 and direction.Z==0 then
                         floorProbes+=1
@@ -329,7 +334,13 @@ return function(runtime)
                 if failure=="obstructed" and origin.Y==0 and direction.X~=0 then return {} end
             end}
         local fakeInstance={new=function(class)
-            local obj={Destroy=function() destroyed+=1 end};objects[class]=obj;return obj
+            local obj={Destroy=function()
+                if hivePad and class=="AlignPosition"then
+                    check(obstacle.CanCollide==true,"Hive collision support restores before position hold is removed")
+                    check(state==Enum.HumanoidStateType.Running,"Hive humanoid state restores before position hold is removed")
+                end
+                destroyed+=1
+            end};objects[class]=obj;return obj
         end}
         local calls=0;local report={}
         local move,token,pendingCleanup,timeoutToken,config=movementFactory(player,fakeGame,fakeWorkspace,fakeInstance,
@@ -342,6 +353,7 @@ return function(runtime)
             CFrame={RightVector=Vector3.new(0,rotated and -1 or 0,0),UpVector=Vector3.new(0,rotated and 0 or 1,0),LookVector=Vector3.new(0,0,-1),
                 PointToObjectSpace=function(_,point) return point-Vector3.new(20,0,0) end},
             GetFullName=function()
+                if hivePad then return "Workspace.HivePlatforms.Platform.Platform"end
                 if guild then return "Workspace.Badge Guild.Walls.Floor" end
                 if ticketShop then return "Workspace.Map.Buildings.Ticket Bee Shop.Floor" end
                 if mountaintop then return "Workspace.Shops.Mountaintop.FloorPart" end
@@ -359,6 +371,15 @@ return function(runtime)
             check(objects.AlignPosition.Position==goals[#goals],"Retained hold points to the exact final arrival target")
             pendingCleanup()()
             check(pendingCleanup()==nil,"Releasing the arrival hold clears its lease")
+        end
+        if hivePad then
+            if failure=="hive-no-floor"then
+                check(not ok and err==timeoutToken and #goals==0,"Unknown hive floor sends no tween or spend")
+            else
+                check(ok and math.abs(goals[#goals].Y-5.5)<0.001,"Hive targets actual solid floor plus standing clearance")
+                check(objects.AlignPosition.RigidityEnabled,"Arrived hive retains a rigid landing hold")
+                check(r.AssemblyLinearVelocity==Vector3.zero and r.AssemblyAngularVelocity==Vector3.zero,"Hive arrival/cleanup remove residual linear and angular motion")
+            end
         end
         if failure=="speed-change" then
             check(ok and #goals==2 and report.Movement.Arrived,"Active speed change rebuilds the remaining tween and arrives")
@@ -386,6 +407,7 @@ return function(runtime)
                 and goals[1].X==-3 and goals[2].X==33 and goals[1].Y==4,
                 "Bronze Star travel uses the clear opening through the Star Hall model")
         elseif failure=="success" or failure=="already-near" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" then check(ok,"Successful movement completes")
+        elseif hivePad then check(failure=="hive-no-floor"and not ok or failure=="hive-floor"and ok,"Hive landing result matches verified support")
         elseif failure=="blocked-direct" then
             check(ok and #goals==1 and report.Movement.Method=="direct-noclip-tween","A blocked line still uses the noclip tween")
         elseif failure=="no-route" then
@@ -398,7 +420,7 @@ return function(runtime)
             check(not ok and err=="Fake tween "..(failure=="play-error" and "play" or "setup").." failed",
                 "Movement preserves tween failure on "..failure)
         else check(not ok and err==token,"Movement detects character "..failure..": "..tostring(err)) end
-        check((failure=="setup-error" or noFloor or rejectUnderfloor or cancelled) and disconnected==3 and destroyed==3,
+        check((failure=="setup-error" or noFloor or rejectUnderfloor or failure=="hive-no-floor"or cancelled) and disconnected==3 and destroyed==3,
             "Movement objects and all signals removed on "..failure)
         check(obstacle.CanCollide==true and not noncollidable.CanCollide and pendingCleanup()==nil,
             "Original true and false collisions restored on "..failure)

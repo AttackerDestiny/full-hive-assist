@@ -3289,46 +3289,46 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.135",
+    "version": "1.8.136",
     "bundle": "core.luau",
-    "sha256": "a8d7039b953951e1800cfac908f2aa1c195da5168e88440033a34fb1fcad6f0e",
-    "deployedNormalizedUTF8Sha256": "182b656c19c7ffd83d3414bd19c47d3fbcc8413842f371131b6013d71061aa8e",
+    "sha256": "746fea8826051662eda3b3192513d132ddf6c2c3e5f7d41e1afaff551eb460b1",
+    "deployedNormalizedUTF8Sha256": "76c04cda4dc845ce557aa5f35ca305f450efcd6f128e0541fbc5f7fccf8e1842",
     "accounts": [
       {
         "account": "xd_Glen09",
         "jobId": "36c58970-9fe4-433c-a68c-6a76a4ae1d93",
         "executor": "Arceus X",
-        "version": "1.8.135",
-        "startedAt": 1795786964,
+        "version": "1.8.136",
+        "startedAt": 1795787302,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.135-diamond-slot41-final"
+        "connectedFinalMarker": "1.8.136-hive-landing-final"
       },
       {
         "account": "SpidermanXD56",
         "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
         "executor": "Arceus X",
-        "version": "1.8.135",
-        "startedAt": 1795786966,
+        "version": "1.8.136",
+        "startedAt": 1795787306,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.135-diamond-slot41-final"
+        "connectedFinalMarker": "1.8.136-hive-landing-final"
       },
       {
         "account": "QuackTest03",
         "jobId": "97097a2d-929f-4d10-abe8-71188b130c54",
         "executor": "Delta",
-        "version": "1.8.135",
-        "startedAt": 1795786964,
+        "version": "1.8.136",
+        "startedAt": 1795787324,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.135-diamond-slot41-final"
+        "connectedFinalMarker": "1.8.136-hive-landing-final"
       }
     ],
     "incompleteTargets": [
@@ -3351,8 +3351,8 @@
       "QuackAltear5",
       "QuackAltear06"
     ],
-    "offlineChecks": 8424,
-    "connectedChecksPerAccount": 8423,
+    "offlineChecks": 8448,
+    "connectedChecksPerAccount": 8447,
     "progressionChecks": 672,
     "factsChecks": 210,
     "compatibilityMarkers": 42,
@@ -3368,7 +3368,13 @@
     "naturalBelow35ExclusionObserved": true,
     "allCurrentlyReachableEligibleSessionsReexecuted": true,
     "diamondMaskCapacityRequired": 41,
-    "naturalBelow41ExclusionObserved": true
+    "naturalBelow41ExclusionObserved": true,
+    "characterChecks": 538,
+    "hiveLandingClearanceMinimum": 3.5,
+    "hiveFinalTolerance": 0.75,
+    "collisionRestorationBeforeHoldRemoval": true,
+    "naturalHiveArrivalAfterFixObserved": false,
+    "intermittentUnderMapFallReproduced": false
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -4090,46 +4096,46 @@
     "noFlagsManuallyCleared": true
   },
   "latestCandidate": {
-    "version": "1.8.135",
+    "version": "1.8.136",
     "bundle": "core.luau",
-    "sha256": "a8d7039b953951e1800cfac908f2aa1c195da5168e88440033a34fb1fcad6f0e",
-    "deployedNormalizedUTF8Sha256": "182b656c19c7ffd83d3414bd19c47d3fbcc8413842f371131b6013d71061aa8e",
+    "sha256": "746fea8826051662eda3b3192513d132ddf6c2c3e5f7d41e1afaff551eb460b1",
+    "deployedNormalizedUTF8Sha256": "76c04cda4dc845ce557aa5f35ca305f450efcd6f128e0541fbc5f7fccf8e1842",
     "accounts": [
       {
         "account": "xd_Glen09",
         "jobId": "36c58970-9fe4-433c-a68c-6a76a4ae1d93",
         "executor": "Arceus X",
-        "version": "1.8.135",
-        "startedAt": 1795786964,
+        "version": "1.8.136",
+        "startedAt": 1795787302,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.135-diamond-slot41-final"
+        "connectedFinalMarker": "1.8.136-hive-landing-final"
       },
       {
         "account": "SpidermanXD56",
         "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
         "executor": "Arceus X",
-        "version": "1.8.135",
-        "startedAt": 1795786966,
+        "version": "1.8.136",
+        "startedAt": 1795787306,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.135-diamond-slot41-final"
+        "connectedFinalMarker": "1.8.136-hive-landing-final"
       },
       {
         "account": "QuackTest03",
         "jobId": "97097a2d-929f-4d10-abe8-71188b130c54",
         "executor": "Delta",
-        "version": "1.8.135",
-        "startedAt": 1795786964,
+        "version": "1.8.136",
+        "startedAt": 1795787324,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.135-diamond-slot41-final"
+        "connectedFinalMarker": "1.8.136-hive-landing-final"
       }
     ],
     "incompleteTargets": [
@@ -4152,8 +4158,8 @@
       "QuackAltear5",
       "QuackAltear06"
     ],
-    "offlineChecks": 8424,
-    "connectedChecksPerAccount": 8423,
+    "offlineChecks": 8448,
+    "connectedChecksPerAccount": 8447,
     "progressionChecks": 672,
     "factsChecks": 210,
     "compatibilityMarkers": 42,
@@ -4169,7 +4175,13 @@
     "naturalBelow35ExclusionObserved": true,
     "allCurrentlyReachableEligibleSessionsReexecuted": true,
     "diamondMaskCapacityRequired": 41,
-    "naturalBelow41ExclusionObserved": true
+    "naturalBelow41ExclusionObserved": true,
+    "characterChecks": 538,
+    "hiveLandingClearanceMinimum": 3.5,
+    "hiveFinalTolerance": 0.75,
+    "collisionRestorationBeforeHoldRemoval": true,
+    "naturalHiveArrivalAfterFixObserved": false,
+    "intermittentUnderMapFallReproduced": false
   },
   "deploymentV1_8_126": {
     "version": "1.8.126",
@@ -5237,5 +5249,87 @@
     "porcelainPortCapacityRequired": 35,
     "naturalBelow35ExclusionObserved": true,
     "allCurrentlyReachableEligibleSessionsReexecuted": true
+  },
+  "deploymentBeforeHiveLanding136": {
+    "version": "1.8.135",
+    "bundle": "core.luau",
+    "sha256": "a8d7039b953951e1800cfac908f2aa1c195da5168e88440033a34fb1fcad6f0e",
+    "deployedNormalizedUTF8Sha256": "182b656c19c7ffd83d3414bd19c47d3fbcc8413842f371131b6013d71061aa8e",
+    "accounts": [
+      {
+        "account": "xd_Glen09",
+        "jobId": "36c58970-9fe4-433c-a68c-6a76a4ae1d93",
+        "executor": "Arceus X",
+        "version": "1.8.136",
+        "startedAt": 1795787302,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.136-hive-landing-final"
+      },
+      {
+        "account": "SpidermanXD56",
+        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
+        "executor": "Arceus X",
+        "version": "1.8.136",
+        "startedAt": 1795787306,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.136-hive-landing-final"
+      },
+      {
+        "account": "QuackTest03",
+        "jobId": "97097a2d-929f-4d10-abe8-71188b130c54",
+        "executor": "Delta",
+        "version": "1.8.136",
+        "startedAt": 1795787324,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.136-hive-landing-final"
+      }
+    ],
+    "incompleteTargets": [
+      {
+        "account": "QuackAltear1",
+        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
+        "reason": "Initial probe timed out; later absent from discovery; application not dispatched"
+      },
+      {
+        "account": "QuackTest03",
+        "jobId": "aabfea9d-2086-42e9-ba9c-f0a6611f7368",
+        "reason": "Initial probe timed out; later absent; distinct session not substituted or deployed"
+      }
+    ],
+    "allConnectedEligibleAccountsReexecuted": false,
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "notDiscoveredHistoricalAccounts": [
+      "QuackAltear5",
+      "QuackAltear06"
+    ],
+    "offlineChecks": 8424,
+    "connectedChecksPerAccount": 8423,
+    "progressionChecks": 672,
+    "factsChecks": 210,
+    "compatibilityMarkers": 42,
+    "bubbleMaskPrerequisites": [
+      "Porcelain Dipper",
+      "Porcelain Port-O-Hive",
+      "Beekeeper's Mask",
+      "Beekeeper's Boots",
+      "Mondo Belt Bag"
+    ],
+    "naturalBubblePurchaseObserved": false,
+    "porcelainPortCapacityRequired": 35,
+    "naturalBelow35ExclusionObserved": true,
+    "allCurrentlyReachableEligibleSessionsReexecuted": true,
+    "diamondMaskCapacityRequired": 41,
+    "naturalBelow41ExclusionObserved": true
   }
 }

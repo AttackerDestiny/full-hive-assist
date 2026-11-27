@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.135"
+local SCRIPT_VERSION = "1.8.136"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -523,6 +523,7 @@ local function move(part,pickup)
     assert(part and part:IsA("BasePart"),"Invalid movement destination")
     Report.Activity="Moving to "..part.Name
     local destination=part:GetFullName()
+    local hivePad=destination:match("^Workspace%.HivePlatforms%.")~=nil
     local guild=destination=="Workspace.Badge Guild.Walls.Floor"
     local ticketShop=destination=="Workspace.Map.Buildings.Ticket Bee Shop.Floor"
     local blender=destination=="Workspace.Toys.Blender.Platform"
@@ -566,12 +567,17 @@ local function move(part,pickup)
         if cleanupMove==cleanup then cleanupMove=nil end
         if tween then tween:Cancel() end
         for _,connection in ipairs(connections) do connection:Disconnect() end
-        align:Destroy(); orientation:Destroy(); attachment:Destroy()
+        -- Restore physical support while the owned position hold still exists.
+        for p,v in pairs(collision) do if p.Parent then p.CanCollide=v end end
+        if r.Parent then
+            r.AssemblyLinearVelocity=Vector3.zero
+            r.AssemblyAngularVelocity=Vector3.zero
+        end
         if previousHumanoidState and movingHumanoid.Parent and movingHumanoid.Health>0
             and type(movingHumanoid.ChangeState)=="function" then
             movingHumanoid:ChangeState(previousHumanoidState)
         end
-        for p,v in pairs(collision) do if p.Parent then p.CanCollide=v end end
+        align:Destroy(); orientation:Destroy(); attachment:Destroy()
         if r.Parent then r.AssemblyLinearVelocity=Vector3.zero end
     end
     cleanupMove=cleanup
@@ -594,6 +600,19 @@ local function move(part,pickup)
         local params=RaycastParams.new()
         params.RespectCanCollide=true
         params.FilterDescendantsInstances={movingCharacter}
+        if hivePad and not pickup then
+            local hit=workspace:Raycast(target+Vector3.new(0,6,0),Vector3.new(0,-(2*height+24),0),params)
+            if not hit then
+                Report.Movement.Failure="Hive landing surface unavailable"
+                error(MOVEMENT_TIMEOUT,0)
+            end
+            local hip=movingHumanoid and movingHumanoid.HipHeight
+            local rootHeight=r.Size and r.Size.Y/2 or 1
+            local clearance=math.max(3.5,type(hip)=="number"and hip>=0 and hip<100 and hip+rootHeight+0.5 or 3.5)
+            target=Vector3.new(part.Position.X,hit.Position.Y+clearance,part.Position.Z)
+            Report.Movement.Target=tostring(target)
+            Report.Movement.LandingClearance=clearance
+        end
         local floorParams=params
         local doormat
         if ticketShop then
@@ -699,7 +718,7 @@ local function move(part,pickup)
         local function travel(points)
             for i,point in ipairs(points) do
                 checkTravel()
-                local tolerance=i==#points and (pickup and 0.75 or grounded and 1.5 or 4) or 2
+                local tolerance=i==#points and (pickup and 0.75 or hivePad and 0.75 or grounded and 1.5 or 4) or 2
                 local segmentSpeed,deadline
                 local function startSegment()
                     if tween then tween:Cancel() end
@@ -785,6 +804,11 @@ local function move(part,pickup)
     -- final nearby check. Release/next move owns cleanup; pickups finish here.
     if (not ok or pickup) and cleanupMove then cleanupMove(); cleanupMove=nil end
     if not ok then error(err,0) end
+    if hivePad and not pickup then
+        align.Position=target;align.RigidityEnabled=true
+        r.AssemblyLinearVelocity=Vector3.zero
+        r.AssemblyAngularVelocity=Vector3.zero
+    end
     if not pickup or part.Parent then near(part) end
     Report.Movement.Arrived=true
     Report.LastMovementArrival=Report.Movement.Destination
