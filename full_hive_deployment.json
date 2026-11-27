@@ -3400,13 +3400,13 @@
     ]
   },
   "latestCandidate": {
-    "version": "1.8.112",
+    "version": "1.8.113",
     "bundle": "core.luau",
-    "sha256": "d553de1af6badb2a564f154bcce75746beb829865d4eef3ebf5d9a3931979398",
-    "deployedNormalizedUTF8Sha256": "a34ef6a21620e4ed1d6275eb3cd5c97979b193dc604475ab968bcd019a907d3c",
+    "sha256": "0c150a54ec8a0f11f1c3db5c8c35ab5de4b7fe0045f9531d1ef700405509d16f",
+    "deployedNormalizedUTF8Sha256": "6ca65b1e62c1cc39c587919a646ba895723b805e8fa747be8f070ec325d3b71f",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [],
-    "offlineChecks": 6912,
+    "offlineChecks": 6916,
     "connectedChecks": null,
     "routeViewerLive": {
       "account": "QuackAltear5",
@@ -3435,7 +3435,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 501,
+    "progressionChecks": 505,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3488,8 +3488,8 @@
       "QuackAltear06"
     ],
     "scheduledNotVerified": [],
-    "note": "Connected regression files scheduled where clients appeared; no latest result/deployment confirmed yet. Rediscover and verify identity/version/test result/pending before guarded112 execution.",
-    "expectedConnectedChecks": 6905,
+    "note": "No clients at discovery; latest113 isolated connected checks and safe live deployment remain pending. Offline6916 checks and main/embedded compilation pass. Verify actual account/version/pending/intentional stop before deployment.",
+    "expectedConnectedChecks": 6909,
     "queuePrerequisites": {
       "Coconut Canister": {
         "owned": "Diamond Mask",
@@ -3498,6 +3498,11 @@
       "Pesticide Planter": {
         "owned": "Diamond Mask",
         "minimumUnlockedSlots": 45
+      },
+      "Petal Belt": {
+        "inventory": {
+          "SpiritPetal": 1
+        }
       }
     }
   }

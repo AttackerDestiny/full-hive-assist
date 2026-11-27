@@ -922,16 +922,23 @@ return function(P,workerSource)
         for _,amount in ipairs({0,1,2})do
             f.inventory.SpiritPetal=amount
             local r=P.plan(f,c)
-            check(#r.gearQueues.B==1 and r.gearQueues.B[1].id=="Petal Belt","Petal Belt remains queued without a custom inventory admission gate")
+            check((r.gear=="Petal Belt")== (amount>=1),"Petal Belt enters only with at least one actual Spirit Petal")
             check((r.action.kind=="buy-gear")== (amount>=1),"Direct purchase shares the inventory gate")
         end
         f.inventory.SpiritPetal=nil
-        check(#P.plan(f,c).gearQueues.B==1 and P.plan(f,c).action.kind~="buy-gear","Missing Spirit Petal stays an actual material deficit")
+        local blocked=P.plan(f,c)
+        check(not blocked.gear,"Missing inventory field cannot admit Petal Belt")
+        check(blocked.action.reason=="waiting-gear-unlocks"and blocked.optionalHiveAllowed,"Petal absence is a recoverable wait, not route completion")
+        check(not blocked.saveCraftingJelly and blocked.requiredRJ==nil and not next(blocked.reservedItems),"Excluded Petal Belt cannot save crafting jelly or reserve ingredients")
+        check(blocked.deferredRequirementGear["Petal Belt"]=="Requires 1 Spirit Petal in inventory","Queue explains the restored prerequisite")
         f.inventory.SpiritPetal=1;f.craft={item="SpiritPetal",count=1,ready=false};f.inventory.SpiritPetal=0
         check(P.plan(f,c).action.kind~="buy-gear","Queued or expected Spirit Petals cannot pay the actual cost")
         local row=P.routeStatus(f,c,{}).stages[6].gear[6]
-        check(row.id=="Petal Belt"and row.inventoryRequired==nil and row.hiveReady,"Route no longer adds a separate Petal inventory prerequisite")
-        f.craft=false;f.inventory.SpiritPetal=1;f.pending=true
+        check(row.id=="Petal Belt"and row.inventoryRequired.item=="SpiritPetal"and not row.hiveReady,"Route shows the restored Spirit Petal prerequisite")
+        f.craft=false;f.discoveryPreparation=true
+        local aggregate=P.plan(f,c)
+        check(not aggregate.queueMaterialRequirements or aggregate.queueMaterialRequirements.SpiritPetal==nil,"Excluded Petal Belt is absent from aggregate preparation")
+        f.discoveryPreparation=false;f.inventory.SpiritPetal=1;f.pending=true
         check(P.plan(f,c).action.reason=="unresolved-progression-request","Owned petal does not bypass pending guard")
     end
     do
@@ -1064,7 +1071,7 @@ return function(P,workerSource)
         check(#filtered==1 and filtered[1]==other,"Crafting ignores obsolete badge metadata while preserving other conditions")
         check(#P.craftingRequirements(nil)==0 and P.craftingRequirements("bad")==nil,"Absent recipe metadata is allowed but malformed metadata fails closed")
         for _,stage in ipairs(P.stages)do check(stage.gate==0,"Default gear stages never impose custom bee counts")end
-        check(P.capacityRequirements["Pesticide Planter"]==45 and not next(P.inventoryRequirements),"Only the newly requested capacity dependency is added; old inventory gates stay removed")
+        check(P.capacityRequirements["Pesticide Planter"]==45 and P.inventoryRequirements["Petal Belt"].amount==1,"Latest requested Pesticide capacity and Petal inventory gates remain explicit")
     end
     if workerSource then
         local source=assert(workerSource:match("(    local function craft%(a,c,s%).-)\n    local function collect"))

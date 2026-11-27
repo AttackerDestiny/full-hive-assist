@@ -31,10 +31,17 @@ P.stages = {
 -- before Blue in the order given by the newer instruction.
 P.planterCatchup={"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}
 P.capacityRequirements={["Pesticide Planter"]=45}
-P.inventoryRequirements={}
+P.inventoryRequirements={["Petal Belt"]={item="SpiritPetal",amount=1}}
 P.ownershipRequirements={["Coconut Canister"]="Diamond Mask",["Pesticide Planter"]="Diamond Mask"}
 P.equipmentRequirements={["Coconut Canister"]="Diamond Mask"}
 function P.gearPrerequisite(facts,id)
+    local required=P.inventoryRequirements[id]
+    if required then
+        local held=(facts.inventory or {})[required.item]
+        if type(held)~="number"or held%1~=0 or held<required.amount then
+            return false,"Requires "..required.amount.." "..required.item:gsub("(%l)(%u)","%1 %2").." in inventory"
+        end
+    end
     local owned=P.ownershipRequirements[id]
     if owned and (facts.ownedGear or {})[owned]~=true then return false,"Requires owned "..owned end
     local equipped=P.equipmentRequirements[id]
@@ -471,7 +478,7 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
         end
         base.optionalHiveAllowed=true; base.reserveHoney=facts.honeyReserve or 0
         base.deferredRequirementGear={}
-        for id in pairs(P.ownershipRequirements)do
+        for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements})do for id in pairs(rules)do
             if (facts.ownedGear or {})[id]~=true then
                 local ready,why=P.gearPrerequisite(facts,id)
                 if not ready then base.deferredRequirementGear[id]=why
@@ -479,7 +486,7 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
                     base.deferredRequirementGear[id]="Requires "..P.capacityRequirements[id].." unlocked hive slots"
                 end
             end
-        end
+        end end
         if next(base.deferredRequirementGear)then return wait("waiting-gear-unlocks",base)end
         base.action={kind="hive",reason="ordered-gear-complete"}; return base
     end
@@ -837,7 +844,7 @@ local function queuePlan(facts,catalog,primary)
         or primary.action.kind=="redeem-code" then return nil end
     local queues={A={},B={}}
     local deferredRequirements={}
-    for id in pairs(P.ownershipRequirements)do
+    for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements})do for id in pairs(rules)do
         if (facts.ownedGear or {})[id]~=true then
             local ready,why=P.gearPrerequisite(facts,id)
             if not ready then deferredRequirements[id]=why
@@ -845,7 +852,7 @@ local function queuePlan(facts,catalog,primary)
                 deferredRequirements[id]="Requires "..P.capacityRequirements[id].." unlocked hive slots"
             end
         end
-    end
+    end end
     local deferred={}
     local function fundedGear(gear)
         local read=inventoryReader(facts)

@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- Latest human clarification, November 27 / v1.8.113: restore Petal Belt queue admission only when actual inventory holds at least1 SpiritPetal. An absent/zero/unknown/queued petal does not qualify. Excluded Petal Belt must not reserve honey/jelly or contribute crafting demands; recheck inventory before action. This overrides the prior broad removal of its inventory admission gate; keep the latest Diamond Mask/45-slot dependencies for other gear.
+
 - Latest human queue dependencies, November 27 / v1.8.112: Coconut Canister enters the queue only when Diamond Mask is actually owned AND equipped. Pesticide Planter enters only when Diamond Mask is actually owned and unlocked hive capacity is at least45; mask equipment is not required for Pesticide. These specific new requirements supersede their older absent/47-slot gates. Read current PlayerHas/PlayerHasEquipped against fresh stats, fail closed on unknown equipment, and re-evaluate each plan. Excluded gear must not reserve or craft its ingredients in aggregate preparation. Do not auto-equip on the user's behalf.
 
 - Latest human corrections, November 26 / v1.8.111: Blender recipe Earn Badges metadata is not a crafting gate (user supplied successful Red Extract crafting). Filter that metadata in BOTH read-only recipe discovery and the final craft guard; preserve validated ingredients, other explicit conditions, full funding and receipts. Do not reintroduce the false badge explanation from v1.8.110.
