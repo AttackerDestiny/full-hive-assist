@@ -254,5 +254,12 @@ return function(factory,Policy)
         s.owns["Diamond Mask"]=false;deps.Packages.PlayerHasEquipped=function()return true end;f=factory(deps)(s)
         check(f.ownedGear["Diamond Mask"]==false,"Equipment alone cannot manufacture ownership or erase a known false ownership")
     end
+    do
+        local deps,s=fixture();s.BlenderState={Recipe="Oil",Count=2,StartTime=100}
+        deps.BlenderGoal=function()return {Gear="Mask",Recipe="Oil",Count=2,StartTime=100}end
+        check(factory(deps)(s).craft.goalGear=="Mask","Only the original verified order can retain its gear goal")
+        s.BlenderState.StartTime=101
+        check(factory(deps)(s).craft.goalGear==nil,"Replacement order cannot inherit an old material goal")
+    end
     return {passed=passed}
 end

@@ -1,6 +1,6 @@
 -- Pure tables only. The caller supplies the planner; this file contains no
 -- transport, game services, movement, or live executor access.
-return function(P,workerSource)
+return function(P,workerSource,BlenderReceipt)
     local passed=0
     local function check(value,message) assert(value,message);passed+=1 end
     local function copy(t) local r={};for k,v in pairs(t) do r[k]=type(v)=="table" and copy(v) or v end;return r end
@@ -1136,6 +1136,81 @@ return function(P,workerSource)
         r=P.plan(f,c)
         check(r.action.reason=="waiting-gear-unlocks"and r.optionalHiveAllowed,"Only a locked Canister remaining is an unlock wait, not route completion")
         check(r.deferredRequirementGear["Coconut Canister"]=="Requires equipped Diamond Mask","All-deferred state still explains the missing equipment")
+        P.stages=stages
+    end
+    do
+        local f=facts();f.craft={item="RedExtract",count=3,startTime=100,completedUnits=1,ready=false}
+        local c=catalog("Clippers",100,{BlueExtract=2})
+        local r=P.plan(f,c)
+        check(r.action.kind=="cancel-craft"and r.action.item=="RedExtract"and r.action.orderStartTime==100,"Unrelated in-progress order is cancelled for the selected gear")
+        f.craft.item="BlueExtract";r=P.plan(f,c)
+        check(r.action.kind=="wait"and r.action.reason=="blender-busy","Matching Blue Extract order remains running")
+        c.gear.Clippers.items={TropicalDrink=1};f.craft.item="Oil"
+        check(P.plan(f,c).action.kind=="wait","Oil needed by a nested Tropical Drink recipe is relevant")
+        c.recipes={TropicalDrink=false};c.useSuppliedRecipes=false
+        check(P.plan(f,c).action.kind~="cancel-craft","Unknown recipe graph cannot authorize cancellation")
+        c.recipes=nil;c.useSuppliedRecipes=nil;c.gear.Clippers.items={BlueExtract=2};f.craft.item="RedExtract"
+        f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Pending request prevents cancellation")
+        f.pending=false;f.uncertain=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Uncertain receipt prevents cancellation")
+        f.uncertain=false;f.craft.ready=true
+        check(P.plan(f,c).action.kind=="collect-craft","Finished unrelated output is collected normally")
+        f.craft.ready=false;f.craft.startTime=nil
+        check(P.plan(f,c).action.kind~="cancel-craft","Unknown order identity cannot be cancelled")
+        check(P.materialRelevant("Oil",{Oil=1},{})==true,"Direct material membership is relevant regardless of stock")
+        check(P.materialRelevant("RedExtract",{BlueExtract=1},{})==false,"Verified disjoint recipe graph is unrelated")
+        check(P.materialRelevant("Oil",{TropicalDrink=1},{})==true,"Nested recipe membership is recognized")
+        check(P.materialRelevant("Oil",{SoftWax=1},{})==false,"Forbidden wax crafting does not invent an ingredient goal")
+        local stages=P.stages;P.stages={{gate=0,gear={"Clippers","Jar"}}}
+        f=facts();f.gearQueues=true;f.discoveryPreparation=true;f.craft={item="Oil",count=3,startTime=100,completedUnits=1,ready=false}
+        c={gear={Clippers={honey=100,items={BlueExtract=2}},Jar={honey=200,items={Oil=2}}}}
+        r=P.plan(f,c)
+        check(r.gear=="Clippers"and r.action.kind~="cancel-craft","Explicit combined-queue preparation keeps an order needed by its active aggregate goal")
+        P.stages=stages
+    end
+    if workerSource and BlenderReceipt then
+        local source=assert(workerSource:match("(    local function cancel%(a,c,s,facts%).-)\n    local function speedup"))
+        local make=assert(loadstring("return function(H,env,report,finishReceipt) "..source.." return cancel end"))()
+        local definition={Ingredients={{Category="Eggs",Type="Strawberry",Amount=50},{Category="Eggs",Type="RoyalJelly",Amount=10}}}
+        local s={Eggs={RedExtract=2,Strawberry=1,RoyalJelly=3},BlenderState={Recipe="RedExtract",Count=3,StartTime=100}}
+        local a={kind="cancel-craft",gear="Clippers",item="RedExtract",amount=3,orderCount=3,orderStartTime=100}
+        local env,report={},{};local sent=0
+        local fresh={Eggs={RedExtract=3,Strawberry=101,RoyalJelly=23},BlenderState=false}
+        local H={Recipes={Get=function()return definition end},BlenderReceipt=BlenderReceipt,
+            invokeCancel=function(before)sent+=1;env.FullHiveUncertain={BlenderBefore=before}end,refresh=function()return fresh end}
+        local worker=make(H,env,report,function(_,_,receipt)check(receipt==env.FullHiveUncertain,"Original cancel receipt is reconciled");return true end)
+        check(worker(a,{},s,{craft={completedUnits=1}})==true and sent==1,"Actual worker cancels once with verified output and refund")
+        check(report.LastBlenderCancellation.Completed==1 and report.LastBlenderCancellation.Refunded.RoyalJelly==20,"Cancellation reports completed output and returned ingredients")
+        sent=0;fresh.Eggs.RoyalJelly=22
+        local ok=pcall(worker,a,{},s,{craft={completedUnits=1}})
+        check(not ok and sent==1 and env.FullHiveUncertain~=nil,"Incorrect refund stops with original uncertainty intact and no replay")
+        local factory=assert(loadstring(workerSource))()
+        local part={};local released=0;local requests=0
+        local host={Policy=P,env={},Report={Actions=0},Config={AutoPurchase=true,MaxActions=100},
+            toyPart=function()return part end,checkStop=function()end,move=function()end,near=function()end,
+            refresh=function()return s end,release=function()released+=1 end,
+            invokeCancel=function()requests+=1 end,assertAtlasPaused=function()end}
+        local workerR=factory(host)
+        local did=workerR.perform({gear="Clippers",action=a},s,{}, {},function()return {action={kind="wait"}},{},{}end)
+        check(did and released==1 and requests==0,"Changed target during travel releases Atlas without cancellation")
+        local changed={};for k,v in pairs(a)do changed[k]=v end;changed.orderStartTime=101
+        workerR.perform({gear="Clippers",action=a},s,{}, {},function()return {action=changed},{},{}end)
+        check(released==2 and requests==0,"Replacement order during travel is never cancelled with an old action")
+    end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Clippers","Jar","Canister"}}}
+        local f=facts();f.gearQueues=true;f.inventory={SunflowerSeed=50,RoyalJelly=10}
+        local c={gear={Clippers={honey=100,items={BlueExtract=2}},Jar={honey=200,items={Oil=1}},Canister={honey=1000000,items={}}}}
+        f.honey=0
+        local r=P.plan(f,c)
+        check(r.gear=="Jar"and r.action.kind=="craft","Another gear's complete recipe can start while first gear lacks fruit")
+        f.inventory.SunflowerSeed=0;f.inventory.RoyalJelly=0
+        f.craft={item="Oil",count=1,startTime=100,completedUnits=0,ready=false,goalGear="Jar"}
+        r=P.plan(f,c)
+        check(r.gear=="Jar"and r.action.reason=="blender-busy","Verified original goal survives queued-output reranking without a start/cancel loop")
+        f.honey=1000000;r=P.plan(f,c)
+        check(r.gear=="Canister"and r.action.kind=="buy-gear","Ready purchase can finish without interrupting the related order")
+        f.ownedGear.Jar=true;f.honey=0;r=P.plan(f,c)
+        check(r.gear=="Clippers"and r.action.kind=="cancel-craft","Order goal no longer eligible falls back and cancels when unrelated")
         P.stages=stages
     end
     return {passed=passed}

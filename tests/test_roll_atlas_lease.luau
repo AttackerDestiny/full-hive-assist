@@ -50,5 +50,39 @@ return function(backgroundSource,runtime)
     exercise(true,lease,nil,nil,{PauseRequested=true},false)
     exercise(true,lease,nil,nil,{CleanupError="test"},false)
     check(runtime:find("near=near,release=releaseIdle,",1,true)~=nil,"Workers use the idle-only release")
+    do
+        local source=assert(backgroundSource:match("(    local function assistQuest%(a,s%).-)\n    function R.inspect"))
+        local build=assert(loadstring("return function(H,state,env,matchingQuest,finish) "..source.." return assistQuest end"))()
+        local function fixture(mode)
+            local stats={Eggs={Ticket=100,Gold=0}};local env={};local state={};local sent,lookups,released=0,0,0
+            local package={Category="Eggs",Type="Gold",Amount=1};local moved=false
+            local H={Config={AutoPurchase=true},Events={ItemPackageEvent={}},
+                fixedShopPackage=function(item,amount,shop)
+                    lookups+=1;check(item=="Gold"and amount==1 and shop=="TicketShop","Gold lookup uses the verified real shop option")
+                    if mode=="missing"or mode=="disappeared"and moved then error("not loaded")end
+                    return package
+                end,
+                shopFloor=function(shop)check(shop=="TicketShop","Gold movement uses the same verified shop");return "floor"end,
+                move=function()moved=true end,near=function()end,refresh=function()return stats end,
+                assertAtlasPaused=function()end,release=function()released+=1 end,honeyReserve=function()return 0 end,
+                Packages={CanPurchase=function()return not(mode=="unavailable"and moved)end,CanGive=function()return true end,GetCost=function()return {}end},
+                Funds={check=function()return true end}}
+            H.invoke=function(_,command,pkg)
+                sent+=1;check(command=="Purchase"and pkg==package,"Gold purchase sends the exact verified package once")
+                env.FullHiveUncertain={};stats.Eggs.Gold=1;return true
+            end
+            local worker=build(H,state,env,function()return mode~="quest-ended"end,function(receipt)
+                check(receipt==env.FullHiveUncertain,"Gold receipt is reconciled before release")
+            end)
+            local result=worker({mode="own",item="Gold",quest="Active donation",remaining=1},stats)
+            return result,sent,lookups,released,state
+        end
+        local done,sent,lookups,released=fixture()
+        check(done and sent==1 and lookups==2 and released==1,"Quest Gold acquisition revalidates and finishes once")
+        for _,mode in ipairs({"missing","disappeared","unavailable","quest-ended"})do
+            done,sent=fixture(mode)
+            check(not done and sent==0,"No Gold purchase after an unsent availability/quest change: "..mode)
+        end
+    end
     return {passed=passed}
 end

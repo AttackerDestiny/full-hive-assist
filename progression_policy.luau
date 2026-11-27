@@ -346,6 +346,44 @@ function P.materials(requirements,facts,catalog)
     return {reservedItems=reserved,materialDemand=demand,missingItems=missing,crafts=crafts,
         queuedItems=queuedAllocated,nextCraft=crafts[1],blockedRecipes=blocked}
 end
+-- Match direct costs and verified, permitted nested recipes. Unknown recipe
+-- data cannot authorize cancelling an order that might still be relevant.
+function P.materialRelevant(item,requirements,catalog)
+    if type(item)~="string"or type(requirements)~="table"then return nil end
+    local visiting={}
+    local function walk(name)
+        if name==item then return true end
+        if P.bannedCraft[name]then return false end
+        if visiting[name]then return nil end
+        local recipe=(catalog.recipes or {})[name]
+        if recipe==nil and catalog.useSuppliedRecipes~=false then recipe=P.recipes[name]end
+        if recipe==false then return nil end
+        if recipe==nil then return false end
+        if type(recipe)~="table"or type(recipe.ingredients)~="table"or not next(recipe.ingredients)then return nil end
+        visiting[name]=true
+        local unknown=false
+        for ingredient,amount in pairs(recipe.ingredients)do
+            if type(ingredient)~="string"or not integer(amount)or amount==0 then visiting[name]=nil;return nil end
+            local found=walk(ingredient)
+            if found then visiting[name]=nil;return true end
+            if found==nil then unknown=true end
+        end
+        visiting[name]=nil
+        if unknown then return nil end
+        return false
+    end
+    local unknown=false
+    for name,amount in pairs(requirements)do
+        if type(name)~="string"or not integer(amount)then return nil end
+        if amount>0 then
+            local found=walk(name)
+            if found then return true end
+            if found==nil then unknown=true end
+        end
+    end
+    if unknown then return nil end
+    return false
+end
 -- Growth is allowed only at a required gate; outside a gate the host retains
 -- its established auto-hive scheduling and can request this advisory separately.
 function P.growth(facts,catalog,target,reserveHoney,reservedItems)
@@ -741,7 +779,7 @@ function P.describe(result,facts,catalog)
     local action=result.action or {kind="wait",reason="unknown-action"}
     local phase=result.materialPhase and "materials" or action.kind=="buy-gear" and "gear-ready"
         or action.reason=="saving-gear-honey" and "saving-gear-honey" or action.kind
-    local labels={['buy-gear']='Buying gear',craft='Crafting materials',['collect-craft']='Collecting materials',
+    local labels={['buy-gear']='Buying gear',craft='Crafting materials',['collect-craft']='Collecting materials',['cancel-craft']='Cancelling unrelated Blender order',
         ['purchase-pack']='Buying crafting supplies',['purchase-material']='Buying gear materials',
         ['speedup-blender']='Completing Blender order',['redeem-code']='Redeeming code',hive='Hive progression'}
     local reason=action.reason or result.reason
@@ -957,6 +995,18 @@ local function queuePlan(facts,catalog,primary)
         end
         if fundingCandidate then materialCandidate=fundingCandidate end
     end
+    -- A verified order keeps the gear goal that started it while it remains
+    -- eligible. Busy-Blender planning must not select a different goal merely
+    -- because its formerly actionable recipe is now queued.
+    if not facts.discoveryPreparation and type(facts.craft)=="table"and facts.craft.ready==false
+        and type(facts.craft.goalGear)=="string"then
+        for _,candidate in ipairs(queues.B)do
+            if candidate.id==facts.craft.goalGear
+                and P.materialRelevant(facts.craft.item,catalog.gear[candidate.id].items,catalog)==true then
+                materialCandidate=candidate;break
+            end
+        end
+    end
     local priorityMaterial=decide(materialCandidate)
     local material=priorityMaterial
     local aggregate,requirements,aggregateError
@@ -1048,6 +1098,22 @@ function P.plan(facts,catalog)
     end
     if facts and facts.discoveryPreparation and not result.gear and result.action.kind=="hive" then
         result.discoveryPreparation=true;result.queueMaterialsReady=true;result.queueMaterialRequirements={}
+    end
+    local order=type(facts)=="table"and facts.craft
+    if result.gear and type(order)=="table"and order.ready==false and integer(order.count)and order.count>0
+        and type(order.startTime)=="number"and order.startTime==order.startTime and math.abs(order.startTime)<math.huge
+        and integer(order.completedUnits)and order.completedUnits<=order.count
+        and not facts.pending and not facts.uncertain
+        and (result.action.kind=="wait"or result.action.kind=="speedup-blender")then
+        local gear=(catalog.gear or {})[result.gear]
+        local requirements=result.discoveryPreparation and result.queueMaterialRequirements or gear and gear.items
+        local related=P.materialRelevant(order.item,requirements,catalog)
+        result.blenderRelevant=related
+        if related==false then
+            result.action={kind="cancel-craft",gear=result.gear,item=order.item,amount=order.count,
+                orderCount=order.count,orderStartTime=order.startTime}
+            result.reason="blender-order-unrelated";result.optionalHiveAllowed=false;result.saveCraftingJelly=false
+        end
     end
     result.status=P.describe(result,type(facts)=="table" and facts or {},type(catalog)=="table" and catalog or {})
     return result

@@ -147,7 +147,7 @@ if checkFinalBaby then finalBabyOK,finalBabyResult=pcall(assert(loadstring(final
 local progressionOK,progressionResult,progressionFactsOK,progressionFactsResult=true,{notApplicable=true},true,{notApplicable=true}
 if hasProgression then
     local pp=assert(loadstring(progressionPolicy))()
-    progressionOK,progressionResult=pcall(assert(loadstring(progressionTests))(),pp,progressionWorker)
+    progressionOK,progressionResult=pcall(assert(loadstring(progressionTests))(),pp,progressionWorker,hasBlenderReceipt and assert(loadstring(blenderReceipt))() or nil)
     progressionFactsOK,progressionFactsResult=pcall(assert(loadstring(progressionFactsTests))(),assert(loadstring(progressionFacts))(),pp)
 end
 local fundsOK,fundsResult=true,{notApplicable=true}

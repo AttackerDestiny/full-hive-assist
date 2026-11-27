@@ -209,14 +209,17 @@ return function(H)
         elseif a.mode=="own"then
             if(s.Eggs.Gold or 0)>0 then state.Quest=a.quest..": Gold Egg ready for donation";return false end
             if not H.Config.AutoPurchase then return false end
-            local pkg=H.fixedShopPackage("Gold",1,"TicketTent")
+            local found,pkg=pcall(H.fixedShopPackage,"Gold",1,"TicketShop")
+            if not found then state.Quest="Gold Egg shop option unavailable; waiting";return false end
             if not H.Packages.CanPurchase(pkg,s)or not H.Packages.CanGive(pkg,s)then return false end
             if not H.Funds.check({kind="purchase-material"},{reserveHoney=H.honeyReserve(s)},H.Packages.GetCost(pkg,s),s,H.Config.HoneyReserve)then return false end
-            H.move(H.shopFloor("TicketTent"));H.near(H.shopFloor("TicketTent"));s=H.refresh()
+            H.move(H.shopFloor("TicketShop"));H.near(H.shopFloor("TicketShop"));s=H.refresh()
             if not matchingQuest(s,a)or(s.Eggs.Gold or 0)>0 then H.release();return false end
-            pkg=H.fixedShopPackage("Gold",1,"TicketTent")
+            found,pkg=pcall(H.fixedShopPackage,"Gold",1,"TicketShop")
+            if not found then state.Quest="Gold Egg shop option unavailable; waiting";H.release();return false end
+            if not H.Packages.CanPurchase(pkg,s)or not H.Packages.CanGive(pkg,s)then H.release();return false end
             if not H.Funds.check({kind="purchase-material"},{reserveHoney=H.honeyReserve(s)},H.Packages.GetCost(pkg,s),s,H.Config.HoneyReserve)then H.release();return false end
-            H.assertAtlasPaused();H.near(H.shopFloor("TicketTent"))
+            H.assertAtlasPaused();H.near(H.shopFloor("TicketShop"))
             local n=s.Eggs.Gold or 0;local accepted=H.invoke(H.Events.ItemPackageEvent,"Purchase",pkg);local receipt=env.FullHiveUncertain
             local fresh=H.refresh();assert(accepted and(fresh.Eggs.Gold or 0)==n+1,"Quest Gold Egg purchase uncertain; do not retry")
             finish(receipt,fresh);H.release();return true

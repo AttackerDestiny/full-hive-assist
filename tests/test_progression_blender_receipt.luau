@@ -60,5 +60,27 @@ return function(R)
     check(R.validate(exact,{Eggs={BlueExtract=253}}),"A depleted ticket readback can omit its zero key")
     check(not R.validate(nil,fresh),"Missing snapshot fails closed")
     check(not R.validate(before,{}),"Missing fresh inventory fails closed")
+    do
+        local definition={Ingredients={{Category="Eggs",Type="Strawberry",Amount=50},{Category="Eggs",Type="RoyalJelly",Amount=10}}}
+        local action={kind="cancel-craft",item="RedExtract",amount=3,orderCount=3,orderStartTime=100}
+        for completed=0,3 do
+            local stats={Eggs={RedExtract=2,Strawberry=7,RoyalJelly=5,Ticket=8},BlenderState={Recipe="RedExtract",Count=3,StartTime=100}}
+            local before=assert(R.captureCancel(stats,action,definition,completed))
+            local fresh={Eggs={RedExtract=2+completed,Strawberry=7+(3-completed)*50,RoyalJelly=5+(3-completed)*10,Ticket=8},BlenderState=false}
+            local ok,_,proof=R.validateCancel(before,fresh)
+            check(ok and proof.Completed==completed,"Cancel reconciles completed units and remaining refund at "..completed)
+            stats.Eggs.Strawberry=999;stats.BlenderState.Count=99
+            check(before.Inputs.Strawberry.Before==7 and before.Count==3,"Cancel baseline survives yielding cache mutation")
+            fresh.Eggs.RoyalJelly-=1;check(not R.validateCancel(before,fresh),"Incomplete Royal Jelly refund fails closed")
+            fresh.Eggs.RoyalJelly+=1;fresh.BlenderState={};check(not R.validateCancel(before,fresh),"Uncleared Blender queue cannot confirm cancellation")
+        end
+        local stats={Eggs={RedExtract=2},BlenderState={Recipe="RedExtract",Count=3,StartTime=100}}
+        local before=assert(R.captureCancel(stats,action,definition,1))
+        check(not R.validateCancel(before,{Eggs={RedExtract=2,Strawberry=150,RoyalJelly=30}}),"Already completed output cannot disappear during cancellation")
+        check(R.validateCancel(before,{Eggs={RedExtract=4,Strawberry=50,RoyalJelly=10}}),"Progress during the original request is reconciled from actual returned output")
+        action.orderStartTime=101;check(not R.captureCancel(stats,action,definition,1),"Changed server order identity blocks cancellation")
+        action.orderStartTime=100
+        definition.Ingredients[1].Category="Unknown";check(not R.captureCancel(stats,action,definition,1),"Unknown refund category blocks cancellation")
+    end
     return {passed=passed}
 end

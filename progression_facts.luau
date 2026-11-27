@@ -397,6 +397,11 @@ return function(deps)
                     tickets=type(s.Eggs)=="table" and s.Eggs.Ticket or nil,
                     speedupEnabled=(type(deps.UseBlenderTickets)=="function" and deps.UseBlenderTickets() or deps.UseBlenderTickets)==true,
                     output=blender.Recipe}
+                if type(deps.BlenderGoal)=="function"then
+                    local known,goal=pcall(deps.BlenderGoal)
+                    if known and type(goal)=="table"and type(goal.Gear)=="string"and goal.Recipe==blender.Recipe
+                        and goal.Count==blender.Count and goal.StartTime==blender.StartTime then facts.craft.goalGear=goal.Gear end
+                end
                 craftUnknown=false
             end
             if craftUnknown then facts.craft={unknown=true} end

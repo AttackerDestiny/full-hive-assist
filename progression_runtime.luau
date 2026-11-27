@@ -75,7 +75,7 @@ return function(H)
         if a.kind=="purchase-material" then return c.purchases[a.item].part end
         if a.kind=="buy-hive-slot" then return c.hiveSlot.part end
         if a.kind=="buy-basic-egg" then return c.basicEgg.part end
-        if a.kind=="craft" or a.kind=="collect-craft" or a.kind=="speedup-blender" then return H.toyPart("Blender") end
+        if a.kind=="craft" or a.kind=="collect-craft" or a.kind=="speedup-blender" or a.kind=="cancel-craft" then return H.toyPart("Blender") end
         if a.kind=="acquire-material" then return (c.sources[a.item] or {}).part end
         return H.hiveFloor()
     end
@@ -182,6 +182,7 @@ return function(H)
             assert(beforeIngredients[v.Type]-(fresh.Eggs[v.Type] or 0)==v.Amount*a.amount,"Blender ingredient delta uncertain")
         end
         receipt.Kind="craft";receipt.Item=a.item;receipt.Amount=a.amount
+        if H.rememberBlenderGoal then H.rememberBlenderGoal(a,fresh.BlenderState)end
         return finishReceipt(s,fresh,receipt)
     end
     local function collect(a,s)
@@ -194,6 +195,22 @@ return function(H)
         assert(not fresh.BlenderState and (fresh.Eggs[a.item] or 0)-beforeOutput==a.amount,
             "Completed craft collection uncertain")
         receipt.Kind="collect-craft";receipt.Item=a.item;receipt.Amount=a.amount
+        env.FullHiveBlenderGoal=nil
+        return finishReceipt(s,fresh,receipt)
+    end
+    local function cancel(a,c,s,facts)
+        local definition=H.Recipes.Get(a.item)
+        local before,why=H.BlenderReceipt.captureCancel(s,a,definition,facts.craft and facts.craft.completedUnits)
+        assert(before,why)
+        H.invokeCancel(before)
+        local receipt=env.FullHiveUncertain
+        assert(receipt and receipt.BlenderBefore==before,"Blender cancellation baseline missing; reconciliation required")
+        local fresh=H.refresh()
+        local reconciled,reason,proof=H.BlenderReceipt.validateCancel(before,fresh)
+        assert(reconciled,"Blender cancellation uncertain: "..tostring(reason))
+        receipt.Kind="cancel-craft";receipt.Item=a.item;receipt.Amount=a.amount
+        env.FullHiveBlenderGoal=nil
+        report.LastBlenderCancellation={Item=a.item,Count=a.amount,Gear=a.gear,Completed=proof.Completed,Refunded=proof.Refunded}
         return finishReceipt(s,fresh,receipt)
     end
     local function speedup(a,s)
@@ -206,6 +223,7 @@ return function(H)
         local reconciled,reason=H.BlenderReceipt.validate(before,fresh)
         assert(reconciled,"Blender speedup output not reconciled: "..tostring(reason))
         receipt.Kind="speedup-blender";receipt.Item=a.item;receipt.Amount=a.amount;receipt.Tickets=a.tickets
+        env.FullHiveBlenderGoal=nil
         return finishReceipt(s,fresh,receipt)
     end
     local function hatch(a,s,facts)
@@ -293,6 +311,7 @@ return function(H)
                 {Name="PromoCodeEvent",Kind="redeem-code",Item=action.code,Amount=1,Started=os.clock()})
         elseif action.kind=="craft" then craft(action,c,s)
         elseif action.kind=="collect-craft" then collect(action,s)
+        elseif action.kind=="cancel-craft" then cancel(fresh.action,c,s,f)
         elseif action.kind=="speedup-blender" then speedup(action,s)
         elseif action.kind=="hatch-basic" or action.kind=="hatch-egg" then hatch(action,s,f)
         elseif action.kind=="acquire-material" then

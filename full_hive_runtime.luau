@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.113"
+local SCRIPT_VERSION = "1.8.114"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1148,6 +1148,10 @@ local function initializeProgression()
         Accessories=Accessories,CellTools=CellTools,OsTime=OsTime,Shops=workspace:FindFirstChild("Shops"),
         Hive=hive,HoneyReserve=Config.HoneyReserve,UseBlenderTickets=function() return Config.UseBlenderTickets end,
         Uncertain=function() return env.FullHiveUncertain end,
+        BlenderGoal=function()
+            local goal=env.FullHiveBlenderGoal
+            if type(goal)=="table"and goal.Owner==player.UserId and goal.Job==game.JobId then return goal end
+        end,
         ShopAccess=shopAccess,
         PreviewModel=function(package)
             local definition
@@ -1229,6 +1233,13 @@ local function initializeProgression()
         end,
         invokeSpeedup=function(before)
             return invokeRequest(Events.BlenderCommand,before,"SpeedUpOrder")
+        end,
+        invokeCancel=function(before)
+            return invokeRequest(Events.BlenderCommand,before,"StopOrder")
+        end,
+        rememberBlenderGoal=function(action,order)
+            env.FullHiveBlenderGoal={Owner=player.UserId,Job=game.JobId,Gear=action.gear,
+                Recipe=order.Recipe,Count=order.Count,StartTime=order.StartTime}
         end,
         fixedShopPackage=function(...) return fixedShopPackage(...) end,
         customShopPackage=function(...) return customShopPackage(...) end,
