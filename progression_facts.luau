@@ -200,13 +200,18 @@ return function(deps)
             facts.uncertain=not ok or state~=false and state~=nil
         end
         local cells=0
+        local beeCounts={Baby=0,Music=0,Shy=0}
         if type(s.Honeycomb)=="table" then
             local valid=true
             for _,col in pairs(s.Honeycomb) do
                 if type(col)~="table" then valid=false;break end
-                for _,bee in pairs(col) do if type(bee)~="table" or type(bee.Type)~="string" then valid=false;break end;cells+=1 end
+                for _,bee in pairs(col) do
+                    if type(bee)~="table" or type(bee.Type)~="string" then valid=false;break end
+                    cells+=1
+                    if beeCounts[bee.Type]~=nil then beeCounts[bee.Type]+=1 end
+                end
             end
-            if valid then facts.occupied=cells end
+            if valid then facts.occupied=cells;facts.beeCounts=beeCounts end
         end
         if integer(s.UnlockedCells) and s.UnlockedCells>=25 and s.UnlockedCells<=50 then facts.capacity=s.UnlockedCells end
         local index,shops=catalogShops()

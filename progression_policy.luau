@@ -34,7 +34,18 @@ P.capacityRequirements={["Pesticide Planter"]=45}
 P.inventoryRequirements={["Petal Belt"]={item="SpiritPetal",amount=1}}
 P.ownershipRequirements={["Coconut Canister"]="Diamond Mask",["Pesticide Planter"]="Diamond Mask"}
 P.equipmentRequirements={["Coconut Canister"]="Diamond Mask"}
+P.beeRequirements={["Cobalt Guard"]={Baby=4,Music=4,Shy=3}}
 function P.gearPrerequisite(facts,id)
+    local bees=P.beeRequirements[id]
+    if bees then
+        local counts=facts.beeCounts or {}
+        for _,name in ipairs({"Baby","Music","Shy"})do
+            local held=counts[name]
+            if type(held)~="number"or held%1~=0 or held<bees[name]then
+                return false,"Requires Baby 4, Music 4 and Shy 3 before Cobalt Guard saving"
+            end
+        end
+    end
     local required=P.inventoryRequirements[id]
     if required then
         local held=(facts.inventory or {})[required.item]
@@ -516,7 +527,7 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
         end
         base.optionalHiveAllowed=true; base.reserveHoney=facts.honeyReserve or 0
         base.deferredRequirementGear={}
-        for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements})do for id in pairs(rules)do
+        for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements,P.beeRequirements})do for id in pairs(rules)do
             if (facts.ownedGear or {})[id]~=true then
                 local ready,why=P.gearPrerequisite(facts,id)
                 if not ready then base.deferredRequirementGear[id]=why
@@ -882,7 +893,7 @@ local function queuePlan(facts,catalog,primary)
         or primary.action.kind=="redeem-code" then return nil end
     local queues={A={},B={}}
     local deferredRequirements={}
-    for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements})do for id in pairs(rules)do
+    for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements,P.beeRequirements})do for id in pairs(rules)do
         if (facts.ownedGear or {})[id]~=true then
             local ready,why=P.gearPrerequisite(facts,id)
             if not ready then deferredRequirements[id]=why

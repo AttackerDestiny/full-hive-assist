@@ -3289,17 +3289,17 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.117",
+    "version": "1.8.118",
     "bundle": "core.luau",
-    "sha256": "f6aa8ba9a2580988bef43b5cadea5d5545d4209abf93820160cf08a635300ee7",
-    "deployedNormalizedUTF8Sha256": "3fdcfa5882afa4379f0786288dad6bda46796234565ccee12cf42f6fa2221a51",
-    "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+    "sha256": "07412ccbb5e5d4c4f6602deaed7eb7f87526de5c34fc6ec04dbe310ad06ae780",
+    "deployedNormalizedUTF8Sha256": "f1c03df5830709a031fa0305eb966092f3ea0d994893f3afaf64ef16c12fd1ab",
+    "jobId": "8215595f-fa36-4f4b-8453-1b2f1dab44a4",
     "accounts": [
       {
-        "account": "QuackAltear1",
-        "executor": "Delta",
-        "version": "1.8.117",
-        "startedAt": 1795749124,
+        "account": "xd_Glen09",
+        "executor": "Arceus X",
+        "version": "1.8.118",
+        "startedAt": 1795750036,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
@@ -3311,35 +3311,35 @@
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "offlineChecks": 6996,
-    "separateMaterialFarmChecks": 45,
-    "connectedChecks": 6995,
+    "offlineChecks": 7014,
+    "connectedChecks": 7013,
     "connectedAllPassed": true,
-    "progressionChecks": 534,
+    "progressionChecks": 548,
+    "factsChecks": 72,
+    "materialFarmChecks": 45,
     "compatibilityMarkers": 42,
-    "materialFarmStatusLive": {
-      "field": "Pine Tree Forest",
-      "fruit": "Blueberry",
-      "held": 5776,
-      "remaining": 6474,
-      "active": true,
-      "gear": "Diamond Mask"
+    "liveForces": {
+      "Baby": 0,
+      "Music": 4,
+      "Shy": 3
     },
-    "naturalCrossFieldSwitchObserved": false,
-    "deploymentScope": "QuackAltear1 only"
+    "cobaltExcludedLive": true,
+    "nextEligibleGear": "Crimson Guard",
+    "naturalQuotaCompletionObserved": false,
+    "deploymentScope": "xd_Glen09 only"
   },
   "latestCandidate": {
-    "version": "1.8.117",
+    "version": "1.8.118",
     "bundle": "core.luau",
-    "sha256": "f6aa8ba9a2580988bef43b5cadea5d5545d4209abf93820160cf08a635300ee7",
-    "deployedNormalizedUTF8Sha256": "3fdcfa5882afa4379f0786288dad6bda46796234565ccee12cf42f6fa2221a51",
-    "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+    "sha256": "07412ccbb5e5d4c4f6602deaed7eb7f87526de5c34fc6ec04dbe310ad06ae780",
+    "deployedNormalizedUTF8Sha256": "f1c03df5830709a031fa0305eb966092f3ea0d994893f3afaf64ef16c12fd1ab",
+    "jobId": "8215595f-fa36-4f4b-8453-1b2f1dab44a4",
     "accounts": [
       {
-        "account": "QuackAltear1",
-        "executor": "Delta",
-        "version": "1.8.117",
-        "startedAt": 1795749124,
+        "account": "xd_Glen09",
+        "executor": "Arceus X",
+        "version": "1.8.118",
+        "startedAt": 1795750036,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
@@ -3351,22 +3351,22 @@
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "offlineChecks": 6996,
-    "separateMaterialFarmChecks": 45,
-    "connectedChecks": 6995,
+    "offlineChecks": 7014,
+    "connectedChecks": 7013,
     "connectedAllPassed": true,
-    "progressionChecks": 534,
+    "progressionChecks": 548,
+    "factsChecks": 72,
+    "materialFarmChecks": 45,
     "compatibilityMarkers": 42,
-    "materialFarmStatusLive": {
-      "field": "Pine Tree Forest",
-      "fruit": "Blueberry",
-      "held": 5776,
-      "remaining": 6474,
-      "active": true,
-      "gear": "Diamond Mask"
+    "liveForces": {
+      "Baby": 0,
+      "Music": 4,
+      "Shy": 3
     },
-    "naturalCrossFieldSwitchObserved": false,
-    "deploymentScope": "QuackAltear1 only"
+    "cobaltExcludedLive": true,
+    "nextEligibleGear": "Crimson Guard",
+    "naturalQuotaCompletionObserved": false,
+    "deploymentScope": "xd_Glen09 only"
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -3684,5 +3684,45 @@
       "active": false
     },
     "deploymentScope": "QuackTest03 only"
+  },
+  "deploymentBeforeCobaltQuota118": {
+    "version": "1.8.117",
+    "bundle": "core.luau",
+    "sha256": "f6aa8ba9a2580988bef43b5cadea5d5545d4209abf93820160cf08a635300ee7",
+    "deployedNormalizedUTF8Sha256": "3fdcfa5882afa4379f0786288dad6bda46796234565ccee12cf42f6fa2221a51",
+    "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+    "accounts": [
+      {
+        "account": "QuackAltear1",
+        "executor": "Delta",
+        "version": "1.8.117",
+        "startedAt": 1795749124,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "pendingRequests": false,
+        "uncertainRequests": false
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "offlineChecks": 6996,
+    "separateMaterialFarmChecks": 45,
+    "connectedChecks": 6995,
+    "connectedAllPassed": true,
+    "progressionChecks": 534,
+    "compatibilityMarkers": 42,
+    "materialFarmStatusLive": {
+      "field": "Pine Tree Forest",
+      "fruit": "Blueberry",
+      "held": 5776,
+      "remaining": 6474,
+      "active": true,
+      "gear": "Diamond Mask"
+    },
+    "naturalCrossFieldSwitchObserved": false,
+    "deploymentScope": "QuackAltear1 only"
   }
 }

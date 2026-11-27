@@ -261,5 +261,18 @@ return function(factory,Policy)
         s.BlenderState.StartTime=101
         check(factory(deps)(s).craft.goalGear==nil,"Replacement order cannot inherit an old material goal")
     end
+    do
+        local deps,s=fixture();s.Honeycomb={x1={}}
+        for i,name in ipairs({"Baby","Baby","Baby","Baby","Music","Music","Music","Music","Shy","Shy","Shy"})do
+            s.Honeycomb.x1["y"..i]={Type=name,Traits={Gifted=i%2==0}}
+        end
+        local f=factory(deps)(s)
+        check(f.beeCounts.Baby==4 and f.beeCounts.Music==4 and f.beeCounts.Shy==3,"Live hive species counts include normal and gifted force copies")
+        s.Honeycomb.x1.y1={Type="Basic"};f=factory(deps)(s)
+        check(f.beeCounts.Baby==3,"Fresh species changes immediately update force count")
+        s.Honeycomb.x1.y2=false;f=factory(deps)(s)
+        check(f.beeCounts==nil,"Malformed hive never supplies partial force counts")
+        s.Honeycomb=nil;check(factory(deps)(s).beeCounts==nil,"Absent hive counts remain unknown")
+    end
     return {passed=passed}
 end

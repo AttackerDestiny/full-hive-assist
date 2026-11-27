@@ -7,7 +7,7 @@ return function(P,workerSource,BlenderReceipt)
     local function facts()
         local f={honey=1e12,honeyReserve=0,inventory={},inventoryKnown=true,
             ownedGear={},ownedGearKnown=true,redeemedCodes={},codesKnown=true,
-            conditions={},occupied=25,capacity=25,craft=false}
+            conditions={},occupied=25,capacity=25,craft=false,beeCounts={Baby=4,Music=4,Shy=3}}
         for _,code in ipairs(P.codes) do f.redeemedCodes[code]=true end
         return f
     end
@@ -1228,6 +1228,24 @@ return function(P,workerSource,BlenderReceipt)
         check(r.gearQueues.B[1].id=="Jar"and r.gearQueues.B[1].materialShortfall==0,"Fully held materials outrank missing requirements")
         f.inventoryKnown=false;f.inventory={};r=P.plan(f,c)
         check(not r.gearQueues or r.gearQueues.B[1].materialShortfall==math.huge,"Unknown material evidence cannot gain a low priority score")
+        P.stages=stages
+    end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Cobalt Guard","Next Gear"}}}
+        local f=facts();f.gearQueues=true;f.honey=100000;f.inventory={Blueberry=100,RoyalJelly=10}
+        local c={gear={["Cobalt Guard"]={honey=100,items={BlueExtract=2}},["Next Gear"]={honey=200000,items={}}},packs={RoyalJelly={{id="ten",amount=10,cost={Honey=10}}}}}
+        for _,counts in ipairs({{Baby=0,Music=4,Shy=3},{Baby=4,Music=3,Shy=3},{Baby=4,Music=4,Shy=2},{Baby=4,Music=4},{Baby=-1,Music=4,Shy=3}})do
+            f.beeCounts=counts;local r=P.plan(f,c)
+            check(r.gear=="Next Gear"and not r.saveCraftingJelly and not r.reservedItems.RoyalJelly,"Incomplete forces cannot reserve Cobalt crafting jelly")
+            check(r.deferredRequirementGear["Cobalt Guard"]~=nil and #r.gearQueues.B==0,"Cobalt remains outside queues with an explicit quota reason")
+        end
+        f.beeCounts={Baby=4,Music=4,Shy=3};local r=P.plan(f,c)
+        check(r.gear=="Cobalt Guard"and r.saveCraftingJelly,"Complete forces restore ordinary Cobalt funding")
+        f.beeCounts.Baby=3;f.discoveryPreparation=true;r=P.plan(f,c)
+        check(not r.queueMaterialRequirements or not r.queueMaterialRequirements.BlueExtract,"Excluded Cobalt cannot reserve combined preparation materials")
+        f.ownedGear["Next Gear"]=true;r=P.plan(f,c)
+        check(r.action.reason=="waiting-gear-unlocks"and r.optionalHiveAllowed,"Only quota-blocked Cobalt remaining yields to hive work")
+        f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Quota gate never bypasses pending work")
         P.stages=stages
     end
     return {passed=passed}

@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- November 27 / v1.8.118: Cobalt Guard is excluded from saving, crafting reservations, queue and combined material preparation until fresh validated hive counts reach Baby4,Music4,Shy3. Count existing species copies consistently with force quotas (normal/gifted); unknown/malformed counts fail closed. Re-evaluate every snapshot; existing owned gear is unaffected. Latest live deployment scope is xd_Glen09; this specific gear dependency does not introduce new gates for other gear.
+
 - November 27 / v1.8.117: Super Material Farm must discover only the Field dropdown inside Atlas's main Farming section, including detached tab frames. Other quest/field selectors are not ambiguous main controls. Deduplicate roots; genuinely multiple main Farming selectors remain fail-closed. Keep cached context validation and actual post-switch confirmation; report actual field and fruit, never fabricate a successful switch.
 
 - Latest human override, November 27 / v1.8.116: restore material queue priority by total remaining leaf ingredient units after actual inventory and queued output, expanding permitted verified recipes. Lowest shortfall first; ties use honey price then stable route order. Honey-only queue stays price-ranked. Preserve five entries per queue, ready-purchase/craft bypass, passive-drop deferral, real eligibility, active Blender goal lease and all pending/receipt safeguards. QuackTest02 is excluded from live inspection/deployment; latest requested live scope is QuackTest03 only.
