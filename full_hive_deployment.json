@@ -3289,49 +3289,42 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.126",
+    "version": "1.8.127",
     "bundle": "core.luau",
-    "sha256": "ceb40df6ebd1b5fc2e943b94b3f75924bc2586c912ae27903a39cbca62b3ac52",
-    "deployedNormalizedUTF8Sha256": "d7ad3e4aae5f03e8b6d52a56d69032f98ac1f6351a3683dce62b64617c6079e2",
+    "sha256": "2d8872a681ccf4d5fa49fdb0e43b0a3c811b62c7ca2673345c6609acb74c42e9",
+    "deployedNormalizedUTF8Sha256": "a329ea4617984f81ca0f4feb12e3e78f650731a399ff11b3be32cfea8140c1a0",
     "accounts": [
       {
         "account": "SpidermanXD56",
         "executor": "Arceus X",
         "placeId": 1537690962,
         "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
-        "version": "1.8.126",
-        "startedAt": 1795758384,
-        "running": false,
+        "version": "1.8.127",
+        "startedAt": 1795761076,
+        "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "uncertainRequests": true,
-        "error": "Protected bee changed",
-        "refill": 10000,
-        "actualTopUp": 7440,
-        "actualBatchAmount": 10000,
-        "rollingObserved": true,
-        "currentReceipt": {
-          "Name": "ConstructHiveCellFromEgg",
-          "Started": 11974.779689913,
-          "Owner": 653576509,
-          "Job": "3be2b26b-dc0a-46a1-a119-f737211caf60",
-          "X": 1,
-          "Y": 10,
-          "Item": "RoyalJelly",
-          "Amount": 1,
-          "resultType": "Bumble",
-          "resultGifted": true,
-          "reportedConsumed": 547,
-          "attachedBeforeSnapshot": false,
-          "replayed": false,
-          "manuallyCleared": false
+        "uncertainRequests": false,
+        "bumbleCount": 1,
+        "originalBumble": {
+          "x": 1,
+          "y": 9,
+          "birth": 1767210783,
+          "gifted": true
         },
-        "earlierGiftedFrostyResultObserved": true,
-        "giftedFrostyRetained": false,
-        "priorProtectedCellsChecked": 16,
-        "priorProtectedCellsUnchanged": true,
-        "latestJelly": 9060
+        "extraBumbleAt1_10Rerolled": true,
+        "firstObservedNewResult": "Gifted Rad;Consumed193",
+        "initialActiveTaskX": 1,
+        "initialActiveTaskY": 10,
+        "initialBatchAmount": 10000,
+        "initialBatchStartedAt": 1795758395,
+        "latestResult": "Gifted Music;Consumed263",
+        "latestActions": 28,
+        "latestRoyalJellyUsed": 7061,
+        "latestActiveTaskPresent": false,
+        "latestBatchPresent": false,
+        "refill": 10000
       }
     ],
     "excludedAccounts": [
@@ -3340,13 +3333,35 @@
     "deploymentScope": [
       "SpidermanXD56"
     ],
-    "offlineChecks": 7241,
-    "connectedChecksPerAccount": 7240,
+    "offlineChecks": 7254,
+    "connectedChecksPerAccount": 7253,
     "connectedAllPassed": true,
-    "connectedMarker": "1.8.126-refill10000-final",
-    "policyChecks": 1345,
-    "batchChecks": 373,
-    "compatibilityMarkers": 42
+    "connectedMarker": "1.8.127-fuzzy-receipt-final",
+    "policyChecks": 1352,
+    "atlasAccessAndProtectionChecks": 25,
+    "compatibilityMarkers": 42,
+    "legacyAcknowledgement": {
+      "kind": "human-acknowledged-legacy-roll",
+      "at": 1795761076,
+      "key": "SpidermanXD56:126:11974.779689913:1,10",
+      "exactReceiptStarted": "11974.779689912684",
+      "owner": 653576509,
+      "job": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+      "x": 1,
+      "y": 10,
+      "item": "RoyalJelly",
+      "requestedAmount": 1,
+      "reportedConsumed": 547,
+      "result": "Gifted Bumble",
+      "noReplay": true,
+      "originalReceiptArchived": true,
+      "freshAfterSnapshotCopied": true,
+      "preRequestBaselineAvailable": false,
+      "priorProtectedCoordinatesChecked": 16,
+      "oldTaskAndBatchPreservedOnHandoff": true,
+      "authorization": "Human directed fix after exact receipt acknowledgement/resume proposal and duplicate diagnosis",
+      "scope": "Only this exact126 receipt; other/new receipts remain guarded"
+    }
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -4072,7 +4087,6 @@
     "bundle": "core.luau",
     "sha256": "2d8872a681ccf4d5fa49fdb0e43b0a3c811b62c7ca2673345c6609acb74c42e9",
     "normalizedUTF8Sha256": "a329ea4617984f81ca0f4feb12e3e78f650731a399ff11b3be32cfea8140c1a0",
-    "deployed": false,
     "offlineChecks": 7254,
     "connectedChecks": 7253,
     "connectedAllPassed": true,
@@ -4080,8 +4094,69 @@
     "policyChecks": 1352,
     "atlasAccessAndProtectionChecks": 25,
     "compatibilityMarkers": 42,
-    "liveDeploymentBlockedBy": "Existing126 roll receipt lacks copied pre-request hive baseline; retained without replay or clearing",
     "normalRefill46": 10000,
-    "newRollBeforeAndRollResult": true
+    "newRollBeforeAndRollResult": true,
+    "deployed": true,
+    "deployedStartedAt": 1795761076
+  },
+  "deploymentV1_8_126": {
+    "version": "1.8.126",
+    "bundle": "core.luau",
+    "sha256": "ceb40df6ebd1b5fc2e943b94b3f75924bc2586c912ae27903a39cbca62b3ac52",
+    "deployedNormalizedUTF8Sha256": "d7ad3e4aae5f03e8b6d52a56d69032f98ac1f6351a3683dce62b64617c6079e2",
+    "accounts": [
+      {
+        "account": "SpidermanXD56",
+        "executor": "Arceus X",
+        "placeId": 1537690962,
+        "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+        "version": "1.8.126",
+        "startedAt": 1795758384,
+        "running": false,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "uncertainRequests": true,
+        "error": "Protected bee changed",
+        "refill": 10000,
+        "actualTopUp": 7440,
+        "actualBatchAmount": 10000,
+        "rollingObserved": true,
+        "currentReceipt": {
+          "Name": "ConstructHiveCellFromEgg",
+          "Started": 11974.779689913,
+          "Owner": 653576509,
+          "Job": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+          "X": 1,
+          "Y": 10,
+          "Item": "RoyalJelly",
+          "Amount": 1,
+          "resultType": "Bumble",
+          "resultGifted": true,
+          "reportedConsumed": 547,
+          "attachedBeforeSnapshot": false,
+          "replayed": false,
+          "manuallyCleared": false
+        },
+        "earlierGiftedFrostyResultObserved": true,
+        "giftedFrostyRetained": false,
+        "priorProtectedCellsChecked": 16,
+        "priorProtectedCellsUnchanged": true,
+        "latestJelly": 9060
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "deploymentScope": [
+      "SpidermanXD56"
+    ],
+    "offlineChecks": 7241,
+    "connectedChecksPerAccount": 7240,
+    "connectedAllPassed": true,
+    "connectedMarker": "1.8.126-refill10000-final",
+    "policyChecks": 1345,
+    "batchChecks": 373,
+    "compatibilityMarkers": 42
   }
 }
