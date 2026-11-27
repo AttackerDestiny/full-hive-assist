@@ -94,8 +94,8 @@ function P.motherComplete(completed,quests)
 end
 function P.viciousTarget(complete,cells,owned,threshold,multiplier)
     if complete~=true or type(owned)~="number" or owned<0 or owned%1~=0
-        or type(threshold)~="number" or threshold<=0 or threshold==math.huge
-        or type(multiplier)~="number" or multiplier<=0 or multiplier==math.huge then return nil end
+        or type(threshold)~="number" or threshold~=threshold or threshold<=0 or threshold==math.huge
+        or type(multiplier)~="number" or multiplier~=multiplier or multiplier<=0 or multiplier==math.huge then return nil end
     local target
     for _,c in ipairs(cells) do if c.bee.Type=="Vicious" then
         if target then return nil end
@@ -103,9 +103,11 @@ function P.viciousTarget(complete,cells,owned,threshold,multiplier)
     end end
     local b=target and target.bee
     if not b or type(b.Lvl)~="number" or b.Lvl%1~=0 or b.Lvl<1 or b.Lvl>25
-        or type(b.Bond)~="number" or b.Bond<0 or b.Bond==math.huge or not b.Birth then return nil end
+        or type(b.Bond)~="number" or b.Bond~=b.Bond or b.Bond<0 or b.Bond==math.huge or not b.Birth then return nil end
     if b.Lvl>=12 then return {ready=true,x=target.x,y=target.y,bee=b} end
-    if b.Bond>=threshold or owned<1 then return nil end
-    return {x=target.x,y=target.y,bee=b,amount=math.min(owned,math.ceil((threshold-b.Bond)/(10*multiplier)))}
+    if b.Bond>=threshold then return nil end
+    local needed=math.ceil((threshold-b.Bond)/(10*multiplier))
+    if owned<needed then return nil,{held=owned,required=needed,level=b.Lvl} end
+    return {x=target.x,y=target.y,bee=b,amount=needed}
 end
 return P

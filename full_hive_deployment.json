@@ -3289,10 +3289,10 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.129",
+    "version": "1.8.130",
     "bundle": "core.luau",
-    "sha256": "b1795657621e3cad7b62de4313460919bc0f36b90c3d536070e096e062f8aca1",
-    "deployedNormalizedUTF8Sha256": "0bb8a566c6b85d601f83a407ac5d1606557d0fea3771f264b39b1d6390468bde",
+    "sha256": "1ba4b7358252a66966588ca45ff5476c6a5686c901621eace561fe690362fedd",
+    "deployedNormalizedUTF8Sha256": "d96fe34e20d5d0fd769a316932a720618be8fa45a2f98a8f7fb092ff3190eef8",
     "accounts": [
       {
         "account": "QuackAltear06",
@@ -3300,24 +3300,31 @@
         "userId": 12018898822,
         "placeId": 1537690962,
         "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
-        "version": "1.8.129",
-        "startedAt": 1795763626,
+        "version": "1.8.130",
+        "startedAt": 1795764399,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
         "uncertainRequests": false,
-        "spenderControlsVerifiedOff": 16,
         "actualAtlasStopCheckbox": false,
         "atlasOwned": false,
-        "initialTaskX": 5,
-        "initialTaskY": 4,
-        "initialRefill": 100,
-        "initialJelly": 8,
-        "latestRefill": 1000,
-        "latestJelly": 67,
-        "latestActions": 49,
-        "lastResult": "normal Bubble at5,4;RoyalJelly;Consumed1",
+        "motherFinalCompleted": true,
+        "activeMotherQuests": 0,
+        "vicious": {
+          "x": 1,
+          "y": 8,
+          "birth": 1795430147,
+          "level": 10,
+          "bond": 1134916
+        },
+        "cachedTreats": 1,
+        "lastPlanTreats": 0,
+        "lastPlanRequiredTreats": 286509,
+        "viciousStatus": "Saving owned Treats for one feed to Vicious level 12 (0 / 286509)",
+        "actionsObserved": 0,
+        "refill": 1000,
+        "jelly": 68,
         "phase": "waiting"
       }
     ],
@@ -3327,16 +3334,19 @@
     "deploymentScope": [
       "QuackAltear06"
     ],
-    "offlineChecks": 7562,
-    "connectedChecksPerAccount": 7561,
+    "offlineChecks": 7570,
+    "connectedChecksPerAccount": 7569,
     "connectedAllPassed": true,
-    "connectedMarker": "1.8.129-atlas-readiness-final",
-    "atlasProgressionChecks": 32,
+    "connectedMarker": "1.8.130-vicious-one-feed-final",
+    "viciousCrabChecks": 43,
+    "newViciousChecks": 8,
     "compatibilityMarkers": 42,
-    "initialScreenshotFailureReproducedLive": false,
-    "liveDiscoveryVerified": true,
-    "naturalSingleRollObserved": true,
-    "naturalMissingControlRecoveryObserved": false
+    "partialFeedingDisabled": true,
+    "fullCurrentDeficitRequired": true,
+    "underLevelOutcomeRetainsReceipt": true,
+    "actualFullFeedObserved": false,
+    "actualNoSpendSavingObserved": true,
+    "atlasReadinessFixIncluded": true
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -4058,13 +4068,13 @@
     "noFlagsManuallyCleared": true
   },
   "latestCandidate": {
-    "version": "1.8.129",
+    "version": "1.8.130",
     "deployed": true,
-    "deployedStartedAt": 1795763626,
-    "offlineChecks": 7562,
-    "connectedChecks": 7561,
+    "deployedStartedAt": 1795764399,
+    "offlineChecks": 7570,
+    "connectedChecks": 7569,
     "connectedAllPassed": true,
-    "connectedMarker": "1.8.129-atlas-readiness-final"
+    "connectedMarker": "1.8.130-vicious-one-feed-final"
   },
   "deploymentV1_8_126": {
     "version": "1.8.126",
@@ -4302,5 +4312,55 @@
     "continuedTaskCyclesObserved": true,
     "legacyReceiptAcknowledgementUnchanged": true,
     "noNewReceiptOverrides": true
+  },
+  "deploymentV1_8_129": {
+    "version": "1.8.129",
+    "bundle": "core.luau",
+    "sha256": "b1795657621e3cad7b62de4313460919bc0f36b90c3d536070e096e062f8aca1",
+    "deployedNormalizedUTF8Sha256": "0bb8a566c6b85d601f83a407ac5d1606557d0fea3771f264b39b1d6390468bde",
+    "accounts": [
+      {
+        "account": "QuackAltear06",
+        "executor": "Delta",
+        "userId": 12018898822,
+        "placeId": 1537690962,
+        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
+        "version": "1.8.129",
+        "startedAt": 1795763626,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "uncertainRequests": false,
+        "spenderControlsVerifiedOff": 16,
+        "actualAtlasStopCheckbox": false,
+        "atlasOwned": false,
+        "initialTaskX": 5,
+        "initialTaskY": 4,
+        "initialRefill": 100,
+        "initialJelly": 8,
+        "latestRefill": 1000,
+        "latestJelly": 67,
+        "latestActions": 49,
+        "lastResult": "normal Bubble at5,4;RoyalJelly;Consumed1",
+        "phase": "waiting"
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "deploymentScope": [
+      "QuackAltear06"
+    ],
+    "offlineChecks": 7562,
+    "connectedChecksPerAccount": 7561,
+    "connectedAllPassed": true,
+    "connectedMarker": "1.8.129-atlas-readiness-final",
+    "atlasProgressionChecks": 32,
+    "compatibilityMarkers": 42,
+    "initialScreenshotFailureReproducedLive": false,
+    "liveDiscoveryVerified": true,
+    "naturalSingleRollObserved": true,
+    "naturalMissingControlRecoveryObserved": false
   }
 }

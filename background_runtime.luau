@@ -307,8 +307,9 @@ return function(H)
     end
     function R.vicious(s)
         if pending() or env.FullHiveStop or report.PauseRequested or H.Config.DryRun or not H.Config.AutoQuestAssist then return false end
-        local target=viciousTarget(s)
-        state.Vicious=target and (target.ready and "Vicious level 12 ready" or "Feeding owned Treats to Vicious toward level 12")
+        local target,saving=viciousTarget(s)
+        state.Vicious=target and (target.ready and "Vicious level 12 ready" or "Feeding Vicious to level 12 in one feed")
+            or saving and ("Saving owned Treats for one feed to Vicious level 12 ("..saving.held.." / "..saving.required..")")
             or "Waiting for Mother Bear completion, Vicious or owned Treats"
         if not target then return false end
         target=clone(target) -- identity must survive refresh/travel cache updates
@@ -329,7 +330,7 @@ return function(H)
             X=current.x,Y=current.y,Amount=current.amount}
         local oldBee=clone(current.bee)
         H.near(floor);H.assertAtlasPaused();H.checkStop()
-        report.Phase="background";report.Activity="Feeding Vicious Bee toward level 12"
+        report.Phase="background";report.Activity="Feeding Vicious Bee to level 12 in one feed"
         local remaining,ok=H.invokeFeed(before,current.x,current.y,"Treat",current.amount,false)
         local receipt=env.FullHiveUncertain;local fresh=H.refresh()
         assert(ok and remaining==before.Treats-before.Amount and fresh.Eggs.Treat==remaining,
@@ -340,8 +341,8 @@ return function(H)
                 "Hive changed during Vicious feeding; receipt retained; no retry")
         end
         local after=(fresh.Honeycomb["x"..current.x] or {})["y"..current.y]
-        assert(after and type(after.Bond)=="number" and after.Bond>oldBee.Bond and after.Lvl>=oldBee.Lvl,
-            "Vicious bond increase unconfirmed; receipt retained; no retry")
+        assert(after and type(after.Bond)=="number" and after.Bond>oldBee.Bond and type(after.Lvl)=="number" and after.Lvl>=12,
+            "Vicious level 12 unconfirmed; receipt retained; no retry")
         receipt.Kind="vicious-feed";finish(receipt,fresh);H.release();return true
     end
     function R.level(s,allowBuy)
