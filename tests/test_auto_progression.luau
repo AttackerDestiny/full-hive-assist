@@ -73,7 +73,7 @@ return function(P,workerSource)
     end
     for stageIndex,stage in ipairs(P.stages) do
         for _,name in ipairs(stage.gear) do
-            local f=facts();ownedThrough(f,name);f.occupied=50;f.capacity=50;f.inventory.SpiritPetal=1
+            local f=facts();ownedThrough(f,name);f.occupied=50;f.capacity=50;f.inventory.SpiritPetal=1;f.equippedGear={["Diamond Mask"]=true}
             -- Isolate normal route order; 36+ catch-up has its own cases below.
             for _,planter in ipairs(P.planterCatchup) do f.ownedGear[planter]=true end
             f.ownedGear[name]=false
@@ -868,20 +868,20 @@ return function(P,workerSource)
         f.ownedGear["Pesticide Planter"]=false
         local c=catalog("Pesticide Planter",100,{SoftWax=1})
         f.inventory.SoftWax=1
-        for _,capacity in ipairs({25,44,46})do
+        for _,capacity in ipairs({25,44})do
             f.capacity=capacity;f.occupied=25
-            check(P.nextGear(f).id=="Pesticide Planter","Pesticide has no custom unlocked-slot gate")
+            check(P.nextGear(f)==false,"Pesticide stays excluded below its new45-slot gate")
             local r=P.plan(f,c)
-            check(r.action.kind=="buy-gear"and r.gear=="Pesticide Planter","Affordable Pesticide can buy below47 when game requirements permit")
+            check(r.action.kind~="buy-gear"and not r.gear,"No Pesticide purchase below45")
         end
-        f.capacity=47;f.occupied=25
+        f.capacity=45;f.occupied=25
         local r=P.plan(f,c)
-        check(r.gear=="Pesticide Planter"and r.action.kind=="buy-gear","Unlocked47 admits Pesticide without requiring47 occupied bees")
-        check(#r.gearQueues.B==1,"Pesticide joins the normal material queue at47")
-        f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Slot47 does not bypass pending guard")
-        f.pending=false;f.capacity=46
+        check(r.gear=="Pesticide Planter"and r.action.kind=="buy-gear","Owned Diamond Mask and45 unlocked slots admit Pesticide")
+        check(#r.gearQueues.B==1,"Pesticide enters the material queue at45")
+        f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","The new prerequisite cannot bypass pending work")
+        f.pending=false;f.capacity=44
         local row=P.routeStatus(f,c,{}).stages[6].gear[#P.stages[6].gear]
-        check(row.capacityRequired==nil and row.hiveReady,"Route removes the custom Pesticide capacity requirement")
+        check(row.capacityRequired==45 and not row.hiveReady,"Route exposes the new45-slot Pesticide requirement")
     end
     do
         local stages=P.stages
@@ -1064,7 +1064,7 @@ return function(P,workerSource)
         check(#filtered==1 and filtered[1]==other,"Crafting ignores obsolete badge metadata while preserving other conditions")
         check(#P.craftingRequirements(nil)==0 and P.craftingRequirements("bad")==nil,"Absent recipe metadata is allowed but malformed metadata fails closed")
         for _,stage in ipairs(P.stages)do check(stage.gate==0,"Default gear stages never impose custom bee counts")end
-        check(not next(P.capacityRequirements)and not next(P.inventoryRequirements),"No custom slot or inventory gates remain for gear queues")
+        check(P.capacityRequirements["Pesticide Planter"]==45 and not next(P.inventoryRequirements),"Only the newly requested capacity dependency is added; old inventory gates stay removed")
     end
     if workerSource then
         local source=assert(workerSource:match("(    local function craft%(a,c,s%).-)\n    local function collect"))
@@ -1099,6 +1099,37 @@ return function(P,workerSource)
             H.refresh=function()return {Eggs={SunflowerSeed=1,RoyalJelly=0},BlenderState={Recipe="Oil",Count=2}}end
         end)
         check(not ok and calls==1 and env.FullHiveUncertain~=nil,"Changed receipt delta stops without replaying or clearing uncertainty")
+    end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Coconut Canister","Pesticide Planter","Other"}}}
+        local f=facts();f.gearQueues=true;f.capacity=45;f.occupied=25;f.inventory.SoftWax=1
+        for _,id in ipairs(P.planterCatchup)do f.ownedGear[id]=true end
+        local c={gear={["Coconut Canister"]={honey=100,items={Oil=1}},["Pesticide Planter"]={honey=100,items={SoftWax=1}},Other={honey=100,items={}}}}
+        local function contains(r,id)for _,v in ipairs(r.gearQueues.B)do if v.id==id then return true end end;return false end
+        f.inventory.Oil=1
+        for _,owned in ipairs({false,true})do for _,equipped in ipairs({false,true})do
+            f.ownedGear["Diamond Mask"]=owned;f.equippedGear={["Diamond Mask"]=equipped}
+            local r=P.plan(f,c)
+            check(contains(r,"Coconut Canister")== (owned and equipped),"Canister queue requires both actual ownership and equipment")
+            check(contains(r,"Pesticide Planter")==owned,"Pesticide requires ownership but not equipment")
+        end end
+        f.ownedGear["Diamond Mask"]=true;f.equippedGear=nil
+        check(not contains(P.plan(f,c),"Coconut Canister"),"Unknown equipment is not an unlocked Canister prerequisite")
+        f.equippedGear={["Diamond Mask"]=true};f.capacity=44
+        check(not contains(P.plan(f,c),"Pesticide Planter"),"44 unlocked cells do not admit Pesticide")
+        f.capacity=45;f.occupied=25
+        check(contains(P.plan(f,c),"Pesticide Planter"),"Capacity45 qualifies independently of occupancy")
+        f.equippedGear["Diamond Mask"]=false
+        check(not contains(P.plan(f,c),"Coconut Canister"),"Unequipping Diamond Mask removes Canister again on the next snapshot")
+        f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","New queue prerequisites preserve pending work")
+        f.pending=false;f.discoveryPreparation=true
+        local r=P.plan(f,c)
+        check(r.queueMaterialRequirements.Oil==nil,"Excluded Canister never reserves ingredients in combined preparation")
+        f.discoveryPreparation=false;f.ownedGear.Other=true;f.ownedGear["Pesticide Planter"]=true
+        r=P.plan(f,c)
+        check(r.action.reason=="waiting-gear-unlocks"and r.optionalHiveAllowed,"Only a locked Canister remaining is an unlock wait, not route completion")
+        check(r.deferredRequirementGear["Coconut Canister"]=="Requires equipped Diamond Mask","All-deferred state still explains the missing equipment")
+        P.stages=stages
     end
     return {passed=passed}
 end

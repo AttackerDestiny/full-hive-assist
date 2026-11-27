@@ -3400,14 +3400,14 @@
     ]
   },
   "latestCandidate": {
-    "version": "1.8.111",
+    "version": "1.8.112",
     "bundle": "core.luau",
-    "sha256": "6c5f15d01d8834a5876c3ad17d97372c96f895dd53d103632e032edf02d4d11d",
-    "deployedNormalizedUTF8Sha256": "59e4d2dbb1c7a7e7960f36400fa1b02db149a7e53cbdb35db4a007a2f6696600",
+    "sha256": "d553de1af6badb2a564f154bcce75746beb829865d4eef3ebf5d9a3931979398",
+    "deployedNormalizedUTF8Sha256": "a34ef6a21620e4ed1d6275eb3cd5c97979b193dc604475ab968bcd019a907d3c",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
     "accounts": [],
-    "offlineChecks": 6894,
-    "connectedChecks": 6887,
+    "offlineChecks": 6912,
+    "connectedChecks": null,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3435,7 +3435,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 487,
+    "progressionChecks": 501,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3474,11 +3474,9 @@
     "independentRecipeInventory": true,
     "naturalOfflineScreenshotAccountVerified": false,
     "naturalCraftPurchaseAfterFixObserved": false,
-    "catalogChecks": 62,
+    "catalogChecks": 66,
     "recipeBlockerDiagnostics": true,
-    "connectedLatestRegressionAccounts": [
-      "QuackAltear06"
-    ],
+    "connectedLatestRegressionAccounts": [],
     "falseCraftBadgeGateRemoved": true,
     "customGearGatesRemoved": true,
     "unsafeRollWait": true,
@@ -3489,9 +3487,18 @@
       "QuackAltear5",
       "QuackAltear06"
     ],
-    "scheduledNotVerified": [
-      "QuackAltear06"
-    ],
-    "note": "No clients at final rediscovery; scheduled execution is not proof. Reconcile identity/version/StartedAt/pending on rediscovery before another deployment. QuackAltear06 deployment was scheduled once."
+    "scheduledNotVerified": [],
+    "note": "Connected regression files scheduled where clients appeared; no latest result/deployment confirmed yet. Rediscover and verify identity/version/test result/pending before guarded112 execution.",
+    "expectedConnectedChecks": 6905,
+    "queuePrerequisites": {
+      "Coconut Canister": {
+        "owned": "Diamond Mask",
+        "equipped": "Diamond Mask"
+      },
+      "Pesticide Planter": {
+        "owned": "Diamond Mask",
+        "minimumUnlockedSlots": 45
+      }
+    }
   }
 }

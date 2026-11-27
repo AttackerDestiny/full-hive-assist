@@ -242,5 +242,17 @@ return function(factory,Policy)
         check(c.gear.Clippers.requirementText=="Earn 10 Hotshot Badges","Catalog preserves game-supplied locked requirement descriptions")
         check(#c.gear.Clippers.unlockConditions==2 and #c.gear.Clippers.conditions==3,"Unlock checks separate badge/grant requirements from affordability")
     end
+    do
+        local deps,s=fixture();s.owns["Diamond Mask"]=true
+        deps.Packages.PlayerHasEquipped=function(pack)return pack.Type=="Diamond Mask"end
+        local f=factory(deps)(s)
+        check(f.ownedGear["Diamond Mask"]==true and f.equippedGear["Diamond Mask"]==true,"Dependency reads actual Diamond Mask ownership and equipment without relying on shop discovery")
+        deps.Packages.PlayerHasEquipped=function()return false end;f=factory(deps)(s)
+        check(f.ownedGear["Diamond Mask"]==true and f.equippedGear["Diamond Mask"]==false,"Owned but unequipped mask stays distinct")
+        deps.Packages.PlayerHasEquipped=function()error("unavailable")end;f=factory(deps)(s)
+        check(f.equippedGear["Diamond Mask"]==nil,"Unknown equipment fails closed")
+        s.owns["Diamond Mask"]=false;deps.Packages.PlayerHasEquipped=function()return true end;f=factory(deps)(s)
+        check(f.ownedGear["Diamond Mask"]==false,"Equipment alone cannot manufacture ownership or erase a known false ownership")
+    end
     return {passed=passed}
 end

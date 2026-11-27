@@ -30,8 +30,17 @@ P.stages = {
 -- stays intact below that capacity; this catch-up intentionally puts Red
 -- before Blue in the order given by the newer instruction.
 P.planterCatchup={"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}
-P.capacityRequirements={}
+P.capacityRequirements={["Pesticide Planter"]=45}
 P.inventoryRequirements={}
+P.ownershipRequirements={["Coconut Canister"]="Diamond Mask",["Pesticide Planter"]="Diamond Mask"}
+P.equipmentRequirements={["Coconut Canister"]="Diamond Mask"}
+function P.gearPrerequisite(facts,id)
+    local owned=P.ownershipRequirements[id]
+    if owned and (facts.ownedGear or {})[owned]~=true then return false,"Requires owned "..owned end
+    local equipped=P.equipmentRequirements[id]
+    if equipped and (facts.equippedGear or {})[equipped]~=true then return false,"Requires equipped "..equipped end
+    return true
+end
 P.bannedCraft = {Gumdrops=true, MoonCharm=true, StarJelly=true, SoftWax=true, HardWax=true}
 P.waitOnly = {MoonCharm=true, StarJelly=true, MagicBean=true, SoftWax=true, HardWax=true}
 P.recipeOrder = {"BlueExtract", "RedExtract", "Enzymes", "Oil", "Glue", "TropicalDrink", "Glitter",
@@ -128,7 +137,7 @@ function P.nextGear(facts,deferred)
             local requiredItem=P.inventoryRequirements[gear]
             local held=requiredItem and (facts.inventory or {})[requiredItem.item]
             if owned==nil then return nil,"unknown-ownership:"..gear end
-            if not owned and not (deferred and deferred[gear])
+            if not owned and not (deferred and deferred[gear]) and P.gearPrerequisite(facts,gear)
                 and (not P.capacityRequirements[gear] or integer(facts.capacity) and facts.capacity>=P.capacityRequirements[gear])
                 and (not requiredItem or integer(held) and held>=requiredItem.amount) then
                 return {id=gear,stage=stageIndex,gate=stage.gate}
@@ -461,6 +470,17 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
             base.action=craftAction; return base
         end
         base.optionalHiveAllowed=true; base.reserveHoney=facts.honeyReserve or 0
+        base.deferredRequirementGear={}
+        for id in pairs(P.ownershipRequirements)do
+            if (facts.ownedGear or {})[id]~=true then
+                local ready,why=P.gearPrerequisite(facts,id)
+                if not ready then base.deferredRequirementGear[id]=why
+                elseif P.capacityRequirements[id] and (facts.capacity or 0)<P.capacityRequirements[id]then
+                    base.deferredRequirementGear[id]="Requires "..P.capacityRequirements[id].." unlocked hive slots"
+                end
+            end
+        end
+        if next(base.deferredRequirementGear)then return wait("waiting-gear-unlocks",base)end
         base.action={kind="hive",reason="ordered-gear-complete"}; return base
     end
     base.gear=nextGear.id; base.stage=nextGear.stage; base.requiredHive=nextGear.gate
@@ -817,6 +837,15 @@ local function queuePlan(facts,catalog,primary)
         or primary.action.kind=="redeem-code" then return nil end
     local queues={A={},B={}}
     local deferredRequirements={}
+    for id in pairs(P.ownershipRequirements)do
+        if (facts.ownedGear or {})[id]~=true then
+            local ready,why=P.gearPrerequisite(facts,id)
+            if not ready then deferredRequirements[id]=why
+            elseif P.capacityRequirements[id] and (facts.capacity or 0)<P.capacityRequirements[id]then
+                deferredRequirements[id]="Requires "..P.capacityRequirements[id].." unlocked hive slots"
+            end
+        end
+    end
     local deferred={}
     local function fundedGear(gear)
         local read=inventoryReader(facts)
@@ -1031,6 +1060,10 @@ function P.routeStatus(facts,catalog,decision)
                 shopAccess=quote and quote.shopAccess,requirementsMet=quote and conditionState(quote.conditions,facts)}
             row.capacityRequired=P.capacityRequirements[id]
             row.inventoryRequired=P.inventoryRequirements[id]
+            row.ownershipRequired=P.ownershipRequirements[id]
+            row.equipmentRequired=P.equipmentRequirements[id]
+            row.dependencyReady=P.gearPrerequisite(facts,id)
+            if not row.dependencyReady then row.hiveReady=false end
             if row.inventoryRequired then
                 local count=(facts.inventory or {})[row.inventoryRequired.item]
                 if not integer(count)or count<row.inventoryRequired.amount then row.hiveReady=false end
