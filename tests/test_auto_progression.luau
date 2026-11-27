@@ -129,7 +129,7 @@ return function(P,workerSource,BlenderReceipt)
         f.conditions["sprinkler-badges"]=false
         check(P.plan(f,c).action.kind=="wait","Removing the hive gate still requires the game's badges")
     end
-    for _,name in ipairs({"Porcelain Port-O-Hive","Bubble Mask","Silver Soakers","Cobalt Guard"})do
+    for _,name in ipairs({"Bubble Mask","Silver Soakers","Cobalt Guard"})do
         local f=facts();ownedThrough(f,name);f.occupied=20;f.capacity=28
         if name=="Bubble Mask"then f.equippedGear={};for _,id in ipairs(P.loadoutRequirements[name])do f.ownedGear[id]=true;f.equippedGear[id]=true end end
         local c=catalog(name,100,{})
@@ -1334,6 +1334,25 @@ return function(P,workerSource,BlenderReceipt)
         check(type(route.ownershipRequired)=="string"and route.ownershipRequired:find("Porcelain Port-O-Hive",1,true),"Route description renders every prerequisite as text")
         f.ownedGear["Bubble Mask"]=true;f.equippedGear["Beekeeper's Mask"]=false
         check(P.plan(f,c).gear~="Bubble Mask","Owned Bubble Mask is never repurchased after a mask swap")
+        P.stages=stages
+    end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Porcelain Port-O-Hive","Next Gear"}}}
+        local f=facts();f.gearQueues=true;f.occupied=20;f.honey=1000
+        local c={gear={["Porcelain Port-O-Hive"]={honey=100,items={Glitter=3}},["Next Gear"]={honey=2000,items={}}}}
+        for _,capacity in ipairs({25,30,34})do
+            f.capacity=capacity;local r=P.plan(f,c)
+            check(r.gear=="Next Gear"and #r.gearQueues.B==0,"Port waits for unlocked slot35 at "..capacity)
+            check(not r.reservedItems.Glitter and not r.reservedItems.RoyalJelly,"Excluded Port cannot reserve materials/jelly")
+            check(r.deferredRequirementGear["Porcelain Port-O-Hive"]=="Requires 35 unlocked hive slots","Status explains Port capacity gate")
+            f.discoveryPreparation=true;r=P.plan(f,c)
+            check(not r.queueMaterialRequirements or not r.queueMaterialRequirements.Glitter,"Excluded Port contributes no aggregate demand")
+            f.discoveryPreparation=nil
+        end
+        f.capacity=35;f.inventory.Glitter=3;local r=P.plan(f,c)
+        check(r.gear=="Porcelain Port-O-Hive"and r.action.kind=="buy-gear","Slot35 admits purchase even with only20 occupied bees")
+        f.ownedGear["Porcelain Port-O-Hive"]=true;f.capacity=34
+        check(P.plan(f,c).gear~="Porcelain Port-O-Hive","Owned Port is not repurchased")
         P.stages=stages
     end
     return {passed=passed}

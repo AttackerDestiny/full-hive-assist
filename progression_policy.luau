@@ -30,7 +30,7 @@ P.stages = {
 -- stays intact below that capacity; this catch-up intentionally puts Red
 -- before Blue in the order given by the newer instruction.
 P.planterCatchup={"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}
-P.capacityRequirements={["Pesticide Planter"]=45}
+P.capacityRequirements={["Pesticide Planter"]=45,["Porcelain Port-O-Hive"]=35}
 P.inventoryRequirements={["Petal Belt"]={item="SpiritPetal",amount=1}}
 P.ownershipRequirements={["Coconut Canister"]="Diamond Mask",["Pesticide Planter"]="Diamond Mask",
     ["Red Clay Planter"]="Porcelain Dipper",["Blue Clay Planter"]="Porcelain Dipper"}
@@ -542,7 +542,7 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
         end
         base.optionalHiveAllowed=true; base.reserveHoney=facts.honeyReserve or 0
         base.deferredRequirementGear={}
-        for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements,P.beeRequirements,P.loadoutRequirements})do for id in pairs(rules)do
+        for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements,P.beeRequirements,P.loadoutRequirements,P.capacityRequirements})do for id in pairs(rules)do
             if (facts.ownedGear or {})[id]~=true then
                 local ready,why=P.gearPrerequisite(facts,id)
                 if not ready then base.deferredRequirementGear[id]=why
@@ -908,7 +908,7 @@ local function queuePlan(facts,catalog,primary)
         or primary.action.kind=="redeem-code" then return nil end
     local queues={A={},B={}}
     local deferredRequirements={}
-    for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements,P.beeRequirements,P.loadoutRequirements})do for id in pairs(rules)do
+    for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements,P.beeRequirements,P.loadoutRequirements,P.capacityRequirements})do for id in pairs(rules)do
         if (facts.ownedGear or {})[id]~=true then
             local ready,why=P.gearPrerequisite(facts,id)
             if not ready then deferredRequirements[id]=why

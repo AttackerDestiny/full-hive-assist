@@ -124,7 +124,7 @@ For authorized disconnect recovery, corroborate discovery with foreground/screen
 - Pure policy tests cannot prove a real purchase, field switch or RNG result. Label isolated coverage, live configuration verification and naturally observed actions separately.
 - No subagents. Do not alter the existing recurring schedule unless asked. No duplicate automation.
 
-## Current rules to preserve (v1.8.133 snapshot)
+## Current rules to preserve (v1.8.134 snapshot)
 
 This section is a handoff snapshot; consult later log entries and AGENTS.md for subsequent changes.
 
@@ -137,6 +137,7 @@ This section is a handoff snapshot; consult later log entries and AGENTS.md for 
 - Normal early/mid force filling uses one Royal Jelly per request,roll-to off and50 refill,including missing Shy afterRedBoost completion through47. Completion restores normal stage refill. Preserve starter <33 inventory-only rolling and explicit late/Star/post-Star workflows.
 - Ordinary gifted failsafe hunting requires the existing force quotas and Bubble Mask. Keep incidental gifted results under existing keep rules.
 - Coconut Canister needs Diamond Mask owned AND equipped for queue admission. Pesticide Planter needs Diamond Mask owned and45 unlocked hive slots. Petal Belt needs one actual Spirit Petal in inventory.
+- Porcelain Port-O-Hive requires at least35 unlocked hive slots before queue/saving/material preparation. Occupied count is not this gate.
 - Bubble Mask requires Porcelain Dipper, Porcelain Port-O-Hive, Beekeeper's Mask, Beekeeper's Boots and Mondo Belt Bag ALL actually owned AND equipped before admission/saving/material preparation. Do not auto-equip. Already-owned Bubble Mask is not repurchased after swapping masks.
 - Red Clay and Blue Clay Planters require actual Porcelain Dipper ownership AND equipment before queues,saving or material preparation. Read the Collector package against fresh stats;unknown equipment blocks eligibility. Do not auto-equip or repurchase already-owned planters.
 - Ignore Blender Earn Badges recipe metadata as a craft gate; retain actual validated ingredients and other conditions. Do not auto-craft banned wax recipes.
@@ -174,4 +175,4 @@ Application changes:
 
 Documentation-only updates do not require version bumps, game spending or live re-execution. A healthy unchanged application should stay running.
 
-Latest published application candidate: **v1.8.133**. Runtime/report/UI and new StartedAt verified on **xd_Glen09, SpidermanXD56 and QuackTest03 (job97097a2d-929f-4d10-abe8-71188b130c54)**. QuackAltear1 and an older QuackTest03 job were initially listed but became unreachable before final verification; their133 deployment is incomplete. QuackAltear5/06 were not listed during this run. QuackTest02 was excluded. Do not claim all historical accounts were updated. See deployment JSON/latest log for exact identities,tests,hashes and observations.
+Latest published application candidate: **v1.8.134**. Runtime/report/UI and new StartedAt verified on **xd_Glen09, SpidermanXD56 and QuackTest03 (job97097a2d-929f-4d10-abe8-71188b130c54)**. QuackAltear1 and an older QuackTest03 job were initially listed but became unreachable before final verification; their current deployment remains unverified. QuackAltear5/06 were not listed during this run. QuackTest02 was excluded. Do not claim all historical accounts were updated. See deployment JSON/latest log for exact identities,tests,hashes and observations.
