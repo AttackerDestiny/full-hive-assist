@@ -3289,42 +3289,69 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.127",
+    "version": "1.8.128",
     "bundle": "core.luau",
-    "sha256": "2d8872a681ccf4d5fa49fdb0e43b0a3c811b62c7ca2673345c6609acb74c42e9",
-    "deployedNormalizedUTF8Sha256": "a329ea4617984f81ca0f4feb12e3e78f650731a399ff11b3be32cfea8140c1a0",
+    "sha256": "ab2fecde899e463e72b5e1fb451d310c00f10ca6fdbcb66b114db1ea8052f40e",
+    "deployedNormalizedUTF8Sha256": "50317538d88b43bf67fb957cf07b518f8b0e5be51169e961c1a9c2d3a0c2ff20",
     "accounts": [
       {
         "account": "SpidermanXD56",
         "executor": "Arceus X",
         "placeId": 1537690962,
         "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
-        "version": "1.8.127",
-        "startedAt": 1795761076,
+        "version": "1.8.128",
+        "startedAt": 1795761795,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
         "uncertainRequests": false,
-        "bumbleCount": 1,
-        "originalBumble": {
-          "x": 1,
-          "y": 9,
-          "birth": 1767210783,
-          "gifted": true
+        "musicBefore": {
+          "total": 5,
+          "gifted": 2,
+          "normal": 3
         },
-        "extraBumbleAt1_10Rerolled": true,
-        "firstObservedNewResult": "Gifted Rad;Consumed193",
-        "initialActiveTaskX": 1,
-        "initialActiveTaskY": 10,
-        "initialBatchAmount": 10000,
-        "initialBatchStartedAt": 1795758395,
-        "latestResult": "Gifted Music;Consumed263",
-        "latestActions": 28,
-        "latestRoyalJellyUsed": 7061,
-        "latestActiveTaskPresent": false,
-        "latestBatchPresent": false,
-        "refill": 10000
+        "musicAfter": {
+          "total": 4,
+          "gifted": 2,
+          "normal": 2
+        },
+        "giftedMusicPreserved": [
+          {
+            "x": 4,
+            "y": 8,
+            "birth": 1767038470
+          },
+          {
+            "x": 1,
+            "y": 10,
+            "birth": 1795683966
+          }
+        ],
+        "extraNormalMusicRolled": {
+          "x": 2,
+          "y": 3,
+          "birth": 1574975702,
+          "observedResult": "Gifted Bubble",
+          "consumed": 25
+        },
+        "giftedFrostiesPreserved": 4,
+        "originalGiftedBumbleCount": 1,
+        "staleUnrolledFrostyX": 1,
+        "staleUnrolledFrostyY": 6,
+        "latestActiveX": 5,
+        "latestActiveY": 7,
+        "latestReason": "fixed-targets",
+        "latestActions": 25,
+        "latestRoyalJellyUsed": 4058,
+        "latestJelly": 7367,
+        "refill": 10000,
+        "blocked": false,
+        "lastCompleted": {
+          "x": 2,
+          "y": 8,
+          "reason": "protected-result"
+        }
       }
     ],
     "excludedAccounts": [
@@ -3333,35 +3360,18 @@
     "deploymentScope": [
       "SpidermanXD56"
     ],
-    "offlineChecks": 7254,
-    "connectedChecksPerAccount": 7253,
+    "offlineChecks": 7530,
+    "connectedChecksPerAccount": 7529,
     "connectedAllPassed": true,
-    "connectedMarker": "1.8.127-fuzzy-receipt-final",
-    "policyChecks": 1352,
-    "atlasAccessAndProtectionChecks": 25,
+    "connectedMarker": "1.8.128-force-cleanup-final",
+    "policyChecks": 1608,
+    "collectorChecks": 1073,
+    "newChecks": 276,
     "compatibilityMarkers": 42,
-    "legacyAcknowledgement": {
-      "kind": "human-acknowledged-legacy-roll",
-      "at": 1795761076,
-      "key": "SpidermanXD56:126:11974.779689913:1,10",
-      "exactReceiptStarted": "11974.779689912684",
-      "owner": 653576509,
-      "job": "3be2b26b-dc0a-46a1-a119-f737211caf60",
-      "x": 1,
-      "y": 10,
-      "item": "RoyalJelly",
-      "requestedAmount": 1,
-      "reportedConsumed": 547,
-      "result": "Gifted Bumble",
-      "noReplay": true,
-      "originalReceiptArchived": true,
-      "freshAfterSnapshotCopied": true,
-      "preRequestBaselineAvailable": false,
-      "priorProtectedCoordinatesChecked": 16,
-      "oldTaskAndBatchPreservedOnHandoff": true,
-      "authorization": "Human directed fix after exact receipt acknowledgement/resume proposal and duplicate diagnosis",
-      "scope": "Only this exact126 receipt; other/new receipts remain guarded"
-    }
+    "naturalMusicCleanupObserved": true,
+    "continuedTaskCyclesObserved": true,
+    "legacyReceiptAcknowledgementUnchanged": true,
+    "noNewReceiptOverrides": true
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -4083,21 +4093,13 @@
     "noFlagsManuallyCleared": true
   },
   "latestCandidate": {
-    "version": "1.8.127",
-    "bundle": "core.luau",
-    "sha256": "2d8872a681ccf4d5fa49fdb0e43b0a3c811b62c7ca2673345c6609acb74c42e9",
-    "normalizedUTF8Sha256": "a329ea4617984f81ca0f4feb12e3e78f650731a399ff11b3be32cfea8140c1a0",
-    "offlineChecks": 7254,
-    "connectedChecks": 7253,
-    "connectedAllPassed": true,
-    "connectedMarker": "1.8.127-fuzzy-receipt-final",
-    "policyChecks": 1352,
-    "atlasAccessAndProtectionChecks": 25,
-    "compatibilityMarkers": 42,
-    "normalRefill46": 10000,
-    "newRollBeforeAndRollResult": true,
+    "version": "1.8.128",
     "deployed": true,
-    "deployedStartedAt": 1795761076
+    "deployedStartedAt": 1795761795,
+    "offlineChecks": 7530,
+    "connectedChecks": 7529,
+    "connectedAllPassed": true,
+    "connectedMarker": "1.8.128-force-cleanup-final"
   },
   "deploymentV1_8_126": {
     "version": "1.8.126",
@@ -4158,5 +4160,97 @@
     "policyChecks": 1345,
     "batchChecks": 373,
     "compatibilityMarkers": 42
+  },
+  "deploymentV1_8_127": {
+    "version": "1.8.127",
+    "bundle": "core.luau",
+    "sha256": "2d8872a681ccf4d5fa49fdb0e43b0a3c811b62c7ca2673345c6609acb74c42e9",
+    "deployedNormalizedUTF8Sha256": "a329ea4617984f81ca0f4feb12e3e78f650731a399ff11b3be32cfea8140c1a0",
+    "accounts": [
+      {
+        "account": "SpidermanXD56",
+        "executor": "Arceus X",
+        "placeId": 1537690962,
+        "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+        "version": "1.8.127",
+        "startedAt": 1795761076,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "uncertainRequests": false,
+        "bumbleCount": 1,
+        "originalBumble": {
+          "x": 1,
+          "y": 9,
+          "birth": 1767210783,
+          "gifted": true
+        },
+        "extraBumbleAt1_10Rerolled": true,
+        "firstObservedNewResult": "Gifted Rad;Consumed193",
+        "initialActiveTaskX": 1,
+        "initialActiveTaskY": 10,
+        "initialBatchAmount": 10000,
+        "initialBatchStartedAt": 1795758395,
+        "latestResult": "Gifted Music;Consumed263",
+        "latestActions": 28,
+        "latestRoyalJellyUsed": 7061,
+        "latestActiveTaskPresent": false,
+        "latestBatchPresent": false,
+        "refill": 10000
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "deploymentScope": [
+      "SpidermanXD56"
+    ],
+    "offlineChecks": 7254,
+    "connectedChecksPerAccount": 7253,
+    "connectedAllPassed": true,
+    "connectedMarker": "1.8.127-fuzzy-receipt-final",
+    "policyChecks": 1352,
+    "atlasAccessAndProtectionChecks": 25,
+    "compatibilityMarkers": 42,
+    "legacyAcknowledgement": {
+      "kind": "human-acknowledged-legacy-roll",
+      "at": 1795761076,
+      "key": "SpidermanXD56:126:11974.779689913:1,10",
+      "exactReceiptStarted": "11974.779689912684",
+      "owner": 653576509,
+      "job": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+      "x": 1,
+      "y": 10,
+      "item": "RoyalJelly",
+      "requestedAmount": 1,
+      "reportedConsumed": 547,
+      "result": "Gifted Bumble",
+      "noReplay": true,
+      "originalReceiptArchived": true,
+      "freshAfterSnapshotCopied": true,
+      "preRequestBaselineAvailable": false,
+      "priorProtectedCoordinatesChecked": 16,
+      "oldTaskAndBatchPreservedOnHandoff": true,
+      "authorization": "Human directed fix after exact receipt acknowledgement/resume proposal and duplicate diagnosis",
+      "scope": "Only this exact126 receipt; other/new receipts remain guarded"
+    }
+  },
+  "candidateV1_8_127": {
+    "version": "1.8.127",
+    "bundle": "core.luau",
+    "sha256": "2d8872a681ccf4d5fa49fdb0e43b0a3c811b62c7ca2673345c6609acb74c42e9",
+    "normalizedUTF8Sha256": "a329ea4617984f81ca0f4feb12e3e78f650731a399ff11b3be32cfea8140c1a0",
+    "offlineChecks": 7254,
+    "connectedChecks": 7253,
+    "connectedAllPassed": true,
+    "connectedMarker": "1.8.127-fuzzy-receipt-final",
+    "policyChecks": 1352,
+    "atlasAccessAndProtectionChecks": 25,
+    "compatibilityMarkers": 42,
+    "normalRefill46": 10000,
+    "newRollBeforeAndRollResult": true,
+    "deployed": true,
+    "deployedStartedAt": 1795761076
   }
 }

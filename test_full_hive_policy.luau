@@ -357,6 +357,39 @@ return function(P,T)
         check(P.rollTaskDone(task,base[1],base,T,q),"First gifted failsafe may replace a normal at cap")
         check(q.target and q.target.bee.Type==name and not P.gifted(q.target),"Cap cleanup releases a normal after gifted upgrade")
     end
+    do
+        for _,slots in ipairs({35,40,44,46,50})do
+            for _,species in ipairs({"Baby","Music"})do
+                for gifts=0,5 do
+                    local base=hive({{"Basic",1,true},{"Bubble",5,true},{"Frosty",4,true},
+                        {species=="Baby"and"Music"or"Baby",4},{species,gifts,true},{species,5-gifts}})
+                    local context=ctx(slots,slots>=46 and 2 or 0,1000000);context.legendaryRoute="six"
+                    local q=P.plan(base,T,context)
+                    local kept,keptGift=0,0
+                    for _,c in ipairs(base)do if c.bee.Type==species and q.keep[P.key(c)]then
+                        kept+=1;keptGift+=P.gifted(c)and 1 or 0
+                    end end
+                    check(kept==4 and keptGift==math.min(gifts,4),"Total force cap and gifted preference at "..slots.." / "..species.." / "..gifts)
+                    check(q.target and q.reason=="force-surplus"and q.target.bee.Type==species,"Surplus force cleanup precedes unrelated goals at "..slots.." / "..species)
+                    check(gifts==5 or not P.gifted(q.target),"Normal excess is repaired before gifted upgrades")
+                    check(P.rollTaskSafe(P.startRollTask(q.target,base,q),q.target,base,T,q),"Every force cleanup target passes the final request guard")
+                end
+            end
+        end
+        for _,species in ipairs({"Bubble","Frosty"})do
+            for _,total in ipairs({1,4,5,6})do
+                local base=hive({{"Baby",4},{"Music",4},{"Basic",1,true},{species,total,true}})
+                local q=P.plan(base,T,{slots=46,starUsed=2,jelly=10000,honey=30000000000,legendaryRoute="six",bubbleMaskOwned=true})
+                local kept=0;for _,c in ipairs(base)do if c.bee.Type==species and q.keep[P.key(c)]then kept+=1 end end
+                check(kept==math.min(4,total),"Planner reserves the gifted collector floor for "..species.." / "..total)
+                if q.target then
+                    check(P.rollTaskSafe(P.startRollTask(q.target,base,q),q.target,base,T,q),"Gifted collector selection agrees with final guard")
+                else
+                    check(total<=4,"No target only when collector minimum is held")
+                end
+            end
+        end
+    end
     check(P.slotCaps.Fuzzy==1,"Fuzzy cap is one total slot")
     for _,slots in ipairs({25,41,44,46,50}) do
         local base=hive({{"Fuzzy",3},{"Fuzzy",1,true},{"Baby",4},{"Music",4},{"Shy",3}})

@@ -124,7 +124,7 @@ For authorized disconnect recovery, corroborate discovery with foreground/screen
 - Pure policy tests cannot prove a real purchase, field switch or RNG result. Label isolated coverage, live configuration verification and naturally observed actions separately.
 - No subagents. Do not alter the existing recurring schedule unless asked. No duplicate automation.
 
-## Current rules to preserve (v1.8.127 snapshot)
+## Current rules to preserve (v1.8.128 snapshot)
 
 This section is a handoff snapshot; consult later log entries and AGENTS.md for subsequent changes.
 
@@ -141,6 +141,7 @@ This section is a handoff snapshot; consult later log entries and AGENTS.md for 
 - Normal Royal Jelly admission uses inventory >= refill. An admitted unfinished objective can continue below it; completion closes admission and saves leftovers. Never reseed saved leftovers to bypass qualification.
 - The46-slot normal threshold/refill is10000 Royal Jelly (human correction126);47+ thresholds retain their existing values.127 records copied roll baselines and preserves the existing exact-task surplus-Fuzzy exception during response protection.
 - Planner reservations honor existing configured gifted roll shields at every stage; incidental gifted Bomber cannot become a later-stage repair target. This adds no gifted hunting goals. Reserved stale leases retire through guarded reconciliation; unfinished unsafe leases and unresolved receipts retain admission. Repair completion restores normal stage qualification.
+- A gifted Baby/Music upgrade releases surplus normal copies for cleanup before unrelated collector/fixed goals; total reservations remain the existing goals,Music4. Post-Star selection reserves the four existing gifted Bubble/Frosty copies required by its final roll guard, so a protected four-copy Frosty cannot become a new blocked task. Temporary duplicate RNG outcomes can appear while a task is active; they must not become persistent idle keeps.
 - Supported material fruit routes: Strawberry → Strawberry Field; Blueberry → Pine Tree Forest; SunflowerSeed → Sunflower Field; Pineapple → Pineapple Patch, subject to real entry access. Return field is Blue Flower below5 bees, Bamboo from5, Pine Tree from15. Only bind Atlas's main Farming selector, not quest field selectors.
 - Star Egg paths use actual Seven To Seven / Royal Rumble completion, current Star inventory and use counters. Six path targets gifted Music/Baby/Shy/Diamond/Lion/Demon. Never infer history solely from current hive composition.
 
@@ -170,4 +171,4 @@ Application changes:
 
 Documentation-only updates do not require version bumps, game spending or live re-execution. A healthy unchanged application should stay running.
 
-Latest live deployment: **v1.8.127** on **SpidermanXD56**,StartedAt1795761076. The human acknowledged the specific historical126 roll; its original receipt and fresh after-snapshot were archived without replay, retaining the explicit missing before-baseline limitation. Same-coordinate rolling resumed; extra giftedBumble(1,10) was naturally rerolled and originalgiftedBumble(1,9) remained the sole Bumble. Runtime/report/UI127,runningtrue,no reported error or uncertainty. No other/new receipt is covered by that acknowledgement. xd_Glen09 remains on124 with its Atlas UI fix previously verified. Other accounts except QuackTest02 remain in scope for requested work. See deployment JSON/latest log for hashes, tests and observations.
+Latest live deployment: **v1.8.128** on **SpidermanXD56**,StartedAt1795761795. The five-Music stall was repaired: four total Music remain,two gifted/two normal;both gifted Music and all four gifted Frosties were preserved. Multiple natural task cycles continued with runtime/report/UI128,runningtrue,no reported blocked/error/uncertain state. Existing10k threshold and the specific historical126 no-replay acknowledgement remain; it covers no other/new receipt. xd_Glen09 remains on124 with its Atlas UI fix previously verified. Other accounts except QuackTest02 remain in scope for requested work. See deployment JSON/latest log for hashes, tests and observations.

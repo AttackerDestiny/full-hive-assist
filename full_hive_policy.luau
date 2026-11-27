@@ -498,6 +498,13 @@ function P.plan(cells, types, ctx)
     end
     reserve("Baby", babyGoal, false)
     reserve("Music", 4, false)
+    if post then
+        -- The final roll guard requires four OTHER collectors and another
+        -- gifted copy before a fixed task may consume a gifted collector.
+        -- Reserve those existing gifted copies here too, so initial selection
+        -- cannot repeatedly choose one of the four the guard must hold.
+        reserve("Bubble",4,true);reserve("Frosty",4,true)
+    end
     if not post then
         -- Cheap crit/red placeholders compete by rank; gifted failsafes are additional keeps.
         local crit, red = 0, 0
@@ -587,6 +594,16 @@ function P.plan(cells, types, ctx)
         end
     end
     local excess = {}
+    local forceExcess={}
+    for _,spec in ipairs({{"Baby",babyGoal},{"Music",4}})do
+        if P.count(cells,spec[1])>spec[2]then
+            for _,c in ipairs(cells)do
+                if c.bee and c.bee.Type==spec[1] and not keep[P.key(c)]then
+                    excess[P.key(c)]=true;forceExcess[P.key(c)]=true
+                end
+            end
+        end
+    end
     if questRetired.Shy then
         for _,c in ipairs(cells)do
             if c.bee and c.bee.Type=="Fire"and not keep[P.key(c)]then excess[P.key(c)]=true end
@@ -676,6 +693,8 @@ function P.plan(cells, types, ctx)
         if not P.isUsableCollector(c,cells,{questRetired=questRetired}) then fallbackCandidates[#fallbackCandidates + 1] = c end
     end
     local target, mode, reason = nil, "off", nil
+    local forceCleanup
+    for _,c in ipairs(candidates)do if forceExcess[P.key(c)]then forceCleanup=c;break end end
     local legendaryHunt=false
     local royalNeeds = false
     for _,n in ipairs(needs) do
@@ -684,6 +703,10 @@ function P.plan(cells, types, ctx)
     if collectorFallback and #fallbackCandidates > 0 then
         -- Repair safe noncollectors before returning to the normal stage refill.
         target, mode, reason = fallbackCandidates[1], recoveryMode, recoveryReason
+    elseif forceCleanup then
+        -- Gifted force upgrades may release an old normal copy. Repair that
+        -- total before selecting another collector or fixed gifted goal.
+        target,mode,reason=forceCleanup,stage=="early" and "off" or "gifted","force-surplus"
     elseif legendaryMissing then
         local surplus={}
         for _,c in ipairs(candidates) do

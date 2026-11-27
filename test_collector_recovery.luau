@@ -425,6 +425,64 @@ return function(P,T,runtime)
         local reconcile=P.reconcileRollTask;P.reconcileRollTask=function()return false,nil,false end
         local ok,result=pcall(make,P,T,state,snapshot);P.reconcileRollTask=reconcile
         check(ok and result.rollBlocked and state.FullHiveRollTask==lease and state.FullHiveJellyBatch==batch,"Unsafe unfinished lease is never discarded by repair-exit cleanup")
+        do
+            -- The next live failure: a kept gifted Music upgrades the hive to
+            -- five total, then old selection chooses one of four gifted Frosties.
+            bees[2].bee={Type="Music",Traits={"Gifted"}}
+            local function snap()
+                local s=stats({},30000000000);s.UnlockedCells=46;s.Totals.Purchases.HiveSlots=21
+                s.Totals.EggUses.Star=2;s.Eggs.RoyalJelly=10000;s.Honeycomb={}
+                for _,c in ipairs(bees)do local x="x"..c.x;s.Honeycomb[x]=s.Honeycomb[x]or{};s.Honeycomb[x]["y"..c.y]=c.bee end
+                return s
+            end
+            local function originalAt(c)
+                for _,b in ipairs(bees)do if P.key(b)==P.key(c)then return b end end
+            end
+            local musicCtx=table.clone(baseCtx);musicCtx.collectorFallback=false;musicCtx.jelly=10000
+            local fresh=P.plan(bees,T,musicCtx)
+            local keptMusic,giftMusic=0,0
+            for _,c in ipairs(bees)do
+                if c.bee.Type=="Music"and fresh.keep[P.key(c)]then
+                    keptMusic+=1;giftMusic+=P.gifted(c)and 1 or 0
+                end
+                if c.bee.Type=="Frosty"and P.gifted(c)then check(fresh.keep[P.key(c)],"Each of four gifted Frosties is held by planner as well as final guard")end
+            end
+            check(keptMusic==4 and giftMusic==2,"Four Music reservations prefer both existing gifted copies")
+            check(fresh.reason=="force-surplus"and fresh.target.bee.Type=="Music"and not P.gifted(fresh.target),"Extra normal Music precedes another gifted collector")
+            local unrolled=P.startRollTask(fresh.target,bees,fresh)
+            check(P.rollTaskSafe(unrolled,fresh.target,bees,T,fresh),"Selected Music cleanup passes final guard")
+            local frosty
+            for _,c in ipairs(bees)do if c.bee.Type=="Frosty"then frosty=c;break end end
+            local function blockedState()
+                local task=P.startRollTask(frosty,bees,{stage="blue",reason="fixed-targets",mode="gifted",needs=fresh.needs})
+                task.Owner=7;task.Hive="TestHive";task.Job="test"
+                local batch={Version=1,Owner=7,Hive="TestHive",Job="test",Amount=10000,Remaining=10000,Recovery=false}
+                return {FullHiveRollTask=task,FullHiveJellyBatch=batch},task,batch
+            end
+            local state,stale,batch=blockedState()
+            local q,r,e,ready=make(P,T,state,snap())
+            check(not e.FullHiveRollTask and r.LastCompletedTarget.Reason=="target-now-reserved","Unsent protected Frosty task retires through existing reconciliation")
+            check(q.reason=="force-surplus"and q.target.bee.Type=="Music"and not q.rollBlocked,"Runtime leaves the blocked wait and picks normal Music cleanup")
+            check(r.RefillAmount==10000 and ready(snap()),"Existing actual10000 inventory qualifies the replacement task")
+            for _,flag in ipairs({"FullHivePending","AutoHivePendingRequest","FullHiveUncertain","AutoHiveUncertain","FullHiveStarRunning","AutoGiftedStarRunning"})do
+                local blocked,task,batch=blockedState();local marker={};blocked[flag]=marker
+                local ok=pcall(make,P,T,blocked,snap())
+                check(not ok and blocked.FullHiveRollTask==task and blocked.FullHiveJellyBatch==batch and blocked[flag]==marker,"Frosty retirement never discards unresolved state: "..flag)
+            end
+            -- Follow multiple accepted upgrades, not just the first planner call.
+            local donor=originalAt(q.target)
+            local task=P.startRollTask(q.target,bees,q);task.Owner=7;task.Hive="TestHive";task.Job="test";task.Rolled=true
+            e.FullHiveRollTask=task;donor.bee={Type="Music",Traits={"Gifted"}}
+            q,r,e=make(P,T,e,snap())
+            check(not e.FullHiveRollTask and q.reason=="force-surplus"and q.target.bee.Type=="Music"and not P.gifted(q.target),"Another gifted upgrade immediately schedules its released normal Music")
+            donor=originalAt(q.target)
+            task=P.startRollTask(q.target,bees,q);task.Owner=7;task.Hive="TestHive";task.Job="test";task.Rolled=true
+            e.FullHiveRollTask=task;donor.bee={Type="Buoyant",Traits={}}
+            q,r,e=make(P,T,e,snap())
+            check(P.count(bees,"Music")==4 and P.count(bees,"Music",true)==3,"Sequential cleanup leaves four total Music and retains three gifted")
+            check(not e.FullHiveRollTask and not q.rollBlocked,"Actual result reconciles without another protected-slot deadlock")
+            check(q.target and P.rollTaskSafe(P.startRollTask(q.target,bees,q),q.target,bees,T,q),"Next selected task also passes the same final guard")
+        end
         -- This preserves the existing stage-specific zero-cap Carpenter rule
         -- and never promotes unlisted gifted Hasty into a reserved baseline.
         add("Carpenter",1,true);add("Hasty",1,true)
