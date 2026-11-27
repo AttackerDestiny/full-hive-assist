@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.128"
+local SCRIPT_VERSION = "1.8.129"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -484,13 +484,21 @@ local function setAtlas(value)
 end
 local function acquire()
     checkStop()
+    local function verifySpenders()
+        if not atlasFarmOnly or not Config.AutoProgression then return end
+        local ok,safe,why,rows=pcall(atlasAccess,atlasFarmOnly,true)
+        Report.AtlasSpenderControls=ok and rows or nil
+        if ok and safe then return end
+        Report.AtlasControlError=tostring(ok and why or safe)
+        assert(not env.FullHivePending and not env.AutoHivePendingRequest
+            and not env.FullHiveUncertain and not env.AutoHiveUncertain
+            and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning,
+            "Atlas spending controls unavailable with unresolved work; state preserved")
+        error(ATLAS_UNAVAILABLE,0)
+    end
     if leased then
         assertAtlasPaused()
-        if atlasFarmOnly and Config.AutoProgression then
-            local safe,why,rows=atlasFarmOnly(true)
-            Report.AtlasSpenderControls=rows
-            assert(safe,why)
-        end
+        verifySpenders()
         return
     end
     local available,button,cell=pcall(atlasControl)
@@ -506,11 +514,7 @@ local function acquire()
     -- Own the lease before toggling so failures also restore it.
     leased=true
     setAtlas(true)
-    if atlasFarmOnly and Config.AutoProgression then
-        local safe,why,rows=atlasFarmOnly(true)
-        Report.AtlasSpenderControls=rows
-        assert(safe,why)
-    end
+    verifySpenders()
 end
 local function move(part,pickup)
     acquire(); checkStop()
@@ -2046,10 +2050,12 @@ local function runWithCharacterRecovery()
         local ok,err=pcall(run)
         if ok then return end
         if err==ATLAS_UNAVAILABLE then
-            assert(not leased and not env.FullHiveAtlasOwned and not Report.CleanupError
-                and not env.FullHivePending and not env.AutoHivePendingRequest and not env.FullHiveUncertain
+            assert(not env.FullHivePending and not env.AutoHivePendingRequest and not env.FullHiveUncertain
                 and not env.AutoHiveUncertain and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning,
                 "Atlas controls unavailable with unresolved work")
+            release()
+            assert(not leased and not env.FullHiveAtlasOwned and not Report.CleanupError,
+                "Atlas controls unavailable with failed cleanup")
             waitFor("Waiting for Atlas controls; amulet offers remain active")
             continue
         end

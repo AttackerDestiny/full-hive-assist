@@ -124,7 +124,7 @@ For authorized disconnect recovery, corroborate discovery with foreground/screen
 - Pure policy tests cannot prove a real purchase, field switch or RNG result. Label isolated coverage, live configuration verification and naturally observed actions separately.
 - No subagents. Do not alter the existing recurring schedule unless asked. No duplicate automation.
 
-## Current rules to preserve (v1.8.128 snapshot)
+## Current rules to preserve (v1.8.129 snapshot)
 
 This section is a handoff snapshot; consult later log entries and AGENTS.md for subsequent changes.
 
@@ -133,6 +133,7 @@ This section is a handoff snapshot; consult later log entries and AGENTS.md for 
 - BOTH Cobalt and Crimson require Baby4/Music4/Shy3. Once verified Star Journey2 Red Boost5000/completed quest evidence retires Shy, require Baby4/Music4 only. Music3 was a corrected typo and is NOT valid.
 - After completed The Family Final and no active Mother Bear quest, feed owned Treats to Vicious up to level12 without buying more or overspending the bond deficit. Once fresh level12 is verified, enable Atlas Auto Kill Coconut Crab through its own Set API and confirm config plus UI; preserve other combat settings and intentional stops.
 - Atlas protected UI lookups and activation use scoped executor identity8, restoring the caller after callbacks and errors. A low-identity thread must not cause a Plugin capability failure while discovering Stop Everything.
+- Atlas spender controls are discovered in the actual visible window and callback-derived detached tabs, deduplicated and verified. Temporary missing/unreadable controls before spending release Atlas and wait for fresh discovery; uncertainty/Star work or failed cleanup still block recovery. Unknown or ambiguous controls never authorize spending.
 - Normal early/mid force filling uses one Royal Jelly per request, roll-to off and50 refill. Completion restores normal stage refill. Preserve starter <33 inventory-only rolling and explicit late/Star/post-Star workflows.
 - Ordinary gifted failsafe hunting requires the existing force quotas and Bubble Mask. Keep incidental gifted results under existing keep rules.
 - Coconut Canister needs Diamond Mask owned AND equipped for queue admission. Pesticide Planter needs Diamond Mask owned and45 unlocked hive slots. Petal Belt needs one actual Spirit Petal in inventory.
@@ -171,4 +172,4 @@ Application changes:
 
 Documentation-only updates do not require version bumps, game spending or live re-execution. A healthy unchanged application should stay running.
 
-Latest live deployment: **v1.8.128** on **SpidermanXD56**,StartedAt1795761795. The five-Music stall was repaired: four total Music remain,two gifted/two normal;both gifted Music and all four gifted Frosties were preserved. Multiple natural task cycles continued with runtime/report/UI128,runningtrue,no reported blocked/error/uncertain state. Existing10k threshold and the specific historical126 no-replay acknowledgement remain; it covers no other/new receipt. xd_Glen09 remains on124 with its Atlas UI fix previously verified. Other accounts except QuackTest02 remain in scope for requested work. See deployment JSON/latest log for hashes, tests and observations.
+Latest live deployment: **v1.8.129** on **QuackAltear06**,StartedAt1795763626. Runtime/report/UI129,runningtrue,no reported error or uncertainty;live Atlas spender controls verified off and Atlas released during an ordinary100-jelly recovery funding wait. The screenshot's earlier missing-control state was not reproduced after reconnection; isolated actual-code tests cover that readiness wait and recovery. SpidermanXD56 remains on128 with four Music verified;xd_Glen09 remains on124 with its Atlas UI fix previously verified. Other accounts except QuackTest02 remain in scope for requested work. See deployment JSON/latest log for hashes, tests and observations.

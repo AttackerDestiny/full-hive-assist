@@ -56,8 +56,8 @@ return function(H)
     local function cachedAlive()
         if not cached or clock()-cached.At>=2 then return false end
         if not cached.Window.Parent or cached.Window.Name~="Window"
-            or cached.Label.Text~="Stop Everything"
-            or not cached.Label:IsDescendantOf(cached.Window)
+            or cached.Label and (cached.Label.Text~="Stop Everything"
+                or not cached.Label:IsDescendantOf(cached.Window))
             or cached.Window:FindFirstChild("TabButtons")~=cached.TabRoot
             or cached.TabRoot:FindFirstChild("ScrollingFrame")~=cached.TabButtons then return false end
         for _,row in ipairs(cached.Rows) do
@@ -81,7 +81,9 @@ return function(H)
         local tabRoot=window:FindFirstChild("TabButtons")
         local tabButtons=tabRoot and tabRoot:FindFirstChild("ScrollingFrame")
         if not tabButtons then return nil,"Atlas tab controls are unavailable" end
-        local tabs,seen={},{}
+        -- Visible tabs remain inspectable even while their navigation callback
+        -- metadata is still loading; hidden tabs still come from callbacks.
+        local tabs,seen={window},{[window]=true}
         for _,button in ipairs(tabButtons:GetChildren()) do
             if button:IsA("TextButton") then
                 for _,connection in ipairs(H.connections(button.MouseButton1Click)) do
@@ -93,11 +95,12 @@ return function(H)
                 end
             end
         end
-        local rows={}
+        local rows,seenLabels={},{}
         for _,tab in ipairs(tabs) do
             for _,text in ipairs(tab:QueryDescendants("TextLabel")) do
                 local button=text.Parent
-                if disabled[text.Text] and button and button:IsA("TextButton") then
+                if disabled[text.Text] and button and button:IsA("TextButton") and not seenLabels[text] then
+                    seenLabels[text]=true
                     local found
                     for _,connection in ipairs(H.connections(button.MouseButton1Click)) do
                         local cell,key=switchState(values(connection.Function) or {},text.Text,button)
@@ -111,9 +114,10 @@ return function(H)
                 end
             end
         end
-        local progression=false
-        for _,row in ipairs(rows) do if row.Name=="Auto Progression" then progression=true end end
-        if not progression then return nil,"Atlas Auto Progression control is unavailable" end
+        local progression=0
+        for _,row in ipairs(rows) do if row.Name=="Auto Progression" then progression+=1 end end
+        if progression==0 then return nil,"Atlas Auto Progression control is unavailable" end
+        if progression>1 then return nil,"Ambiguous Atlas Auto Progression control" end
         cached={Window=window,Label=label,TabRoot=tabRoot,TabButtons=tabButtons,Rows=rows,At=clock()}
         return rows
     end

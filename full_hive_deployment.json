@@ -3289,89 +3289,54 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.128",
+    "version": "1.8.129",
     "bundle": "core.luau",
-    "sha256": "ab2fecde899e463e72b5e1fb451d310c00f10ca6fdbcb66b114db1ea8052f40e",
-    "deployedNormalizedUTF8Sha256": "50317538d88b43bf67fb957cf07b518f8b0e5be51169e961c1a9c2d3a0c2ff20",
+    "sha256": "b1795657621e3cad7b62de4313460919bc0f36b90c3d536070e096e062f8aca1",
+    "deployedNormalizedUTF8Sha256": "0bb8a566c6b85d601f83a407ac5d1606557d0fea3771f264b39b1d6390468bde",
     "accounts": [
       {
-        "account": "SpidermanXD56",
-        "executor": "Arceus X",
+        "account": "QuackAltear06",
+        "executor": "Delta",
+        "userId": 12018898822,
         "placeId": 1537690962,
-        "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
-        "version": "1.8.128",
-        "startedAt": 1795761795,
+        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
+        "version": "1.8.129",
+        "startedAt": 1795763626,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
         "uncertainRequests": false,
-        "musicBefore": {
-          "total": 5,
-          "gifted": 2,
-          "normal": 3
-        },
-        "musicAfter": {
-          "total": 4,
-          "gifted": 2,
-          "normal": 2
-        },
-        "giftedMusicPreserved": [
-          {
-            "x": 4,
-            "y": 8,
-            "birth": 1767038470
-          },
-          {
-            "x": 1,
-            "y": 10,
-            "birth": 1795683966
-          }
-        ],
-        "extraNormalMusicRolled": {
-          "x": 2,
-          "y": 3,
-          "birth": 1574975702,
-          "observedResult": "Gifted Bubble",
-          "consumed": 25
-        },
-        "giftedFrostiesPreserved": 4,
-        "originalGiftedBumbleCount": 1,
-        "staleUnrolledFrostyX": 1,
-        "staleUnrolledFrostyY": 6,
-        "latestActiveX": 5,
-        "latestActiveY": 7,
-        "latestReason": "fixed-targets",
-        "latestActions": 25,
-        "latestRoyalJellyUsed": 4058,
-        "latestJelly": 7367,
-        "refill": 10000,
-        "blocked": false,
-        "lastCompleted": {
-          "x": 2,
-          "y": 8,
-          "reason": "protected-result"
-        }
+        "spenderControlsVerifiedOff": 16,
+        "actualAtlasStopCheckbox": false,
+        "atlasOwned": false,
+        "initialTaskX": 5,
+        "initialTaskY": 4,
+        "initialRefill": 100,
+        "initialJelly": 8,
+        "latestRefill": 1000,
+        "latestJelly": 67,
+        "latestActions": 49,
+        "lastResult": "normal Bubble at5,4;RoyalJelly;Consumed1",
+        "phase": "waiting"
       }
     ],
     "excludedAccounts": [
       "QuackTest02"
     ],
     "deploymentScope": [
-      "SpidermanXD56"
+      "QuackAltear06"
     ],
-    "offlineChecks": 7530,
-    "connectedChecksPerAccount": 7529,
+    "offlineChecks": 7562,
+    "connectedChecksPerAccount": 7561,
     "connectedAllPassed": true,
-    "connectedMarker": "1.8.128-force-cleanup-final",
-    "policyChecks": 1608,
-    "collectorChecks": 1073,
-    "newChecks": 276,
+    "connectedMarker": "1.8.129-atlas-readiness-final",
+    "atlasProgressionChecks": 32,
     "compatibilityMarkers": 42,
-    "naturalMusicCleanupObserved": true,
-    "continuedTaskCyclesObserved": true,
-    "legacyReceiptAcknowledgementUnchanged": true,
-    "noNewReceiptOverrides": true
+    "initialScreenshotFailureReproducedLive": false,
+    "liveDiscoveryVerified": true,
+    "naturalSingleRollObserved": true,
+    "naturalMissingControlRecoveryObserved": false
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -4093,13 +4058,13 @@
     "noFlagsManuallyCleared": true
   },
   "latestCandidate": {
-    "version": "1.8.128",
+    "version": "1.8.129",
     "deployed": true,
-    "deployedStartedAt": 1795761795,
-    "offlineChecks": 7530,
-    "connectedChecks": 7529,
+    "deployedStartedAt": 1795763626,
+    "offlineChecks": 7562,
+    "connectedChecks": 7561,
     "connectedAllPassed": true,
-    "connectedMarker": "1.8.128-force-cleanup-final"
+    "connectedMarker": "1.8.129-atlas-readiness-final"
   },
   "deploymentV1_8_126": {
     "version": "1.8.126",
@@ -4252,5 +4217,90 @@
     "newRollBeforeAndRollResult": true,
     "deployed": true,
     "deployedStartedAt": 1795761076
+  },
+  "deploymentV1_8_128": {
+    "version": "1.8.128",
+    "bundle": "core.luau",
+    "sha256": "ab2fecde899e463e72b5e1fb451d310c00f10ca6fdbcb66b114db1ea8052f40e",
+    "deployedNormalizedUTF8Sha256": "50317538d88b43bf67fb957cf07b518f8b0e5be51169e961c1a9c2d3a0c2ff20",
+    "accounts": [
+      {
+        "account": "SpidermanXD56",
+        "executor": "Arceus X",
+        "placeId": 1537690962,
+        "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+        "version": "1.8.128",
+        "startedAt": 1795761795,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "uncertainRequests": false,
+        "musicBefore": {
+          "total": 5,
+          "gifted": 2,
+          "normal": 3
+        },
+        "musicAfter": {
+          "total": 4,
+          "gifted": 2,
+          "normal": 2
+        },
+        "giftedMusicPreserved": [
+          {
+            "x": 4,
+            "y": 8,
+            "birth": 1767038470
+          },
+          {
+            "x": 1,
+            "y": 10,
+            "birth": 1795683966
+          }
+        ],
+        "extraNormalMusicRolled": {
+          "x": 2,
+          "y": 3,
+          "birth": 1574975702,
+          "observedResult": "Gifted Bubble",
+          "consumed": 25
+        },
+        "giftedFrostiesPreserved": 4,
+        "originalGiftedBumbleCount": 1,
+        "staleUnrolledFrostyX": 1,
+        "staleUnrolledFrostyY": 6,
+        "latestActiveX": 5,
+        "latestActiveY": 7,
+        "latestReason": "fixed-targets",
+        "latestActions": 25,
+        "latestRoyalJellyUsed": 4058,
+        "latestJelly": 7367,
+        "refill": 10000,
+        "blocked": false,
+        "lastCompleted": {
+          "x": 2,
+          "y": 8,
+          "reason": "protected-result"
+        }
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "deploymentScope": [
+      "SpidermanXD56"
+    ],
+    "offlineChecks": 7530,
+    "connectedChecksPerAccount": 7529,
+    "connectedAllPassed": true,
+    "connectedMarker": "1.8.128-force-cleanup-final",
+    "policyChecks": 1608,
+    "collectorChecks": 1073,
+    "newChecks": 276,
+    "compatibilityMarkers": 42,
+    "naturalMusicCleanupObserved": true,
+    "continuedTaskCyclesObserved": true,
+    "legacyReceiptAcknowledgementUnchanged": true,
+    "noNewReceiptOverrides": true
   }
 }

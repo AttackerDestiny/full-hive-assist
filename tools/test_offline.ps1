@@ -48,6 +48,7 @@ try {
     $code+='do local m=compile('+(Literal 'route_dashboard.luau')+')();local t=compile('+(Literal 'tests/test_route_dashboard.luau')+')();local r=t(m,Progression);total+=r.passed;print("tests/test_route_dashboard.luau",r.passed)end'+"`n"
     $code+='do local t=compile('+(Literal 'tests/test_vicious_crab.luau')+')();local r=t(QuestAssist,compile('+(Literal 'atlas_switch_control.luau')+')(),'+(Literal 'background_runtime.luau')+');total+=r.passed;print("tests/test_vicious_crab.luau",r.passed)end'+"`n"
     $code+='do local t=compile('+(Literal 'tests/test_atlas_access.luau')+')();local r=t(runtime);total+=r.passed;print("tests/test_atlas_access.luau",r.passed)end'+"`n"
+    $code+='do local t=compile('+(Literal 'tests/test_atlas_progression_control.luau')+')();local r=t('+(Literal 'atlas_progression_control.luau')+',runtime);total+=r.passed;print("tests/test_atlas_progression_control.luau",r.passed)end'+"`n"
     $code+='print("OFFLINE PASS",total)'+"`n"
     [IO.File]::WriteAllText($taskScript,$code,[Text.UTF8Encoding]::new($false))
     & $LuauPath $taskScript
