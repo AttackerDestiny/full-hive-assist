@@ -32,8 +32,10 @@ P.stages = {
 P.planterCatchup={"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}
 P.capacityRequirements={["Pesticide Planter"]=45}
 P.inventoryRequirements={["Petal Belt"]={item="SpiritPetal",amount=1}}
-P.ownershipRequirements={["Coconut Canister"]="Diamond Mask",["Pesticide Planter"]="Diamond Mask"}
-P.equipmentRequirements={["Coconut Canister"]="Diamond Mask"}
+P.ownershipRequirements={["Coconut Canister"]="Diamond Mask",["Pesticide Planter"]="Diamond Mask",
+    ["Red Clay Planter"]="Porcelain Dipper",["Blue Clay Planter"]="Porcelain Dipper"}
+P.equipmentRequirements={["Coconut Canister"]="Diamond Mask",
+    ["Red Clay Planter"]="Porcelain Dipper",["Blue Clay Planter"]="Porcelain Dipper"}
 P.beeRequirements={["Cobalt Guard"]={Baby=4,Music=4,Shy=3},["Crimson Guard"]={Baby=4,Music=4,Shy=3}}
 function P.gearPrerequisite(facts,id)
     local bees=P.beeRequirements[id]

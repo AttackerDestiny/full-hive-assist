@@ -286,5 +286,27 @@ return function(factory,Policy)
         deps.HiveRetirements=nil
         check(factory(deps)(s).questRetired==nil,"Missing retirement reader retains original force requirements")
     end
+    do
+        local deps,s=fixture();s.owns["Porcelain Dipper"]=true
+        local ownedCategory,equippedCategory,seen
+        local has=deps.Packages.PlayerHas
+        deps.Packages.PlayerHas=function(pack,snapshot)
+            if pack.Type=="Porcelain Dipper"then ownedCategory=pack.Category;seen=snapshot end
+            return has(pack,snapshot)
+        end
+        deps.Packages.PlayerHasEquipped=function(pack,snapshot)
+            if pack.Type=="Porcelain Dipper"then equippedCategory=pack.Category;seen=snapshot;return true end
+            return false
+        end
+        local f=factory(deps)(s)
+        check(ownedCategory=="Collector"and equippedCategory=="Collector"and seen==s,"Dipper dependency uses real Collector package and same fresh snapshot")
+        check(f.ownedGear["Porcelain Dipper"]==true and f.equippedGear["Porcelain Dipper"]==true,"Actual Dipper ownership and equipment normalized")
+        deps.Packages.PlayerHasEquipped=function()return false end;f=factory(deps)(s)
+        check(f.ownedGear["Porcelain Dipper"]and f.equippedGear["Porcelain Dipper"]==false,"Unequipped owned Dipper stays ineligible")
+        deps.Packages.PlayerHasEquipped=function()error("unknown")end;f=factory(deps)(s)
+        check(f.equippedGear["Porcelain Dipper"]==nil,"Dipper equipment read errors retain unknown state")
+        deps.Shops=nil;deps.Packages.PlayerHasEquipped=function()return true end;f=factory(deps)(s)
+        check(f.ownedGear["Porcelain Dipper"]and f.equippedGear["Porcelain Dipper"],"Dependency remains observable before physical shops load")
+    end
     return {passed=passed}
 end

@@ -69,6 +69,7 @@ return function(P,workerSource,BlenderReceipt)
         local f=facts();ownedThrough(f,"Basic Sprinkler");f.occupied=22
         for _,expected in ipairs({"Basic Sprinkler","Candy Planter","Blue Port-O-Hive","Beekeeper's Mask","Mondo Belt Bag",
             "Beekeeper's Boots","Blue Clay Planter","Red Clay Planter"}) do
+            if expected=="Blue Clay Planter"then f.ownedGear["Porcelain Dipper"]=true;f.equippedGear={["Porcelain Dipper"]=true}end
             check(P.nextGear(f).id==expected,"Follows the requested gear order at 22 bees: "..expected)
             f.ownedGear[expected]=true
         end
@@ -79,6 +80,7 @@ return function(P,workerSource,BlenderReceipt)
             -- Isolate normal route order; 36+ catch-up has its own cases below.
             for _,planter in ipairs(P.planterCatchup) do f.ownedGear[planter]=true end
             f.ownedGear[name]=false
+            if name=="Blue Clay Planter"or name=="Red Clay Planter"then f.ownedGear["Porcelain Dipper"]=true;f.equippedGear["Porcelain Dipper"]=true end
             local r=P.plan(f,catalog(name,100,{}))
             check(r.gear==name and r.stage==stageIndex and r.action.kind=="buy-gear","Exact ordered next gear: "..name)
             check(not r.optionalHiveAllowed and r.reserveHoney==100,"Gear reserves honey before optional hive spending")
@@ -88,6 +90,7 @@ return function(P,workerSource,BlenderReceipt)
         local f=facts();f.capacity=35;f.occupied=35
         check(P.nextGear(f).id=="Clippers","35-slot account retains the original route before catch-up threshold")
         f.capacity=36;f.occupied=25
+        f.ownedGear["Porcelain Dipper"]=true;f.equippedGear={["Porcelain Dipper"]=true}
         for _,expected in ipairs({"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}) do
             local next=P.nextGear(f)
             check(next.id==expected and next.catchup and next.gate==0,"36-slot catch-up follows the latest planter priority without requiring 36 occupied bees")
@@ -140,8 +143,8 @@ return function(P,workerSource,BlenderReceipt)
         c.gear["Red Clay Planter"]={honey=10000000,items={SoftWax=20}}
         f.inventory.SoftWax=13
         local r=P.plan(f,c)
-        check(r.action.kind=="buy-gear" and r.action.gear=="Porcelain Dipper" and r.deferredGear=="Red Clay Planter",
-            "Affordable Porcelain Dipper can pass a materials-blocked planter at 33 bees")
+        check(r.action.kind=="buy-gear" and r.action.gear=="Porcelain Dipper" and not P.gearPrerequisite(f,"Red Clay Planter"),
+            "Unowned Dipper excludes Red Clay and permits the actual Dipper purchase")
         f.ownedGear["Red Clay Planter"]=true
         f.honey=149999999
         r=P.plan(f,c)
@@ -390,6 +393,7 @@ return function(P,workerSource,BlenderReceipt)
     end
     do
         local f=facts();ownedThrough(f,"Red Clay Planter")
+        f.ownedGear["Porcelain Dipper"]=true;f.equippedGear={["Porcelain Dipper"]=true}
         f.inventory={Strawberry=750,MagicBean=5,SoftWax=19,RoyalJelly=20}
         local c=catalog("Red Clay Planter",10000000,{RedExtract=15,SoftWax=20,MagicBean=5})
         c.packs={RoyalJelly={{amount=1,cost={Honey=10}},{amount=10,cost={Honey=100}},{amount=100,cost={Honey=1000}}}}
@@ -889,6 +893,7 @@ return function(P,workerSource,BlenderReceipt)
         local stages=P.stages
         P.stages={{gate=0,gear={"Candy Planter","Blue Clay Planter","Red Clay Planter","Beekeeper's Boots","Beekeeper's Mask","Honey1","Honey2"}}}
         local f=facts();f.gearQueues=true;f.honey=0
+        f.ownedGear["Porcelain Dipper"]=true;f.equippedGear={["Porcelain Dipper"]=true}
         local c={useSuppliedRecipes=false,gear={
             ["Candy Planter"]={honey=5000000,items={SoftWax=3}},
             ["Blue Clay Planter"]={honey=10000000,items={BlueExtract=14,SoftWax=18}},
@@ -1271,6 +1276,32 @@ return function(P,workerSource,BlenderReceipt)
             f.discoveryPreparation=true;r=P.plan(f,c)
             check(not r.queueMaterialRequirements or not r.queueMaterialRequirements.Oil,"Excluded guard never contributes aggregate recipe demand")
             f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Guard eligibility never bypasses a pending request")
+        end
+        P.stages=stages
+    end
+    do
+        local stages=P.stages
+        for _,planter in ipairs({"Red Clay Planter","Blue Clay Planter"})do
+            P.stages={{gate=0,gear={planter,"Next Gear"}}}
+            local f=facts();f.gearQueues=true;f.honey=0
+            local c={useSuppliedRecipes=true,gear={[planter]={honey=100,items={Oil=2}},["Next Gear"]={honey=200,items={}}}}
+            for _,owned in ipairs({false,true})do for _,equipped in ipairs({false,true})do
+                f.ownedGear["Porcelain Dipper"]=owned;f.equippedGear={["Porcelain Dipper"]=equipped}
+                local r=P.plan(f,c)
+                check((r.gear==planter)==(owned and equipped),"Clay admission requires actual ownership AND equipment")
+                if not(owned and equipped)then
+                    check(#r.gearQueues.B==0 and not r.reservedItems.RoyalJelly,"Excluded clay cannot reserve crafting jelly or enter material queue")
+                    f.discoveryPreparation=true;local prep=P.plan(f,c);f.discoveryPreparation=nil
+                    check(not prep.queueMaterialRequirements or not prep.queueMaterialRequirements.Oil,"Combined preparation excludes ineligible clay ingredients")
+                end
+            end end
+            f.ownedGear["Porcelain Dipper"]=true;f.equippedGear=nil
+            check(not P.gearPrerequisite(f,planter),"Unknown equipment fails closed")
+            f.equippedGear={["Porcelain Dipper"]="yes"}
+            check(not P.gearPrerequisite(f,planter),"Malformed equipment never admits clay")
+            f.equippedGear={["Porcelain Dipper"]=true};check(P.gearPrerequisite(f,planter),"Exact equipped Dipper admits clay")
+            f.equippedGear["Porcelain Dipper"]=false
+            check(not P.gearPrerequisite(f,planter),"Last-moment unequip immediately removes eligibility")
         end
         P.stages=stages
     end
