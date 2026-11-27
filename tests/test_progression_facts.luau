@@ -274,5 +274,17 @@ return function(factory,Policy)
         check(f.beeCounts==nil,"Malformed hive never supplies partial force counts")
         s.Honeycomb=nil;check(factory(deps)(s).beeCounts==nil,"Absent hive counts remain unknown")
     end
+    do
+        local deps,s=fixture();local seen
+        deps.HiveRetirements=function(snapshot)seen=snapshot;return {Shy=true,Ninja=false}end
+        local f=factory(deps)(s)
+        check(seen==s and f.questRetired.Shy==true,"Guard facts use retirement evidence for the same fresh stats snapshot")
+        deps.HiveRetirements=function()return {Shy="unknown"}end
+        check(factory(deps)(s).questRetired.Shy==false,"Nonboolean retirement never qualifies")
+        deps.HiveRetirements=function()error("unavailable")end
+        check(factory(deps)(s).questRetired==nil,"Failed retirement read stays conservative")
+        deps.HiveRetirements=nil
+        check(factory(deps)(s).questRetired==nil,"Missing retirement reader retains original force requirements")
+    end
     return {passed=passed}
 end

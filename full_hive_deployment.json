@@ -3289,103 +3289,115 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.120",
+    "version": "1.8.121",
     "bundle": "core.luau",
-    "sha256": "309774c1ef0bbf884e2bc1086c05704f944c98b6b5cf996899e8a87b4c938f82",
-    "deployedNormalizedUTF8Sha256": "f1a06195e927a2916b73101cdcf1a2fcc7671904a6ef37fa7723feee8ec0ffb6",
+    "sha256": "c977a6f96ac597215759d44d7cc57b8a4bf25e2e96fc3077f6a83da7ddce008e",
+    "deployedNormalizedUTF8Sha256": "b45a6a66f538e4c3258b4caf498ac37b03cd43bb64fb2f0d988fc2b1b5afb367",
     "accounts": [
-      {
-        "account": "SpidermanXD56",
-        "executor": "Arceus X",
-        "version": "1.8.120",
-        "startedAt": 1795750967,
-        "running": true,
-        "paused": false,
-        "runtimeReportVerified": true,
-        "uiVerified": true,
-        "pendingRequests": false,
-        "uncertainRequests": false
-      },
       {
         "account": "xd_Glen09",
         "executor": "Arceus X",
-        "version": "1.8.120",
-        "startedAt": 1795751029,
+        "version": "1.8.121",
+        "startedAt": 1795751377,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "pendingRequests": false,
+        "uncertainRequests": false
+      },
+      {
+        "account": "SpidermanXD56",
+        "executor": "Arceus X",
+        "version": "1.8.121",
+        "startedAt": 1795751379,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
         "uncertainRequests": false
       }
     ],
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "offlineChecks": 7116,
-    "connectedChecksPerAccount": 7115,
+    "offlineChecks": 7136,
+    "connectedChecksPerAccount": 7135,
     "connectedAllPassed": true,
-    "progressionChecks": 549,
+    "connectedMarker": "1.8.121-final-four-music",
+    "progressionChecks": 565,
+    "factsChecks": 76,
     "compatibilityMarkers": 42,
-    "routeAdjacency": [
-      "Coconut Canister",
-      "Crimson Guard",
-      "The Supreme Saturator"
-    ],
-    "remainingMaterialRankingPreserved": true,
+    "guardRequirementsBeforeRetirement": {
+      "Baby": 4,
+      "Music": 4,
+      "Shy": 3
+    },
+    "guardRequirementsAfterVerifiedShyRetirement": {
+      "Baby": 4,
+      "Music": 4
+    },
+    "xdGlenBothGuardsExcludedLive": true,
+    "spidermanShyRetirementLive": true,
+    "naturalGuardPurchaseObserved": false,
     "deploymentScope": [
-      "SpidermanXD56",
-      "xd_Glen09"
+      "xd_Glen09",
+      "SpidermanXD56"
     ]
   },
   "latestCandidate": {
-    "version": "1.8.120",
+    "version": "1.8.121",
     "bundle": "core.luau",
-    "sha256": "309774c1ef0bbf884e2bc1086c05704f944c98b6b5cf996899e8a87b4c938f82",
-    "deployedNormalizedUTF8Sha256": "f1a06195e927a2916b73101cdcf1a2fcc7671904a6ef37fa7723feee8ec0ffb6",
+    "sha256": "c977a6f96ac597215759d44d7cc57b8a4bf25e2e96fc3077f6a83da7ddce008e",
+    "deployedNormalizedUTF8Sha256": "b45a6a66f538e4c3258b4caf498ac37b03cd43bb64fb2f0d988fc2b1b5afb367",
     "accounts": [
-      {
-        "account": "SpidermanXD56",
-        "executor": "Arceus X",
-        "version": "1.8.120",
-        "startedAt": 1795750967,
-        "running": true,
-        "paused": false,
-        "runtimeReportVerified": true,
-        "uiVerified": true,
-        "pendingRequests": false,
-        "uncertainRequests": false
-      },
       {
         "account": "xd_Glen09",
         "executor": "Arceus X",
-        "version": "1.8.120",
-        "startedAt": 1795751029,
+        "version": "1.8.121",
+        "startedAt": 1795751377,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "pendingRequests": false,
+        "uncertainRequests": false
+      },
+      {
+        "account": "SpidermanXD56",
+        "executor": "Arceus X",
+        "version": "1.8.121",
+        "startedAt": 1795751379,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
         "uncertainRequests": false
       }
     ],
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "offlineChecks": 7116,
-    "connectedChecksPerAccount": 7115,
+    "offlineChecks": 7136,
+    "connectedChecksPerAccount": 7135,
     "connectedAllPassed": true,
-    "progressionChecks": 549,
+    "connectedMarker": "1.8.121-final-four-music",
+    "progressionChecks": 565,
+    "factsChecks": 76,
     "compatibilityMarkers": 42,
-    "routeAdjacency": [
-      "Coconut Canister",
-      "Crimson Guard",
-      "The Supreme Saturator"
-    ],
-    "remainingMaterialRankingPreserved": true,
+    "guardRequirementsBeforeRetirement": {
+      "Baby": 4,
+      "Music": 4,
+      "Shy": 3
+    },
+    "guardRequirementsAfterVerifiedShyRetirement": {
+      "Baby": 4,
+      "Music": 4
+    },
+    "xdGlenBothGuardsExcludedLive": true,
+    "spidermanShyRetirementLive": true,
+    "naturalGuardPurchaseObserved": false,
     "deploymentScope": [
-      "SpidermanXD56",
-      "xd_Glen09"
+      "xd_Glen09",
+      "SpidermanXD56"
     ]
   },
   "previousVerifiedDeployment": {
@@ -3830,5 +3842,55 @@
     },
     "natural50PurchaseObserved": false,
     "deploymentScope": "xd_Glen09 only"
+  },
+  "deploymentBeforeGuardRetirement121": {
+    "version": "1.8.120",
+    "bundle": "core.luau",
+    "sha256": "309774c1ef0bbf884e2bc1086c05704f944c98b6b5cf996899e8a87b4c938f82",
+    "deployedNormalizedUTF8Sha256": "f1a06195e927a2916b73101cdcf1a2fcc7671904a6ef37fa7723feee8ec0ffb6",
+    "accounts": [
+      {
+        "account": "SpidermanXD56",
+        "executor": "Arceus X",
+        "version": "1.8.120",
+        "startedAt": 1795750967,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "pendingRequests": false,
+        "uncertainRequests": false
+      },
+      {
+        "account": "xd_Glen09",
+        "executor": "Arceus X",
+        "version": "1.8.120",
+        "startedAt": 1795751029,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "pendingRequests": false,
+        "uncertainRequests": false
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "offlineChecks": 7116,
+    "connectedChecksPerAccount": 7115,
+    "connectedAllPassed": true,
+    "progressionChecks": 549,
+    "compatibilityMarkers": 42,
+    "routeAdjacency": [
+      "Coconut Canister",
+      "Crimson Guard",
+      "The Supreme Saturator"
+    ],
+    "remainingMaterialRankingPreserved": true,
+    "deploymentScope": [
+      "SpidermanXD56",
+      "xd_Glen09"
+    ]
   }
 }

@@ -199,6 +199,12 @@ return function(deps)
             local ok,state=pcall(deps.Uncertain)
             facts.uncertain=not ok or state~=false and state~=nil
         end
+        if type(deps.HiveRetirements)=="function"then
+            local ok,retired=pcall(deps.HiveRetirements,s)
+            if ok and type(retired)=="table"then
+                facts.questRetired={Shy=retired.Shy==true,Ninja=retired.Ninja==true}
+            end
+        end
         local cells=0
         local beeCounts={Baby=0,Music=0,Shy=0}
         if type(s.Honeycomb)=="table" then

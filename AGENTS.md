@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- Latest human correction, November 27 / v1.8.121: BOTH Cobalt Guard and Crimson Guard require Baby4/Music4/Shy3 before queue admission/saving/material preparation. Once the existing verified Star Journey2 RedBoost5000/completed-quest evidence retires Shy, require Baby4/Music4 only; no Shy count. The initially typed Music3 was explicitly corrected to4 before deployment. Feed the same fresh server snapshot into existing quest-retirement evaluation; unknown/error/nonboolean evidence retains4/4/3. This is guard eligibility only and does not alter ordinary hive goals, quest-retired keeps or route/material priority.
+
 - November 27 / v1.8.120: route order moves Crimson Guard directly after Coconut Canister and before The Supreme Saturator. This changes route/queue admission order, not the remaining-material sorting rule or gear prerequisites. Keep all119 quota rules and existing reservations/receipts.
 
 - November 27 / v1.8.119: normal Baby4/Music4/Shy3 quota filling in early/mid progression uses normal single-Royal-Jelly requests (roll-to off) and50-jelly refill/admission instead of the ordinary slot refill. Recheck fresh policy before spending; an existing task adopts off mode without switching its coordinate. Restore stage refill when quotas complete; preserve starter <33 inventory-only behavior, explicit late/Star/post-Star workflows, quest-retired Shy, all keeps, crafting reservations and unresolved requests. Latest live deployment scope remains xd_Glen09.

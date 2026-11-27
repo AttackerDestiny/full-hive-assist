@@ -1250,5 +1250,29 @@ return function(P,workerSource,BlenderReceipt)
         f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Quota gate never bypasses pending work")
         P.stages=stages
     end
+    do
+        local stages=P.stages
+        for _,guard in ipairs({"Cobalt Guard","Crimson Guard"})do
+            P.stages={{gate=0,gear={guard,"Next Gear"}}}
+            local f=facts();f.gearQueues=true;f.honey=0;f.beeCounts={Baby=4,Music=4,Shy=0}
+            local c={gear={[guard]={honey=100,items={Oil=2}},["Next Gear"]={honey=200,items={}}}}
+            local r=P.plan(f,c)
+            check(r.gear=="Next Gear"and #r.gearQueues.B==0,"Both guards wait before verified Shy retirement")
+            f.questRetired={Shy=true};r=P.plan(f,c)
+            check(r.gear==guard and #r.gearQueues.B==1,"Verified Shy retirement admits either guard with Baby4 Music4 and no Shy")
+            f.beeCounts.Music=3;r=P.plan(f,c)
+            check(r.gear=="Next Gear"and r.deferredRequirementGear[guard]~=nil,"Retired path still requires at least4 Music")
+            f.beeCounts.Music=4;f.beeCounts.Baby=3;r=P.plan(f,c)
+            check(r.gear=="Next Gear","Retired path still requires4 Baby")
+            f.beeCounts={Baby=4,Music=4,Shy=3};f.questRetired={Shy=false};r=P.plan(f,c)
+            check(r.gear==guard,"Original4/4/3 admits both guards before completion")
+            f.beeCounts.Shy=0;f.questRetired={Shy="completed"};r=P.plan(f,c)
+            check(r.gear=="Next Gear"and not r.reservedItems.RoyalJelly,"Unknown retirement evidence cannot reserve guard jelly")
+            f.discoveryPreparation=true;r=P.plan(f,c)
+            check(not r.queueMaterialRequirements or not r.queueMaterialRequirements.Oil,"Excluded guard never contributes aggregate recipe demand")
+            f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Guard eligibility never bypasses a pending request")
+        end
+        P.stages=stages
+    end
     return {passed=passed}
 end

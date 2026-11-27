@@ -34,15 +34,21 @@ P.capacityRequirements={["Pesticide Planter"]=45}
 P.inventoryRequirements={["Petal Belt"]={item="SpiritPetal",amount=1}}
 P.ownershipRequirements={["Coconut Canister"]="Diamond Mask",["Pesticide Planter"]="Diamond Mask"}
 P.equipmentRequirements={["Coconut Canister"]="Diamond Mask"}
-P.beeRequirements={["Cobalt Guard"]={Baby=4,Music=4,Shy=3}}
+P.beeRequirements={["Cobalt Guard"]={Baby=4,Music=4,Shy=3},["Crimson Guard"]={Baby=4,Music=4,Shy=3}}
 function P.gearPrerequisite(facts,id)
     local bees=P.beeRequirements[id]
     if bees then
         local counts=facts.beeCounts or {}
+        local retired=(facts.questRetired or {}).Shy==true
+        local requirements=retired and {Baby=4,Music=4}or bees
         for _,name in ipairs({"Baby","Music","Shy"})do
-            local held=counts[name]
-            if type(held)~="number"or held%1~=0 or held<bees[name]then
-                return false,"Requires Baby 4, Music 4 and Shy 3 before Cobalt Guard saving"
+            local needed=requirements[name]
+            if needed then
+                local held=counts[name]
+                if type(held)~="number"or held%1~=0 or held<needed then
+                    return false,retired and "Requires Baby 4 and Music 4; Shy quest retired"
+                        or "Requires Baby 4, Music 4 and Shy 3 before "..id.." saving"
+                end
             end
         end
     end

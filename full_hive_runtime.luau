@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.120"
+local SCRIPT_VERSION = "1.8.121"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1122,6 +1122,7 @@ local function initializeProgression()
         Accessories=Accessories,CellTools=CellTools,OsTime=OsTime,Shops=workspace:FindFirstChild("Shops"),
         Hive=hive,HoneyReserve=Config.HoneyReserve,UseBlenderTickets=function() return Config.UseBlenderTickets end,
         Uncertain=function() return env.FullHiveUncertain end,
+        HiveRetirements=function(s) return background and background.hiveRetirements(s)or{}end,
         BlenderGoal=function()
             local goal=env.FullHiveBlenderGoal
             if type(goal)=="table"and goal.Owner==player.UserId and goal.Job==game.JobId then return goal end
