@@ -3293,7 +3293,74 @@
     "bundle": "core.luau",
     "sha256": "1ba4b7358252a66966588ca45ff5476c6a5686c901621eace561fe690362fedd",
     "deployedNormalizedUTF8Sha256": "d96fe34e20d5d0fd769a316932a720618be8fa45a2f98a8f7fb092ff3190eef8",
+    "deploymentPolicy": "Every application change: safely re-execute exact tested bundle on all connected non-QuackTest02 sessions; verify individually",
     "accounts": [
+      {
+        "account": "xd_Glen09",
+        "executor": "Arceus X",
+        "userId": 1129822459,
+        "placeId": 1537690962,
+        "jobId": "8215595f-fa36-4f4b-8453-1b2f1dab44a4",
+        "version": "1.8.130",
+        "previousVersionObserved": "1.8.130",
+        "previousStartedAt": 1795764718,
+        "startedAt": 1795765316,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "uncertainRequests": false,
+        "connectedAllPassed": true,
+        "connectedMarker": "1.8.130-all-accounts-final",
+        "connectedChecks": 7569,
+        "viciousCrabChecks": 43,
+        "phase": "waiting",
+        "activity": "Waiting for at least 200 Royal Jelly to start a batch"
+      },
+      {
+        "account": "QuackAltear1",
+        "executor": "Delta",
+        "userId": 12018848903,
+        "placeId": 1537690962,
+        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
+        "version": "1.8.130",
+        "previousVersionObserved": "1.8.130",
+        "previousStartedAt": 1795764700,
+        "startedAt": 1795765316,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "uncertainRequests": false,
+        "connectedAllPassed": true,
+        "connectedMarker": "1.8.130-all-accounts-final",
+        "connectedChecks": 7569,
+        "viciousCrabChecks": 43,
+        "phase": "waiting",
+        "activity": "Waiting for at least 600 Royal Jelly to start a batch"
+      },
+      {
+        "account": "QuackTest03",
+        "executor": "Delta",
+        "userId": 12057108075,
+        "placeId": 1537690962,
+        "jobId": "aabfea9d-2086-42e9-ba9c-f0a6611f7368",
+        "version": "1.8.130",
+        "previousVersionObserved": "1.8.130",
+        "previousStartedAt": 1795764707,
+        "startedAt": 1795765317,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "uncertainRequests": false,
+        "connectedAllPassed": true,
+        "connectedMarker": "1.8.130-all-accounts-final",
+        "connectedChecks": 7569,
+        "viciousCrabChecks": 43,
+        "phase": "waiting",
+        "activity": "Waiting for owned Royal Jelly to roll"
+      },
       {
         "account": "QuackAltear06",
         "executor": "Delta",
@@ -3301,52 +3368,81 @@
         "placeId": 1537690962,
         "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
         "version": "1.8.130",
-        "startedAt": 1795764399,
+        "previousVersionObserved": "1.8.130",
+        "previousStartedAt": 1795764399,
+        "startedAt": 1795765819,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
         "uncertainRequests": false,
-        "actualAtlasStopCheckbox": false,
-        "atlasOwned": false,
-        "motherFinalCompleted": true,
-        "activeMotherQuests": 0,
-        "vicious": {
-          "x": 1,
-          "y": 8,
-          "birth": 1795430147,
-          "level": 10,
-          "bond": 1134916
-        },
-        "cachedTreats": 1,
-        "lastPlanTreats": 0,
-        "lastPlanRequiredTreats": 286509,
-        "viciousStatus": "Saving owned Treats for one feed to Vicious level 12 (0 / 286509)",
-        "actionsObserved": 0,
-        "refill": 1000,
-        "jelly": 68,
-        "phase": "waiting"
+        "connectedAllPassed": true,
+        "connectedMarker": "1.8.130-all-accounts-final",
+        "connectedChecks": 7569,
+        "viciousCrabChecks": 43,
+        "phase": "waiting",
+        "activity": "Waiting for at least 1000 Royal Jelly to start a batch"
+      },
+      {
+        "account": "QuackAltear5",
+        "executor": "Delta",
+        "userId": 12018871377,
+        "placeId": 1537690962,
+        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
+        "version": "1.8.130",
+        "previousVersionObserved": "1.8.130",
+        "previousStartedAt": 1795764699,
+        "startedAt": 1795765862,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "uncertainRequests": false,
+        "connectedAllPassed": true,
+        "connectedMarker": "1.8.130-all-accounts-final",
+        "connectedChecks": 7569,
+        "viciousCrabChecks": 43,
+        "phase": "waiting",
+        "activity": "Waiting for at least 600 Royal Jelly to start a batch"
       }
+    ],
+    "deploymentScope": [
+      "xd_Glen09",
+      "QuackAltear1",
+      "QuackTest03",
+      "QuackAltear06",
+      "QuackAltear5"
     ],
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "deploymentScope": [
-      "QuackAltear06"
-    ],
     "offlineChecks": 7570,
     "connectedChecksPerAccount": 7569,
     "connectedAllPassed": true,
-    "connectedMarker": "1.8.130-vicious-one-feed-final",
-    "viciousCrabChecks": 43,
-    "newViciousChecks": 8,
+    "connectedMarker": "1.8.130-all-accounts-final",
     "compatibilityMarkers": 42,
-    "partialFeedingDisabled": true,
-    "fullCurrentDeficitRequired": true,
-    "underLevelOutcomeRetainsReceipt": true,
-    "actualFullFeedObserved": false,
-    "actualNoSpendSavingObserved": true,
-    "atlasReadinessFixIncluded": true
+    "viciousCrabChecks": 43,
+    "unreachableTargets": [
+      {
+        "account": "SpidermanXD56",
+        "jobsListedAtStart": [
+          "3be2b26b-dc0a-46a1-a119-f737211caf60",
+          "fabdb125-9f74-415a-9561-ea4eb6c1793e"
+        ],
+        "status": "Initial read-only probes timed out; entries later absent from repeated discovery; no execution dispatched; game crash not inferred"
+      },
+      {
+        "account": "QuackAltear5",
+        "job": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+        "status": "Old listed session timed out then disappeared; actual Delta session in fabdb125 verified and re-executed separately"
+      }
+    ],
+    "initiallyCurrentVersionsNotAgentDeployed": true,
+    "preservePendingAndUncertain": true,
+    "requestFlagsManuallyCleared": false,
+    "alreadyCurrentSessionsReexecuted": true,
+    "applicationSourceChangedInThisTurn": false,
+    "observedSpendingPaths": "Ordinary funding/inventory waits; no new full Vicious feed claimed"
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -4070,11 +4166,16 @@
   "latestCandidate": {
     "version": "1.8.130",
     "deployed": true,
-    "deployedStartedAt": 1795764399,
-    "offlineChecks": 7570,
-    "connectedChecks": 7569,
+    "deploymentScope": [
+      "xd_Glen09",
+      "QuackAltear1",
+      "QuackTest03",
+      "QuackAltear06",
+      "QuackAltear5"
+    ],
     "connectedAllPassed": true,
-    "connectedMarker": "1.8.130-vicious-one-feed-final"
+    "connectedChecksPerAccount": 7569,
+    "connectedMarker": "1.8.130-all-accounts-final"
   },
   "deploymentV1_8_126": {
     "version": "1.8.126",
@@ -4362,5 +4463,65 @@
     "liveDiscoveryVerified": true,
     "naturalSingleRollObserved": true,
     "naturalMissingControlRecoveryObserved": false
+  },
+  "deploymentV1_8_130_QuackAltear06Initial": {
+    "version": "1.8.130",
+    "bundle": "core.luau",
+    "sha256": "1ba4b7358252a66966588ca45ff5476c6a5686c901621eace561fe690362fedd",
+    "deployedNormalizedUTF8Sha256": "d96fe34e20d5d0fd769a316932a720618be8fa45a2f98a8f7fb092ff3190eef8",
+    "accounts": [
+      {
+        "account": "QuackAltear06",
+        "executor": "Delta",
+        "userId": 12018898822,
+        "placeId": 1537690962,
+        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
+        "version": "1.8.130",
+        "startedAt": 1795764399,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "uncertainRequests": false,
+        "actualAtlasStopCheckbox": false,
+        "atlasOwned": false,
+        "motherFinalCompleted": true,
+        "activeMotherQuests": 0,
+        "vicious": {
+          "x": 1,
+          "y": 8,
+          "birth": 1795430147,
+          "level": 10,
+          "bond": 1134916
+        },
+        "cachedTreats": 1,
+        "lastPlanTreats": 0,
+        "lastPlanRequiredTreats": 286509,
+        "viciousStatus": "Saving owned Treats for one feed to Vicious level 12 (0 / 286509)",
+        "actionsObserved": 0,
+        "refill": 1000,
+        "jelly": 68,
+        "phase": "waiting"
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "deploymentScope": [
+      "QuackAltear06"
+    ],
+    "offlineChecks": 7570,
+    "connectedChecksPerAccount": 7569,
+    "connectedAllPassed": true,
+    "connectedMarker": "1.8.130-vicious-one-feed-final",
+    "viciousCrabChecks": 43,
+    "newViciousChecks": 8,
+    "compatibilityMarkers": 42,
+    "partialFeedingDisabled": true,
+    "fullCurrentDeficitRequired": true,
+    "underLevelOutcomeRetainsReceipt": true,
+    "actualFullFeedObserved": false,
+    "actualNoSpendSavingObserved": true,
+    "atlasReadinessFixIncluded": true
   }
 }
