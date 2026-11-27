@@ -80,6 +80,7 @@ return function(P,workerSource,BlenderReceipt)
             -- Isolate normal route order; 36+ catch-up has its own cases below.
             for _,planter in ipairs(P.planterCatchup) do f.ownedGear[planter]=true end
             f.ownedGear[name]=false
+            if name=="Bubble Mask"then for _,id in ipairs(P.loadoutRequirements[name])do f.ownedGear[id]=true;f.equippedGear[id]=true end end
             if name=="Blue Clay Planter"or name=="Red Clay Planter"then f.ownedGear["Porcelain Dipper"]=true;f.equippedGear["Porcelain Dipper"]=true end
             local r=P.plan(f,catalog(name,100,{}))
             check(r.gear==name and r.stage==stageIndex and r.action.kind=="buy-gear","Exact ordered next gear: "..name)
@@ -130,6 +131,7 @@ return function(P,workerSource,BlenderReceipt)
     end
     for _,name in ipairs({"Porcelain Port-O-Hive","Bubble Mask","Silver Soakers","Cobalt Guard"})do
         local f=facts();ownedThrough(f,name);f.occupied=20;f.capacity=28
+        if name=="Bubble Mask"then f.equippedGear={};for _,id in ipairs(P.loadoutRequirements[name])do f.ownedGear[id]=true;f.equippedGear[id]=true end end
         local c=catalog(name,100,{})
         check(P.plan(f,c).action.kind=="buy-gear","No custom bee or capacity gate for "..name)
         c.gear[name].conditions={"game-unlock"};f.conditions["game-unlock"]=false
@@ -1303,6 +1305,35 @@ return function(P,workerSource,BlenderReceipt)
             f.equippedGear["Porcelain Dipper"]=false
             check(not P.gearPrerequisite(f,planter),"Last-moment unequip immediately removes eligibility")
         end
+        P.stages=stages
+    end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Bubble Mask","Next Gear"}}}
+        local f=facts();f.gearQueues=true;f.honey=0;f.equippedGear={}
+        for _,id in ipairs(P.loadoutRequirements["Bubble Mask"])do f.ownedGear[id]=true;f.equippedGear[id]=true end
+        local c={useSuppliedRecipes=true,gear={["Bubble Mask"]={honey=100,items={Oil=2}},["Next Gear"]={honey=200,items={}}}}
+        check(P.plan(f,c).gear=="Bubble Mask","Complete bought/equipped loadout admits Bubble Mask")
+        for _,id in ipairs(P.loadoutRequirements["Bubble Mask"])do
+            for _,state in ipairs({false,"unknown"})do
+                f.ownedGear[id]=state
+                local r=P.plan(f,c)
+                check(r.gear=="Next Gear"and #r.gearQueues.B==0,"Missing owned prerequisite excludes Bubble Mask: "..id)
+                check(not r.reservedItems.RoyalJelly and r.reserveHoney~=100,"Excluded mask reserves neither its crafting jelly nor its honey price")
+                f.ownedGear[id]=true;f.equippedGear[id]=state;r=P.plan(f,c)
+                check(r.gear=="Next Gear"and #r.gearQueues.B==0,"Missing equipped prerequisite excludes Bubble Mask: "..id)
+                f.discoveryPreparation=true;local prep=P.plan(f,c);f.discoveryPreparation=nil
+                check(not prep.queueMaterialRequirements or not prep.queueMaterialRequirements.Oil,"Excluded mask contributes no combined materials")
+                f.equippedGear[id]=true
+            end
+            f.equippedGear[id]=nil
+            check(not P.gearPrerequisite(f,"Bubble Mask"),"Unknown equipment fails closed: "..id)
+            f.equippedGear[id]=true
+            check(P.gearPrerequisite(f,"Bubble Mask"),"Fresh restored loadout qualifies again")
+        end
+        local route=P.routeStatus(f,c,P.plan(f,c)).stages[1].gear[1]
+        check(type(route.ownershipRequired)=="string"and route.ownershipRequired:find("Porcelain Port-O-Hive",1,true),"Route description renders every prerequisite as text")
+        f.ownedGear["Bubble Mask"]=true;f.equippedGear["Beekeeper's Mask"]=false
+        check(P.plan(f,c).gear~="Bubble Mask","Owned Bubble Mask is never repurchased after a mask swap")
         P.stages=stages
     end
     return {passed=passed}

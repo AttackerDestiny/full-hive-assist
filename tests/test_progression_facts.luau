@@ -308,5 +308,28 @@ return function(factory,Policy)
         deps.Shops=nil;deps.Packages.PlayerHasEquipped=function()return true end;f=factory(deps)(s)
         check(f.ownedGear["Porcelain Dipper"]and f.equippedGear["Porcelain Dipper"],"Dependency remains observable before physical shops load")
     end
+    do
+        local deps,s=fixture();local equipped={};local reads={}
+        for _,id in ipairs(Policy.loadoutRequirements["Bubble Mask"])do s.owns[id]=true;equipped[id]=true end
+        local has=deps.Packages.PlayerHas
+        deps.Packages.PlayerHas=function(pack,snapshot)
+            reads[pack.Type]=pack.Category;check(snapshot==s,"Loadout ownership uses the fresh snapshot")
+            return has(pack,snapshot)
+        end
+        deps.Packages.PlayerHasEquipped=function(pack,snapshot)
+            check(snapshot==s,"Loadout equipment uses the same fresh snapshot")
+            return equipped[pack.Type]==true
+        end
+        local f=factory(deps)(s)
+        for _,id in ipairs(Policy.loadoutRequirements["Bubble Mask"])do
+            check(f.ownedGear[id]and f.equippedGear[id],"Every loadout member normalized: "..id)
+            check(reads[id]==(id=="Porcelain Dipper"and"Collector"or"Accessory"),"Correct package category: "..id)
+        end
+        equipped["Beekeeper's Mask"]=false;f=factory(deps)(s)
+        check(f.ownedGear["Beekeeper's Mask"]and f.equippedGear["Beekeeper's Mask"]==false,"Owned-but-swapped mask does not qualify")
+        -- Stronger same-slot gear cannot manufacture the exact prerequisite.
+        s.owns["Beekeeper's Boots"]=false;s.owns["Coconut Clogs"]=true;f=factory(deps)(s)
+        check(f.ownedGear["Beekeeper's Boots"]==false,"Dependency normalization preserves actual false ownership after upgrade-chain normalization")
+    end
     return {passed=passed}
 end

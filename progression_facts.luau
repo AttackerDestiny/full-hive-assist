@@ -253,19 +253,6 @@ return function(deps)
                 end
             end
         end end
-        facts.equippedGear={}
-        local inspected={}
-        for _,required in pairs(Policy.ownershipRequirements or {})do
-            if not inspected[required]then
-                inspected[required]=true
-                local package={Category=collectorRanks[required]and"Collector"or"Accessory",Type=required}
-                local owned,ownedKnown=call(deps.Packages,"PlayerHas",package,s)
-                if ownedKnown and type(owned)=="boolean"then facts.ownedGear[required]=owned
-                else facts.ownedGear[required]=nil end
-                local equipped,known=call(deps.Packages,"PlayerHasEquipped",package,s)
-                if known and type(equipped)=="boolean"then facts.equippedGear[required]=equipped end
-            end
-        end
         local ownedCollectorRank,ownedSprinklerRank=0,0
         for id,rank in pairs(collectorRanks) do
             local entry=(index[aliases[id] or id] or {})[1]
@@ -290,6 +277,21 @@ return function(deps)
             end
             if highest>0 and slots[highest] then
                 for i=1,highest do if slots[i]==slots[highest] then facts.ownedGear[chain[i]]=true end end
+            end
+        end
+        facts.equippedGear={}
+        local inspected={}
+        local requirements={};for _,id in pairs(Policy.ownershipRequirements or{})do requirements[#requirements+1]=id end
+        for _,ids in pairs(Policy.loadoutRequirements or{})do for _,id in ipairs(ids)do requirements[#requirements+1]=id end end
+        for _,required in ipairs(requirements)do
+            if not inspected[required]then
+                inspected[required]=true
+                local package={Category=collectorRanks[required]and"Collector"or"Accessory",Type=required}
+                local owned,ownedKnown=call(deps.Packages,"PlayerHas",package,s)
+                if ownedKnown and type(owned)=="boolean"then facts.ownedGear[required]=owned
+                else facts.ownedGear[required]=nil end
+                local equipped,known=call(deps.Packages,"PlayerHasEquipped",package,s)
+                if known and type(equipped)=="boolean"then facts.equippedGear[required]=equipped end
             end
         end
         -- Read physical options, including the base row for native custom amounts.

@@ -36,8 +36,13 @@ P.ownershipRequirements={["Coconut Canister"]="Diamond Mask",["Pesticide Planter
     ["Red Clay Planter"]="Porcelain Dipper",["Blue Clay Planter"]="Porcelain Dipper"}
 P.equipmentRequirements={["Coconut Canister"]="Diamond Mask",
     ["Red Clay Planter"]="Porcelain Dipper",["Blue Clay Planter"]="Porcelain Dipper"}
+P.loadoutRequirements={["Bubble Mask"]={"Porcelain Dipper","Porcelain Port-O-Hive","Beekeeper's Mask","Beekeeper's Boots","Mondo Belt Bag"}}
 P.beeRequirements={["Cobalt Guard"]={Baby=4,Music=4,Shy=3},["Crimson Guard"]={Baby=4,Music=4,Shy=3}}
 function P.gearPrerequisite(facts,id)
+    for _,required in ipairs(P.loadoutRequirements[id]or{})do
+        if (facts.ownedGear or{})[required]~=true then return false,"Requires owned "..required end
+        if (facts.equippedGear or{})[required]~=true then return false,"Requires equipped "..required end
+    end
     local bees=P.beeRequirements[id]
     if bees then
         local counts=facts.beeCounts or {}
@@ -537,7 +542,7 @@ local function plan(facts,catalog,selectedGear,selectedMaterials)
         end
         base.optionalHiveAllowed=true; base.reserveHoney=facts.honeyReserve or 0
         base.deferredRequirementGear={}
-        for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements,P.beeRequirements})do for id in pairs(rules)do
+        for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements,P.beeRequirements,P.loadoutRequirements})do for id in pairs(rules)do
             if (facts.ownedGear or {})[id]~=true then
                 local ready,why=P.gearPrerequisite(facts,id)
                 if not ready then base.deferredRequirementGear[id]=why
@@ -903,7 +908,7 @@ local function queuePlan(facts,catalog,primary)
         or primary.action.kind=="redeem-code" then return nil end
     local queues={A={},B={}}
     local deferredRequirements={}
-    for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements,P.beeRequirements})do for id in pairs(rules)do
+    for _,rules in ipairs({P.ownershipRequirements,P.inventoryRequirements,P.beeRequirements,P.loadoutRequirements})do for id in pairs(rules)do
         if (facts.ownedGear or {})[id]~=true then
             local ready,why=P.gearPrerequisite(facts,id)
             if not ready then deferredRequirements[id]=why
@@ -1162,8 +1167,8 @@ function P.routeStatus(facts,catalog,decision)
                 shopAccess=quote and quote.shopAccess,requirementsMet=quote and conditionState(quote.conditions,facts)}
             row.capacityRequired=P.capacityRequirements[id]
             row.inventoryRequired=P.inventoryRequirements[id]
-            row.ownershipRequired=P.ownershipRequirements[id]
-            row.equipmentRequired=P.equipmentRequirements[id]
+            row.ownershipRequired=P.ownershipRequirements[id]or(P.loadoutRequirements[id]and table.concat(P.loadoutRequirements[id],", "))
+            row.equipmentRequired=P.equipmentRequirements[id]or(P.loadoutRequirements[id]and table.concat(P.loadoutRequirements[id],", "))
             row.dependencyReady=P.gearPrerequisite(facts,id)
             if not row.dependencyReady then row.hiveReady=false end
             if row.inventoryRequired then
