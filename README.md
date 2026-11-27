@@ -124,7 +124,7 @@ For authorized disconnect recovery, corroborate discovery with foreground/screen
 - Pure policy tests cannot prove a real purchase, field switch or RNG result. Label isolated coverage, live configuration verification and naturally observed actions separately.
 - No subagents. Do not alter the existing recurring schedule unless asked. No duplicate automation.
 
-## Current rules to preserve (v1.8.125 snapshot)
+## Current rules to preserve (v1.8.127 candidate snapshot)
 
 This section is a handoff snapshot; consult later log entries and AGENTS.md for subsequent changes.
 
@@ -139,6 +139,7 @@ This section is a handoff snapshot; consult later log entries and AGENTS.md for 
 - Ignore Blender Earn Badges recipe metadata as a craft gate; retain actual validated ingredients and other conditions. Do not auto-craft banned wax recipes.
 - Craft whole remaining recipe deficits when inputs permit; protect crafting jelly, fund its complete deficit before buying and preserve queued output separately from actual inventory. Unrelated active Blender cancellation requires exact order revalidation and reconciled refunds/output.
 - Normal Royal Jelly admission uses inventory >= refill. An admitted unfinished objective can continue below it; completion closes admission and saves leftovers. Never reseed saved leftovers to bypass qualification.
+- The46-slot normal threshold/refill is10000 Royal Jelly (human correction126);47+ thresholds retain their existing values. Candidate127 records copied roll baselines and preserves the existing exact-task surplus-Fuzzy exception during response protection.
 - Planner reservations honor existing configured gifted roll shields at every stage; incidental gifted Bomber cannot become a later-stage repair target. This adds no gifted hunting goals. Reserved stale leases retire through guarded reconciliation; unfinished unsafe leases and unresolved receipts retain admission. Repair completion restores normal stage qualification.
 - Supported material fruit routes: Strawberry → Strawberry Field; Blueberry → Pine Tree Forest; SunflowerSeed → Sunflower Field; Pineapple → Pineapple Patch, subject to real entry access. Return field is Blue Flower below5 bees, Bamboo from5, Pine Tree from15. Only bind Atlas's main Farming selector, not quest field selectors.
 - Star Egg paths use actual Seven To Seven / Royal Rumble completion, current Star inventory and use counters. Six path targets gifted Music/Baby/Shy/Diamond/Lion/Demon. Never infer history solely from current hive composition.
@@ -169,4 +170,4 @@ Application changes:
 
 Documentation-only updates do not require version bumps, game spending or live re-execution. A healthy unchanged application should stay running.
 
-Last verified application release when this README was written: **v1.8.125**, deployed on **SpidermanXD56** for the stale gifted Bomber recovery task. Bomber preserved; normal Frosty(1,10) selected; waiting for the existing100000 Royal Jelly admission with2560 held. No Frosty roll or upgrade observed. xd_Glen09 remains on124 with its Atlas UI fix previously verified. Other accounts except QuackTest02 are in scope for requested work; they were not restarted for this account-specific fix. These are historical observations, not a guarantee those accounts are connected now. See the deployment JSON and latest log for evidence and any newer changes.
+Latest live deployment: **v1.8.126** on **SpidermanXD56**. Its10000 threshold and actual7440 top-up/rolling were verified, but subsequent rolling stopped on a protection-check error with an unresolved receipt. **v1.8.127 is a tested candidate and has not been deployed** there because that old receipt lacks its original pre-roll snapshot. Do not report Spiderman as healthy or replay/clear the receipt to resume. xd_Glen09 remains on124 with its Atlas UI fix previously verified. Other accounts except QuackTest02 remain in scope for requested work. See the deployment JSON and latest log for hashes, tests and observations.

@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.125"
+local SCRIPT_VERSION = "1.8.127"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -255,7 +255,8 @@ local function invokeRequest(remote, receiptBefore, ...)
         assert(not env.FullHiveUncertain,"An earlier mutation needs reconciliation")
         if remote.Name=="ConstructHiveCellFromEgg" then
             request.X,request.Y,request.Item,request.Amount=args[1],args[2],args[3],args[4]
-            if receiptBefore and (receiptBefore.Kind=="ssa-feed" or receiptBefore.Kind=="vicious-feed") then request.FeedBefore=receiptBefore
+            if receiptBefore and receiptBefore.Kind=="roll" then request.RollBefore=receiptBefore
+            elseif receiptBefore and (receiptBefore.Kind=="ssa-feed" or receiptBefore.Kind=="vicious-feed") then request.FeedBefore=receiptBefore
             else request.HatchBefore=receiptBefore end -- Copied before the request can yield.
         elseif remote.Name=="ItemPackageEvent" and type(args[2])=="table" then
             request.Item,request.Amount=args[2].Type,args[2].Amount
@@ -1361,8 +1362,18 @@ local function spend(cell,item,validate,expectedTask,eventBee)
             and not settings.RollToMythic and not settings.RollToMutation,"Roll settings changed before spending")
     end
     near(hiveFloor())
+    -- A newly rolled surplus normal Fuzzy may sort before the retained copy.
+    -- The existing task guard explicitly permits repairing this exact slot;
+    -- its response check must honor the same exception, keeping every other
+    -- protected coordinate and the last/sole gifted Fuzzy protected.
+    local releasedFuzzy=expectedTask and rollTask==expectedTask
+        and Policy.fuzzyRollRelease(expectedTask,current,cells,Types,p)==true
+    local rollBefore={Kind="roll",Inventory=before,Item=item,X=current.x,Y=current.y,Cells={},ReleasedFuzzy=releasedFuzzy==true}
+    for _,c in ipairs(cells) do
+        rollBefore.Cells[#rollBefore.Cells+1]={x=c.x,y=c.y,Type=c.bee.Type,Birth=c.bee.Birth,Gifted=Policy.gifted(c),Protected=p.protected[Policy.key(c)]==true}
+    end
     local requestStarted=os.clock()
-    local remaining,accepted,comb,discovered,eggUses=invoke(Events.ConstructHiveCellFromEgg,current.x,current.y,item,1,false)
+    local remaining,accepted,comb,discovered,eggUses=invokeRequest(Events.ConstructHiveCellFromEgg,rollBefore,current.x,current.y,item,1,false)
     assert(accepted and type(remaining)=="number" and type(comb)=="table","Item response rejected or uncertain; no retry")
     Cache:Set({"Eggs",item},remaining); Cache:Set("Honeycomb",comb)
     if discovered then Cache:Set("DiscoveredBees",discovered) end
@@ -1378,6 +1389,9 @@ local function spend(cell,item,validate,expectedTask,eventBee)
     local b=assert(comb["x"..cell.x] and comb["x"..cell.x]["y"..cell.y],"Result bee missing")
     if eventBee then assert(b.Type==eventBee,"Event Bee placement uncertain; no retry") end
     Report.LastResult={X=cell.x,Y=cell.y,Type=b.Type,Gifted=table.find(b.Traits or {},"Gifted")~=nil,Item=item,Consumed=consumed}
+    if env.FullHiveUncertain then
+        env.FullHiveUncertain.RollResult={Accepted=true,Remaining=remaining,Consumed=consumed,Type=b.Type,Gifted=Report.LastResult.Gifted}
+    end
     if expectedTask and rollTask==expectedTask then
         rollTask.Rolled=true
         env.FullHiveRollTask=rollTask
@@ -1385,7 +1399,8 @@ local function spend(cell,item,validate,expectedTask,eventBee)
     -- Every protected Event/Mythic is checked after every request. A Star Treat may add Gifted.
     for _,old in ipairs(cells) do
         local temporaryHatch=Policy.key(old)==Policy.key(current) and p.temporary[Policy.key(old)] and EggTypes.Get(item).TrueEgg
-        if p.protected[Policy.key(old)] and not temporaryHatch then
+        local authorizedFuzzy=Policy.key(old)==Policy.key(current) and releasedFuzzy
+        if p.protected[Policy.key(old)] and not temporaryHatch and not authorizedFuzzy then
             local after=comb["x"..old.x] and comb["x"..old.x]["y"..old.y]
             assert(after and after.Type==old.bee.Type and (not Policy.gifted(old) or table.find(after.Traits or {},"Gifted")),"Protected bee changed")
         end

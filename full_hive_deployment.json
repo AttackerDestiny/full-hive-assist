@@ -3289,38 +3289,49 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.125",
+    "version": "1.8.126",
     "bundle": "core.luau",
-    "sha256": "db88136dfeb60266cdff9991b53f6e6fef7fb289448069d06a40e0ad6d00510c",
-    "deployedNormalizedUTF8Sha256": "841960a715c82db47b845a16344c1e8286a808b474e49966b6b32249cdeececc",
+    "sha256": "ceb40df6ebd1b5fc2e943b94b3f75924bc2586c912ae27903a39cbca62b3ac52",
+    "deployedNormalizedUTF8Sha256": "d7ad3e4aae5f03e8b6d52a56d69032f98ac1f6351a3683dce62b64617c6079e2",
     "accounts": [
       {
         "account": "SpidermanXD56",
         "executor": "Arceus X",
         "placeId": 1537690962,
         "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
-        "version": "1.8.125",
-        "startedAt": 1795757996,
-        "running": true,
+        "version": "1.8.126",
+        "startedAt": 1795758384,
+        "running": false,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "uncertainRequests": false,
-        "oldTaskRetiredReason": "target-now-reserved",
-        "oldTaskX": 1,
-        "oldTaskY": 5,
-        "giftedBomberBirthPreserved": 1577136136,
-        "nextTargetX": 1,
-        "nextTargetY": 10,
-        "nextTargetType": "Frosty",
-        "normalFrostyBirthPreserved": 1795683966,
-        "collectorFallback": false,
-        "jelly": 2560,
-        "refill": 100000,
-        "actionsObserved": 0,
-        "jellyUsedObserved": 0,
-        "phase": "waiting",
-        "activity": "Waiting for at least 100000 Royal Jelly to start a batch"
+        "uncertainRequests": true,
+        "error": "Protected bee changed",
+        "refill": 10000,
+        "actualTopUp": 7440,
+        "actualBatchAmount": 10000,
+        "rollingObserved": true,
+        "currentReceipt": {
+          "Name": "ConstructHiveCellFromEgg",
+          "Started": 11974.779689913,
+          "Owner": 653576509,
+          "Job": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+          "X": 1,
+          "Y": 10,
+          "Item": "RoyalJelly",
+          "Amount": 1,
+          "resultType": "Bumble",
+          "resultGifted": true,
+          "reportedConsumed": 547,
+          "attachedBeforeSnapshot": false,
+          "replayed": false,
+          "manuallyCleared": false
+        },
+        "earlierGiftedFrostyResultObserved": true,
+        "giftedFrostyRetained": false,
+        "priorProtectedCellsChecked": 16,
+        "priorProtectedCellsUnchanged": true,
+        "latestJelly": 9060
       }
     ],
     "excludedAccounts": [
@@ -3329,72 +3340,13 @@
     "deploymentScope": [
       "SpidermanXD56"
     ],
-    "offlineChecks": 7228,
-    "connectedChecksPerAccount": 7227,
+    "offlineChecks": 7241,
+    "connectedChecksPerAccount": 7240,
     "connectedAllPassed": true,
-    "connectedMarker": "1.8.125-reserved-recovery-final",
-    "collectorChecks": 1053,
-    "newCollectorChecks": 38,
-    "compatibilityMarkers": 42,
-    "frostyUpgradeObserved": false,
-    "normalAdmissionPreserved": true,
-    "noFlagsManuallyCleared": true
-  },
-  "latestCandidate": {
-    "version": "1.8.121",
-    "bundle": "core.luau",
-    "sha256": "c977a6f96ac597215759d44d7cc57b8a4bf25e2e96fc3077f6a83da7ddce008e",
-    "deployedNormalizedUTF8Sha256": "b45a6a66f538e4c3258b4caf498ac37b03cd43bb64fb2f0d988fc2b1b5afb367",
-    "accounts": [
-      {
-        "account": "xd_Glen09",
-        "executor": "Arceus X",
-        "version": "1.8.121",
-        "startedAt": 1795751377,
-        "running": true,
-        "paused": false,
-        "runtimeReportVerified": true,
-        "uiVerified": true,
-        "uncertainRequests": false
-      },
-      {
-        "account": "SpidermanXD56",
-        "executor": "Arceus X",
-        "version": "1.8.121",
-        "startedAt": 1795751379,
-        "running": true,
-        "paused": false,
-        "runtimeReportVerified": true,
-        "uiVerified": true,
-        "uncertainRequests": false
-      }
-    ],
-    "excludedAccounts": [
-      "QuackTest02"
-    ],
-    "offlineChecks": 7136,
-    "connectedChecksPerAccount": 7135,
-    "connectedAllPassed": true,
-    "connectedMarker": "1.8.121-final-four-music",
-    "progressionChecks": 565,
-    "factsChecks": 76,
-    "compatibilityMarkers": 42,
-    "guardRequirementsBeforeRetirement": {
-      "Baby": 4,
-      "Music": 4,
-      "Shy": 3
-    },
-    "guardRequirementsAfterVerifiedShyRetirement": {
-      "Baby": 4,
-      "Music": 4
-    },
-    "xdGlenBothGuardsExcludedLive": true,
-    "spidermanShyRetirementLive": true,
-    "naturalGuardPurchaseObserved": false,
-    "deploymentScope": [
-      "xd_Glen09",
-      "SpidermanXD56"
-    ]
+    "connectedMarker": "1.8.126-refill10000-final",
+    "policyChecks": 1345,
+    "batchChecks": 373,
+    "compatibilityMarkers": 42
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -4062,5 +4014,74 @@
       "giftedFrosties": 4,
       "beePolicyChanged": false
     }
+  },
+  "deploymentV1_8_125": {
+    "version": "1.8.125",
+    "bundle": "core.luau",
+    "sha256": "db88136dfeb60266cdff9991b53f6e6fef7fb289448069d06a40e0ad6d00510c",
+    "deployedNormalizedUTF8Sha256": "841960a715c82db47b845a16344c1e8286a808b474e49966b6b32249cdeececc",
+    "accounts": [
+      {
+        "account": "SpidermanXD56",
+        "executor": "Arceus X",
+        "placeId": 1537690962,
+        "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+        "version": "1.8.125",
+        "startedAt": 1795757996,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "uncertainRequests": false,
+        "oldTaskRetiredReason": "target-now-reserved",
+        "oldTaskX": 1,
+        "oldTaskY": 5,
+        "giftedBomberBirthPreserved": 1577136136,
+        "nextTargetX": 1,
+        "nextTargetY": 10,
+        "nextTargetType": "Frosty",
+        "normalFrostyBirthPreserved": 1795683966,
+        "collectorFallback": false,
+        "jelly": 2560,
+        "refill": 100000,
+        "actionsObserved": 0,
+        "jellyUsedObserved": 0,
+        "phase": "waiting",
+        "activity": "Waiting for at least 100000 Royal Jelly to start a batch"
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "deploymentScope": [
+      "SpidermanXD56"
+    ],
+    "offlineChecks": 7228,
+    "connectedChecksPerAccount": 7227,
+    "connectedAllPassed": true,
+    "connectedMarker": "1.8.125-reserved-recovery-final",
+    "collectorChecks": 1053,
+    "newCollectorChecks": 38,
+    "compatibilityMarkers": 42,
+    "frostyUpgradeObserved": false,
+    "normalAdmissionPreserved": true,
+    "noFlagsManuallyCleared": true
+  },
+  "latestCandidate": {
+    "version": "1.8.127",
+    "bundle": "core.luau",
+    "sha256": "2d8872a681ccf4d5fa49fdb0e43b0a3c811b62c7ca2673345c6609acb74c42e9",
+    "normalizedUTF8Sha256": "a329ea4617984f81ca0f4feb12e3e78f650731a399ff11b3be32cfea8140c1a0",
+    "deployed": false,
+    "offlineChecks": 7254,
+    "connectedChecks": 7253,
+    "connectedAllPassed": true,
+    "connectedMarker": "1.8.127-fuzzy-receipt-final",
+    "policyChecks": 1352,
+    "atlasAccessAndProtectionChecks": 25,
+    "compatibilityMarkers": 42,
+    "liveDeploymentBlockedBy": "Existing126 roll receipt lacks copied pre-request hive baseline; retained without replay or clearing",
+    "normalRefill46": 10000,
+    "newRollBeforeAndRollResult": true
   }
 }

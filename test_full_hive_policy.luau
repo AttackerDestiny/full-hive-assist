@@ -108,6 +108,13 @@ return function(P,T)
         local amount,pack=P.refill(slots)
         check(amount%pack==0,"Invalid refill increments")
     end
+    do
+        local amount,pack=P.refill(46)
+        check(amount==10000 and pack==10000,"46-slot threshold and refill are10000")
+        for _,case in ipairs({{45,10000},{47,200000},{48,400000},{49,400000},{50,500000}})do
+            check(P.refill(case[1])==case[2],"Other stage thresholds retained at "..case[1])
+        end
+    end
     for _,bought in ipairs({0,10,74,75,90}) do
         local slow=0
         for i=0,199 do slow=slow+math.min(250000+10000*(bought+i),1000000) end
@@ -368,6 +375,24 @@ return function(P,T)
         check(not P.rollTaskDone(task,target,base,T,q)and P.rollTaskSafe(task,target,base,T,q),"Over-cap Fuzzy outcome cannot finish the active repair")
         target.bee={Type="Fuzzy",Traits={"Gifted"}};q=P.plan(base,T,ctx(41))
         check(P.rollTaskDone(task,target,base,T,q),"First gifted Fuzzy is retained while normal surplus becomes cleanup")
+    end
+    do
+        local base=hive({{"Hasty",1},{"Fuzzy",1},{"Tabby",1,true},{"Spicy",1}});local target=base[1]
+        local lease=P.startRollTask(target,base,{stage="blue",reason="fixed-targets",mode="gifted",needs={}})
+        lease.Rolled=true;target.bee={Type="Fuzzy",Traits={}}
+        local q=P.plan(base,T,ctx(46,2))
+        check(q.protected[P.key(target)],"Fixture reproduces a newly rolled Fuzzy sorting before the old Fuzzy")
+        check(P.fuzzyRollRelease(lease,target,base,T,q),"Exact rolled surplus normal Fuzzy carries its existing exception into response verification")
+        lease.Rolled=false
+        check(not P.fuzzyRollRelease(lease,target,base,T,q),"Unrolled task cannot obtain the continuation exception")
+        lease.Rolled=true;lease.x=99
+        check(not P.fuzzyRollRelease(lease,target,base,T,q),"Another coordinate cannot borrow the exception")
+        lease.x=target.x;target.bee.Traits={"Gifted"};q=P.plan(base,T,ctx(46,2))
+        check(not P.fuzzyRollRelease(lease,target,base,T,q),"Sole gifted Fuzzy remains protected")
+        target.bee={Type="Spicy",Traits={}};q=P.plan(base,T,ctx(46,2))
+        check(not P.fuzzyRollRelease(lease,target,base,T,q),"Other Mythics never receive the Fuzzy exception")
+        target.bee={Type="Fuzzy",Traits={}};table.remove(base,2);q=P.plan(base,T,ctx(46,2))
+        check(not P.fuzzyRollRelease(lease,target,base,T,q),"Last Fuzzy remains protected")
     end
     for _,slots in ipairs({25,41,43,44,46,50})do
         local base=hive({{"Ninja",2},{"Ninja",2,true},{"Shy",2},{"Shy",2,true},{"Baby",4},{"Music",4},{"Bubble",4},{"Frosty",4},{"Tabby",1,true}})

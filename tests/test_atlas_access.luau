@@ -48,5 +48,24 @@ return function(runtime)
     check(value==false and identity==2,"Cleanup resumes Atlas with scoped access and restores caller")
     for k,v in pairs(before)do check(flags[k]==v,"Context helper never clears request task or batch state")end
     check(runtime:find('pcall(atlasAccess,callback)',1,true)~=nil,"Stop Everything callback restores its execution context")
+    -- Exercise the actual response-protection loop independently of remotes.
+    local guardSource=assert(runtime:match("(    for _,old in ipairs%(cells%) do\n        local temporaryHatch.-)\n    if Report.LastResult.Gifted"))
+    local guard=assert(loadstring("return function(Policy,cells,comb,p,current,releasedFuzzy,EggTypes,item) "..guardSource.." return true end"))()
+    local P={key=function(c)return c.x..","..c.y end,gifted=function(c)return table.find(c.bee.Traits or {},"Gifted")~=nil end}
+    local target={x=1,y=10,bee={Type="Fuzzy",Traits={}}}
+    local other={x=3,y=1,bee={Type="Fuzzy",Traits={}}}
+    local event={x=3,y=2,bee={Type="Tabby",Traits={"Gifted"}}}
+    local cells={target,other,event}
+    local plan={temporary={},protected={["1,10"]=true,["3,1"]=true,["3,2"]=true}}
+    local result={x1={y10={Type="Bumble",Traits={"Gifted"}}},x3={y1={Type="Fuzzy",Traits={}},y2={Type="Tabby",Traits={"Gifted"}}}}
+    local eggs={Get=function()return {TrueEgg=false}end}
+    check(guard(P,cells,result,plan,target,true,eggs,"RoyalJelly"),"Authorized surplus Fuzzy result passes response validation")
+    check(not pcall(guard,P,cells,result,plan,target,false,eggs,"RoyalJelly"),"No target exception without fresh authorization")
+    result.x3.y1.Type="Hasty"
+    check(not pcall(guard,P,cells,result,plan,target,true,eggs,"RoyalJelly"),"Other retained Fuzzy remains protected")
+    result.x3.y1.Type="Fuzzy";result.x3.y2.Traits={}
+    check(not pcall(guard,P,cells,result,plan,target,true,eggs,"RoyalJelly"),"Gifted Event protection remains enforced")
+    check(runtime:find('request.RollBefore=receiptBefore',1,true)~=nil and runtime:find('Cells={},ReleasedFuzzy=',1,true)~=nil,"New roll receipts attach a copied pre-request hive baseline")
+    check(runtime:find('env.FullHiveUncertain.RollResult={Accepted=true',1,true)~=nil,"Accepted response proof survives later protection failures")
     return {passed=n}
 end

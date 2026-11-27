@@ -74,6 +74,18 @@ return function(runtime,Policy,Types)
         spent(0); s.Eggs.RoyalJelly=1
         check(not ready(s),'After exhausting a continued batch a small drop is blocked')
     end
+    do
+        local target=Policy.refill(46)
+        local env,report,s,ready,spent,refill,purchases=fixture(target,2560)
+        check(report.RefillAmount==10000 and not ready(s),"46-slot task waits below10000")
+        s.Honey=Policy.jellyCost(75,10000-2560)-1
+        check(not refill() and #purchases==0,"Full remaining10000 deficit must be funded before purchase")
+        s.Honey+=1
+        check(refill() and s.Eggs.RoyalJelly==10000 and purchases[1]==7440,"46-slot refill buys exactly the missing7440")
+        check(env.FullHiveJellyBatch.Amount==10000 and not env.FullHiveJellyBatch.Recovery,"Corrected threshold creates ordinary admission")
+        spent(9999);s.Eggs.RoyalJelly=9999
+        check(ready(s),"The same admitted10000 task can continue below threshold")
+    end
     for _,field in ipairs({'Owner','Hive','Job','Version'}) do
         local env,_,s,ready=fixture(100,100); ready(s)
         s.Eggs.RoyalJelly=50
@@ -125,7 +137,7 @@ return function(runtime,Policy,Types)
     s.Eggs.RoyalJelly=4000; plan(s); check(ready(s),'Exact base refill starts next batch')
     local spending=assert(runtime:match('(local function spend%(cell,item,validate,expectedTask,eventBee%).-)\nshopFloor=function'))
     local makeSpend=assert(loadstring('return function(s,ready,low,eventBee,background,progression)\nlocal env={} -- Fixture state must never resolve an executor global.\n'..
-        'local Report={Actions=0,RoyalJellyUsed=0,RollMode="off"}; local Config={MaxActions=100,MaxRoyalJellies=1000,RollDelay=0}; local Events={ConstructHiveCellFromEgg={}}; local target={x=1,y=1,bee={Type="Bubble",Traits={}}}; local calls=0; local function checkStop() end; local function acquire() end; local function move() end; local function near() end; local function release() end; local function hiveFloor() end; local function refresh() return s end; local function plan() return {protected={},temporary={}}, {target} end; local function find() return target end; local jellyBatchReady=ready; local function jellyBatchSpent() end; local function invoke(_,_,_,item) calls+=1; return s.Eggs[item]-1,true,{x1={y1=eventBee and {Type=eventBee,Traits={}} or target.bee}} end; local Cache={Set=function() end}; local function mode(name) s.Settings={}; Report.RollMode=name end; local Policy={key=function() return "1,1" end,singleJelly=function()return low==true end,rollWait=function()return 0 end}; local task={wait=function() end}\n'..
+        'local Report={Actions=0,RoyalJellyUsed=0,RollMode="off"}; local Config={MaxActions=100,MaxRoyalJellies=1000,RollDelay=0}; local Events={ConstructHiveCellFromEgg={}}; local target={x=1,y=1,bee={Type="Bubble",Traits={}}}; local calls=0; local function checkStop() end; local function acquire() end; local function move() end; local function near() end; local function release() end; local function hiveFloor() end; local function refresh() return s end; local function plan() return {protected={},temporary={}}, {target} end; local function find() return target end; local jellyBatchReady=ready; local function jellyBatchSpent() end; local function invoke(_,_,_,item) calls+=1; return s.Eggs[item]-1,true,{x1={y1=eventBee and {Type=eventBee,Traits={}} or target.bee}} end; local function invokeRequest(remote,before,...) env.FullHiveUncertain={RollBefore=before};return invoke(remote,...)end; local Cache={Set=function() end}; local function mode(name) s.Settings={}; Report.RollMode=name end; local Policy={gifted=function(c)return table.find(c.bee.Traits or {},"Gifted")~=nil end,key=function() return "1,1" end,singleJelly=function()return low==true end,rollWait=function()return 0 end}; local task={wait=function() end}\n'..
         spending..'\nreturn function() return spend(target,eventBee and eventBee.."Bee" or "RoyalJelly",function() return true end,nil,eventBee) end,function() return calls end\nend'))()
     do
         local _,_,snapshot,batchReady,spent=fixture(600,1)

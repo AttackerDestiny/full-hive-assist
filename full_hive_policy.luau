@@ -341,6 +341,13 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
     end
     return not plan.keep[P.key(cell)]
 end
+function P.fuzzyRollRelease(task,cell,cells,types,plan)
+    return task and task.Rolled==true and cell and cell.bee and cell.bee.Type=="Fuzzy"
+        and P.key(task)==P.key(cell) and P.count(cells,"Fuzzy")>1
+        and (not P.gifted(cell) or P.count(cells,"Fuzzy",true)>1)
+        and not P.rollTaskDone(task,cell,cells,types,plan)
+        and P.rollTaskSafe(task,cell,cells,types,plan)==true or false
+end
 function P.reconcileRollTask(task, cell, cells, types, plan)
     if task.LegendaryHunt and task.LegendaryRoute~=plan.legendaryRoute then return true,"legendary-route-changed" end
     local done,reason=P.rollTaskDone(task,cell,cells,types,plan)
@@ -381,7 +388,7 @@ function P.refill(slots)
     if slots >= 50 then return 500000, 100000 end
     if slots >= 48 then return 400000, 100000 end
     if slots >= 47 then return 200000, 100000 end
-    if slots >= 46 then return 100000, 100000 end
+    if slots >= 46 then return 10000, 10000 end
     if slots >= 45 then return 10000, 10000 end
     if slots >= 44 then return 4000, 1000 end
     if slots >= 43 then return 2000, 1000 end

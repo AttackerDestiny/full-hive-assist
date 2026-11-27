@@ -408,10 +408,10 @@ return function(P,T,runtime)
         check(e.FullHiveRollTask==nil and r.LastCompletedTarget.Reason=="target-now-reserved","Stale protected lease retires through normal reconciliation")
         check(e.FullHiveJellyBatch==nil and bees[1].bee.Type=="Bomber"and P.gifted(bees[1]),"Old repair admission closes without touching Bomber")
         check(q.target.x==1 and q.target.y==10 and not q.rollBlocked,"Actual runtime selects normal Frosty rather than unsafe task")
-        check(r.RefillAmount==100000 and not ready(snapshot),"2520 leftovers cannot bypass the normal blue100000 admission")
-        snapshot.Eggs.RoyalJelly=99999
-        check(not ready(snapshot),"Below100000 remains an unadmitted wait")
-        snapshot.Eggs.RoyalJelly=100000
+        check(r.RefillAmount==10000 and not ready(snapshot),"2520 leftovers cannot bypass the corrected46-slot10000 admission")
+        snapshot.Eggs.RoyalJelly=9999
+        check(not ready(snapshot),"Below10000 remains an unadmitted wait")
+        snapshot.Eggs.RoyalJelly=10000
         check(ready(snapshot)and not e.FullHiveJellyBatch.Recovery,"A fully qualified new normal batch admits normally")
         snapshot.Eggs.RoyalJelly=2520
         for _,flag in ipairs({"FullHivePending","AutoHivePendingRequest","FullHiveUncertain","AutoHiveUncertain","FullHiveStarRunning","AutoGiftedStarRunning"})do
