@@ -129,6 +129,10 @@ if ([version]$versionMatch.Groups[1].Value -ge [version]'1.8.122') {
     $viciousTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_vicious_crab.luau') -Raw
     $code+='local viciousOK,viciousResult=pcall(assert(loadstring([======['+$viciousTests+']======]))(),assert(loadstring([======['+$quests+']======]))(),assert(loadstring([======['+$switchSource+']======]))(),[======['+$backgroundSource+']======]);'
 } else { $code+='local viciousOK,viciousResult=true,{notApplicable=true};' }
+if ([version]$versionMatch.Groups[1].Value -ge [version]'1.8.124') {
+    $atlasAccessTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_atlas_access.luau') -Raw
+    $code+='local atlasAccessOK,atlasAccessResult=pcall(assert(loadstring([======['+$atlasAccessTests+']======]))(),runtime);'
+} else { $code+='local atlasAccessOK,atlasAccessResult=true,{notApplicable=true};' }
 $code += @'
 local main,mainError=loadstring(bundle)
 local embedded=assert(bundle:match("local StarEggSource = %[%=%=%=%=%[(.-)%]%=%=%=%=%]"))
@@ -164,9 +168,9 @@ local blenderReceiptOK,blenderReceiptResult=true,{notApplicable=true}
 if hasBlenderReceipt then blenderReceiptOK,blenderReceiptResult=pcall(assert(loadstring(blenderReceiptTests))(),assert(loadstring(blenderReceipt))()) end
 local amuletOK,amuletResult,questOK,questResult=true,{notApplicable=true},true,{notApplicable=true}
 if hasBackground then amuletOK,amuletResult=pcall(assert(loadstring(amuletTests))(),assert(loadstring(amulets))());questOK,questResult=pcall(assert(loadstring(questTests))(),assert(loadstring(quests))()) end
-return {allPassed=viciousOK and dashboardOK and restartOK and rollLeaseOK and mythicRuntimeOK and mythicOK and settingsOK and atlasValuesOK and materialFarmOK and main~=nil and star~=nil and policyOK and recoveryOK and collectorOK and batchOK and starJellyOK
+return {allPassed=atlasAccessOK and viciousOK and dashboardOK and restartOK and rollLeaseOK and mythicRuntimeOK and mythicOK and settingsOK and atlasValuesOK and materialFarmOK and main~=nil and star~=nil and policyOK and recoveryOK and collectorOK and batchOK and starJellyOK
     and starPreflightOK and starProgressOK and finalOccupancyOK and connectedReviewOK and failsafeOnlyOK and finalBabyOK and progressionOK and progressionFactsOK and fundsOK and hatchReceiptOK and blenderReceiptOK and amuletOK and questOK,
-    viciousCrab={ok=viciousOK,result=viciousResult},dashboard={ok=dashboardOK,result=dashboardResult},restart={ok=restartOK,result=restartResult},rollLease={ok=rollLeaseOK,result=rollLeaseResult},mythicRuntime={ok=mythicRuntimeOK,result=mythicRuntimeResult},mythic={ok=mythicOK,result=mythicResult},settings={ok=settingsOK,result=settingsResult},atlasValues={ok=atlasValuesOK,result=atlasValuesResult},materialFarm={ok=materialFarmOK,result=materialFarmResult},main=main~=nil,mainError=mainError,embeddedStar=star~=nil,starError=starError,
+    atlasAccess={ok=atlasAccessOK,result=atlasAccessResult},viciousCrab={ok=viciousOK,result=viciousResult},dashboard={ok=dashboardOK,result=dashboardResult},restart={ok=restartOK,result=restartResult},rollLease={ok=rollLeaseOK,result=rollLeaseResult},mythicRuntime={ok=mythicRuntimeOK,result=mythicRuntimeResult},mythic={ok=mythicOK,result=mythicResult},settings={ok=settingsOK,result=settingsResult},atlasValues={ok=atlasValuesOK,result=atlasValuesResult},materialFarm={ok=materialFarmOK,result=materialFarmResult},main=main~=nil,mainError=mainError,embeddedStar=star~=nil,starError=starError,
     policy={ok=policyOK,result=policyResult},recovery={ok=recoveryOK,result=recoveryResult},collector={ok=collectorOK,result=collectorResult},batch={ok=batchOK,result=batchResult},starJelly={ok=starJellyOK,result=starJellyResult},
     starPreflight={ok=starPreflightOK,result=starPreflightResult},starProgress={ok=starProgressOK,result=starProgressResult},
     finalOccupancy={ok=finalOccupancyOK,result=finalOccupancyResult},connectedReview={ok=connectedReviewOK,result=connectedReviewResult},failsafeOnly={ok=failsafeOnlyOK,result=failsafeOnlyResult},finalBaby={ok=finalBabyOK,result=finalBabyResult},

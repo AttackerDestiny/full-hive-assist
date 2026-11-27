@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.123"
+local SCRIPT_VERSION = "1.8.124"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -77,6 +77,22 @@ local function findText(root, text)
     end
     return out
 end
+-- Atlas callbacks/executor resumes may run with a lower thread identity.
+-- Scope protected UI access and restore the caller even if a callback changes it.
+local function atlasAccess(callback,...)
+    local getIdentity=getthreadidentity or getidentity
+    local setIdentity=setthreadidentity or setidentity
+    if type(getIdentity)~="function" or type(setIdentity)~="function" then return callback(...) end
+    local got,previous=pcall(getIdentity)
+    assert(got and type(previous)=="number","Cannot read Atlas UI thread identity")
+    local elevated,why=pcall(setIdentity,8)
+    assert(elevated,"Cannot access Atlas UI: "..tostring(why))
+    local results=table.pack(pcall(callback,...))
+    local restored,restoreError=pcall(setIdentity,previous)
+    assert(restored,"Cannot restore Atlas UI thread identity: "..tostring(restoreError))
+    if not results[1] then error(results[2],0) end
+    return table.unpack(results,2,results.n)
+end
 local function uiParent()
     if type(gethui) == "function" then
         local ok, result = pcall(gethui)
@@ -84,7 +100,7 @@ local function uiParent()
     end
     return game:GetService("CoreGui")
 end
-local function activate(button, callback)
+local function activateRaw(button, callback)
     -- Native GuiButton activation is the reliable path on Arceus Android.
     -- Executor signal APIs may return success without dispatching the UI event.
     local nativeOk = pcall(function() button:Activate() end)
@@ -102,6 +118,9 @@ local function activate(button, callback)
         if signalOk then return true end
     end
     return false
+end
+local function activate(button,callback)
+    return atlasAccess(activateRaw,button,callback)
 end
 local function loadModule(module)
     assert(module, "Game module did not load before require")
@@ -354,7 +373,7 @@ local function near(part)
     error(MOVEMENT_TIMEOUT,0)
 end
 local atlasPauseControl
-local function atlasToggle()
+local function atlasToggleRaw()
     local coreGui = uiParent()
     local cached=atlasPauseControl
     if cached and cached.Button.Parent and cached.Label.Parent==cached.Button
@@ -412,6 +431,9 @@ local function atlasToggle()
     if fallbackButton then return fallbackButton,nil,nil end
     error("Atlas Stop Everything control unavailable",0)
 end
+local function atlasToggle()
+    return atlasAccess(atlasToggleRaw)
+end
 local atlasState
 local function readAtlasState(cell)
     if cell then
@@ -436,14 +458,14 @@ local function assertAtlasPaused()
     if current ~= nil then atlasState=current end
     assert(atlasState == true,"Atlas state unavailable or Atlas is not paused; wait for Atlas UI callbacks")
 end
-local function setAtlas(value)
+local function setAtlasRaw(value)
     local b,cell,callback=atlasControl()
     local current=readAtlasState(cell)
     if current==nil then current=atlasState end
     if current==nil then current=Config.AtlasInitiallyStopped end
     if current~=value then
         local ok
-        if callback then ok=pcall(callback) else ok=activate(b,callback) end
+        if callback then ok=pcall(atlasAccess,callback) else ok=activate(b,callback) end
         assert(ok,"Could not activate Atlas Stop Everything on this executor")
         atlasState=value
     end
@@ -455,6 +477,9 @@ local function setAtlas(value)
     atlasState=value
     env.FullHiveAtlasOwned=value
     Report.AtlasPaused=value
+end
+local function setAtlas(value)
+    return atlasAccess(setAtlasRaw,value)
 end
 local function acquire()
     checkStop()
