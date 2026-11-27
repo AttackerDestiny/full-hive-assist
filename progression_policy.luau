@@ -30,7 +30,7 @@ P.stages = {
 -- stays intact below that capacity; this catch-up intentionally puts Red
 -- before Blue in the order given by the newer instruction.
 P.planterCatchup={"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}
-P.capacityRequirements={["Pesticide Planter"]=45,["Porcelain Port-O-Hive"]=35}
+P.capacityRequirements={["Pesticide Planter"]=45,["Porcelain Port-O-Hive"]=35,["Diamond Mask"]=41}
 P.inventoryRequirements={["Petal Belt"]={item="SpiritPetal",amount=1}}
 P.ownershipRequirements={["Coconut Canister"]="Diamond Mask",["Pesticide Planter"]="Diamond Mask",
     ["Red Clay Planter"]="Porcelain Dipper",["Blue Clay Planter"]="Porcelain Dipper"}

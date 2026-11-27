@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- November27/v1.8.135: Diamond Mask enters queues/saving/material preparation only at41+ unlocked hive slots (capacity,not occupied count). Exclude its honey/jelly/aggregate materials below41 and expose the reason. Already-owned mask remains owned;preserve other dependencies,material ranking,route and final revalidation/receipts.
+
 - November27/v1.8.134: Porcelain Port-O-Hive enters queue/saving/material preparation only at35 or more UNLOCKED hive slots,not occupied bees. Use existing capacity requirement and final action replan;below35 exclude its honey/jelly/material demand and show reason. Already-owned backpack is unaffected;keep all other gates,route/ranking and receipts.
 
 - November27/v1.8.133: Bubble Mask enters queue/saving/material preparation only with Porcelain Dipper,Porcelain Port-O-Hive,Beekeeper's Mask,Beekeeper's Boots and Mondo Belt Bag ALL actually owned AND equipped. Check fresh Collector package for Dipper and Accessory for others; unknown/error/nonboolean fails closed. Normalize exact dependencies AFTER upgrade-chain inference so stronger equipment cannot fabricate exact ownership. Recheck final action,exclude all mask honey/jelly/material demand while blocked,do not auto-equip. Already-owned Bubble Mask must not be repurchased when its prerequisite mask is swapped. All-account non02 deployment remains required; consult latest log for unreachable sessions rather than assuming all succeeded.

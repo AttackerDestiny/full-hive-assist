@@ -1355,5 +1355,25 @@ return function(P,workerSource,BlenderReceipt)
         check(P.plan(f,c).gear~="Porcelain Port-O-Hive","Owned Port is not repurchased")
         P.stages=stages
     end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Diamond Mask","Next Gear"}}}
+        local f=facts();f.gearQueues=true;f.occupied=25;f.honey=1000
+        for _,id in ipairs(P.planterCatchup)do f.ownedGear[id]=true end
+        local c={gear={["Diamond Mask"]={honey=100,items={Glitter=3}},["Next Gear"]={honey=2000,items={}}}}
+        for _,capacity in ipairs({25,35,40})do
+            f.capacity=capacity;local r=P.plan(f,c)
+            check(r.gear=="Next Gear"and #r.gearQueues.B==0,"Diamond Mask waits for slot41 at "..capacity)
+            check(not r.reservedItems.Glitter and not r.reservedItems.RoyalJelly,"Excluded Diamond Mask reserves no materials or jelly")
+            check(r.deferredRequirementGear["Diamond Mask"]=="Requires 41 unlocked hive slots","Diamond Mask explains its capacity gate")
+            f.discoveryPreparation=true;r=P.plan(f,c)
+            check(not r.queueMaterialRequirements or not r.queueMaterialRequirements.Glitter,"Excluded Diamond Mask contributes no aggregate demand")
+            f.discoveryPreparation=nil
+        end
+        f.capacity=41;f.inventory.Glitter=3;local r=P.plan(f,c)
+        check(r.gear=="Diamond Mask"and r.action.kind=="buy-gear","Slot41 admits Diamond Mask with only25 occupied bees")
+        f.ownedGear["Diamond Mask"]=true;f.capacity=40
+        check(P.plan(f,c).gear~="Diamond Mask","Existing Diamond Mask is not repurchased")
+        P.stages=stages
+    end
     return {passed=passed}
 end
