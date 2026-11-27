@@ -8,7 +8,7 @@ return function(P,T)
             cells[n+1]={x=n%5+1,y=math.floor(n/5)+1,bee={Type=name,Traits=gifted and {"Gifted"} or {}}}
         end
     end
-    local function plan(cells) return P.plan(cells,T,{slots=50,starUsed=2,jelly=500000,lateStarted=true}) end
+    local function plan(cells) return P.plan(cells,T,{slots=50,starUsed=2,jelly=500000,lateStarted=true,questRetired={Shy=true}}) end
     -- Fully satisfied final recipe except for one surplus Baby, exactly50 bees.
     do
         local cells={}

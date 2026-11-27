@@ -13,7 +13,7 @@ P.hiveRules={
  ["Star Journey 1"]={species="Ninja",tag="Haste",goal=2500},
  ["Star Journey 2"]={species="Shy",tag="Red Boost",goal=5000}
 }
-function P.hiveRetirements(quests,completed)
+function P.hiveRetirements(quests,completed,capacity)
     local retired,evidence={},{}
     for _,name in ipairs(completed or{})do
         local rule=type(name)=="string"and P.hiveRules[name]
@@ -30,6 +30,10 @@ function P.hiveRetirements(quests,completed)
                 end
             end
         end
+    end
+    if retired.Shy and not(type(capacity)=="number"and capacity%1==0 and capacity>=48 and capacity<=50)then
+        retired.Shy=nil
+        evidence.Shy.RetirementDeferredUntilCapacity=48
     end
     return retired,evidence
 end

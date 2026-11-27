@@ -359,7 +359,7 @@ return function(P,T,runtime)
         check(not P.quotaRolling(bees,{slots=44,starUsed=0}),"Explicit late Legendary workflow remains separate")
         check(not P.quotaRolling(bees,{slots=41,starUsed=0,starPrepare=true}),"Star preparation never uses the normal force batch")
         local retired=fixture();for _,c in ipairs(retired)do if c.bee.Type=="Shy"then c.bee={Type="Bubble",Traits={}}end end
-        check(not P.quotaRolling(retired,{slots=41,starUsed=0,questRetired={Shy=true}}),"Verified retired Shy exception remains intact")
+        check(P.quotaRolling(retired,{slots=41,starUsed=0,questRetired={Shy=true}}),"Shy3 quota stays active below48 despite completed RedBoost")
     end
     do
         -- Reproduce the live blue-stage stale Bomber lease with a remaining

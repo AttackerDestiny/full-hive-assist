@@ -131,9 +131,10 @@ return function(H)
     end
     function R.hiveRetirements(s)
         local completed=(s.Quests or{}).Completed
-        local retired,evidence=Q.hiveRetirements({},completed)
+        local _,capacity=H.scan(s)
+        local retired,evidence=Q.hiveRetirements({},completed,capacity)
         if not retired.Ninja or not retired.Shy then
-            retired,evidence=Q.hiveRetirements(questFacts(s,Q.hiveRules),completed)
+            retired,evidence=Q.hiveRetirements(questFacts(s,Q.hiveRules),completed,capacity)
         end
         report.QuestHiveRetirements={Retired=retired,Evidence=evidence}
         return retired

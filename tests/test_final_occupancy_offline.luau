@@ -22,7 +22,7 @@ return function(P, types)
     add("Tadpole", 4, true); add("Tadpole", 6, false)
     add("Buoyant", 1, true); add("Buoyant", 16, false)
     check(#cells == 48, "Satisfied base recipe has 48 occupied cells")
-    local ctx = {slots=50, starUsed=2, jelly=500000, lateStarted=true, enforceGrowth=true}
+    local ctx = {slots=50, starUsed=2, jelly=500000, lateStarted=true, enforceGrowth=true,questRetired={Shy=true}}
     local plan = P.plan(cells, types, ctx)
     check(plan.stage == "final" and #plan.needs == 0 and not plan.capacityStatus.Conflict,
         "Final capacity and recipe satisfaction do not imply a full hive")

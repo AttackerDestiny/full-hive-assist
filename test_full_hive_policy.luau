@@ -206,13 +206,13 @@ return function(P,T)
         {"Tabby",1,true},{"Gummy",1,true},{"Vicious",1,true},{"Puppy",1,true},{"Festive",1,true},
         {"Cobalt",1},{"Frosty",1,true}})
     check(#h==50,"Final hive fixture has 50 bees")
-    p=P.plan(h,T,ctx(50,2))
+    local finalCtx=ctx(50,2);finalCtx.questRetired={Shy=true};p=P.plan(h,T,finalCtx)
     check(p.complete and not p.target and #p.needs==0,"Final hive must stop rolling when all requirements hold")
     for _,c in ipairs(h) do if c.bee.Type=="Frosty" then c.bee={Type="Baby",Traits={}} end end
-    p=P.plan(h,T,ctx(50,2))
+    local finalCtx=ctx(50,2);finalCtx.questRetired={Shy=true};p=P.plan(h,T,finalCtx)
     check(not p.complete and p.target and p.target.bee.Type=="Baby","Final surplus Baby must be replaced")
     for _,c in ipairs(h) do if c.bee.Type=="Cool" then c.bee={Type="Hasty",Traits={}} end end
-    p=P.plan(h,T,ctx(50,2))
+    local finalCtx=ctx(50,2);finalCtx.questRetired={Shy=true};p=P.plan(h,T,finalCtx)
     local needsCool=false
     for _,need in ipairs(p.needs) do if need.name=="Cool" and need.gifted then needsCool=true end end
     check(needsCool and not p.complete,"Final stage must repair missing gifted baseline")
@@ -437,8 +437,8 @@ return function(P,T)
                 if q.keep[P.key(c)]then kept+=1;gift+=P.gifted(c)and 1 or 0
                 else safe+=1 end
             end end
-            check(kept==1 and gift==1 and safe==3,"Completed objective keeps exactly one gifted "..name.." at "..slots)
-            check(P.slotCap(name,q)==1,"Retired species uses only its gifted failsafe slot")
+            if name=="Shy"and slots<48 then check(kept==3 and gift>=1 and safe==1,"Through47 Shy keeps three total despite completed objective") else check(kept==1 and gift==1 and safe==3,"Completed objective keeps exactly one gifted "..name.." at "..slots)end
+            check(name=="Shy"and slots<48 and not q.questRetired.Shy or P.slotCap(name,q)==1,"Retirement respects the Shy48 boundary")
             for _,need in ipairs(q.needs)do check(need.name~=name or need.gifted,"Retired normal quota cannot reappear")end
         end
         for _,c in ipairs(base)do if c.bee.Type=="Tabby"then check(q.protected[P.key(c)],"Quest retirement preserves Event protection")end end
@@ -454,7 +454,7 @@ return function(P,T)
             local base=hive({{"Hasty",1},{name,1,true},{name,1,false}});local target=base[1]
             local old={stage="mid",reason=reason,mode="off",needs={{name=name,amount=2,gifted=false}}}
             local task=P.startRollTask(target,base,old);task.Rolled=true
-            local context=ctx(41);context.questRetired={[name]=true}
+            local context=ctx(name=="Shy"and 48 or 41, name=="Shy"and 2 or 0);context.questRetired={[name]=true}
             for _,gifted in ipairs({false,true})do
                 target.bee={Type=name,Traits=gifted and{"Gifted"}or{}}
                 local q=P.plan(base,T,context)
@@ -492,7 +492,7 @@ return function(P,T)
         local task=P.startRollTask(target,base,original);task.Rolled=true
         target.bee={Type="Fire",Traits={}}
         local context=ctx(44);context.jelly=0;context.honey=600000000;context.collectorFallback=true
-        context.questRetired={Ninja=true,Shy=true}
+        context.slots=48;context.starUsed=2;context.questRetired={Ninja=true,Shy=true}
         local q=P.plan(base,T,context)
         check(not q.keep[P.key(target)]and q.collectorFallback,"Completed RedBoost objective also retires the Fire placeholder")
         check(not P.rollTaskDone(task,target,base,T,q),"An exhausted fixed task cannot accept retired Fire")
@@ -517,7 +517,7 @@ return function(P,T)
         context.starReleased=nil;q=P.plan(base,T,context)
         check(not P.rollTaskSafe(task,spicy,base,T,q),"Lost pressure authorization restores the permanent guard")
     end
-    for _,slots in ipairs({25,35,41,43,44,46,50})do
+    for _,slots in ipairs({48,49,50})do
         local base=hive({{"Fire",2},{"Fire",2,true},{"Shy",1,true},{"Shy",2},{"Baby",4},{"Music",4},{"Bubble",4},{"Frosty",4}})
         local context=ctx(slots,2);context.questRetired={Shy=true}
         local q=P.plan(base,T,context)
@@ -538,7 +538,7 @@ return function(P,T)
             local base=hive({{"Hasty",1},{"Shy",1,true}});local target=base[1]
             local task=P.startRollTask(target,base,{stage="mid",reason=reason,mode="off",needs={{name="Fire",amount=1,gifted=gift}}})
             task.Rolled=true;target.bee={Type="Fire",Traits=gift and{"Gifted"}or{}}
-            local context=ctx(41);context.questRetired={Shy=true};local q=P.plan(base,T,context)
+            local context=ctx(48,2);context.questRetired={Shy=true};local q=P.plan(base,T,context)
             check(not P.rollTaskDone(task,target,base,T,q),"Retired Fire cannot satisfy even an old Fire task goal")
             check(P.rollTaskSafe(task,target,base,T,q),"Retired Fire remains on its active roll coordinate")
         end
@@ -549,6 +549,7 @@ return function(P,T)
             local context=ctx(41);context.questRetired=retired;local q=P.plan(base,T,context)
             check(q.keep[P.key(base[1])]and q.keep[P.key(base[2])],"Before RedBoost completion, three-slot red placeholders are unchanged")
         end
+        base[#base+1]=cell("Shy",false);base[#base+1]=cell("Shy",false)
         local context=ctx(44);context.questRetired={Shy=true};context.starPrepare=true
         local q=P.plan(base,T,context);local needed=false
         for _,need in ipairs(q.needs)do if need.name=="Fire"and need.gifted then needed=true end end

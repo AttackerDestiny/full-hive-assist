@@ -1258,7 +1258,7 @@ return function(P,workerSource,BlenderReceipt)
             local c={gear={[guard]={honey=100,items={Oil=2}},["Next Gear"]={honey=200,items={}}}}
             local r=P.plan(f,c)
             check(r.gear=="Next Gear"and #r.gearQueues.B==0,"Both guards wait before verified Shy retirement")
-            f.questRetired={Shy=true};r=P.plan(f,c)
+            f.capacity=48;f.occupied=48;for _,id in ipairs(P.planterCatchup)do f.ownedGear[id]=true end;f.questRetired={Shy=true};r=P.plan(f,c)
             check(r.gear==guard and #r.gearQueues.B==1,"Verified Shy retirement admits either guard with Baby4 Music4 and no Shy")
             f.beeCounts.Music=3;r=P.plan(f,c)
             check(r.gear=="Next Gear"and r.deferredRequirementGear[guard]~=nil,"Retired path still requires at least4 Music")

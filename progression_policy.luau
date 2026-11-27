@@ -39,7 +39,9 @@ function P.gearPrerequisite(facts,id)
     local bees=P.beeRequirements[id]
     if bees then
         local counts=facts.beeCounts or {}
-        local retired=(facts.questRetired or {}).Shy==true
+        local capacity=facts.capacity
+        local retired=(facts.questRetired or {}).Shy==true and type(capacity)=="number"
+            and capacity%1==0 and capacity>=48 and capacity<=50
         local requirements=retired and {Baby=4,Music=4}or bees
         for _,name in ipairs({"Baby","Music","Shy"})do
             local needed=requirements[name]

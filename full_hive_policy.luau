@@ -167,11 +167,12 @@ function P.recoveryMode(honey)
     if (honey or 0)>=20000000000 then return "gifted","gifted-collector-fallback" end
     return "off","collector-fallback"
 end
-function P.giftedLimit(name, stage, babyGoal, legendaryRoute, starPrepare)
+function P.giftedLimit(name, stage, babyGoal, legendaryRoute, starPrepare,shyRetired)
     if name=="Carpenter" and legendaryRoute=="six" and not starPrepare
         and (stage=="late" or stage=="blue" or stage=="final") then return 0 end
     if name=="Baby" and stage=="final" and babyGoal~=nil then return math.min(4,babyGoal) end
     if name == "Baby" or name == "Music" then return 4 end
+    if name=="Shy"then return shyRetired==true and 1 or 3 end
     if name == "Diamond" and stage == "final" and legendaryRoute~="six" then return 4 end
     return P.exactGifted[name] and 1 or nil
 end
@@ -220,7 +221,7 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     local slotCap=P.slotCap(name,plan)
     if slotCap and P.count(cells,name)>slotCap
         and not (gifted and (task.InitialGifted[name] or 0)==0) then return false end
-    local limit = P.giftedLimit(name, plan.stage, plan.babyGoal,plan.legendaryRoute,plan.starPrepare)
+    local limit = P.giftedLimit(name, plan.stage, plan.babyGoal,plan.legendaryRoute,plan.starPrepare,(plan.questRetired or{}).Shy)
     -- Do not let a new duplicate win a reservation merely because its
     -- coordinate sorts before the existing gifted copy.
     if gifted and limit and P.count(cells, name, true) > limit then return false end
@@ -304,7 +305,7 @@ function P.rollTaskSafe(task, cell, cells, types, plan)
         return not(plan.starPrepare and P.gifted(cell)and P.count(cells,name,true)==1 and plan.keep[P.key(cell)])
     end
     if(plan.questRetired or{})[name]then return not P.gifted(cell)or P.count(cells,name,true)>1 end
-    local limit = P.giftedLimit(name, plan.stage, plan.babyGoal,plan.legendaryRoute,plan.starPrepare)
+    local limit = P.giftedLimit(name, plan.stage, plan.babyGoal,plan.legendaryRoute,plan.starPrepare,(plan.questRetired or{}).Shy)
     -- Fixed goals can consume a planner-selected surplus gifted collector.
     -- Revalidate the original unrolled coordinate, the four reserved force
     -- copies and a reserved gifted copy before bypassing the result shield.
@@ -407,14 +408,18 @@ function P.collectorRecovery(slots, safeNonCollector, honey, bought, active, inv
     local missing=math.max(0,(target or base)-(inventory or 0))
     return base>100 and safeNonCollector>0 and (active==true or honey<P.jellyCost(bought,missing))
 end
-function P.forceQuotasReady(cells,questRetired)
+function P.shyRetired(questRetired,capacity)
+    return type(capacity)=="number" and capacity%1==0 and capacity>=48 and capacity<=50
+        and (questRetired or {}).Shy==true
+end
+function P.forceQuotasReady(cells,questRetired,capacity)
     return P.count(cells,"Baby")>=4 and P.count(cells,"Music")>=4
-        and ((questRetired or {}).Shy==true or P.count(cells,"Shy")>=3)
+        and (P.shyRetired(questRetired,capacity) or P.count(cells,"Shy")>=3)
 end
 function P.quotaRolling(cells,ctx)
     local stage=P.stage(ctx)
     return not P.singleJelly(cells) and (stage=="early"or stage=="mid")and not ctx.starPrepare
-        and not P.forceQuotasReady(cells,ctx.questRetired)
+        and not P.forceQuotasReady(cells,ctx.questRetired,ctx.slots)
 end
 function P.refillFor(slots, collectorFallback, quotaRolling)
     if quotaRolling then return 50,50 end
@@ -425,12 +430,14 @@ function P.plan(cells, types, ctx)
     local stage = P.stage(ctx)
     local questRetired,slotCaps={},table.clone(P.slotCaps)
     for _,name in ipairs({"Ninja","Shy"})do
-        if(ctx.questRetired or{})[name]==true then questRetired[name]=true;slotCaps[name]=1 end
+        if(ctx.questRetired or{})[name]==true and (name~="Shy"or P.shyRetired(ctx.questRetired,ctx.slots))then
+            questRetired[name]=true;slotCaps[name]=1
+        end
     end
     local collectorFallback=P.refill(ctx.slots)>100 and ctx.collectorFallback==true
     local recoveryMode,recoveryReason=P.recoveryMode(ctx.honey)
     local post = stage == "blue" or stage == "final"
-    local forceQuotasReady=P.forceQuotasReady(cells,questRetired)
+    local forceQuotasReady=P.forceQuotasReady(cells,questRetired,ctx.slots)
     local quotaRolling=P.quotaRolling(cells,ctx)
     local failsafeGoalsActive=ctx.bubbleMaskOwned==true and (post or forceQuotasReady)
     local sixOnly=ctx.legendaryRoute=="six"
@@ -478,13 +485,13 @@ function P.plan(cells, types, ctx)
         end
     end
     for _, name in ipairs(post and P.trueSingles or P.singles) do
-        if P.giftedLimit(name,stage,nil,ctx.legendaryRoute,ctx.starPrepare)~=0 then reserve(name,1,true) end
+        if P.giftedLimit(name,stage,nil,ctx.legendaryRoute,ctx.starPrepare,questRetired.Shy)~=0 then reserve(name,1,true) end
     end
     -- Match the existing final roll guard: its configured gifted baselines
     -- cannot be selected as repair/fill targets merely because a later-stage
     -- goal list omits that species. This adds no new gifted hunting goals.
     for name in pairs(P.exactGifted) do
-        local limit=P.giftedLimit(name,stage,nil,ctx.legendaryRoute,ctx.starPrepare)
+        local limit=P.giftedLimit(name,stage,nil,ctx.legendaryRoute,ctx.starPrepare,questRetired.Shy)
         if limit and limit>0 then reserve(name,1,true) end
     end
     for name in pairs(questRetired)do reserve(name,1,true)end
@@ -498,6 +505,7 @@ function P.plan(cells, types, ctx)
     end
     reserve("Baby", babyGoal, false)
     reserve("Music", 4, false)
+    if not questRetired.Shy then reserve("Shy",3,false)end
     if post then
         -- The final roll guard requires four OTHER collectors and another
         -- gifted copy before a fixed task may consume a gifted collector.
@@ -564,6 +572,7 @@ function P.plan(cells, types, ctx)
         for _,name in ipairs(P.trueSingles) do need(name, 1, true) end
         if stage == "blue" then reserve("Ninja", 1, true); reserve("Shy", 1, true) end
         need("Baby", babyGoal, false); need("Music", 4, false)
+        if not questRetired.Shy then need("Shy",3,false)end
         if stage == "final" then
             if not sixOnly then reserve("Diamond", 4, true); need("Diamond", 4, true) end
             need("Fuzzy", 1, true)
@@ -595,7 +604,7 @@ function P.plan(cells, types, ctx)
     end
     local excess = {}
     local forceExcess={}
-    for _,spec in ipairs({{"Baby",babyGoal},{"Music",4}})do
+    for _,spec in ipairs({{"Baby",babyGoal},{"Music",4},{"Shy",questRetired.Shy and 1 or 3}})do
         if P.count(cells,spec[1])>spec[2]then
             for _,c in ipairs(cells)do
                 if c.bee and c.bee.Type==spec[1] and not keep[P.key(c)]then
