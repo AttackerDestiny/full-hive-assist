@@ -3304,6 +3304,16 @@
         "paused": false,
         "uiVerified": true,
         "atlasOwned": false
+      },
+      {
+        "account": "QuackAltear06",
+        "executor": "Delta",
+        "version": "1.8.114",
+        "startedAt": 1795747253,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": false
       }
     ],
     "offlineChecks": 6985,
@@ -3388,14 +3398,12 @@
     "liveDeploymentVerified": true,
     "pendingLiveDeploymentAccounts": [
       "QuackAltear1",
-      "QuackAltear5",
-      "QuackAltear06"
+      "QuackAltear5"
     ],
     "scheduledNotVerified": [
-      "QuackAltear5",
-      "QuackAltear06"
+      "QuackAltear5"
     ],
-    "note": "114 runtime/report/UI and natural Gold purchase verified on SpidermanXD56. Other running sessions rediscovered on113; guarded114 execution scheduled where available but new StartedAt/UI not yet confirmed. Do not equate scheduling with deployment.",
+    "note": "SpidermanXD56 runtime/report/UI114 and natural Gold purchase verified. QuackAltear06 runtime/report114 and new StartedAt verified after publication; its UI/matching-order path has not been freshly checked. QuackAltear1/5 upgrades remain unverified; no blanket all-client deployment claim.",
     "expectedConnectedChecks": 6978,
     "queuePrerequisites": {
       "Coconut Canister": {
@@ -3451,6 +3459,16 @@
         "paused": false,
         "uiVerified": true,
         "atlasOwned": false
+      },
+      {
+        "account": "QuackAltear06",
+        "executor": "Delta",
+        "version": "1.8.114",
+        "startedAt": 1795747253,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": false
       }
     ],
     "offlineChecks": 6985,
@@ -3535,14 +3553,12 @@
     "liveDeploymentVerified": true,
     "pendingLiveDeploymentAccounts": [
       "QuackAltear1",
-      "QuackAltear5",
-      "QuackAltear06"
+      "QuackAltear5"
     ],
     "scheduledNotVerified": [
-      "QuackAltear5",
-      "QuackAltear06"
+      "QuackAltear5"
     ],
-    "note": "114 runtime/report/UI and natural Gold purchase verified on SpidermanXD56. Other running sessions rediscovered on113; guarded114 execution scheduled where available but new StartedAt/UI not yet confirmed. Do not equate scheduling with deployment.",
+    "note": "SpidermanXD56 runtime/report/UI114 and natural Gold purchase verified. QuackAltear06 runtime/report114 and new StartedAt verified after publication; its UI/matching-order path has not been freshly checked. QuackAltear1/5 upgrades remain unverified; no blanket all-client deployment claim.",
     "expectedConnectedChecks": 6978,
     "queuePrerequisites": {
       "Coconut Canister": {
