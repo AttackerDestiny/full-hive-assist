@@ -3289,62 +3289,56 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.124",
+    "version": "1.8.125",
     "bundle": "core.luau",
-    "sha256": "f65932f333952eacffa1e470a34e1e62922eb30f715f555113eb508e8b7089fc",
-    "deployedNormalizedUTF8Sha256": "9253df98c4eade14c0e92f71f96ec4fa258246ceb26814937ac33b13be12e3eb",
+    "sha256": "db88136dfeb60266cdff9991b53f6e6fef7fb289448069d06a40e0ad6d00510c",
+    "deployedNormalizedUTF8Sha256": "841960a715c82db47b845a16344c1e8286a808b474e49966b6b32249cdeececc",
     "accounts": [
       {
-        "account": "xd_Glen09",
+        "account": "SpidermanXD56",
         "executor": "Arceus X",
         "placeId": 1537690962,
-        "jobId": "8215595f-fa36-4f4b-8453-1b2f1dab44a4",
-        "version": "1.8.124",
-        "startedAt": 1795757477,
+        "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
+        "version": "1.8.125",
+        "startedAt": 1795757996,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
         "uncertainRequests": false,
-        "activeRollX": 2,
-        "activeRollY": 5,
-        "batchAmount": 50,
-        "singleJellyObserved": true,
-        "lastResult": "normal Rad;Consumed1",
-        "actionsAtVerification": 20,
-        "jellyUsedAtVerification": 12,
-        "atlasStopCheckboxVerified": true
+        "oldTaskRetiredReason": "target-now-reserved",
+        "oldTaskX": 1,
+        "oldTaskY": 5,
+        "giftedBomberBirthPreserved": 1577136136,
+        "nextTargetX": 1,
+        "nextTargetY": 10,
+        "nextTargetType": "Frosty",
+        "normalFrostyBirthPreserved": 1795683966,
+        "collectorFallback": false,
+        "jelly": 2560,
+        "refill": 100000,
+        "actionsObserved": 0,
+        "jellyUsedObserved": 0,
+        "phase": "waiting",
+        "activity": "Waiting for at least 100000 Royal Jelly to start a batch"
       }
     ],
     "excludedAccounts": [
       "QuackTest02"
     ],
     "deploymentScope": [
-      "xd_Glen09"
+      "SpidermanXD56"
     ],
-    "offlineChecks": 7190,
-    "connectedChecksPerAccount": 7189,
+    "offlineChecks": 7228,
+    "connectedChecksPerAccount": 7227,
     "connectedAllPassed": true,
-    "connectedMarker": "1.8.124-atlas-context-final",
-    "atlasAccessChecks": 19,
+    "connectedMarker": "1.8.125-reserved-recovery-final",
+    "collectorChecks": 1053,
+    "newCollectorChecks": 38,
     "compatibilityMarkers": 42,
-    "liveReadOnlyReproduction": {
-      "identity2RawFailed": true,
-      "error": "The current thread cannot access 'Instance' (lacking capability Plugin)",
-      "scopedLookupSucceeded": true,
-      "callerRestoredTo": 2
-    },
-    "spidermanDiagnosticOnly": {
-      "version": "1.8.123",
-      "taskX": 1,
-      "taskY": 5,
-      "taskType": "Gifted Bomber",
-      "taskRolled": false,
-      "normalFrostyX": 1,
-      "normalFrostyY": 10,
-      "giftedFrosties": 4,
-      "beePolicyChanged": false
-    }
+    "frostyUpgradeObserved": false,
+    "normalAdmissionPreserved": true,
+    "noFlagsManuallyCleared": true
   },
   "latestCandidate": {
     "version": "1.8.121",
@@ -4009,6 +4003,64 @@
       "observedFeedAt": 1795755229,
       "naturalFeedAndCrabEnableVerified": true,
       "supersededReason": "Corrected success-only switch diagnostic; no additional feed on123"
+    }
+  },
+  "deploymentV1_8_124": {
+    "version": "1.8.124",
+    "bundle": "core.luau",
+    "sha256": "f65932f333952eacffa1e470a34e1e62922eb30f715f555113eb508e8b7089fc",
+    "deployedNormalizedUTF8Sha256": "9253df98c4eade14c0e92f71f96ec4fa258246ceb26814937ac33b13be12e3eb",
+    "accounts": [
+      {
+        "account": "xd_Glen09",
+        "executor": "Arceus X",
+        "placeId": 1537690962,
+        "jobId": "8215595f-fa36-4f4b-8453-1b2f1dab44a4",
+        "version": "1.8.124",
+        "startedAt": 1795757477,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "uncertainRequests": false,
+        "activeRollX": 2,
+        "activeRollY": 5,
+        "batchAmount": 50,
+        "singleJellyObserved": true,
+        "lastResult": "normal Rad;Consumed1",
+        "actionsAtVerification": 20,
+        "jellyUsedAtVerification": 12,
+        "atlasStopCheckboxVerified": true
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "deploymentScope": [
+      "xd_Glen09"
+    ],
+    "offlineChecks": 7190,
+    "connectedChecksPerAccount": 7189,
+    "connectedAllPassed": true,
+    "connectedMarker": "1.8.124-atlas-context-final",
+    "atlasAccessChecks": 19,
+    "compatibilityMarkers": 42,
+    "liveReadOnlyReproduction": {
+      "identity2RawFailed": true,
+      "error": "The current thread cannot access 'Instance' (lacking capability Plugin)",
+      "scopedLookupSucceeded": true,
+      "callerRestoredTo": 2
+    },
+    "spidermanDiagnosticOnly": {
+      "version": "1.8.123",
+      "taskX": 1,
+      "taskY": 5,
+      "taskType": "Gifted Bomber",
+      "taskRolled": false,
+      "normalFrostyX": 1,
+      "normalFrostyY": 10,
+      "giftedFrosties": 4,
+      "beePolicyChanged": false
     }
   }
 }

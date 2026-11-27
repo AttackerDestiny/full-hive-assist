@@ -361,5 +361,78 @@ return function(P,T,runtime)
         local retired=fixture();for _,c in ipairs(retired)do if c.bee.Type=="Shy"then c.bee={Type="Bubble",Traits={}}end end
         check(not P.quotaRolling(retired,{slots=41,starUsed=0,questRetired={Shy=true}}),"Verified retired Shy exception remains intact")
     end
+    do
+        -- Reproduce the live blue-stage stale Bomber lease with a remaining
+        -- normal Frosty and all eight gifted Rare/Epic failsafes already held.
+        local bees={
+            {x=1,y=5,bee={Type="Bomber",Traits={"Gifted"}}},
+            {x=1,y=10,bee={Type="Frosty",Traits={}}},
+        }
+        local nextX=2
+        local function add(name,count,gifted)
+            for _=1,count do
+                bees[#bees+1]={x=nextX,y=1,bee={Type=name,Traits=gifted and {"Gifted"}or {}}}
+                nextX+=1
+            end
+        end
+        add("Baby",3,true);add("Baby",1);add("Music",1,true);add("Music",3)
+        add("Shy",1,true);add("Frosty",4,true);add("Bubble",5,true)
+        add("Tadpole",2);add("Buoyant",1,true);add("Buoyant",2)
+        for _,name in ipairs({"Cobalt","Vicious","Puppy","Festive","Gummy","Photon","Tabby","Bear","Precise","Spicy","Fuzzy"})do add(name,1)end
+        for _,name in ipairs({"Looker","Commander","Lion","Diamond","Demon","Ninja","Basic","Cool","Bucko","Bumble"})do add(name,1,true)end
+        check(#bees==46 and #P.starJellyMissing(bees)==0,"Live-like fixture has46 bees and no missing gifted failsafes")
+        local baseCtx={slots=46,starUsed=2,jelly=2520,honey=30000000000,legendaryRoute="six",collectorFallback=true}
+        local fresh=P.plan(bees,T,baseCtx)
+        check(fresh.keep["1,5"] and fresh.target==bees[2],"Planner keeps gifted Bomber and selects the normal Frosty")
+        check(not fresh.collectorFallback and #fresh.fallbackCandidates==0,"Protected gifted baselines cannot prolong100 repair mode")
+        check(fresh.mode=="gifted"and not fresh.legendaryHunt,"Existing blue gifted rolling applies to the normal Frosty")
+        for _,c in ipairs(bees)do
+            if P.gifted(c)and P.exactGifted[c.bee.Type]then
+                check(fresh.keep[P.key(c)],"Configured unique gifted baseline retained: "..c.bee.Type)
+            end
+        end
+        local comb={};for _,c in ipairs(bees)do
+            local x="x"..c.x;comb[x]=comb[x]or{};comb[x]["y"..c.y]=c.bee
+        end
+        local snapshot=stats({},30000000000);snapshot.Honeycomb=comb
+        snapshot.UnlockedCells=46;snapshot.Totals.Purchases.HiveSlots=21
+        snapshot.Totals.EggUses.Star=2;snapshot.Eggs.RoyalJelly=2520
+        local function staleState()
+            local lease=P.startRollTask(bees[1],bees,{stage="blue",reason="collector-fallback",mode="off",needs=fresh.needs})
+            lease.Owner=7;lease.Hive="TestHive";lease.Job="test"
+            local batch={Version=1,Owner=7,Hive="TestHive",Job="test",Amount=100,Remaining=2520,Recovery=true}
+            return {FullHiveRollTask=lease,FullHiveJellyBatch=batch,FullHiveCollectorFallback=true},lease,batch
+        end
+        local state,lease,batch=staleState()
+        local q,r,e,ready=make(P,T,state,snapshot)
+        check(e.FullHiveRollTask==nil and r.LastCompletedTarget.Reason=="target-now-reserved","Stale protected lease retires through normal reconciliation")
+        check(e.FullHiveJellyBatch==nil and bees[1].bee.Type=="Bomber"and P.gifted(bees[1]),"Old repair admission closes without touching Bomber")
+        check(q.target.x==1 and q.target.y==10 and not q.rollBlocked,"Actual runtime selects normal Frosty rather than unsafe task")
+        check(r.RefillAmount==100000 and not ready(snapshot),"2520 leftovers cannot bypass the normal blue100000 admission")
+        snapshot.Eggs.RoyalJelly=99999
+        check(not ready(snapshot),"Below100000 remains an unadmitted wait")
+        snapshot.Eggs.RoyalJelly=100000
+        check(ready(snapshot)and not e.FullHiveJellyBatch.Recovery,"A fully qualified new normal batch admits normally")
+        snapshot.Eggs.RoyalJelly=2520
+        for _,flag in ipairs({"FullHivePending","AutoHivePendingRequest","FullHiveUncertain","AutoHiveUncertain","FullHiveStarRunning","AutoGiftedStarRunning"})do
+            state,lease,batch=staleState();local marker={};state[flag]=marker
+            local ok,err=pcall(make,P,T,state,snapshot)
+            check(not ok and tostring(err):find("Reserved target has unresolved work",1,true),"Unresolved work blocks stale protected retirement: "..flag)
+            check(state.FullHiveRollTask==lease and state.FullHiveJellyBatch==batch and state[flag]==marker,"Unresolved task admission and flag remain intact: "..flag)
+        end
+        -- A genuinely unfinished unsafe lease still waits with its admission.
+        state,lease,batch=staleState()
+        local reconcile=P.reconcileRollTask;P.reconcileRollTask=function()return false,nil,false end
+        local ok,result=pcall(make,P,T,state,snapshot);P.reconcileRollTask=reconcile
+        check(ok and result.rollBlocked and state.FullHiveRollTask==lease and state.FullHiveJellyBatch==batch,"Unsafe unfinished lease is never discarded by repair-exit cleanup")
+        -- This preserves the existing stage-specific zero-cap Carpenter rule
+        -- and never promotes unlisted gifted Hasty into a reserved baseline.
+        add("Carpenter",1,true);add("Hasty",1,true)
+        fresh=P.plan(bees,T,baseCtx)
+        check(not fresh.keep[P.key(bees[#bees-1])],"Six-route gifted Carpenter zero cap remains eligible")
+        check(not fresh.keep[P.key(bees[#bees])],"Unlisted gifted Hasty remains eligible")
+        local missing=false;for _,need in ipairs(fresh.needs)do if need.name=="Bomber"then missing=true end end
+        check(not missing,"Keeping incidental gifted Bomber adds no new hunting goal")
+    end
     return {passed=passed}
 end

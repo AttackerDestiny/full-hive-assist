@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.124"
+local SCRIPT_VERSION = "1.8.125"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -936,14 +936,6 @@ local function plan(s)
         p=Policy.plan(cells,Types,ctx)
     end
     if not Config.DryRun then env.FullHiveCollectorFallback=p.collectorFallback or nil end
-    local admitted=activeJellyBatch(s)
-    if admitted and not p.collectorFallback and not Config.DryRun then
-        if admitted.Recovery then
-            -- The repair is finished. Save its remainder; a new normal
-            -- objective must qualify against the normal refill amount.
-            env.FullHiveJellyBatch=nil; Report.JellyBatch=nil
-        end
-    end
     if rollTask then
         local current
         for _,c in ipairs(cells) do if c.x==rollTask.x and c.y==rollTask.y then current=c; break end end
@@ -993,6 +985,15 @@ local function plan(s)
             end
             Report.ActiveTarget={X=rollTask.x,Y=rollTask.y,Reason=rollTask.Reason,StartedType=rollTask.StartedType}
         end
+    end
+    local admitted=activeJellyBatch(s)
+    if admitted and admitted.Recovery and not p.collectorFallback and not rollTask and not Config.DryRun
+        and not env.FullHivePending and not env.AutoHivePendingRequest
+        and not env.FullHiveUncertain and not env.AutoHiveUncertain
+        and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning then
+        -- Close only after task reconciliation. Unsafe unfinished leases and
+        -- unresolved receipts retain their exact admission until resolved.
+        env.FullHiveJellyBatch=nil; Report.JellyBatch=nil
     end
     if not rollTask then Report.RollTargetBlocked=nil end
     if p.quotaRolling then

@@ -473,6 +473,13 @@ function P.plan(cells, types, ctx)
     for _, name in ipairs(post and P.trueSingles or P.singles) do
         if P.giftedLimit(name,stage,nil,ctx.legendaryRoute,ctx.starPrepare)~=0 then reserve(name,1,true) end
     end
+    -- Match the existing final roll guard: its configured gifted baselines
+    -- cannot be selected as repair/fill targets merely because a later-stage
+    -- goal list omits that species. This adds no new gifted hunting goals.
+    for name in pairs(P.exactGifted) do
+        local limit=P.giftedLimit(name,stage,nil,ctx.legendaryRoute,ctx.starPrepare)
+        if limit and limit>0 then reserve(name,1,true) end
+    end
     for name in pairs(questRetired)do reserve(name,1,true)end
     -- Ordinary keeps are the configured failsafes/forces only. Historical
     -- preserveUniqueGifted overrides never promote unlisted gifted species.
