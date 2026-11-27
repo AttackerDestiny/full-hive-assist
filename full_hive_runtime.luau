@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.118"
+local SCRIPT_VERSION = "1.8.119"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -866,7 +866,9 @@ local function context(s,slots)
     local used=starEggUses(s)
     local legendaryRoute
     if StarState then legendaryRoute=Policy.legendaryRoute(StarState.read(s),s.Eggs.Star or 0) end
-    local normalRefill=Policy.refill(slots)
+    local retirements=background and background.hiveRetirements(s)or{}
+    local quotaRolling=Policy.quotaRolling(Policy.snapshot(s,Types),{slots=slots,starUsed=used,questRetired=retirements})
+    local normalRefill=quotaRolling and 50 or Policy.refill(slots)
     local collectorFallback=Policy.collectorRecovery(slots,1,usable,
         bought.RoyalJelly or 0,env.FullHiveCollectorFallback==true,jelly,normalRefill)
     local batch=activeJellyBatch(s)
@@ -880,7 +882,7 @@ local function context(s,slots)
         collectorFallback=false
     end
     return {slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,legendaryChoice=legendaryChoice,legendaryRoute=legendaryRoute,nextFlexible=nextFlexible,
-        questRetired=background and background.hiveRetirements(s)or{},bubbleMaskOwned=bubbleMaskOwned,
+        questRetired=retirements,bubbleMaskOwned=bubbleMaskOwned,
         collectorFallback=collectorFallback,enforceGrowth=true,eggs=s.Eggs,
         canRefill30k=Config.AutoPurchase and usable>=Policy.jellyCost(bought.RoyalJelly or 0,30000)}
 end
@@ -968,11 +970,15 @@ local function plan(s)
         end
     end
     if not rollTask then Report.RollTargetBlocked=nil end
+    if p.quotaRolling then
+        p.mode="off"
+        if rollTask then rollTask.Mode="off"end
+    end
     Report.CollectorFallback=p.collectorFallback
     Report.SafeNonCollector=#p.fallbackCandidates
-    Report.NormalRefillAmount=Policy.refill(slots)
-    Report.RefillAmount=Policy.refillFor(slots,p.collectorFallback)
-    Report.RefillMode=p.collectorFallback and "fallback-100" or (slots==43 and "normal-2000" or "stage-refill")
+    Report.NormalRefillAmount=p.quotaRolling and 50 or Policy.refill(slots)
+    Report.RefillAmount=Policy.refillFor(slots,p.collectorFallback,p.quotaRolling)
+    Report.RefillMode=p.quotaRolling and "force-quota-50" or p.collectorFallback and "fallback-100" or (slots==43 and "normal-2000" or "stage-refill")
     Report.StarJelly=s.Eggs.StarJelly or 0
     Report.StarJellyMissing=Policy.starJellyMissing(cells)
     Report.StarJellyUpgrade=false -- Only the eight missing gifted Rare/Epic failsafes admit Star Jelly.
@@ -1287,7 +1293,7 @@ local function spend(cell,item,validate,expectedTask,eventBee)
         if not jellyBatchReady(s) then return false end -- No request sent; refill/replan.
         assert(Report.RoyalJellyUsed<Config.MaxRoyalJellies,"Royal Jelly limit reached")
         local settings=s.Settings or {}
-        if Policy.singleJelly(cells) and (settings.RollToGifted or settings.RollToLegendary
+        if (Policy.singleJelly(cells) or p.quotaRolling) and (settings.RollToGifted or settings.RollToLegendary
             or settings.RollToMythic or settings.RollToMutation) then
             mode("off");return false
         end
@@ -1310,7 +1316,7 @@ local function spend(cell,item,validate,expectedTask,eventBee)
     if eggUses then Cache:Set({"Totals","EggUses"},eggUses) end
     local consumed=before-remaining
     assert(consumed>=1 and consumed<=before,"Unknown item consumption")
-    if item~="RoyalJelly" or Policy.singleJelly(cells) then assert(consumed==1,"Unexpected item consumption") end
+    if item~="RoyalJelly" or Policy.singleJelly(cells) or p.quotaRolling then assert(consumed==1,"Unexpected item consumption") end
     Report.Actions=Report.Actions+1
     if item=="RoyalJelly" then
         Report.RoyalJellyUsed=Report.RoyalJellyUsed+consumed

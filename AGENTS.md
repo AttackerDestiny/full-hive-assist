@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- November 27 / v1.8.119: normal Baby4/Music4/Shy3 quota filling in early/mid progression uses normal single-Royal-Jelly requests (roll-to off) and50-jelly refill/admission instead of the ordinary slot refill. Recheck fresh policy before spending; an existing task adopts off mode without switching its coordinate. Restore stage refill when quotas complete; preserve starter <33 inventory-only behavior, explicit late/Star/post-Star workflows, quest-retired Shy, all keeps, crafting reservations and unresolved requests. Latest live deployment scope remains xd_Glen09.
+
 - November 27 / v1.8.118: Cobalt Guard is excluded from saving, crafting reservations, queue and combined material preparation until fresh validated hive counts reach Baby4,Music4,Shy3. Count existing species copies consistently with force quotas (normal/gifted); unknown/malformed counts fail closed. Re-evaluate every snapshot; existing owned gear is unaffected. Latest live deployment scope is xd_Glen09; this specific gear dependency does not introduce new gates for other gear.
 
 - November 27 / v1.8.117: Super Material Farm must discover only the Field dropdown inside Atlas's main Farming section, including detached tab frames. Other quest/field selectors are not ambiguous main controls. Deduplicate roots; genuinely multiple main Farming selectors remain fail-closed. Keep cached context validation and actual post-switch confirmation; report actual field and fruit, never fabricate a successful switch.

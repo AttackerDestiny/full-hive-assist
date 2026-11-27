@@ -400,7 +400,17 @@ function P.collectorRecovery(slots, safeNonCollector, honey, bought, active, inv
     local missing=math.max(0,(target or base)-(inventory or 0))
     return base>100 and safeNonCollector>0 and (active==true or honey<P.jellyCost(bought,missing))
 end
-function P.refillFor(slots, collectorFallback)
+function P.forceQuotasReady(cells,questRetired)
+    return P.count(cells,"Baby")>=4 and P.count(cells,"Music")>=4
+        and ((questRetired or {}).Shy==true or P.count(cells,"Shy")>=3)
+end
+function P.quotaRolling(cells,ctx)
+    local stage=P.stage(ctx)
+    return not P.singleJelly(cells) and (stage=="early"or stage=="mid")and not ctx.starPrepare
+        and not P.forceQuotasReady(cells,ctx.questRetired)
+end
+function P.refillFor(slots, collectorFallback, quotaRolling)
+    if quotaRolling then return 50,50 end
     if collectorFallback and P.refill(slots)>100 then return 100,100 end
     return P.refill(slots)
 end
@@ -413,8 +423,8 @@ function P.plan(cells, types, ctx)
     local collectorFallback=P.refill(ctx.slots)>100 and ctx.collectorFallback==true
     local recoveryMode,recoveryReason=P.recoveryMode(ctx.honey)
     local post = stage == "blue" or stage == "final"
-    local forceQuotasReady=P.count(cells,"Baby")>=4 and P.count(cells,"Music")>=4
-        and (questRetired.Shy or P.count(cells,"Shy")>=3)
+    local forceQuotasReady=P.forceQuotasReady(cells,questRetired)
+    local quotaRolling=P.quotaRolling(cells,ctx)
     local failsafeGoalsActive=ctx.bubbleMaskOwned==true and (post or forceQuotasReady)
     local sixOnly=ctx.legendaryRoute=="six"
     local legendaryReady=(stage=="late" and (ctx.legendaryRoute==nil or ctx.legendaryRoute=="eggs" or sixOnly)
@@ -721,12 +731,12 @@ function P.plan(cells, types, ctx)
             end
         end
     end
-    if P.singleJelly(cells) then mode="off" end
+    if P.singleJelly(cells) or quotaRolling then mode="off" end
     if ctx.enforceGrowth and not growth.CanReroll then target=nil; reason="hive-growth" end
     local capacityStatus=P.capacityStatus(cells,keep,needs,ctx.slots)
     return {stage=stage, keep=keep, protected=protected, temporary=temporary, needs=needs, candidates=candidates,
         giftedBasicCount=P.count(cells,"Basic",true),
-        questRetired=questRetired,basicOnly=basicOnly,starter=starter,failsafeGoalsActive=failsafeGoalsActive,forceQuotasReady=forceQuotasReady,
+        questRetired=questRetired,basicOnly=basicOnly,starter=starter,quotaRolling=quotaRolling,failsafeGoalsActive=failsafeGoalsActive,forceQuotasReady=forceQuotasReady,
         growth=growth,capacityStatus=capacityStatus,starPrepare=ctx.starPrepare==true and not post,
         fallbackCandidates=fallbackCandidates, collectorFallback=not basicOnly and collectorFallback and #fallbackCandidates>0,
         recoveryGifted=recoveryMode=="gifted",

@@ -30,7 +30,7 @@ $required = @(
     'if characterRoot()~=r then error(CHARACTER_UNAVAILABLE,0) end'
     'Policy.collectorRecovery(slots,1,usable',
     'local base=P.refill(slots)',
-    'Report.NormalRefillAmount=Policy.refill(slots)',
+    'Report.NormalRefillAmount=p.quotaRolling and 50 or Policy.refill(slots)',
     'local createHiveView = (function()',
     'viewButton.Name="ViewHiveButton"',
     '"CloseHiveButton"',

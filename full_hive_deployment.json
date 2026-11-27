@@ -3289,17 +3289,17 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.118",
+    "version": "1.8.119",
     "bundle": "core.luau",
-    "sha256": "07412ccbb5e5d4c4f6602deaed7eb7f87526de5c34fc6ec04dbe310ad06ae780",
-    "deployedNormalizedUTF8Sha256": "f1c03df5830709a031fa0305eb966092f3ea0d994893f3afaf64ef16c12fd1ab",
+    "sha256": "f028515dcfdab3841e067e9e75965096d32c06120db74ad03c2a5baa6cc0e980",
+    "deployedNormalizedUTF8Sha256": "5d8f05bed762f7b8ff35aba6f1523801f708780e30d04c99222006b57dc10377",
     "jobId": "8215595f-fa36-4f4b-8453-1b2f1dab44a4",
     "accounts": [
       {
         "account": "xd_Glen09",
         "executor": "Arceus X",
-        "version": "1.8.118",
-        "startedAt": 1795750036,
+        "version": "1.8.119",
+        "startedAt": 1795750384,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
@@ -3311,35 +3311,41 @@
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "offlineChecks": 7014,
-    "connectedChecks": 7013,
+    "offlineChecks": 7115,
+    "connectedChecks": 7114,
     "connectedAllPassed": true,
-    "progressionChecks": 548,
-    "factsChecks": 72,
-    "materialFarmChecks": 45,
+    "collectorRecoveryChecks": 1015,
     "compatibilityMarkers": 42,
     "liveForces": {
       "Baby": 0,
       "Music": 4,
       "Shy": 3
     },
-    "cobaltExcludedLive": true,
-    "nextEligibleGear": "Crimson Guard",
-    "naturalQuotaCompletionObserved": false,
+    "quotaRefill": 50,
+    "rollMode": "off",
+    "naturalSingleRoll": {
+      "x": 1,
+      "y": 6,
+      "result": "Cool",
+      "gifted": false,
+      "item": "RoyalJelly",
+      "consumed": 1
+    },
+    "natural50PurchaseObserved": false,
     "deploymentScope": "xd_Glen09 only"
   },
   "latestCandidate": {
-    "version": "1.8.118",
+    "version": "1.8.119",
     "bundle": "core.luau",
-    "sha256": "07412ccbb5e5d4c4f6602deaed7eb7f87526de5c34fc6ec04dbe310ad06ae780",
-    "deployedNormalizedUTF8Sha256": "f1c03df5830709a031fa0305eb966092f3ea0d994893f3afaf64ef16c12fd1ab",
+    "sha256": "f028515dcfdab3841e067e9e75965096d32c06120db74ad03c2a5baa6cc0e980",
+    "deployedNormalizedUTF8Sha256": "5d8f05bed762f7b8ff35aba6f1523801f708780e30d04c99222006b57dc10377",
     "jobId": "8215595f-fa36-4f4b-8453-1b2f1dab44a4",
     "accounts": [
       {
         "account": "xd_Glen09",
         "executor": "Arceus X",
-        "version": "1.8.118",
-        "startedAt": 1795750036,
+        "version": "1.8.119",
+        "startedAt": 1795750384,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
@@ -3351,21 +3357,27 @@
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "offlineChecks": 7014,
-    "connectedChecks": 7013,
+    "offlineChecks": 7115,
+    "connectedChecks": 7114,
     "connectedAllPassed": true,
-    "progressionChecks": 548,
-    "factsChecks": 72,
-    "materialFarmChecks": 45,
+    "collectorRecoveryChecks": 1015,
     "compatibilityMarkers": 42,
     "liveForces": {
       "Baby": 0,
       "Music": 4,
       "Shy": 3
     },
-    "cobaltExcludedLive": true,
-    "nextEligibleGear": "Crimson Guard",
-    "naturalQuotaCompletionObserved": false,
+    "quotaRefill": 50,
+    "rollMode": "off",
+    "naturalSingleRoll": {
+      "x": 1,
+      "y": 6,
+      "result": "Cool",
+      "gifted": false,
+      "item": "RoyalJelly",
+      "consumed": 1
+    },
+    "natural50PurchaseObserved": false,
     "deploymentScope": "xd_Glen09 only"
   },
   "previousVerifiedDeployment": {
@@ -3724,5 +3736,45 @@
     },
     "naturalCrossFieldSwitchObserved": false,
     "deploymentScope": "QuackAltear1 only"
+  },
+  "deploymentBeforeQuotaBatch119": {
+    "version": "1.8.118",
+    "bundle": "core.luau",
+    "sha256": "07412ccbb5e5d4c4f6602deaed7eb7f87526de5c34fc6ec04dbe310ad06ae780",
+    "deployedNormalizedUTF8Sha256": "f1c03df5830709a031fa0305eb966092f3ea0d994893f3afaf64ef16c12fd1ab",
+    "jobId": "8215595f-fa36-4f4b-8453-1b2f1dab44a4",
+    "accounts": [
+      {
+        "account": "xd_Glen09",
+        "executor": "Arceus X",
+        "version": "1.8.118",
+        "startedAt": 1795750036,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "pendingRequests": false,
+        "uncertainRequests": false
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "offlineChecks": 7014,
+    "connectedChecks": 7013,
+    "connectedAllPassed": true,
+    "progressionChecks": 548,
+    "factsChecks": 72,
+    "materialFarmChecks": 45,
+    "compatibilityMarkers": 42,
+    "liveForces": {
+      "Baby": 0,
+      "Music": 4,
+      "Shy": 3
+    },
+    "cobaltExcludedLive": true,
+    "nextEligibleGear": "Crimson Guard",
+    "naturalQuotaCompletionObserved": false,
+    "deploymentScope": "xd_Glen09 only"
   }
 }

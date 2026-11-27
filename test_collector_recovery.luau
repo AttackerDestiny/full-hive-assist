@@ -214,7 +214,7 @@ return function(P,T,runtime)
         local state={FullHiveJellyBatch={Version=1,Owner=7,Hive="TestHive",Job="test",Amount=100,Remaining=99,Recovery=true},FullHiveCollectorFallback=true}
         q,report=make(P,T,state,snapshot)
         check(q.collectorFallback and report.RefillAmount==100,"A genuine recovery batch keeps repair behavior")
-        for _,c in ipairs(cells) do if not P.isCollectorSection(c) and T[c.bee.Type].Rarity~="Event" and T[c.bee.Type].Rarity~="Mythic" then c.bee={Type="Bubble",Traits={}} end end
+        for _,c in ipairs(cells) do if not P.isCollectorSection(c) and c.bee.Type~="Baby"and c.bee.Type~="Music"and c.bee.Type~="Shy"and T[c.bee.Type].Rarity~="Event" and T[c.bee.Type].Rarity~="Mythic" then c.bee={Type="Bubble",Traits={}} end end
         snapshot=stats(cells,0); snapshot.Eggs.RoyalJelly=45
         q,report,env=make(P,T,state,snapshot)
         check(not q.collectorFallback and report.RefillAmount==600 and env.FullHiveJellyBatch==nil,"Recovery completion closes admission and saves leftover inventory")
@@ -329,6 +329,37 @@ return function(P,T,runtime)
         check(r.RollTargetBlocked.X==lease.x and r.JellyGoal.HasTarget==false,"Blocked state reports no spendable target")
         q,report=make(P,T,state,snapshot)
         check(q.target and q.target.x==lease.x and not report.RollTargetBlocked,"Fresh safe evidence resumes the same coordinate")
+    end
+    do
+        for _,slots in ipairs({33,34,35,39,40,41,42,43})do
+            for _,missing in ipairs({"Baby","Music","Shy"})do
+                local bees=fixture()
+                while #bees>slots do table.remove(bees)end
+                for _,c in ipairs(bees)do if c.bee.Type==missing then c.bee={Type="Basic",Traits={}};break end end
+                local snap=stats(bees,1e15);snap.Totals.Purchases.HiveSlots=slots-25;snap.Eggs.RoyalJelly=50
+                local q,r,e,ready=make(P,T,{},snap)
+                check(q.quotaRolling and q.mode=="off","Missing force quota uses single rolls at "..slots.." / "..missing)
+                check(r.RefillAmount==50 and r.RefillMode=="force-quota-50","Quota refill is50 at "..slots.." / "..missing)
+                check(ready(snap),"50 qualifies the quota batch")
+                snap.Eggs.RoyalJelly=49
+                local _,_,_,under=make(P,T,{},snap)
+                check(not under(snap),"49 cannot open a new quota batch")
+            end
+        end
+        local bees=fixture();bees[1].bee={Type="Basic",Traits={}}
+        for _,c in ipairs(bees)do if c.bee.Type=="Baby"then c.bee={Type="Basic",Traits={}};break end end
+        local snap=stats(bees,1e15);snap.Eggs.RoyalJelly=50
+        local initial=P.plan(bees,T,{slots=41,starUsed=0,jelly=50,honey=1e15})
+        local task=P.startRollTask(initial.target,bees,initial);task.Owner=7;task.Hive="TestHive";task.Job="test";task.Mode="legendary"
+        local state={FullHiveRollTask=task}
+        local q,r,e=make(P,T,state,snap)
+        check(q.mode=="off"and task.Mode=="off"and e.FullHiveRollTask==task,"Existing coordinate keeps its lease while adopting single mode")
+        local complete=P.plan(fixture(),T,{slots=41,starUsed=0,jelly=50,honey=1e15})
+        check(not complete.quotaRolling and P.refillFor(41,false,complete.quotaRolling)==600,"Completing forces restores stage refill")
+        check(not P.quotaRolling(bees,{slots=44,starUsed=0}),"Explicit late Legendary workflow remains separate")
+        check(not P.quotaRolling(bees,{slots=41,starUsed=0,starPrepare=true}),"Star preparation never uses the normal force batch")
+        local retired=fixture();for _,c in ipairs(retired)do if c.bee.Type=="Shy"then c.bee={Type="Bubble",Traits={}}end end
+        check(not P.quotaRolling(retired,{slots=41,starUsed=0,questRetired={Shy=true}}),"Verified retired Shy exception remains intact")
     end
     return {passed=passed}
 end
