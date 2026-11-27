@@ -165,14 +165,18 @@ return function(factory,Policy)
         check(factory(deps)(s).craft.unknown,"Malformed nonempty Blender state never becomes idle or absent")
         deps.Reqs.Check=function() return false end
         local _,c=factory(deps)(s)
-        check(c.recipes.Oil==false,"Unmet recipe badge requirements disable crafting")
-        check(c.recipeBlockers.Oil=="Recipe requirements not met","Rejected recipes expose the failed eligibility check")
-        deps.Reqs.Description=function()return "Earn 3 Ability Badges"end
+        check(type(c.recipes.Oil)=="table","No recipe conditions does not call unrelated generic requirement checks")
         deps.Recipes.Get("Oil").Requirements={{Type="Earn Badges",Set="Ability",Amount=3}}
         _,c=factory(deps)(s)
-        check(c.recipeBlockers.Oil=="Earn 3 Ability Badges","Recipe lock retains exact game-supplied requirement text")
+        check(type(c.recipes.Oil)=="table"and not c.recipeBlockers.Oil,"False badge checks cannot hide a valid Oil recipe")
+        deps.Recipes.Get("Oil").Requirements={{Type="Test game requirement"}}
+        deps.Reqs.Description=function()return "Actual game condition"end
+        _,c=factory(deps)(s)
+        check(c.recipes.Oil==false and c.recipeBlockers.Oil=="Actual game condition","Non-badge recipe conditions remain enforced and described")
         deps.Reqs.Check=function()error("unavailable")end;_,c=factory(deps)(s)
-        check(c.recipeBlockers.Oil=="Recipe requirements could not be read","Read failures are distinguished from unmet requirements")
+        check(c.recipeBlockers.Oil=="Recipe requirements could not be read","Other-condition read failures remain distinct")
+        deps.Recipes.Get("Oil").Requirements=nil;_,c=factory(deps)(s)
+        check(type(c.recipes.Oil)=="table","Absent optional requirements cannot disable valid recipe ingredients")
     end
     do
         local deps,s,_,defs=fixture();s.BlenderState={Recipe="Oil",Count=15,StartTime=0}

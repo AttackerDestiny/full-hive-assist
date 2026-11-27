@@ -43,10 +43,12 @@ $code += 'local finalBabyTests=[======['+$finalBabyTests+']======];local checkFi
 if ($hasProgression) {
     $progressionPolicy=[regex]::Match($bundle,'local ProgressionPolicy = \(function\(\)\n(.*?)\nend\)\(\)\nlocal createProgressionFacts',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
     $progressionFacts=[regex]::Match($bundle,'local createProgressionFacts = \(function\(\)\n(.*?)\nend\)\(\)\nlocal createProgression =',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
+    $progressionWorker=[regex]::Match($bundle,'local createProgression = \(function\(\)\n(.*?)\nend\)\(\)\n',[Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
     if (-not $progressionPolicy -or -not $progressionFacts) { throw 'Cannot locate bundled progression modules' }
     $progressionTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_auto_progression.luau') -Raw
     $progressionFactsTests=Get-Content -LiteralPath (Join-Path $project 'tests/test_progression_facts.luau') -Raw
     $code += 'local progressionPolicy=[======['+$progressionPolicy+']======];local progressionFacts=[======['+$progressionFacts+']======];'
+    $code += 'local progressionWorker=[======['+$progressionWorker+']======];'
     $code += 'local progressionTests=[======['+$progressionTests+']======];local progressionFactsTests=[======['+$progressionFactsTests+']======];'
 }
 if ($hasFunds) {
@@ -145,7 +147,7 @@ if checkFinalBaby then finalBabyOK,finalBabyResult=pcall(assert(loadstring(final
 local progressionOK,progressionResult,progressionFactsOK,progressionFactsResult=true,{notApplicable=true},true,{notApplicable=true}
 if hasProgression then
     local pp=assert(loadstring(progressionPolicy))()
-    progressionOK,progressionResult=pcall(assert(loadstring(progressionTests))(),pp)
+    progressionOK,progressionResult=pcall(assert(loadstring(progressionTests))(),pp,progressionWorker)
     progressionFactsOK,progressionFactsResult=pcall(assert(loadstring(progressionFactsTests))(),assert(loadstring(progressionFacts))(),pp)
 end
 local fundsOK,fundsResult=true,{notApplicable=true}

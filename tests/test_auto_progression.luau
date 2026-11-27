@@ -1,6 +1,6 @@
 -- Pure tables only. The caller supplies the planner; this file contains no
 -- transport, game services, movement, or live executor access.
-return function(P)
+return function(P,workerSource)
     local passed=0
     local function check(value,message) assert(value,message);passed+=1 end
     local function copy(t) local r={};for k,v in pairs(t) do r[k]=type(v)=="table" and copy(v) or v end;return r end
@@ -123,19 +123,14 @@ return function(P)
         f.conditions["sprinkler-badges"]=false
         check(P.plan(f,c).action.kind=="wait","Removing the hive gate still requires the game's badges")
     end
-    for _,gate in ipairs({35,36}) do
-        local name
-        for _,stage in ipairs(P.stages) do if stage.gate==gate then name=stage.gear[1];break end end
-        local f=facts();ownedThrough(f,name);f.occupied=gate-1;f.capacity=math.max(25,gate)
-        if gate>=36 then for _,planter in ipairs(P.planterCatchup) do f.ownedGear[planter]=true end end
-        f.inventory.Basic=1;f.emptyCell={verified=true,x=5,y=5}
-        local r=P.plan(f,catalog(name,100,{}))
-        check(r.action.kind=="hatch-basic","Occupied gate cannot be satisfied by capacity alone")
-        check(r.status.gearHoney==100 and r.status.gearMaterialsKnown,
-            "Gear cost remains visible while the hive gate blocks purchase")
-        f.occupied=gate;f.capacity=gate
-        check(P.plan(f,catalog(name,100,{})).action.kind=="buy-gear","Both gate counts satisfy exact boundary")
+    for _,name in ipairs({"Porcelain Port-O-Hive","Bubble Mask","Silver Soakers","Cobalt Guard"})do
+        local f=facts();ownedThrough(f,name);f.occupied=20;f.capacity=28
+        local c=catalog(name,100,{})
+        check(P.plan(f,c).action.kind=="buy-gear","No custom bee or capacity gate for "..name)
+        c.gear[name].conditions={"game-unlock"};f.conditions["game-unlock"]=false
+        check(P.plan(f,c).action.kind=="wait","Actual game requirement still enforced for "..name)
     end
+
     do
         local f=facts();ownedThrough(f,"Red Clay Planter")
         f.occupied=33;f.capacity=33;f.honey=150000000
@@ -875,9 +870,9 @@ return function(P)
         f.inventory.SoftWax=1
         for _,capacity in ipairs({25,44,46})do
             f.capacity=capacity;f.occupied=25
-            check(P.nextGear(f)==false,"Pesticide is excluded before unlocked slot47")
+            check(P.nextGear(f).id=="Pesticide Planter","Pesticide has no custom unlocked-slot gate")
             local r=P.plan(f,c)
-            check(r.action.kind~="buy-gear"and not r.gear,"No queue or direct purchase before47 even when affordable")
+            check(r.action.kind=="buy-gear"and r.gear=="Pesticide Planter","Affordable Pesticide can buy below47 when game requirements permit")
         end
         f.capacity=47;f.occupied=25
         local r=P.plan(f,c)
@@ -886,7 +881,7 @@ return function(P)
         f.pending=true;check(P.plan(f,c).action.reason=="unresolved-progression-request","Slot47 does not bypass pending guard")
         f.pending=false;f.capacity=46
         local row=P.routeStatus(f,c,{}).stages[6].gear[#P.stages[6].gear]
-        check(row.capacityRequired==47 and not row.hiveReady,"Route details expose Pesticide's unlocked-slot gate")
+        check(row.capacityRequired==nil and row.hiveReady,"Route removes the custom Pesticide capacity requirement")
     end
     do
         local stages=P.stages
@@ -927,15 +922,15 @@ return function(P)
         for _,amount in ipairs({0,1,2})do
             f.inventory.SpiritPetal=amount
             local r=P.plan(f,c)
-            check((r.gear=="Petal Belt")== (amount>=1),"Petal Belt is queued only with an actual owned Spirit Petal")
+            check(#r.gearQueues.B==1 and r.gearQueues.B[1].id=="Petal Belt","Petal Belt remains queued without a custom inventory admission gate")
             check((r.action.kind=="buy-gear")== (amount>=1),"Direct purchase shares the inventory gate")
         end
         f.inventory.SpiritPetal=nil
-        check(not P.plan(f,c).gear,"Missing Spirit Petal field cannot admit Petal Belt")
+        check(#P.plan(f,c).gearQueues.B==1 and P.plan(f,c).action.kind~="buy-gear","Missing Spirit Petal stays an actual material deficit")
         f.inventory.SpiritPetal=1;f.craft={item="SpiritPetal",count=1,ready=false};f.inventory.SpiritPetal=0
-        check(not P.plan(f,c).gear,"Queued or expected Spirit Petals never substitute for inventory")
+        check(P.plan(f,c).action.kind~="buy-gear","Queued or expected Spirit Petals cannot pay the actual cost")
         local row=P.routeStatus(f,c,{}).stages[6].gear[6]
-        check(row.id=="Petal Belt"and row.inventoryRequired.item=="SpiritPetal"and not row.hiveReady,"Route explains Petal Belt inventory unlock")
+        check(row.id=="Petal Belt"and row.inventoryRequired==nil and row.hiveReady,"Route no longer adds a separate Petal inventory prerequisite")
         f.craft=false;f.inventory.SpiritPetal=1;f.pending=true
         check(P.plan(f,c).action.reason=="unresolved-progression-request","Owned petal does not bypass pending guard")
     end
@@ -1062,6 +1057,48 @@ return function(P)
         c.recipes.Oil=P.recipes.Oil;c.recipeBlockers.Oil=nil;r=P.plan(f,c)
         check(r.gear=="Boots"and r.saveCraftingJelly and r.action.kind=="purchase-pack"and not next(r.craftingBlocked),"Fresh unlock automatically restores crafting-jelly priority")
         P.stages=stages
+    end
+    do
+        local other={Type="Test game requirement"}
+        local filtered=P.craftingRequirements({{Type="Earn Badges",Amount=3},other})
+        check(#filtered==1 and filtered[1]==other,"Crafting ignores obsolete badge metadata while preserving other conditions")
+        check(#P.craftingRequirements(nil)==0 and P.craftingRequirements("bad")==nil,"Absent recipe metadata is allowed but malformed metadata fails closed")
+        for _,stage in ipairs(P.stages)do check(stage.gate==0,"Default gear stages never impose custom bee counts")end
+        check(not next(P.capacityRequirements)and not next(P.inventoryRequirements),"No custom slot or inventory gates remain for gear queues")
+    end
+    if workerSource then
+        local source=assert(workerSource:match("(    local function craft%(a,c,s%).-)\n    local function collect"))
+        local make=assert(loadstring("return function(H,P,env,finishReceipt) "..source.." return craft end"))()
+        local definition={Requirements={{Type="Earn Badges",Amount=3}},Ingredients={{Category="Eggs",Type="SunflowerSeed",Amount=50},{Category="Eggs",Type="RoyalJelly",Amount=10}}}
+        local function exercise(change)
+            local s={Eggs={SunflowerSeed=100,RoyalJelly=20}};local env={};local calls=0
+            local action={item="Oil",amount=2};local catalog={recipes={Oil={}}}
+            local H={Recipes={Get=function()return definition end},Reqs={Check=function()error("Badge metadata must not be checked")end},Events={BlenderCommand={}}}
+            H.invoke=function(_,command,order)
+                calls+=1;check(command=="PlaceOrder"and order.Count==2,"Actual worker places the exact whole recipe deficit once")
+                env.FullHiveUncertain={};s.Eggs.SunflowerSeed-=100;s.Eggs.RoyalJelly-=20
+                s.BlenderState={Recipe="Oil",Count=2};return s.BlenderState
+            end
+            H.refresh=function()return s end
+            if change then change(H,s,env,action,catalog)end
+            local worker=make(H,P,env,function(_,_,receipt)check(receipt==env.FullHiveUncertain,"Worker reconciles its original receipt");return true end)
+            local ok,result=pcall(worker,action,catalog,s)
+            return ok,result,calls,env
+        end
+        local ok,result,calls=exercise()
+        check(ok and result and calls==1,"Both final craft validation and receipt permit a badge-free Oil order")
+        ok,result,calls=exercise(function(H,s)s.Eggs.RoyalJelly=19 end)
+        check(not ok and calls==0,"Missing actual jelly still blocks the worker before sending")
+        ok,result,calls=exercise(function(H,s)s.BlenderState={Recipe="Oil",Count=1}end)
+        check(not ok and calls==0,"Existing Blender order still blocks duplicate craft")
+        definition.Requirements={{Type="Test game condition"}}
+        ok,result,calls=exercise(function(H)H.Reqs.Check=function()return false end end)
+        check(not ok and calls==0,"Other explicit recipe conditions remain enforced at the final guard")
+        definition.Requirements={{Type="Earn Badges",Amount=3}}
+        local env;ok,result,calls,env=exercise(function(H)
+            H.refresh=function()return {Eggs={SunflowerSeed=1,RoyalJelly=0},BlenderState={Recipe="Oil",Count=2}}end
+        end)
+        check(not ok and calls==1 and env.FullHiveUncertain~=nil,"Changed receipt delta stops without replaying or clearing uncertainty")
     end
     return {passed=passed}
 end

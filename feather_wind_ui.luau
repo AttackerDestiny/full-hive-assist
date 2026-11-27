@@ -158,7 +158,8 @@ function UI.describeJelly(goal)
     local item=goal.Item=="StarJelly" and "Star Jelly" or goal.Item=="RoyalJelly" and "Royal Jelly"
     local text=stage.." | "..objective..(item and " ("..item..")" or "")
     if #missing>0 then
-        text..=goal.FailsafeGoalsActive==false and "\nGifted failsafe goals unlock with Bubble Mask"
+        text..=goal.ForceQuotasReady==false and "\nFill 4 Baby, 4 Music and 3 Shy before gifted failsafes"
+            or goal.FailsafeGoalsActive==false and "\nGifted failsafe goals unlock with Bubble Mask"
             or "\nGifted failsafes missing: "..table.concat(missing,", ")
     end
     return text

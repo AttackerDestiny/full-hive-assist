@@ -315,5 +315,20 @@ return function(P,T,runtime)
             check(e.FullHiveRollTask==lease and e[flag]==marker,"Original lease and unresolved flag survive: "..flag)
         end
     end
+    do
+        cells=fixture();local snapshot=stats(cells,0);snapshot.Eggs.RoyalJelly=600
+        local initial=P.plan(cells,T,{slots=41,starUsed=0,jelly=600,honey=1e15})
+        local lease=P.startRollTask(cells[1],cells,initial)
+        lease.Owner=7;lease.Hive="TestHive";lease.Job="test"
+        local batch={Version=1,Owner=7,Hive="TestHive",Job="test",Recovery=false,Amount=600}
+        local state={FullHiveRollTask=lease,FullHiveJellyBatch=batch}
+        local reconcile=P.reconcileRollTask;P.reconcileRollTask=function()return false,nil,false end
+        local ok,result,r=pcall(make,P,T,state,snapshot);P.reconcileRollTask=reconcile
+        check(ok and result.rollBlocked and result.target==nil,"Unsafe unfinished coordinate waits instead of raising a force-slot error")
+        check(state.FullHiveRollTask==lease and state.FullHiveJellyBatch==batch,"Blocked rolling preserves the exact task and admitted batch")
+        check(r.RollTargetBlocked.X==lease.x and r.JellyGoal.HasTarget==false,"Blocked state reports no spendable target")
+        q,report=make(P,T,state,snapshot)
+        check(q.target and q.target.x==lease.x and not report.RollTargetBlocked,"Fresh safe evidence resumes the same coordinate")
+    end
     return {passed=passed}
 end

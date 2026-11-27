@@ -319,12 +319,14 @@ return function(deps)
         end end
         for _,item in ipairs(Policy.recipeOrder) do
             local recipe,ok=call(deps.Recipes,"Get",item)
-            if ok and type(recipe)=="table" and type(recipe.Ingredients)=="table" and type(recipe.Requirements)=="table" then
-                local met,checked=call(deps.Reqs,"Check",s,recipe.Requirements)
+            local requirements=ok and type(recipe)=="table" and Policy.craftingRequirements(recipe.Requirements)
+            if ok and type(recipe)=="table" and type(recipe.Ingredients)=="table" and requirements then
+                local met,checked=true,true
+                if #requirements>0 then met,checked=call(deps.Reqs,"Check",s,requirements)end
                 if not checked or met~=true then
                     local reasons={}
                     if checked then
-                        for _,requirement in ipairs(recipe.Requirements) do
+                        for _,requirement in ipairs(requirements) do
                             local passed,known=call(deps.Reqs,"Check",s,{requirement})
                             if not known or passed~=true then
                                 local description,described=call(deps.Reqs,"Description",requirement)

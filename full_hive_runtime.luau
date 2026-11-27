@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.110"
+local SCRIPT_VERSION = "1.8.111"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -948,18 +948,26 @@ local function plan(s)
             end
             rollTask=nil; env.FullHiveRollTask=nil; Report.ActiveTarget=nil
         else
-            assert(safe,"Active roll slot became a force slot; stopped before switching")
-            p.target=current
-            p.reason=rollTask.Reason
-            p.mode=rollTask.Mode
-            p.legendaryHunt=rollTask.LegendaryHunt==true
-            if rollTask.DiscoveryMythic then p.complete=false end
-            if Policy.isRecoveryTask(rollTask) and Policy.refill(slots)>100 then
-                p.collectorFallback=true; env.FullHiveCollectorFallback=true
+            if not safe then
+                -- Preserve the unfinished coordinate and admission. A later
+                -- fresh snapshot may make it usable; never spend or switch now.
+                p.target=nil;p.reason="waiting-safe-roll-target";p.rollBlocked=true
+                Report.RollTargetBlocked={X=rollTask.x,Y=rollTask.y,Reason="Target is currently unsafe"}
+            else
+                Report.RollTargetBlocked=nil
+                p.target=current
+                p.reason=rollTask.Reason
+                p.mode=rollTask.Mode
+                p.legendaryHunt=rollTask.LegendaryHunt==true
+                if rollTask.DiscoveryMythic then p.complete=false end
+                if Policy.isRecoveryTask(rollTask) and Policy.refill(slots)>100 then
+                    p.collectorFallback=true; env.FullHiveCollectorFallback=true
+                end
             end
             Report.ActiveTarget={X=rollTask.x,Y=rollTask.y,Reason=rollTask.Reason,StartedType=rollTask.StartedType}
         end
     end
+    if not rollTask then Report.RollTargetBlocked=nil end
     Report.CollectorFallback=p.collectorFallback
     Report.SafeNonCollector=#p.fallbackCandidates
     Report.NormalRefillAmount=Policy.refill(slots)
@@ -974,7 +982,7 @@ local function plan(s)
     end
     Report.JellyGoal={Stage=p.stage,Reason=p.reason,Mode=p.mode,HasTarget=p.target~=nil,
         Item=p.target and Policy.rollItem(cells,s.Eggs,p,rollTask),
-        MissingFailsafes=Report.StarJellyMissing,FailsafeGoalsActive=p.failsafeGoalsActive,LegendaryHunt=p.legendaryHunt}
+        MissingFailsafes=Report.StarJellyMissing,FailsafeGoalsActive=p.failsafeGoalsActive,ForceQuotasReady=p.forceQuotasReady,LegendaryHunt=p.legendaryHunt}
     p._cells=cells
     return p,cells,slots
 end
@@ -1939,7 +1947,8 @@ local function run()
         end
         if not p.target then
             if background and background.level(s,true) then s=refresh();continue end
-            local reason=p.stage=="final" and p.growth.Empty>0
+            local reason=p.rollBlocked and "Waiting for a safe roll target; protected bees are held"
+                or p.stage=="final" and p.growth.Empty>0
                 and ("Checking funds to fill "..p.growth.Empty.." empty hive cells; current bees are held")
                 or p.capacityStatus.Conflict and ("Kept bees and current targets require at least "
                     ..p.capacityStatus.Minimum.." cells; capacity is "..slots)

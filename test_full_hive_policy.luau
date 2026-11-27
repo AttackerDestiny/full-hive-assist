@@ -92,7 +92,7 @@ return function(P,T)
         withoutMask.bubbleMaskOwned=false
         local withMask=ctx(35)
         withMask.bubbleMaskOwned=true
-        local cells={cell("Brave",false)}
+        local cells=hive({{"Brave",1},{"Baby",4},{"Music",4},{"Shy",3}})
         local before,after=P.plan(cells,T,withoutMask),P.plan(cells,T,withMask)
         for _,name in ipairs(P.mid) do
             local function hasGoal(plan)
@@ -595,6 +595,24 @@ return function(P,T)
         check(not done and not safe,"Unknown unreserved unsafe cells still fail closed")
         cell.bee={Type="Hasty",Traits={}};done,reason,safe=P.reconcileRollTask(task,cell,cells,T,plan)
         check(not done and safe,"An eligible intermediate result keeps the same unfinished task")
+    end
+    do
+        for _,slots in ipairs({35,40,44})do
+            for _,missingName in ipairs({"Baby","Music","Shy"})do
+                local h=hive({{"Baby",4},{"Music",4},{"Shy",3},{"Brave",8}})
+                for i,c in ipairs(h)do if c.bee.Type==missingName then table.remove(h,i);break end end
+                local c=ctx(slots);c.bubbleMaskOwned=true
+                local q=P.plan(h,T,c)
+                check(not q.failsafeGoalsActive and not q.forceQuotasReady,"Missing "..missingName.." defers failsafe hunting at "..slots)
+                for _,need in ipairs(q.needs)do check(not(table.find(P.mid,need.name)and need.gifted),"No ordinary failsafe goal before force quotas")end
+                check(P.rollItem(h,{StarJelly=1,RoyalJelly=1000},q)=="RoyalJelly","Star Jelly does not start failsafe hunting before quotas")
+                h[#h+1]=cell("Cool",true);q=P.plan(h,T,c)
+                check(q.keep[P.key(h[#h])] and not q.failsafeGoalsActive,"Incidental gifted failsafe is kept before force quotas complete")
+                h[#h+1]=cell(missingName,false);q=P.plan(h,T,c)
+                check(q.forceQuotasReady and q.failsafeGoalsActive,"Last missing force automatically enables failsafe goals")
+                check(P.count(h,"Cool",true)==1,"Incidental gifted failsafe remains present after force completion")
+            end
+        end
     end
     return {passed=checked}
 end

@@ -413,6 +413,9 @@ function P.plan(cells, types, ctx)
     local collectorFallback=P.refill(ctx.slots)>100 and ctx.collectorFallback==true
     local recoveryMode,recoveryReason=P.recoveryMode(ctx.honey)
     local post = stage == "blue" or stage == "final"
+    local forceQuotasReady=P.count(cells,"Baby")>=4 and P.count(cells,"Music")>=4
+        and (questRetired.Shy or P.count(cells,"Shy")>=3)
+    local failsafeGoalsActive=ctx.bubbleMaskOwned==true and (post or forceQuotasReady)
     local sixOnly=ctx.legendaryRoute=="six"
     local legendaryReady=(stage=="late" and (ctx.legendaryRoute==nil or ctx.legendaryRoute=="eggs" or sixOnly)
         or post and sixOnly) and (post or not P.hasCollectorUpgrade(cells))
@@ -513,7 +516,7 @@ function P.plan(cells, types, ctx)
         reserve("Ninja", 1, true); if not questRetired.Ninja then reserveNormal("Ninja", 2)end
         -- Only opportunistically keep collectors. They can be consumed for fixed targets.
         need("Baby", 4, false); need("Music", 4, false); if not questRetired.Shy then need("Shy", 3, false)end
-        if ctx.bubbleMaskOwned then
+        if failsafeGoalsActive then
             for _, name in ipairs(P.mid) do need(name, 1, true) end
         end
         if ctx.starPrepare then
@@ -723,7 +726,7 @@ function P.plan(cells, types, ctx)
     local capacityStatus=P.capacityStatus(cells,keep,needs,ctx.slots)
     return {stage=stage, keep=keep, protected=protected, temporary=temporary, needs=needs, candidates=candidates,
         giftedBasicCount=P.count(cells,"Basic",true),
-        questRetired=questRetired,basicOnly=basicOnly,starter=starter,failsafeGoalsActive=ctx.bubbleMaskOwned==true,
+        questRetired=questRetired,basicOnly=basicOnly,starter=starter,failsafeGoalsActive=failsafeGoalsActive,forceQuotasReady=forceQuotasReady,
         growth=growth,capacityStatus=capacityStatus,starPrepare=ctx.starPrepare==true and not post,
         fallbackCandidates=fallbackCandidates, collectorFallback=not basicOnly and collectorFallback and #fallbackCandidates>0,
         recoveryGifted=recoveryMode=="gifted",

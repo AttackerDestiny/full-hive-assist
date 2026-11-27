@@ -1,5 +1,11 @@
 # BSS project instructions
 
+- Latest human corrections, November 26 / v1.8.111: Blender recipe Earn Badges metadata is not a crafting gate (user supplied successful Red Extract crafting). Filter that metadata in BOTH read-only recipe discovery and the final craft guard; preserve validated ingredients, other explicit conditions, full funding and receipts. Do not reintroduce the false badge explanation from v1.8.110.
+- November 26: gear eligibility uses actual game conditions/access/cost/materials. Remove custom gear-stage occupied/capacity gates (35/36), Pesticide's custom47-capacity gate and Petal Belt's extra queue-admission inventory gate; Spirit Petal remains its actual cost. This does not alter hive rolling stages or real arena access requirements.
+- November 26: an unsafe active roll coordinate is a recoverable no-spend wait, not the historical force-slot terminal error. Preserve its task/admission/flags, release Atlas during the wait and revalidate fresh evidence. No target means no roll; unresolved mutation receipts remain blocking.
+- November 26: ordinary gifted failsafe hunting follows existing Baby4/Music4/Shy3 force quotas and Bubble Mask ownership. Preserve incidental gifted keeps, post-Star rules and the explicit quest-retired Shy exception; do not intentionally hunt missing Rare/Epic failsafes or use their Star Jelly admission while an active force quota is missing.
+
+
 - v1.8.20: An unsent trip that times out or has no clear route is a recoverable wait. Release Atlas and refresh planning after increasing per-destination delays capped at 60 seconds. This supersedes the historical one-retry limit. Unresolved requests, embedded Star workflows and failed cleanup still block recovery.
 
 - v1.8.17: Below 30 occupied bees, prioritize finishing normal Basic cleanup. Once no eligible normal Basic remains, continue normal one-Royal-Jelly rolls on eligible cells with all roll-to flags off and the usual keep rules.

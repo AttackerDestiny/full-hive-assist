@@ -163,7 +163,8 @@ return function(H)
         local definition=H.Recipes.Get(a.item)
         assert(definition and not P.bannedCraft[a.item],"Recipe is not permitted")
         local recipe=c.recipes[a.item]
-        assert(type(recipe)=="table" and H.Reqs.Check(s,definition.Requirements or {}),"Recipe requirements changed")
+        local requirements=P.craftingRequirements(definition.Requirements)
+        assert(type(recipe)=="table" and requirements and (#requirements==0 or H.Reqs.Check(s,requirements)),"Recipe requirements changed")
         assert(not s.BlenderState,"Blender already has an order")
         assert(a.amount>0 and a.amount%1==0,"Invalid craft count")
         for _,v in ipairs(definition.Ingredients) do

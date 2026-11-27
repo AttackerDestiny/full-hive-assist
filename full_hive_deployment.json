@@ -3400,42 +3400,14 @@
     ]
   },
   "latestCandidate": {
-    "version": "1.8.110",
+    "version": "1.8.111",
     "bundle": "core.luau",
-    "sha256": "6232b2dd0549540c40e9c745b7a6f7e298fc74eed6c06d81524818e81c2addaf",
-    "deployedNormalizedUTF8Sha256": "68e07c8ae641a55258e872168c0a458f4dfe723c41c744bd11b4f87a7edfafbc",
+    "sha256": "6c5f15d01d8834a5876c3ad17d97372c96f895dd53d103632e032edf02d4d11d",
+    "deployedNormalizedUTF8Sha256": "59e4d2dbb1c7a7e7960f36400fa1b02db149a7e53cbdb35db4a007a2f6696600",
     "jobId": "3be2b26b-dc0a-46a1-a119-f737211caf60",
-    "accounts": [
-      {
-        "account": "QuackAltear1",
-        "version": "1.8.110",
-        "startedAt": 1795701686,
-        "running": true,
-        "paused": false,
-        "uiVerified": true,
-        "actualAtlasStopEverything": false
-      },
-      {
-        "account": "QuackAltear5",
-        "version": "1.8.110",
-        "startedAt": 1795701777,
-        "running": true,
-        "paused": false,
-        "uiVerified": true,
-        "actualAtlasStopEverything": false
-      },
-      {
-        "account": "QuackAltear06",
-        "version": "1.8.110",
-        "startedAt": 1795701684,
-        "running": true,
-        "paused": false,
-        "uiVerified": true,
-        "actualAtlasStopEverything": false
-      }
-    ],
-    "offlineChecks": 6792,
-    "connectedChecks": 6785,
+    "accounts": [],
+    "offlineChecks": 6894,
+    "connectedChecks": 6887,
     "routeViewerLive": {
       "account": "QuackAltear5",
       "gearRows": 39,
@@ -3463,7 +3435,7 @@
       "honey": 5,
       "material": 5
     },
-    "progressionChecks": 468,
+    "progressionChecks": 487,
     "pesticideUnlockedCapacityRequirement": 47,
     "passiveMaterialDeferral": true,
     "livePesticideExcludedBelow47": {
@@ -3492,8 +3464,8 @@
     "fundedUnlockDeferral": true,
     "naturalSilverBadgeUnlockTransitionObserved": false,
     "unlockFilteredQueues": true,
-    "policyChecks": 1261,
-    "collectorRecoveryChecks": 910,
+    "policyChecks": 1339,
+    "collectorRecoveryChecks": 914,
     "actionableQueueCrafting": true,
     "reservedTargetRetirement": true,
     "naturalReservedTargetTransitionObserved": false,
@@ -3502,12 +3474,24 @@
     "independentRecipeInventory": true,
     "naturalOfflineScreenshotAccountVerified": false,
     "naturalCraftPurchaseAfterFixObserved": false,
-    "catalogChecks": 61,
+    "catalogChecks": 62,
     "recipeBlockerDiagnostics": true,
     "connectedLatestRegressionAccounts": [
+      "QuackAltear06"
+    ],
+    "falseCraftBadgeGateRemoved": true,
+    "customGearGatesRemoved": true,
+    "unsafeRollWait": true,
+    "forceQuotasBeforeFailsafes": true,
+    "liveDeploymentVerified": false,
+    "pendingLiveDeploymentAccounts": [
       "QuackAltear1",
       "QuackAltear5",
       "QuackAltear06"
-    ]
+    ],
+    "scheduledNotVerified": [
+      "QuackAltear06"
+    ],
+    "note": "No clients at final rediscovery; scheduled execution is not proof. Reconcile identity/version/StartedAt/pending on rediscovery before another deployment. QuackAltear06 deployment was scheduled once."
   }
 }

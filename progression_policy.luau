@@ -1,6 +1,18 @@
 -- Pure progression decisions. The host supplies verified ownership, prices,
 -- conditions and coordinates, and revalidates every action before a remote.
 local P = {}
+-- Legacy recipe badge metadata is not a Blender crafting gate. Preserve
+-- other explicit recipe conditions and validate ingredients independently.
+function P.craftingRequirements(requirements)
+    if requirements==nil then return {} end
+    if type(requirements)~="table" then return nil end
+    local result={}
+    for _,requirement in ipairs(requirements)do
+        if type(requirement)~="table"then return nil end
+        if requirement.Type~="Earn Badges"then result[#result+1]=requirement end
+    end
+    return result
+end
 P.codes = {"Wax", "Roof", "Nectar", "Crawlers", "Connoisseur", "BopMaster", "BeesBuzz123", "38217"}
 P.stages = {
     {gate=0, gear={"Clippers", "Jar", "Canister", "Vacuum", "Basic Boots", "Belt Pocket", "Helmet",
@@ -9,8 +21,8 @@ P.stages = {
     {gate=0, gear={"Basic Sprinkler", "Candy Planter", "Blue Port-O-Hive", "Beekeeper's Mask", "Mondo Belt Bag",
         "Beekeeper's Boots", "Blue Clay Planter", "Red Clay Planter"}},
     {gate=0, gear={"Porcelain Dipper"}},
-    {gate=35, gear={"Porcelain Port-O-Hive", "Bubble Mask"}},
-    {gate=36, gear={"Silver Soakers", "Cobalt Guard"}},
+    {gate=0, gear={"Porcelain Port-O-Hive", "Bubble Mask"}},
+    {gate=0, gear={"Silver Soakers", "Cobalt Guard"}},
     {gate=0, gear={"Golden Gushers", "TackyPlanter", "Crimson Guard", "Diamond Drenchers", "Diamond Mask",
         "Petal Belt", "Coconut Canister", "The Supreme Saturator", "Pesticide Planter"}},
 }
@@ -18,8 +30,8 @@ P.stages = {
 -- stays intact below that capacity; this catch-up intentionally puts Red
 -- before Blue in the order given by the newer instruction.
 P.planterCatchup={"Candy Planter","Red Clay Planter","Blue Clay Planter","TackyPlanter"}
-P.capacityRequirements={["Pesticide Planter"]=47}
-P.inventoryRequirements={["Petal Belt"]={item="SpiritPetal",amount=1}}
+P.capacityRequirements={}
+P.inventoryRequirements={}
 P.bannedCraft = {Gumdrops=true, MoonCharm=true, StarJelly=true, SoftWax=true, HardWax=true}
 P.waitOnly = {MoonCharm=true, StarJelly=true, MagicBean=true, SoftWax=true, HardWax=true}
 P.recipeOrder = {"BlueExtract", "RedExtract", "Enzymes", "Oil", "Glue", "TropicalDrink", "Glitter",
