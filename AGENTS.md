@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- November28/v1.8.139: Crimson Guard enters queues/saving/material preparation only when Cobalt Guard is actually owned AND equipped. Query fresh Accessory package;unknown/error/nonboolean equipment fails closed. This is additional to existing Baby/Music/Shy capacity-aware prerequisites,not a replacement. Excluded Crimson reserves no honey/jelly/aggregate recipe demand;recheck after travel,do not auto-equip or repurchase owned Crimson. Preserve route/material ranking and unresolved receipts.
+
 - November27/v1.8.138: Super Material Farm supports Coconut -> Coconut Field using the verified35 Bee Gate requirements through the existing fresh Reqs.Check path. Mark Coconut farmable in queue preparation so shortages are not passive-only deferrals. Preserve prior fruit priority/active deficit,access checks,return-field rules,toggle and confirmed status. No gate bypass,manual movement or forced Coconut drops.
 
 - November27/v1.8.137: Diamond Mask queue/saving/material preparation requires40+ unlocked slots AND Diamond Drenchers actually owned AND equipped. This supersedes135's41-slot threshold. Drenchers dependency uses fresh CategorySprinkler PlayerHas/PlayerHasEquipped,notAccessory;unknown/error/nonboolean blocks. Do not auto-equip or repurchase owned masks. Existing last-moment action replan,route/ranking,othergear gates and receipts remain.

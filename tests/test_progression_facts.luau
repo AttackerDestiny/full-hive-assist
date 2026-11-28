@@ -350,5 +350,22 @@ return function(factory,Policy)
         deps.Packages.PlayerHasEquipped=function()error("unavailable")end
         check(factory(deps)(s).equippedGear["Diamond Drenchers"]==nil,"Failed equipment read cannot admit the mask")
     end
+    do
+        local deps,s=fixture();local has=deps.Packages.PlayerHas;local seen
+        deps.Packages.PlayerHas=function(package,snapshot)
+            if package.Type=="Cobalt Guard"then seen=package.Category;return true end
+            return has(package,snapshot)
+        end
+        deps.Packages.PlayerHasEquipped=function(package,snapshot)
+            if package.Type=="Cobalt Guard"then assert(snapshot==s);return true end
+            return false
+        end
+        local f=factory(deps)(s)
+        check(seen=="Accessory"and f.ownedGear["Cobalt Guard"]and f.equippedGear["Cobalt Guard"],"Cobalt dependency uses fresh Accessory ownership/equipment")
+        deps.Packages.PlayerHasEquipped=function()return false end
+        check(factory(deps)(s).equippedGear["Cobalt Guard"]==false,"Unequipped Cobalt stays false")
+        deps.Packages.PlayerHasEquipped=function()error("unavailable")end
+        check(factory(deps)(s).equippedGear["Cobalt Guard"]==nil,"Failed Cobalt equipment cannot qualify")
+    end
     return {passed=passed}
 end

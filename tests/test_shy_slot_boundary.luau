@@ -53,7 +53,7 @@ return function(P,Q,Progression,T,runtime,background)
             end
             for _,guard in ipairs({"Cobalt Guard","Crimson Guard"})do
                 for shy=0,3 do
-                    local f={capacity=capacity,beeCounts={Baby=4,Music=4,Shy=shy},questRetired={Shy=completed}}
+                    local f={capacity=capacity,beeCounts={Baby=4,Music=4,Shy=shy},questRetired={Shy=completed},ownedGear={["Cobalt Guard"]=true},equippedGear={["Cobalt Guard"]=true}}
                     check(Progression.gearPrerequisite(f,guard)==(shy==3 or completed and capacity>=48),"Guard admission uses the same capacity/evidence boundary")
                 end
             end

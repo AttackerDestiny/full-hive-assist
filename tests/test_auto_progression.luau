@@ -80,6 +80,7 @@ return function(P,workerSource,BlenderReceipt)
             -- Isolate normal route order; 36+ catch-up has its own cases below.
             for _,planter in ipairs(P.planterCatchup) do f.ownedGear[planter]=true end
             f.ownedGear[name]=false
+            if name=="Crimson Guard"then f.ownedGear["Cobalt Guard"]=true;f.equippedGear["Cobalt Guard"]=true end
             if name=="Diamond Mask"then f.ownedGear["Diamond Drenchers"]=true;f.equippedGear["Diamond Drenchers"]=true end
             if name=="Bubble Mask"then for _,id in ipairs(P.loadoutRequirements[name])do f.ownedGear[id]=true;f.equippedGear[id]=true end end
             if name=="Blue Clay Planter"or name=="Red Clay Planter"then f.ownedGear["Porcelain Dipper"]=true;f.equippedGear["Porcelain Dipper"]=true end
@@ -1263,6 +1264,7 @@ return function(P,workerSource,BlenderReceipt)
         for _,guard in ipairs({"Cobalt Guard","Crimson Guard"})do
             P.stages={{gate=0,gear={guard,"Next Gear"}}}
             local f=facts();f.gearQueues=true;f.honey=0;f.beeCounts={Baby=4,Music=4,Shy=0}
+            if guard=="Crimson Guard"then f.ownedGear["Cobalt Guard"]=true;f.equippedGear={["Cobalt Guard"]=true}end
             local c={gear={[guard]={honey=100,items={Oil=2}},["Next Gear"]={honey=200,items={}}}}
             local r=P.plan(f,c)
             check(r.gear=="Next Gear"and #r.gearQueues.B==0,"Both guards wait before verified Shy retirement")
@@ -1407,6 +1409,28 @@ return function(P,workerSource,BlenderReceipt)
         check(not r.allMaterialDeferred,"Farmable Coconut is not treated as passive-only drops")
         f.inventory.Coconut=20;r=P.plan(f,c)
         check(r.allMaterialDeferred and not r.materialFarmGear,"After Coconut goal only passive shortage remains deferred")
+        P.stages=stages
+    end
+    do
+        local stages=P.stages;P.stages={{gate=0,gear={"Crimson Guard","Next Gear"}}}
+        local f=facts();f.gearQueues=true;f.honey=0
+        local c={gear={["Crimson Guard"]={honey=100,items={RedExtract=2}},["Next Gear"]={honey=200,items={}}}}
+        for _,owned in ipairs({false,true})do for _,equipped in ipairs({false,true})do
+            f.ownedGear["Cobalt Guard"]=owned;f.equippedGear={["Cobalt Guard"]=equipped}
+            local r=P.plan(f,c)
+            check((r.gear=="Crimson Guard")== (owned and equipped),"Crimson needs Cobalt actually owned AND equipped")
+            if not(owned and equipped)then
+                check(not r.reservedItems.RoyalJelly and #r.gearQueues.B==0,"Blocked Crimson reserves no crafting jelly")
+                f.discoveryPreparation=true;r=P.plan(f,c);f.discoveryPreparation=nil
+                check(not r.queueMaterialRequirements or not r.queueMaterialRequirements.RedExtract,"Blocked Crimson creates no aggregate demand")
+            end
+        end end
+        f.ownedGear["Cobalt Guard"]=true;f.equippedGear={["Cobalt Guard"]="unknown"}
+        check(not P.gearPrerequisite(f,"Crimson Guard"),"Unknown Cobalt equipment blocks admission")
+        f.equippedGear["Cobalt Guard"]=true;f.beeCounts.Baby=3
+        check(not P.gearPrerequisite(f,"Crimson Guard"),"Cobalt dependency does not remove existing force quota gate")
+        f.ownedGear["Crimson Guard"]=true
+        check(P.plan(f,c).gear~="Crimson Guard","Owned Crimson is not repurchased")
         P.stages=stages
     end
     return {passed=passed}
