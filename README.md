@@ -124,11 +124,12 @@ For authorized disconnect recovery, corroborate discovery with foreground/screen
 - Pure policy tests cannot prove a real purchase, field switch or RNG result. Label isolated coverage, live configuration verification and naturally observed actions separately.
 - No subagents. Do not alter the existing recurring schedule unless asked. No duplicate automation.
 
-## Current rules to preserve (v1.8.139 snapshot)
+## Current rules to preserve (v1.8.140 snapshot)
 
 This section is a handoff snapshot; consult later log entries and AGENTS.md for subsequent changes.
 
 - Both gear queues contain up to five eligible entries. Honey queue sorts by honey price; material queue sorts by remaining leaf ingredients after owned stock and queued output, then honey and route order. Ready purchases/crafts can bypass blocked targets. Passive drops must not monopolize active material farming.
+- Cobalt Bee is excluded from automatic purchases/gifting/fallback gift funding. Other Event priorities remain; existing owned Cobalt egg hatching and bee protection are separate. Cobalt Guard gear is unaffected.
 - Crimson Guard additionally requires Cobalt Guard actually owned AND equipped before queue/saving/material preparation; existing bee quota rules still apply.
 - Crimson Guard follows Coconut Canister in the route, before Supreme Saturator. Route order is not an additional ownership prerequisite.
 - Keep Shy3 through47 unlocked slots,even after completed Star Journey2 RedBoost5000. From48 onward,verified objective/completed-quest evidence may retire the normal Shy quota;unknown/incomplete evidence retains3. Normal/gifted copies count together;prefer gifted. Baby/Music keep their existing stage rules. BOTH Cobalt and Crimson require Baby4/Music4/Shy3 through47;only48+verified retirement removes their Shy requirement. Music3 remains invalid.
@@ -178,4 +179,4 @@ Application changes:
 
 Documentation-only updates do not require version bumps, game spending or live re-execution. A healthy unchanged application should stay running.
 
-Latest published application candidate: **v1.8.139**. Runtime/report/UI and new StartedAt verified on **xd_Glen09, SpidermanXD56 and QuackTest03 (job97097a2d-929f-4d10-abe8-71188b130c54)**. QuackAltear1 and an older QuackTest03 job were initially listed but became unreachable before final verification; their current deployment remains unverified. QuackAltear5/06 were not listed during this run. QuackTest02 was excluded. Do not claim all historical accounts were updated. See deployment JSON/latest log for exact identities,tests,hashes and observations.
+Latest published application candidate: **v1.8.140**. Runtime/report/UI and new StartedAt verified on **xd_Glen09, SpidermanXD56 and QuackTest03 (job97097a2d-929f-4d10-abe8-71188b130c54)**. QuackAltear1 and an older QuackTest03 job were initially listed but became unreachable before final verification; their current deployment remains unverified. QuackAltear5/06 were not listed during this run. QuackTest02 was excluded. Do not claim all historical accounts were updated. See deployment JSON/latest log for exact identities,tests,hashes and observations.

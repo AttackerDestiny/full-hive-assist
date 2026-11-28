@@ -62,7 +62,20 @@ return function(P,runtime)
     for _,c in ipairs(events)do if c.bee.Type=="Tabby"then c.bee.Traits={"Gifted"}end end
     local giftedPhoton=false
     local allEvents=make(P,function()error("Owned Star Treat should be used before purchases")end,function()return events end,nil,nil,nil,nil,nil,
-        {Photon={Rarity="Event"}},function(c,item)assert(c.bee.Type=="Photon" and item=="StarTreat");giftedPhoton=true;return {}end)
+        {Photon={Rarity="Event"},Cobalt={Rarity="Event"}},function(c,item,validate)assert(c.bee.Type=="Photon" and item=="StarTreat");assert(not validate({bee={Type="Cobalt",Traits={}}}),"Final gift guard rejects Cobalt");giftedPhoton=true;return {}end)
     assert(allEvents({Eggs={StarTreat=1}},events,readyPlan) and giftedPhoton,"Event priority includes Photon outside the historical six-bee list")
-    return {passed=16}
+    local remaining={}
+    for i,name in ipairs({"Tabby","Gummy","Festive","Vicious","Puppy"})do remaining[i]={x=i,y=1,bee={Type=name,Traits={"Gifted"}}}end
+    local noCobalt=make(P,function()error("Cobalt must not be purchased or funded")end,function()return remaining end,nil,nil,nil,nil,nil,
+        {Cobalt={Rarity="Event"}},function()error("Cobalt must not receive Star Treats")end)
+    assert(not noCobalt({Eggs={Ticket=1000,StarTreat=1}},remaining,readyPlan),"No Cobalt purchase after other five Events owned")
+    remaining[#remaining+1]={x=6,y=1,bee={Type="Cobalt",Traits={}}}
+    assert(not noCobalt({Eggs={Ticket=1000,StarTreat=1}},remaining,readyPlan),"Fallback cannot gift normal Cobalt")
+    assert(not noCobalt({Honey=1e15,Eggs={Ticket=1000}},remaining,readyPlan),"No Star Treat or ticket funding solely for Cobalt")
+    table.remove(remaining)
+    local hatched=false
+    local ownedEgg=make(P,function()error("Owned egg must not be rebought")end,function()return remaining end,nil,
+        {hatchEvent=function(_,egg,name)assert(egg=="CobaltBee"and name=="Cobalt");hatched=true;return true end},nil,nil,nil,{})
+    assert(ownedEgg({Eggs={CobaltBee=1}},remaining,readyPlan)and hatched,"Existing Cobalt egg hatching remains independent of disabled purchases")
+    return {passed=21}
 end

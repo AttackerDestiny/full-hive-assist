@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.139"
+local SCRIPT_VERSION = "1.8.140"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -1571,7 +1571,7 @@ local function eventAction(s,cells,p)
     local canPlace=not rollTask and not basicLock
     for _,c in ipairs(p.candidates) do if safe(c,p) then target=c; break end end
     local normalEvent
-    for _,name in ipairs({"Tabby","Vicious","Festive","Cobalt","Puppy","Gummy"}) do
+    for _,name in ipairs({"Tabby","Vicious","Festive","Puppy","Gummy"}) do
         for _,c in ipairs(cells) do
             if c.bee.Type==name and not Policy.gifted(c) then normalEvent=c; break end
         end
@@ -1580,12 +1580,12 @@ local function eventAction(s,cells,p)
     if not normalEvent then
         for _,c in ipairs(cells) do
             local info=Types and Types[c.bee.Type]
-            if info and info.Rarity=="Event" and not Policy.gifted(c) then normalEvent=c;break end
+            if info and info.Rarity=="Event" and c.bee.Type~="Cobalt"and not Policy.gifted(c) then normalEvent=c;break end
         end
     end
     if canPlace and normalEvent and (s.Eggs.StarTreat or 0)>0 then
         mode("off")
-        if spend(normalEvent,"StarTreat",function(c) return Types[c.bee.Type].Rarity=="Event" and not Policy.gifted(c) end)~=false then
+        if spend(normalEvent,"StarTreat",function(c) return Types[c.bee.Type].Rarity=="Event" and c.bee.Type~="Cobalt"and not Policy.gifted(c) end)~=false then
             return true
         end
     end
@@ -1606,7 +1606,7 @@ local function eventAction(s,cells,p)
             end
             -- Jelly ownership indicates a previously acquired unique bee; do not rebuy it.
             local owned=(s.Eggs[egg] or 0)>0 or (s.Eggs[egg.."Jelly"] or 0)>0
-            if not owned and Config.AutoPurchase then
+            if name~="Cobalt"and not owned and Config.AutoPurchase then
                 local function canBuy(fresh,currency,cost)
                     return (fresh.Eggs[currency] or 0)>=cost and (fresh.Eggs[egg] or 0)==0
                         and (fresh.Eggs[egg.."Jelly"] or 0)==0 and Policy.count(scan(fresh),name)==0

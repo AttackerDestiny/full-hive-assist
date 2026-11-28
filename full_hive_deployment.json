@@ -3289,46 +3289,46 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.139",
+    "version": "1.8.140",
     "bundle": "core.luau",
-    "sha256": "871dd71495f27501263a750be26ffbb02220de5f5c52b890c6b3160df53e75f7",
-    "deployedNormalizedUTF8Sha256": "3582b19a37879c68cc191e8b0f146d19c1f551c6b0ac75591eeb628d3578a418",
+    "sha256": "dbabb97a0edf77fee54d27443abf62a150d4cc5f9c6ba895240b804c789c9eba",
+    "deployedNormalizedUTF8Sha256": "ebc50aacdd5048adcc048dfb70410997484d7c8dd920c67da56cca02f7b5079d",
     "accounts": [
       {
         "account": "xd_Glen09",
         "jobId": "36c58970-9fe4-433c-a68c-6a76a4ae1d93",
         "executor": "Arceus X",
-        "version": "1.8.139",
-        "startedAt": 1795831541,
+        "version": "1.8.140",
+        "startedAt": 1795832124,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.139-crimson-cobalt-final"
+        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
       },
       {
         "account": "SpidermanXD56",
         "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
         "executor": "Arceus X",
-        "version": "1.8.139",
-        "startedAt": 1795831539,
+        "version": "1.8.140",
+        "startedAt": 1795832125,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.139-crimson-cobalt-final"
+        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
       },
       {
         "account": "QuackTest03",
         "jobId": "97097a2d-929f-4d10-abe8-71188b130c54",
         "executor": "Delta",
-        "version": "1.8.139",
-        "startedAt": 1795831544,
+        "version": "1.8.140",
+        "startedAt": 1795832198,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.139-crimson-cobalt-final"
+        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
       }
     ],
     "incompleteTargets": [
@@ -3351,8 +3351,8 @@
       "QuackAltear5",
       "QuackAltear06"
     ],
-    "offlineChecks": 8495,
-    "connectedChecksPerAccount": 8500,
+    "offlineChecks": 8502,
+    "connectedChecksPerAccount": 8523,
     "progressionChecks": 700,
     "factsChecks": 229,
     "compatibilityMarkers": 42,
@@ -3385,7 +3385,14 @@
     },
     "naturalCoconutFieldSwitchObserved": false,
     "crimsonRequiresCobaltOwnedAndEquipped": true,
-    "naturalCrimsonExclusionObserved": true
+    "naturalCrimsonExclusionObserved": true,
+    "connectedMainChecksPerAccount": 8502,
+    "connectedSupplementalEventChecksPerAccount": 21,
+    "cobaltAutoBuy": false,
+    "cobaltAutoGift": false,
+    "cobaltGiftFallback": false,
+    "ownedCobaltEggHatchPreserved": true,
+    "eventFirstMythicGateIgnoresCobalt": true
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -4107,46 +4114,46 @@
     "noFlagsManuallyCleared": true
   },
   "latestCandidate": {
-    "version": "1.8.139",
+    "version": "1.8.140",
     "bundle": "core.luau",
-    "sha256": "871dd71495f27501263a750be26ffbb02220de5f5c52b890c6b3160df53e75f7",
-    "deployedNormalizedUTF8Sha256": "3582b19a37879c68cc191e8b0f146d19c1f551c6b0ac75591eeb628d3578a418",
+    "sha256": "dbabb97a0edf77fee54d27443abf62a150d4cc5f9c6ba895240b804c789c9eba",
+    "deployedNormalizedUTF8Sha256": "ebc50aacdd5048adcc048dfb70410997484d7c8dd920c67da56cca02f7b5079d",
     "accounts": [
       {
         "account": "xd_Glen09",
         "jobId": "36c58970-9fe4-433c-a68c-6a76a4ae1d93",
         "executor": "Arceus X",
-        "version": "1.8.139",
-        "startedAt": 1795831541,
+        "version": "1.8.140",
+        "startedAt": 1795832124,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.139-crimson-cobalt-final"
+        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
       },
       {
         "account": "SpidermanXD56",
         "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
         "executor": "Arceus X",
-        "version": "1.8.139",
-        "startedAt": 1795831539,
+        "version": "1.8.140",
+        "startedAt": 1795832125,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.139-crimson-cobalt-final"
+        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
       },
       {
         "account": "QuackTest03",
         "jobId": "97097a2d-929f-4d10-abe8-71188b130c54",
         "executor": "Delta",
-        "version": "1.8.139",
-        "startedAt": 1795831544,
+        "version": "1.8.140",
+        "startedAt": 1795832198,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.139-crimson-cobalt-final"
+        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
       }
     ],
     "incompleteTargets": [
@@ -4169,8 +4176,8 @@
       "QuackAltear5",
       "QuackAltear06"
     ],
-    "offlineChecks": 8495,
-    "connectedChecksPerAccount": 8500,
+    "offlineChecks": 8502,
+    "connectedChecksPerAccount": 8523,
     "progressionChecks": 700,
     "factsChecks": 229,
     "compatibilityMarkers": 42,
@@ -4203,7 +4210,14 @@
     },
     "naturalCoconutFieldSwitchObserved": false,
     "crimsonRequiresCobaltOwnedAndEquipped": true,
-    "naturalCrimsonExclusionObserved": true
+    "naturalCrimsonExclusionObserved": true,
+    "connectedMainChecksPerAccount": 8502,
+    "connectedSupplementalEventChecksPerAccount": 21,
+    "cobaltAutoBuy": false,
+    "cobaltAutoGift": false,
+    "cobaltGiftFallback": false,
+    "ownedCobaltEggHatchPreserved": true,
+    "eventFirstMythicGateIgnoresCobalt": true
   },
   "deploymentV1_8_126": {
     "version": "1.8.126",
@@ -5627,5 +5641,104 @@
       "gate": "35 Bee Gate"
     },
     "naturalCoconutFieldSwitchObserved": false
+  },
+  "deploymentBeforeDisableCobalt140": {
+    "version": "1.8.139",
+    "bundle": "core.luau",
+    "sha256": "871dd71495f27501263a750be26ffbb02220de5f5c52b890c6b3160df53e75f7",
+    "deployedNormalizedUTF8Sha256": "3582b19a37879c68cc191e8b0f146d19c1f551c6b0ac75591eeb628d3578a418",
+    "accounts": [
+      {
+        "account": "xd_Glen09",
+        "jobId": "36c58970-9fe4-433c-a68c-6a76a4ae1d93",
+        "executor": "Arceus X",
+        "version": "1.8.140",
+        "startedAt": 1795832124,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
+      },
+      {
+        "account": "SpidermanXD56",
+        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
+        "executor": "Arceus X",
+        "version": "1.8.140",
+        "startedAt": 1795832125,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
+      },
+      {
+        "account": "QuackTest03",
+        "jobId": "97097a2d-929f-4d10-abe8-71188b130c54",
+        "executor": "Delta",
+        "version": "1.8.140",
+        "startedAt": 1795832198,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
+      }
+    ],
+    "incompleteTargets": [
+      {
+        "account": "QuackAltear1",
+        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
+        "reason": "Initial probe timed out; later absent from discovery; application not dispatched"
+      },
+      {
+        "account": "QuackTest03",
+        "jobId": "aabfea9d-2086-42e9-ba9c-f0a6611f7368",
+        "reason": "Initial probe timed out; later absent; distinct session not substituted or deployed"
+      }
+    ],
+    "allConnectedEligibleAccountsReexecuted": false,
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "notDiscoveredHistoricalAccounts": [
+      "QuackAltear5",
+      "QuackAltear06"
+    ],
+    "offlineChecks": 8495,
+    "connectedChecksPerAccount": 8500,
+    "progressionChecks": 700,
+    "factsChecks": 229,
+    "compatibilityMarkers": 42,
+    "bubbleMaskPrerequisites": [
+      "Porcelain Dipper",
+      "Porcelain Port-O-Hive",
+      "Beekeeper's Mask",
+      "Beekeeper's Boots",
+      "Mondo Belt Bag"
+    ],
+    "naturalBubblePurchaseObserved": false,
+    "porcelainPortCapacityRequired": 35,
+    "naturalBelow35ExclusionObserved": true,
+    "allCurrentlyReachableEligibleSessionsReexecuted": true,
+    "diamondMaskCapacityRequired": 40,
+    "naturalBelow41ExclusionObserved": true,
+    "characterChecks": 538,
+    "hiveLandingClearanceMinimum": 3.5,
+    "hiveFinalTolerance": 0.75,
+    "collisionRestorationBeforeHoldRemoval": true,
+    "naturalHiveArrivalAfterFixObserved": false,
+    "intermittentUnderMapFallReproduced": false,
+    "diamondMaskRequiresDrenchersOwnedAndEquipped": true,
+    "separateMaterialFarmChecks": 51,
+    "materialFarmChecks": 51,
+    "coconutFieldRoute": {
+      "item": "Coconut",
+      "field": "Coconut Field",
+      "gate": "35 Bee Gate"
+    },
+    "naturalCoconutFieldSwitchObserved": false,
+    "crimsonRequiresCobaltOwnedAndEquipped": true,
+    "naturalCrimsonExclusionObserved": true
   }
 }

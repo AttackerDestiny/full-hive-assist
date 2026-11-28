@@ -23,7 +23,7 @@ end
 function M.eventsGifted(cells,types)
     for _,c in ipairs(cells) do
         local info=c.bee and types[c.bee.Type]
-        if info and info.Rarity=="Event" and not table.find(c.bee.Traits or {},"Gifted") then return false end
+        if info and info.Rarity=="Event" and c.bee.Type~="Cobalt"and not table.find(c.bee.Traits or {},"Gifted") then return false end
     end
     return true
 end

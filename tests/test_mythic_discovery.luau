@@ -66,5 +66,7 @@ return function(M)
     check(not M.validateFeed(b,0,true,s.Honeycomb,s),"Star Treat requires a confirmed gift")
     s.Honeycomb.x1.y1.Traits={"Gifted"};check(M.validateFeed(b,0,true,s.Honeycomb,s),"Star Treat gift receipt validates")
     s.Honeycomb.x1.y1.Birth=99;check(not M.validateFeed(b,0,true,s.Honeycomb,s),"Same-coordinate replacement cannot validate a feed")
+    check(M.eventsGifted({{bee={Type="Cobalt",Traits={}}}},{Cobalt={Rarity="Event"}}),"Excluded Cobalt cannot stall Mythic Star Treat fallback")
+    check(not M.eventsGifted({{bee={Type="Tabby",Traits={}}}},{Tabby={Rarity="Event"}}),"Other Events retain first priority for Star Treats")
     return {passed=passed}
 end

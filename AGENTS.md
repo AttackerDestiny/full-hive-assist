@@ -1,5 +1,7 @@
 # BSS project instructions
 
+- November28/v1.8.140: Do not auto-buy Cobalt Bee or auto-gift it. Skip Cobalt purchases in event order while preserving independently already-owned egg hatching;remove it from gifting priority/fallback and final gift validation,so it cannot trigger StarTreat/ticket funding. Excluded Cobalt is not a blocker for the later Mythic StarTreat Events-first check;other ungifted Events still take priority. Existing bees/keeps and Cobalt Guard gear logic are unchanged;do not conflate Cobalt Bee with Cobalt Guard.
+
 - November28/v1.8.139: Crimson Guard enters queues/saving/material preparation only when Cobalt Guard is actually owned AND equipped. Query fresh Accessory package;unknown/error/nonboolean equipment fails closed. This is additional to existing Baby/Music/Shy capacity-aware prerequisites,not a replacement. Excluded Crimson reserves no honey/jelly/aggregate recipe demand;recheck after travel,do not auto-equip or repurchase owned Crimson. Preserve route/material ranking and unresolved receipts.
 
 - November27/v1.8.138: Super Material Farm supports Coconut -> Coconut Field using the verified35 Bee Gate requirements through the existing fresh Reqs.Check path. Mark Coconut farmable in queue preparation so shortages are not passive-only deferrals. Preserve prior fruit priority/active deficit,access checks,return-field rules,toggle and confirmed status. No gate bypass,manual movement or forced Coconut drops.
