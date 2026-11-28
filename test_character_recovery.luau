@@ -200,6 +200,20 @@ return function(runtime)
         check(env.FullHiveRollTask==lease and env.FullHiveJellyBatch==batch,"Read recovery preserves task/admission identity")
         check(report.Actions==19 and report.RoyalJellyUsed==285,"Read recovery preserves spending counters")
     end
+    do
+        local floorSource=assert(runtime:match("(local function hiveFloor%(%).-)%-%- A private error token"))
+        local make=assert(loadstring("return function(hive) "..floorSource.." return hiveFloor end"))()
+        local pad={IsA=function(_,class)return class=='BasePart'end}
+        local model={IsA=function()return false end,FindFirstChild=function(_,name)if name=='Platform'then return pad end end}
+        local function holder(value)return {IsA=function(_,class)return class=='ObjectValue'end,Value=value}end
+        for _,value in ipairs({pad,model,holder(pad),holder(model)})do
+            local getter=make(function()return {FindFirstChild=function()return value end}end)
+            check(getter()==pad,"Every supported hive reference resolves the actual pad")
+            check(select('#',getter())==1,"Hive resolver never leaks assert's message as a pickup argument")
+        end
+        local getter=make(function()return {FindFirstChild=function()end}end)
+        check(not pcall(getter),"Missing hive floor still fails closed")
+    end
     -- Run the actual movement function against fake Instances/services. Killing
     -- the fake character during Tween:Play must restore collisions/constraints.
     local movement=assert(runtime:match("(local function move%(part,pickup%).-)\nlocal function setSettings"))
@@ -209,7 +223,7 @@ return function(runtime)
         "local Config={Speed=65,NearDistance=16}; local cleanupMove; local function acquire() end; local function checkStop() end; local function pauseCheckpoint() end; local function assertAtlasPaused() end\n"..
         helpers.."\nlocal function distance(part) local d=part.CFrame:PointToObjectSpace(player.Character:FindFirstChild().Position); local h=part.Size*0.5; return (d-Vector3.new(math.clamp(d.X,-h.X,h.X),math.clamp(d.Y,-h.Y,h.Y),math.clamp(d.Z,-h.Z,h.Z))).Magnitude end; local function near() end\n"..movement..
         "\nreturn move,CHARACTER_UNAVAILABLE,function() return cleanupMove end,MOVEMENT_TIMEOUT,Config\nend"))()
-    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","already-near","speed-change","rotated-pad","obstructed","lateral","blocked-direct","no-route","shop-path","shop-alternate","shop-floor-arrival","shop-no-floor","guild-floor-arrival","ticket-floor-arrival","ticket-underfloor","ticket-reject-underfloor","dapper-entrance","star-hall-entrance","mountaintop-floor-arrival","blender-approach","hive-floor","hive-no-floor"}) do
+    for _,failure in ipairs({"death","replacement","detached","play-error","setup-error","timeout","success","already-near","speed-change","rotated-pad","obstructed","lateral","blocked-direct","no-route","shop-path","shop-alternate","shop-floor-arrival","shop-no-floor","guild-floor-arrival","ticket-floor-arrival","ticket-underfloor","ticket-reject-underfloor","dapper-entrance","star-hall-entrance","mountaintop-floor-arrival","blender-approach","hive-floor","hive-no-floor","hive-extra-result","pickup-true"}) do
         local c,r=character(100,true); r.Position=Vector3.zero
         r.Parent=c
         local function part(collidable)
@@ -230,7 +244,8 @@ return function(runtime)
         local bronze=failure=="star-hall-entrance"
         local noFloor=failure=="shop-no-floor"
         local shopFloor=failure=="shop-floor-arrival" or noFloor or guild or ticketShop or mountaintop
-        local hivePad=failure=="hive-floor"or failure=="hive-no-floor"
+        local hivePad=failure=="hive-floor"or failure=="hive-no-floor"or failure=="hive-extra-result"
+        local pickup=failure=="pickup-true"
         local grounded=failure=="shop-path" or alternate or shopFloor or blender
         local humanoid={Health=100,Parent=c}
         local state=Enum.HumanoidStateType.Running
@@ -281,7 +296,7 @@ return function(runtime)
                     elseif failure=="replacement" then player.Character=character(100,true)
                     elseif failure=="detached" then r.Parent=nil
                     elseif failure=="play-error" then error("Fake tween play failed",0)
-                    elseif failure=="success" or failure=="already-near" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" or dapper or bronze or hivePad then r.Position=goal.Position
+                    elseif failure=="success" or failure=="already-near" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" or dapper or bronze or hivePad or pickup then r.Position=goal.Position
                     elseif failure=="timeout" or failure=="no-route" or (alternate and #goals==1) then return
                     elseif grounded or failure=="blocked-direct" then r.Position=goal.Position
                     else c.FindFirstChildOfClass=function() return {Health=0} end end
@@ -365,8 +380,11 @@ return function(runtime)
             end,IsA=function() return true end}
         landingPart=part
         if failure=="already-near"then r.Position=Vector3.new(20,3.5,0)end
-        local ok,err=pcall(move,part)
-        if ok then
+        local ok,err=pcall(move,part,failure=="hive-extra-result"and "Hive platform unavailable"or pickup)
+        if ok and pickup then
+            check(pendingCleanup()==nil and destroyed==3,"Explicit pickup still releases its constraints immediately")
+            check(goals[#goals]==part.Position,"Explicit pickup still targets exact token center")
+        elseif ok then
             check(pendingCleanup()~=nil and destroyed==0 and not obstacle.CanCollide,"Every action destination retains its arrival hold across stats refresh")
             check(objects.AlignPosition.Position==goals[#goals],"Retained hold points to the exact final arrival target")
             pendingCleanup()()
@@ -407,7 +425,8 @@ return function(runtime)
                 and goals[1].X==-3 and goals[2].X==33 and goals[1].Y==4,
                 "Bronze Star travel uses the clear opening through the Star Hall model")
         elseif failure=="success" or failure=="already-near" or failure=="rotated-pad" or failure=="obstructed" or failure=="lateral" then check(ok,"Successful movement completes")
-        elseif hivePad then check(failure=="hive-no-floor"and not ok or failure=="hive-floor"and ok,"Hive landing result matches verified support")
+        elseif hivePad then check(failure=="hive-no-floor"and not ok or failure~="hive-no-floor"and ok,"Hive landing result matches verified support")
+        elseif pickup then check(ok,"Explicit boolean pickup remains supported")
         elseif failure=="blocked-direct" then
             check(ok and #goals==1 and report.Movement.Method=="direct-noclip-tween","A blocked line still uses the noclip tween")
         elseif failure=="no-route" then
@@ -464,6 +483,34 @@ return function(runtime)
         check(not ok and why==token,"Lost proximity enters the existing guarded movement recovery")
         check(report.Movement.Distance==17 and report.Movement.Arrived==false and report.LastMovementArrival==nil,"Lost arrival records fresh distance and invalidates stale success")
         check(report.Movement.Failure=="Lost proximity before action","Lost proximity has a diagnostic cause")
+    end
+    do
+        local source=assert(runtime:match("(local function hiveLandingCheck%(%).-)\nlocal function run%(%)"))
+        local make=assert(loadstring("return function(env,Report,root,move,release,task) local player={UserId=7};local game={JobId='test'};local Config={};local function checkStop()end;local function near()end;local function hiveFloor()return 'verified-pad'end;"..source.." return hiveLandingCheck end"))()
+        local function fixture(flag)
+            local request={State='requested',Owner=7,Job='test'};local e={FullHiveLandingCheck=request}
+            if flag then e[flag]={}end
+            local report={Actions=4,RoyalJellyUsed=17};local moves=0;local releases=0
+            local run=make(e,report,function()return {Position={Y=4}}end,function(part)
+                check(part=='verified-pad',"Diagnostic uses the actual hive resolver")
+                moves+=1;report.Movement={LandingSurfaceY=1}
+            end,function()releases+=1 end,{wait=function()end})
+            return run,e,request,function()return moves,releases end,report
+        end
+        for _,flag in ipairs({'FullHivePending','AutoHivePendingRequest','FullHiveUncertain','AutoHiveUncertain','FullHiveStarRunning','AutoGiftedStarRunning'})do
+            local run,e,request,counts=fixture(flag);local original=e[flag]
+            check(not run()and counts()==0 and e[flag]==original and request.State=='requested',"Pending/uncertain/Star work blocks no-spend movement: "..flag)
+        end
+        local run,e,request,counts=fixture()
+        check(run()and request.State=='passed'and counts()==1,"Serialized hive check executes once and passes")
+        check(request.Actions==0 and request.RoyalJellyUsed==0,"Hive check cannot spend items or count purchases")
+        check(not run()and counts()==1,"Completed hive check is never replayed")
+        local run,e,request,counts=fixture();e.FullHiveStop=true
+        check(not run()and counts()==0,"Human stop is never overridden by movement check")
+        local run,e,request,counts=fixture();request.Job='other'
+        check(not run()and counts()==0,"Wrong-session movement request remains inert")
+        local run,e,request,counts,report=fixture();report.PauseRequested=true
+        check(not run()and counts()==0,"Paused assist never runs a movement check")
     end
     return {passed=checked}
 end

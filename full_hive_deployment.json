@@ -3289,133 +3289,85 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.141",
+    "version": "1.8.142",
     "bundle": "core.luau",
-    "sha256": "11422a9faf4d3ab28e586ad7917dd9efe2a9f82cded166b2eb63e5728d099d73",
-    "deployedNormalizedUTF8Sha256": "44cf2ec139af86540fd634e8b8d52f8338638e6c69a4f2b467753767a540c654",
+    "sha256": "e69243e17a5a78f7d50b5fa6543bbac7037c87703df71c2dbb0225e7f76708b5",
+    "deployedNormalizedUTF8Sha256": "9ab7b604238b29f8900ce06a7995c5a335d94dcf2b1e85bc3631dc90b4747fd5",
     "accounts": [
       {
         "account": "SpidermanXD56",
         "executor": "Arceus X",
         "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
-        "version": "1.8.141",
-        "startedAt": 1795833264,
+        "version": "1.8.142",
+        "startedAt": 1795862894,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+        "uiVerified": true
       },
       {
-        "account": "QuackAltear1",
-        "executor": "Delta",
-        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
-        "version": "1.8.141",
-        "startedAt": 1795833367,
+        "account": "xd_Glen09",
+        "executor": "Arceus X",
+        "jobId": "c1b17147-0d59-4378-b565-96ca8e123b43",
+        "version": "1.8.142",
+        "startedAt": 1795863114,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.141-layout50-bear-final"
-      },
-      {
-        "account": "QuackAltear5",
-        "executor": "Delta",
-        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
-        "version": "1.8.141",
-        "startedAt": 1795833365,
-        "running": true,
-        "paused": false,
-        "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.141-layout50-bear-final"
-      },
-      {
-        "account": "QuackAltear06",
-        "executor": "Delta",
-        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
-        "version": "1.8.141",
-        "startedAt": 1795833313,
-        "running": true,
-        "paused": false,
-        "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+        "uiVerified": true
       },
       {
         "account": "QuackTest03",
         "executor": "Delta",
-        "jobId": "99bf1333-7b12-43ea-aa6b-8999c25ddaa4",
-        "version": "1.8.141",
-        "startedAt": 1795833535,
+        "jobId": "856b995b-a2eb-40fc-a188-137d70e79652",
+        "version": "1.8.142",
+        "startedAt": 1795863108,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+        "uiVerified": true
       }
     ],
-    "offlineChecks": 8768,
-    "connectedMainChecksPerAccount": 8768,
-    "connectedSupplementalEventChecksPerAccount": 21,
-    "connectedChecksPerAccount": 8789,
-    "newLayoutChecks": 263,
-    "factsChecks": 232,
+    "offlineChecks": 8816,
+    "characterChecks": 586,
     "compatibilityMarkers": 42,
+    "connectedVerification": {
+      "SpidermanXD56": "final full suite8816+event21;marker1.8.142-hive-varargs-hold-final",
+      "xd_Glen09": "preliminary full suite8803/character573;final affected movement586PASS with exact final runtime;not claimed final full8816",
+      "QuackTest03": "final full resultallPassed/character586 plus targeted movement586PASS;newjob independently verified"
+    },
+    "liveHiveCheck": {
+      "account": "SpidermanXD56",
+      "State": "passed",
+      "StartedAt": 1795862917,
+      "CompletedAt": 1795862929,
+      "SurfaceY": 0.99915558099747,
+      "HeldY": 4.5684566497803,
+      "AfterReleaseY": 11.992906570435,
+      "Actions": 0,
+      "RoyalJellyUsed": 0,
+      "AtlasLeaseAfter": false
+    },
     "allCurrentlyReachableEligibleSessionsReexecuted": true,
     "incompleteTargets": [
       {
-        "account": "xd_Glen09",
-        "reason": "Not discovered/connected during141 rollout;historical140 deployment not relabelled141"
+        "account": "QuackAltear1",
+        "reason": "Not connected during142 rollout;last verified141 remains historical"
+      },
+      {
+        "account": "QuackAltear5",
+        "reason": "Not connected during142 rollout;last verified141 remains historical"
+      },
+      {
+        "account": "QuackAltear06",
+        "reason": "Not connected during142 rollout;last verified141 remains historical"
       }
     ],
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "layoutAt50": {
-      "Baby": 4,
-      "Music": 4,
-      "GiftedShy": 1,
-      "GiftedBasic": 1,
-      "GiftedBumble": 1,
-      "GiftedCool": 1,
-      "GiftedLooker": 1,
-      "GiftedCommander": 1,
-      "GiftedBucko": 1,
-      "GiftedBubble": 1,
-      "GiftedDiamondWithoutBear": 4,
-      "GiftedDiamondWithBear": 3,
-      "Tadpole": 10,
-      "Buoyant": 15,
-      "Events": [
-        "Tabby",
-        "Gummy",
-        "Vicious",
-        "Festive",
-        "Puppy"
-      ],
-      "Bear": "protected when present",
-      "GiftedFrosty": "temporary safe"
-    },
-    "naturalLive": {
-      "account": "SpidermanXD56",
-      "capacity": 46,
-      "bear": true,
-      "minimumBefore": 66,
-      "minimumAfter": 48,
-      "safeSlotsBefore": 0,
-      "safeSlotsFirstAfter": 16,
-      "TadpoleBefore": 3,
-      "TadpoleLater": 4,
-      "BuoyantBefore": 4,
-      "BuoyantLater": 6,
-      "Baby": 4,
-      "Music": 4,
-      "GiftedShy": 1,
-      "originalSpicyRolled": true,
-      "CobaltReplacedNaturally": true
-    },
-    "actual50HiveCompleteObserved": false
+    "hiveResolverSingleReturn": true,
+    "pickupRequiresLiteralTrue": true
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -4137,133 +4089,85 @@
     "noFlagsManuallyCleared": true
   },
   "latestCandidate": {
-    "version": "1.8.141",
+    "version": "1.8.142",
     "bundle": "core.luau",
-    "sha256": "11422a9faf4d3ab28e586ad7917dd9efe2a9f82cded166b2eb63e5728d099d73",
-    "deployedNormalizedUTF8Sha256": "44cf2ec139af86540fd634e8b8d52f8338638e6c69a4f2b467753767a540c654",
+    "sha256": "e69243e17a5a78f7d50b5fa6543bbac7037c87703df71c2dbb0225e7f76708b5",
+    "deployedNormalizedUTF8Sha256": "9ab7b604238b29f8900ce06a7995c5a335d94dcf2b1e85bc3631dc90b4747fd5",
     "accounts": [
       {
         "account": "SpidermanXD56",
         "executor": "Arceus X",
         "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
-        "version": "1.8.141",
-        "startedAt": 1795833264,
+        "version": "1.8.142",
+        "startedAt": 1795862894,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+        "uiVerified": true
       },
       {
-        "account": "QuackAltear1",
-        "executor": "Delta",
-        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
-        "version": "1.8.141",
-        "startedAt": 1795833367,
+        "account": "xd_Glen09",
+        "executor": "Arceus X",
+        "jobId": "c1b17147-0d59-4378-b565-96ca8e123b43",
+        "version": "1.8.142",
+        "startedAt": 1795863114,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.141-layout50-bear-final"
-      },
-      {
-        "account": "QuackAltear5",
-        "executor": "Delta",
-        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
-        "version": "1.8.141",
-        "startedAt": 1795833365,
-        "running": true,
-        "paused": false,
-        "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.141-layout50-bear-final"
-      },
-      {
-        "account": "QuackAltear06",
-        "executor": "Delta",
-        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
-        "version": "1.8.141",
-        "startedAt": 1795833313,
-        "running": true,
-        "paused": false,
-        "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+        "uiVerified": true
       },
       {
         "account": "QuackTest03",
         "executor": "Delta",
-        "jobId": "99bf1333-7b12-43ea-aa6b-8999c25ddaa4",
-        "version": "1.8.141",
-        "startedAt": 1795833535,
+        "jobId": "856b995b-a2eb-40fc-a188-137d70e79652",
+        "version": "1.8.142",
+        "startedAt": 1795863108,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+        "uiVerified": true
       }
     ],
-    "offlineChecks": 8768,
-    "connectedMainChecksPerAccount": 8768,
-    "connectedSupplementalEventChecksPerAccount": 21,
-    "connectedChecksPerAccount": 8789,
-    "newLayoutChecks": 263,
-    "factsChecks": 232,
+    "offlineChecks": 8816,
+    "characterChecks": 586,
     "compatibilityMarkers": 42,
+    "connectedVerification": {
+      "SpidermanXD56": "final full suite8816+event21;marker1.8.142-hive-varargs-hold-final",
+      "xd_Glen09": "preliminary full suite8803/character573;final affected movement586PASS with exact final runtime;not claimed final full8816",
+      "QuackTest03": "final full resultallPassed/character586 plus targeted movement586PASS;newjob independently verified"
+    },
+    "liveHiveCheck": {
+      "account": "SpidermanXD56",
+      "State": "passed",
+      "StartedAt": 1795862917,
+      "CompletedAt": 1795862929,
+      "SurfaceY": 0.99915558099747,
+      "HeldY": 4.5684566497803,
+      "AfterReleaseY": 11.992906570435,
+      "Actions": 0,
+      "RoyalJellyUsed": 0,
+      "AtlasLeaseAfter": false
+    },
     "allCurrentlyReachableEligibleSessionsReexecuted": true,
     "incompleteTargets": [
       {
-        "account": "xd_Glen09",
-        "reason": "Not discovered/connected during141 rollout;historical140 deployment not relabelled141"
+        "account": "QuackAltear1",
+        "reason": "Not connected during142 rollout;last verified141 remains historical"
+      },
+      {
+        "account": "QuackAltear5",
+        "reason": "Not connected during142 rollout;last verified141 remains historical"
+      },
+      {
+        "account": "QuackAltear06",
+        "reason": "Not connected during142 rollout;last verified141 remains historical"
       }
     ],
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "layoutAt50": {
-      "Baby": 4,
-      "Music": 4,
-      "GiftedShy": 1,
-      "GiftedBasic": 1,
-      "GiftedBumble": 1,
-      "GiftedCool": 1,
-      "GiftedLooker": 1,
-      "GiftedCommander": 1,
-      "GiftedBucko": 1,
-      "GiftedBubble": 1,
-      "GiftedDiamondWithoutBear": 4,
-      "GiftedDiamondWithBear": 3,
-      "Tadpole": 10,
-      "Buoyant": 15,
-      "Events": [
-        "Tabby",
-        "Gummy",
-        "Vicious",
-        "Festive",
-        "Puppy"
-      ],
-      "Bear": "protected when present",
-      "GiftedFrosty": "temporary safe"
-    },
-    "naturalLive": {
-      "account": "SpidermanXD56",
-      "capacity": 46,
-      "bear": true,
-      "minimumBefore": 66,
-      "minimumAfter": 48,
-      "safeSlotsBefore": 0,
-      "safeSlotsFirstAfter": 16,
-      "TadpoleBefore": 3,
-      "TadpoleLater": 4,
-      "BuoyantBefore": 4,
-      "BuoyantLater": 6,
-      "Baby": 4,
-      "Music": 4,
-      "GiftedShy": 1,
-      "originalSpicyRolled": true,
-      "CobaltReplacedNaturally": true
-    },
-    "actual50HiveCompleteObserved": false
+    "hiveResolverSingleReturn": true,
+    "pickupRequiresLiteralTrue": true
   },
   "deploymentV1_8_126": {
     "version": "1.8.126",
@@ -5892,5 +5796,134 @@
     "cobaltGiftFallback": false,
     "ownedCobaltEggHatchPreserved": true,
     "eventFirstMythicGateIgnoresCobalt": true
+  },
+  "deploymentBeforeHiveVarargs142": {
+    "version": "1.8.141",
+    "bundle": "core.luau",
+    "sha256": "11422a9faf4d3ab28e586ad7917dd9efe2a9f82cded166b2eb63e5728d099d73",
+    "deployedNormalizedUTF8Sha256": "44cf2ec139af86540fd634e8b8d52f8338638e6c69a4f2b467753767a540c654",
+    "accounts": [
+      {
+        "account": "SpidermanXD56",
+        "executor": "Arceus X",
+        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
+        "version": "1.8.141",
+        "startedAt": 1795833264,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+      },
+      {
+        "account": "QuackAltear1",
+        "executor": "Delta",
+        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
+        "version": "1.8.141",
+        "startedAt": 1795833367,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+      },
+      {
+        "account": "QuackAltear5",
+        "executor": "Delta",
+        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
+        "version": "1.8.141",
+        "startedAt": 1795833365,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+      },
+      {
+        "account": "QuackAltear06",
+        "executor": "Delta",
+        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
+        "version": "1.8.141",
+        "startedAt": 1795833313,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+      },
+      {
+        "account": "QuackTest03",
+        "executor": "Delta",
+        "jobId": "99bf1333-7b12-43ea-aa6b-8999c25ddaa4",
+        "version": "1.8.141",
+        "startedAt": 1795833535,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+      }
+    ],
+    "offlineChecks": 8768,
+    "connectedMainChecksPerAccount": 8768,
+    "connectedSupplementalEventChecksPerAccount": 21,
+    "connectedChecksPerAccount": 8789,
+    "newLayoutChecks": 263,
+    "factsChecks": 232,
+    "compatibilityMarkers": 42,
+    "allCurrentlyReachableEligibleSessionsReexecuted": true,
+    "incompleteTargets": [
+      {
+        "account": "xd_Glen09",
+        "reason": "Not discovered/connected during141 rollout;historical140 deployment not relabelled141"
+      }
+    ],
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "layoutAt50": {
+      "Baby": 4,
+      "Music": 4,
+      "GiftedShy": 1,
+      "GiftedBasic": 1,
+      "GiftedBumble": 1,
+      "GiftedCool": 1,
+      "GiftedLooker": 1,
+      "GiftedCommander": 1,
+      "GiftedBucko": 1,
+      "GiftedBubble": 1,
+      "GiftedDiamondWithoutBear": 4,
+      "GiftedDiamondWithBear": 3,
+      "Tadpole": 10,
+      "Buoyant": 15,
+      "Events": [
+        "Tabby",
+        "Gummy",
+        "Vicious",
+        "Festive",
+        "Puppy"
+      ],
+      "Bear": "protected when present",
+      "GiftedFrosty": "temporary safe"
+    },
+    "naturalLive": {
+      "account": "SpidermanXD56",
+      "capacity": 46,
+      "bear": true,
+      "minimumBefore": 66,
+      "minimumAfter": 48,
+      "safeSlotsBefore": 0,
+      "safeSlotsFirstAfter": 16,
+      "TadpoleBefore": 3,
+      "TadpoleLater": 4,
+      "BuoyantBefore": 4,
+      "BuoyantLater": 6,
+      "Baby": 4,
+      "Music": 4,
+      "GiftedShy": 1,
+      "originalSpicyRolled": true,
+      "CobaltReplacedNaturally": true
+    },
+    "actual50HiveCompleteObserved": false
   }
 }

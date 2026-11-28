@@ -124,7 +124,7 @@ For authorized disconnect recovery, corroborate discovery with foreground/screen
 - Pure policy tests cannot prove a real purchase, field switch or RNG result. Label isolated coverage, live configuration verification and naturally observed actions separately.
 - No subagents. Do not alter the existing recurring schedule unless asked. No duplicate automation.
 
-## Current rules to preserve (v1.8.141 snapshot)
+## Current rules to preserve (v1.8.142 snapshot)
 
 This section is a handoff snapshot; consult later log entries and AGENTS.md for subsequent changes.
 
@@ -139,6 +139,7 @@ This section is a handoff snapshot; consult later log entries and AGENTS.md for 
 - Normal early/mid force filling keeps single-Royal-Jelly/50-refill behavior. Existing starter,refill qualification,repair and spending reservations remain. Blue/final composition is specified below;pre-Star egg coverage retains its established workflow.
 - Ordinary gifted failsafe hunting requires the existing force quotas and Bubble Mask. Keep incidental gifted results under existing keep rules.
 - Coconut Canister needs Diamond Mask owned AND equipped for queue admission. Pesticide Planter needs Diamond Mask owned and45 unlocked hive slots. Petal Belt needs one actual Spirit Petal in inventory.
+- Hive resolver must return one value: Lua assert(part,message) returns both arguments on success. The Model branch is parenthesized,and movement pickup requires literaltrue,so leaked messages cannot turn hive arrival into token pickup.
 - Hive landing uses verified solid support and0.75-stud arrival,retains its AlignPosition hold during work,and restores collisions/state before releasing constraints. Missing support yields an unsent wait.
 - Diamond Mask requires at least40 unlocked hive slots AND Diamond Drenchers actually owned and equipped before queue/saving/material preparation. Verify the Sprinkler package against fresh stats; owned masks remain unaffected.
 - Porcelain Port-O-Hive requires at least35 unlocked hive slots before queue/saving/material preparation. Occupied count is not this gate.
@@ -202,4 +203,8 @@ Application changes:
 
 Documentation-only updates do not require version bumps, game spending or live re-execution. A healthy unchanged application should stay running.
 
-Latest published application release: **v1.8.141**. Runtime/report/UI and NEW StartedAt verified on **SpidermanXD56,QuackAltear1,QuackAltear5,QuackAltear06 and QuackTest03** in their newly discovered sessions. Glen was not connected during this rollout and remains unverified. QuackTest02 excluded. See latest log/deployment JSON for exact jobs,tests,hashes,limitations and observations.
+Latest published application release: **v1.8.142**. Runtime/report/UI and NEW StartedAt verified on **SpidermanXD56,xd_Glen09 and QuackTest03** in their current sessions. Altear1/5/06 were not connected during142 rollout;their last verified141 observations remain historical. QuackTest02 excluded. See latest log/deployment JSON for exact jobs,tests,hashes,limitations and observations.
+
+## One-time hive landing verification
+
+For an explicitly authorized no-spend movement check,queue `getgenv().FullHiveLandingCheck={State="requested",Owner=game.Players.LocalPlayer.UserId,Job=game.JobId}` on the verified client. The main loop handles it serially;do not call movement closures concurrently or clear pending/uncertain flags. It waits behind unresolved work,does not run while paused/stopped/dry-run or on anotherjob,and reports passed/failed plus held/after-releaseY,Actions andRoyalJellyUsed. Inspect the existing request before queueing;never replay a requested/running check merely because MCP readback is delayed. This diagnostic does not spend eggs/jelly or change hive targets.142Spiderman livecheckpassed with zeroitemactions and Atlas resumed.
