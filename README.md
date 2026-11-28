@@ -124,7 +124,7 @@ For authorized disconnect recovery, corroborate discovery with foreground/screen
 - Pure policy tests cannot prove a real purchase, field switch or RNG result. Label isolated coverage, live configuration verification and naturally observed actions separately.
 - No subagents. Do not alter the existing recurring schedule unless asked. No duplicate automation.
 
-## Current rules to preserve (v1.8.140 snapshot)
+## Current rules to preserve (v1.8.141 snapshot)
 
 This section is a handoff snapshot; consult later log entries and AGENTS.md for subsequent changes.
 
@@ -132,11 +132,11 @@ This section is a handoff snapshot; consult later log entries and AGENTS.md for 
 - Cobalt Bee is excluded from automatic purchases/gifting/fallback gift funding. Other Event priorities remain; existing owned Cobalt egg hatching and bee protection are separate. Cobalt Guard gear is unaffected.
 - Crimson Guard additionally requires Cobalt Guard actually owned AND equipped before queue/saving/material preparation; existing bee quota rules still apply.
 - Crimson Guard follows Coconut Canister in the route, before Supreme Saturator. Route order is not an additional ownership prerequisite.
-- Keep Shy3 through47 unlocked slots,even after completed Star Journey2 RedBoost5000. From48 onward,verified objective/completed-quest evidence may retire the normal Shy quota;unknown/incomplete evidence retains3. Normal/gifted copies count together;prefer gifted. Baby/Music keep their existing stage rules. BOTH Cobalt and Crimson require Baby4/Music4/Shy3 through47;only48+verified retirement removes their Shy requirement. Music3 remains invalid.
+- Keep three Shy below45 unlocked slots;from45 require one gifted Shy. This is an explicit stage rule,not fabricated quest completion. Guard prerequisites use the same rule. Ninja retirement remains based on verified quest evidence.
 - After completed The Family Final and no active Mother Bear quest, wait until owned Treats can raise Vicious from its current level to12 in ONE feed. Use only the exact remaining deficit including bonuses,never partially feed or buy Treats for this follow-up,recheck after travel and require level12 in the receipt. Once fresh level12 is verified, enable Atlas Auto Kill Coconut Crab through its own Set API and confirm config plus UI; preserve other combat settings and intentional stops.
 - Atlas protected UI lookups and activation use scoped executor identity8, restoring the caller after callbacks and errors. A low-identity thread must not cause a Plugin capability failure while discovering Stop Everything.
 - Atlas spender controls are discovered in the actual visible window and callback-derived detached tabs, deduplicated and verified. Temporary missing/unreadable controls before spending release Atlas and wait for fresh discovery; uncertainty/Star work or failed cleanup still block recovery. Unknown or ambiguous controls never authorize spending.
-- Normal early/mid force filling uses one Royal Jelly per request,roll-to off and50 refill,including missing Shy afterRedBoost completion through47. Completion restores normal stage refill. Preserve starter <33 inventory-only rolling and explicit late/Star/post-Star workflows.
+- Normal early/mid force filling keeps single-Royal-Jelly/50-refill behavior. Existing starter,refill qualification,repair and spending reservations remain. Blue/final composition is specified below;pre-Star egg coverage retains its established workflow.
 - Ordinary gifted failsafe hunting requires the existing force quotas and Bubble Mask. Keep incidental gifted results under existing keep rules.
 - Coconut Canister needs Diamond Mask owned AND equipped for queue admission. Pesticide Planter needs Diamond Mask owned and45 unlocked hive slots. Petal Belt needs one actual Spirit Petal in inventory.
 - Hive landing uses verified solid support and0.75-stud arrival,retains its AlignPosition hold during work,and restores collisions/state before releasing constraints. Missing support yields an unsent wait.
@@ -154,6 +154,29 @@ This section is a handoff snapshot; consult later log entries and AGENTS.md for 
 - Star Egg paths use actual Seven To Seven / Royal Rumble completion, current Star inventory and use counters. Six path targets gifted Music/Baby/Shy/Diamond/Lion/Demon. Never infer history solely from current hive composition.
 
 Full route and all nuanced amulet, quest, Star, keep and spending rules remain in source and AGENTS.md; this README is not permission to simplify them.
+
+## Current blue/final layout (v1.8.141)
+
+The production runtime enables the explicit new layout; do not combine it with historical blue keeps. Pre-Star/active Star Egg preparation keeps its separate prerequisite coverage.
+
+| Force/goal | Without Bear | With existing Bear |
+|---|---:|---:|
+| Baby, normal/gifted combined | 4 | 4 |
+| Music, normal/gifted combined | 4 | 4 |
+| Gifted Shy | 1 | 1 |
+| Gifted Basic/Bumble/Cool/Looker/Commander/Bucko/Bubble, one each | 7 | 7 |
+| Gifted Diamond, including its baseline single | 4 | 3 |
+| Tabby/Gummy/Vicious/Festive/Puppy, one each | 5 | 5 |
+| Bear | 0 | 1 |
+| Tadpole, normal/gifted combined | 10 | 10 |
+| Buoyant, normal/gifted combined | 15 | 15 |
+| **Total at50 slots** | **50** | **50** |
+
+Prefer gifted copies within each total quota. An extra gifted Baby/Music can replace a normal force; it does not create a fifth permanent slot. Only one gifted Bubble is forced. One gifted Frosty is a temporary safe replacement slot, not another forced cell. Other Events (such as Photon/Cobalt) and other Mythics are explicitly safe in blue/final; Bear is the protected exception when present. Existing Bear is never bought by this rule.
+
+The core requires47 cells without Bear or48 with Bear. Additional gifted Diamond goals use the remaining unlocked capacity, reaching the table above at50. A46-slot hive with Bear still needs two more slots to fit the whole core, but must not calculate66. Safe replacements may progress while growth/funding follows existing priorities.
+
+Legacy pure planner fixtures without `ctx.layout50` exercise retained compatibility/Star-preparation rules. The new-profile suite explicitly opts in, runs the actual runtime context, checks50-cell math and validates task/receipt/protection boundaries. Production `Config.Layout50` defaults true.
 
 ## Build, test, deploy and publish
 
@@ -179,4 +202,4 @@ Application changes:
 
 Documentation-only updates do not require version bumps, game spending or live re-execution. A healthy unchanged application should stay running.
 
-Latest published application candidate: **v1.8.140**. Runtime/report/UI and new StartedAt verified on **xd_Glen09, SpidermanXD56 and QuackTest03 (job97097a2d-929f-4d10-abe8-71188b130c54)**. QuackAltear1 and an older QuackTest03 job were initially listed but became unreachable before final verification; their current deployment remains unverified. QuackAltear5/06 were not listed during this run. QuackTest02 was excluded. Do not claim all historical accounts were updated. See deployment JSON/latest log for exact identities,tests,hashes and observations.
+Latest published application release: **v1.8.141**. Runtime/report/UI and NEW StartedAt verified on **SpidermanXD56,QuackAltear1,QuackAltear5,QuackAltear06 and QuackTest03** in their newly discovered sessions. Glen was not connected during this rollout and remains unverified. QuackTest02 excluded. See latest log/deployment JSON for exact jobs,tests,hashes,limitations and observations.

@@ -2,12 +2,14 @@
 local M={}
 M.fruit={Spicy="Strawberry",Vector="SunflowerSeed",Precise="SunflowerSeed",Tadpole="Blueberry",Buoyant="Blueberry",Fuzzy="Pineapple"}
 M.order={"Spicy","Vector","Precise","Tadpole","Buoyant","Fuzzy"}
-function M.unlocked(history,stats,cells,capacity,child)
+function M.unlocked(history,stats,cells,capacity,child,layout50,giftedHistory)
     if not history or history.earned~=2 or capacity<44 or type(stats.Eggs)~="table" or (stats.Eggs.Star or 0)~=0 then return false end
     if child and child.Phase~="complete" then return false end
     local gifted={}
     for _,c in ipairs(cells) do if c.bee and table.find(c.bee.Traits or {},"Gifted") then gifted[c.bee.Type]=true end end
-    for _,name in ipairs({"Music","Baby","Shy","Diamond","Lion","Demon"}) do if not gifted[name] then return false end end
+    for _,name in ipairs({"Music","Baby","Shy","Diamond","Lion","Demon"}) do
+        if not gifted[name]and not(layout50 and giftedHistory and giftedHistory[name])then return false end
+    end
     return true
 end
 function M.discovered(stats,types)
@@ -20,10 +22,10 @@ function M.discovered(stats,types)
     end
     return out
 end
-function M.eventsGifted(cells,types)
+function M.eventsGifted(cells,types,allowed)
     for _,c in ipairs(cells) do
         local info=c.bee and types[c.bee.Type]
-        if info and info.Rarity=="Event" and c.bee.Type~="Cobalt"and not table.find(c.bee.Traits or {},"Gifted") then return false end
+        if info and info.Rarity=="Event" and c.bee.Type~="Cobalt"and (not allowed or allowed[c.bee.Type])and not table.find(c.bee.Traits or {},"Gifted") then return false end
     end
     return true
 end
@@ -42,7 +44,7 @@ function M.plan(stats,cells,types,decision)
             local item=M.fruit[name]
             local available=math.max(0,(stats.Eggs[item] or 0)-((decision.reservedItems or {})[item] or 0))
             if available>0 then return {kind="feed",name=name,item=item,amount=math.min(2000,available),x=c.x,y=c.y} end
-            if not M.eventsGifted(cells,types) then return {kind="wait",reason="Event bees need Star Treats first",name=name} end
+            if not M.eventsGifted(cells,types,decision.layoutEvents) then return {kind="wait",reason="Event bees need Star Treats first",name=name} end
             if (stats.Eggs.StarTreat or 0)>0 then return {kind="feed",name=name,item="StarTreat",amount=1,x=c.x,y=c.y} end
             return {kind="fund-star-treat",name=name}
         end end

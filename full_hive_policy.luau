@@ -110,11 +110,11 @@ function P.capacityStatus(cells, keep, needs, capacity)
     return {Minimum=minimum,Capacity=capacity,Shortfall=math.max(0,minimum-capacity),
         Conflict=minimum>capacity,Required=required}
 end
-function P.starJellyMissing(cells)
+function P.starJellyMissing(cells,plan)
     local missing={}
     -- These eight Rare/Epic failsafes are obtainable from Star Jelly.
     -- Basic keeps its separate egg routine; legendary gifts are not required.
-    for _,name in ipairs(P.mid) do
+    for _,name in ipairs(type(plan)=="table"and plan.layout50 and {"Bumble","Cool","Looker","Commander","Bucko","Bubble"}or P.mid) do
         if P.count(cells,name,true)==0 then missing[#missing+1]=name end
     end
     return missing
@@ -140,7 +140,7 @@ function P.rollItem(cells,eggs,plan,task)
     end
     if plan and plan.starter then return "RoyalJelly" end
     if (eggs.StarJelly or 0)>0 and (not plan or plan.failsafeGoalsActive~=false)
-        and #P.starJellyMissing(cells)>0 then return "StarJelly" end
+        and #P.starJellyMissing(cells,plan)>0 then return "StarJelly" end
     return "RoyalJelly"
 end
 function P.isCollectorSection(cell)
@@ -196,6 +196,16 @@ function P.startRollTask(target, cells, plan)
 end
 -- The task belongs to one coordinate. Candidate sorting never ends a task.
 function P.rollTaskDone(task, cell, cells, types, plan)
+    if plan.layout50 then
+        if not cell or not cell.bee then return true,"slot-unavailable"end
+        if(plan.keep or{})[P.key(cell)]then
+            if not task.Rolled then return false end
+            return true,"layout-force-held"
+        end
+        if task.DiscoveryMythic and cell.bee.Type==task.DiscoveryMythic then return true,"discovery-target"end
+        if task.Rolled and P.isRecoveryTask(task)and P.isUsableCollector(cell,cells,plan)then return true,"collector-result"end
+        return false
+    end
     if not cell or not cell.bee then return true, "slot-unavailable" end
     if cell.bee.Type=="Basic" and P.gifted(cell) then
         local count=P.count(cells,"Basic",true)
@@ -287,6 +297,9 @@ function P.rollTaskDone(task, cell, cells, types, plan)
     return false
 end
 function P.rollTaskSafe(task, cell, cells, types, plan)
+    if plan.layout50 then
+        return cell~=nil and cell.bee~=nil and not(plan.keep or{})[P.key(cell)]and not(plan.protected or{})[P.key(cell)]
+    end
     if cell and cell.bee and cell.bee.Type=="Basic" and P.gifted(cell) then
         if (plan.protected or {})[P.key(cell)] or P.count(cells,"Basic",true)<=1 then return false end
         if task.Rolled and ((task.InitialGifted or {}).Basic or 0)>0 then return true end
@@ -412,32 +425,116 @@ function P.shyRetired(questRetired,capacity)
     return type(capacity)=="number" and capacity%1==0 and capacity>=48 and capacity<=50
         and (questRetired or {}).Shy==true
 end
-function P.forceQuotasReady(cells,questRetired,capacity)
+function P.forceQuotasReady(cells,questRetired,capacity,layout50)
+    if layout50 and P.layoutShyReduced(capacity)then return P.count(cells,"Baby")>=4 and P.count(cells,"Music")>=4 and P.count(cells,"Shy",true)>=1 end
     return P.count(cells,"Baby")>=4 and P.count(cells,"Music")>=4
         and (P.shyRetired(questRetired,capacity) or P.count(cells,"Shy")>=3)
 end
 function P.quotaRolling(cells,ctx)
     local stage=P.stage(ctx)
     return not P.singleJelly(cells) and (stage=="early"or stage=="mid")and not ctx.starPrepare
-        and not P.forceQuotasReady(cells,ctx.questRetired,ctx.slots)
+        and not P.forceQuotasReady(cells,ctx.questRetired,ctx.slots,ctx.layout50)
 end
 function P.refillFor(slots, collectorFallback, quotaRolling)
     if quotaRolling then return 50,50 end
     if collectorFallback and P.refill(slots)>100 then return 100,100 end
     return P.refill(slots)
 end
+-- Explicit post-Star layout; callers preparing Star coverage retain the legacy plan.
+P.layoutSingles={"Basic","Bumble","Cool","Looker","Commander","Bucko","Bubble","Diamond"}
+P.layoutEvents={"Tabby","Gummy","Vicious","Festive","Puppy"}
+function P.layoutShyReduced(capacity)
+    return type(capacity)=="number"and capacity%1==0 and capacity>=45 and capacity<=50
+end
+function P.planLayout50(cells,types,ctx)
+    local stage=P.stage(ctx)
+    local keep,protected,temporary,needs,candidates={},{},{},{},{}
+    local bear=P.count(cells,"Bear")>0
+    local base=47+(bear and 1 or 0)
+    local diamondGoal=1+math.min(bear and 2 or 3,math.max(0,ctx.slots-base))
+    local task=ctx.activeRollTask
+    local function reserve(name,amount,giftedOnly)
+        local ranked={}
+        for _,c in ipairs(cells)do
+            if c.bee.Type==name and(not giftedOnly or P.gifted(c))then ranked[#ranked+1]=c end
+        end
+        table.sort(ranked,function(a,b)
+            if P.gifted(a)~=P.gifted(b)then return P.gifted(a)end
+            local aa=task and task.Rolled and P.key(a)==P.key(task)or false
+            local bb=task and task.Rolled and P.key(b)==P.key(task)or false
+            if aa~=bb then return not aa end
+            return P.key(a)<P.key(b)
+        end)
+        for i=1,math.min(amount,#ranked)do local k=P.key(ranked[i]);keep[k]=true;protected[k]=true end
+    end
+    local goals={}
+    local function goal(name,amount,gifted)
+        goals[name]={amount=amount,gifted=gifted==true}
+        reserve(name,amount,gifted)
+        local count=P.count(cells,name,gifted)
+        if count<amount then needs[#needs+1]={name=name,amount=amount-count,gifted=gifted==true}end
+    end
+    goal("Baby",4,false);goal("Music",4,false);goal("Shy",1,true)
+    for _,name in ipairs(P.layoutSingles)do goal(name,name=="Diamond"and diamondGoal or 1,true)end
+    for _,name in ipairs(P.layoutEvents)do goal(name,1,false)end
+    if bear then goal("Bear",1,false)end
+    goal("Tadpole",10,false);goal("Buoyant",15,false)
+    -- Event gifting remains the existing Star Treat workflow, without extra cells.
+    if stage=="final"then for _,name in ipairs(P.layoutEvents)do
+        if P.count(cells,name,true)==0 then needs[#needs+1]={name=name,amount=1,gifted=true}end
+    end end
+    local frosties={}
+    for _,c in ipairs(cells)do
+        if c.bee.Type=="Frosty"and P.gifted(c)then frosties[#frosties+1]=c end
+        if not keep[P.key(c)]then candidates[#candidates+1]=c end
+    end
+    table.sort(frosties,function(a,b)return P.key(a)<P.key(b)end)
+    if frosties[1]then temporary[P.key(frosties[1])]=true end
+    local function priority(c)
+        if(c.bee.Type=="Baby"or c.bee.Type=="Music")and P.count(cells,c.bee.Type)>4 then return 0 end
+        if temporary[P.key(c)]then return 9 end
+        local rarity=assert(types[c.bee.Type],"Unknown bee type").Rarity
+        if rarity=="Event"or rarity=="Mythic"then return 1 end
+        return 2
+    end
+    table.sort(candidates,function(a,b)
+        if priority(a)~=priority(b)then return priority(a)<priority(b)end
+        return P.key(a)<P.key(b)
+    end)
+    local fallback={}
+    for _,c in ipairs(candidates)do if not P.isUsableCollector(c,cells,{questRetired={Shy=true}})then fallback[#fallback+1]=c end end
+    local recovery=ctx.collectorFallback==true and #fallback>0
+    local royalNeed=false
+    for _,n in ipairs(needs)do if n.name~="Basic"and types[n.name].Rarity~="Event"then royalNeed=true end end
+    local target=royalNeed and candidates[1]or nil
+    local reason=target and "layout50-targets"or nil
+    if candidates[1]and priority(candidates[1])==0 then target=candidates[1];reason="layout50-surplus"end
+    local mode="gifted"
+    if recovery and target then mode,reason=P.recoveryMode(ctx.honey);target=fallback[1]end
+    local capacity=P.capacityStatus(cells,keep,needs,ctx.slots)
+    return {layout50=true,stage=stage,keep=keep,protected=protected,temporary=temporary,needs=needs,candidates=candidates,
+        target=target,reason=reason,mode=mode,legendaryHunt=false,legendaryRoute=ctx.legendaryRoute,
+        questRetired={Shy=true,Ninja=(ctx.questRetired or{}).Ninja},babyGoal=4,
+        forceQuotasReady=P.count(cells,"Baby")>=4 and P.count(cells,"Music")>=4 and P.count(cells,"Shy",true)>=1,
+        failsafeGoalsActive=true,giftedBasicCount=P.count(cells,"Basic",true),growth=P.growth(cells,ctx.slots,ctx.eggs),
+        capacityStatus=capacity,fallbackCandidates=fallback,collectorFallback=recovery,recoveryGifted=mode=="gifted",
+        complete=stage=="final"and ctx.slots==50 and #cells==50 and #needs==0 and #candidates==0,
+        layout={Bear=bear,FixedSlots=22+(bear and 1 or 0),Tadpole=10,Buoyant=15,Diamond=diamondGoal,Required=capacity.Minimum}}
+end
 function P.plan(cells, types, ctx)
     local stage = P.stage(ctx)
+    if ctx.layout50==true and not ctx.starPrepare and(stage=="blue"or stage=="final")then return P.planLayout50(cells,types,ctx)end
     local questRetired,slotCaps={},table.clone(P.slotCaps)
     for _,name in ipairs({"Ninja","Shy"})do
         if(ctx.questRetired or{})[name]==true and (name~="Shy"or P.shyRetired(ctx.questRetired,ctx.slots))then
             questRetired[name]=true;slotCaps[name]=1
         end
     end
+    if ctx.layout50==true and P.layoutShyReduced(ctx.slots)then questRetired.Shy=true;slotCaps.Shy=1 end
     local collectorFallback=P.refill(ctx.slots)>100 and ctx.collectorFallback==true
     local recoveryMode,recoveryReason=P.recoveryMode(ctx.honey)
     local post = stage == "blue" or stage == "final"
-    local forceQuotasReady=P.forceQuotasReady(cells,questRetired,ctx.slots)
+    local forceQuotasReady=P.forceQuotasReady(cells,questRetired,ctx.slots,ctx.layout50)
     local quotaRolling=P.quotaRolling(cells,ctx)
     local failsafeGoalsActive=ctx.bubbleMaskOwned==true and (post or forceQuotasReady)
     local sixOnly=ctx.legendaryRoute=="six"
@@ -555,6 +652,7 @@ function P.plan(cells, types, ctx)
         reserve("Ninja", 1, true); if not questRetired.Ninja then reserveNormal("Ninja", 2)end
         -- Only opportunistically keep collectors. They can be consumed for fixed targets.
         need("Baby", 4, false); need("Music", 4, false); if not questRetired.Shy then need("Shy", 3, false)end
+        if ctx.layout50==true and P.layoutShyReduced(ctx.slots)then need("Shy",1,true)end
         if failsafeGoalsActive then
             for _, name in ipairs(P.mid) do need(name, 1, true) end
         end

@@ -1,5 +1,5 @@
 -- Bundled by build_full_hive.ps1 after Policy and StarEggSource.
-local SCRIPT_VERSION = "1.8.140"
+local SCRIPT_VERSION = "1.8.141"
 local env = (type(getgenv) == "function" and getgenv()) or _G
 local compile = loadstring or load
 if not table.pack then
@@ -142,7 +142,7 @@ local Config = {DryRun=false, PollSeconds=3, Speed=60, NearDistance=16,
     MaxActions=math.huge, MaxRoyalJellies=math.huge, AutoPurchase=true,
     HoneyReserve=0, RollDelay=0.3, StarEggHoney=100000000000,
     AtlasInitiallyStopped=false, PreserveUniqueGifted=false, AutoProgression=true,
-    UseBlenderTickets=false, AutoAmulets=true, AutoQuestAssist=true, SuperMaterialFarm=false}
+    Layout50=true, UseBlenderTickets=false, AutoAmulets=true, AutoQuestAssist=true, SuperMaterialFarm=false}
 local settingsPlayer=game:GetService("Players").LocalPlayer
 local settingsHttp=game:GetService("HttpService")
 local settingsStore=FeatherSettings.new({userId=settingsPlayer.UserId,read=readfile,write=writefile,exists=isfile,
@@ -921,7 +921,7 @@ local function context(s,slots)
     local legendaryRoute
     if StarState then legendaryRoute=Policy.legendaryRoute(StarState.read(s),s.Eggs.Star or 0) end
     local retirements=background and background.hiveRetirements(s)or{}
-    local quotaRolling=Policy.quotaRolling(Policy.snapshot(s,Types),{slots=slots,starUsed=used,questRetired=retirements})
+    local quotaRolling=Policy.quotaRolling(Policy.snapshot(s,Types),{slots=slots,starUsed=used,questRetired=retirements,layout50=Config.Layout50==true})
     local normalRefill=quotaRolling and 50 or Policy.refill(slots)
     local collectorFallback=Policy.collectorRecovery(slots,1,usable,
         bought.RoyalJelly or 0,env.FullHiveCollectorFallback==true,jelly,normalRefill)
@@ -935,7 +935,7 @@ local function context(s,slots)
         or (env.FullHiveCollectorFallback~=true and jelly>=normalRefill) then
         collectorFallback=false
     end
-    return {slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,legendaryChoice=legendaryChoice,legendaryRoute=legendaryRoute,nextFlexible=nextFlexible,
+    return {layout50=Config.Layout50==true,activeRollTask=rollTask,slots=slots,starUsed=used,jelly=jelly,honey=s.Honey or 0,legendaryChoice=legendaryChoice,legendaryRoute=legendaryRoute,nextFlexible=nextFlexible,
         questRetired=retirements,bubbleMaskOwned=bubbleMaskOwned,
         collectorFallback=collectorFallback,enforceGrowth=true,eggs=s.Eggs,
         canRefill30k=Config.AutoPurchase and usable>=Policy.jellyCost(bought.RoyalJelly or 0,30000)}
@@ -944,6 +944,7 @@ local function plan(s)
     local cells,slots=scan(s)
     local ctx=context(s,slots)
     local p=Policy.plan(cells,Types,ctx)
+    Report.Layout50=p.layout
     Report.StarEggRoute=ctx.legendaryRoute
     -- The exception activates only when the actual Star handoff is funded,
     -- has a verified egg budget and still has a missing gifted Mythic outcome.
@@ -983,7 +984,7 @@ local function plan(s)
         end
         if not invalid and not done then done,why,safe=Policy.reconcileRollTask(rollTask,current,cells,Types,p) end
         if invalid or done then
-            if why=="target-now-reserved" then
+            if why=="target-now-reserved" or p.layout50 and why=="layout-force-held" then
                 assert(not env.FullHivePending and not env.AutoHivePendingRequest
                     and not env.FullHiveUncertain and not env.AutoHiveUncertain
                     and not env.FullHiveStarRunning and not env.AutoGiftedStarRunning,
@@ -1035,7 +1036,7 @@ local function plan(s)
     Report.RefillAmount=Policy.refillFor(slots,p.collectorFallback,p.quotaRolling)
     Report.RefillMode=p.quotaRolling and "force-quota-50" or p.collectorFallback and "fallback-100" or (slots==43 and "normal-2000" or "stage-refill")
     Report.StarJelly=s.Eggs.StarJelly or 0
-    Report.StarJellyMissing=Policy.starJellyMissing(cells)
+    Report.StarJellyMissing=Policy.starJellyMissing(cells,p)
     Report.StarJellyUpgrade=false -- Only the eight missing gifted Rare/Epic failsafes admit Star Jelly.
     if Policy.singleJelly(cells) then
         p.mode="off"
@@ -1177,6 +1178,7 @@ local function initializeProgression()
         Accessories=Accessories,CellTools=CellTools,OsTime=OsTime,Shops=workspace:FindFirstChild("Shops"),
         Hive=hive,HoneyReserve=Config.HoneyReserve,UseBlenderTickets=function() return Config.UseBlenderTickets end,
         Uncertain=function() return env.FullHiveUncertain end,
+        Layout50=function()return Config.Layout50==true end,
         HiveRetirements=function(s) return background and background.hiveRetirements(s)or{}end,
         BlenderGoal=function()
             local goal=env.FullHiveBlenderGoal
@@ -1206,7 +1208,7 @@ local function initializeProgression()
     local function buildFacts(s,includeRoute)
         local facts,catalog=makeFacts(s,includeRoute)
         local cells,capacity=scan(s)
-        facts.discoveryPreparation=MythicDiscovery.unlocked(StarState.read(s),s,cells,capacity,env.AutoGiftedStarReport)
+        facts.discoveryPreparation=MythicDiscovery.unlocked(StarState.read(s),s,cells,capacity,env.AutoGiftedStarReport,Config.Layout50==true and capacity>=46 and starEggUses(s)>=2,MythicDiscovery.discovered(s,Types))
         if background and (s.Eggs.Gold or 0)>0 then
             facts.questGoldReserve=background.goldEggReserve(s)
         end
@@ -1580,12 +1582,12 @@ local function eventAction(s,cells,p)
     if not normalEvent then
         for _,c in ipairs(cells) do
             local info=Types and Types[c.bee.Type]
-            if info and info.Rarity=="Event" and c.bee.Type~="Cobalt"and not Policy.gifted(c) then normalEvent=c;break end
+            if info and info.Rarity=="Event" and c.bee.Type~="Cobalt"and (not p.layout50 or p.keep[Policy.key(c)])and not Policy.gifted(c) then normalEvent=c;break end
         end
     end
     if canPlace and normalEvent and (s.Eggs.StarTreat or 0)>0 then
         mode("off")
-        if spend(normalEvent,"StarTreat",function(c) return Types[c.bee.Type].Rarity=="Event" and c.bee.Type~="Cobalt"and not Policy.gifted(c) end)~=false then
+        if spend(normalEvent,"StarTreat",function(c,_,fresh) return Types[c.bee.Type].Rarity=="Event" and c.bee.Type~="Cobalt"and (not(fresh or{}).layout50 or (c.bee.Type=="Bear"or table.find(Policy.layoutEvents,c.bee.Type))and fresh.keep[Policy.key(c)])and not Policy.gifted(c) end)~=false then
             return true
         end
     end
@@ -1735,7 +1737,7 @@ local function giftedBasic(s,cells,p)
     end
     local rarity=Types[current.bee.Type].Rarity
     -- This permanent rule overrides the lock when a Basic Egg yields a Mythic/Event.
-    if rarity=="Event" or rarity=="Mythic" then error("Gifted Basic lock now contains a protected bee; stopped") end
+    if (rarity=="Event" or rarity=="Mythic")and not p.layout50 then error("Gifted Basic lock now contains a protected bee; stopped") end
     local eggs=s.Eggs.Basic or 0
     local jelly=s.Eggs.RoyalJelly or 0
     if not basicLock.NeedsJelly then
@@ -1765,7 +1767,7 @@ local function giftedBasic(s,cells,p)
     mode("off")
     local function locked(c,_,freshPlan)
         local r=Types[c.bee.Type].Rarity
-        return r~="Event" and r~="Mythic" and Policy.basicSlotSafe(basicLock,c,freshPlan)
+        return (freshPlan.layout50 or r~="Event"and r~="Mythic")and Policy.basicSlotSafe(basicLock,c,freshPlan)
     end
     if not basicLock.NeedsJelly then
         if spend(basicLock,"Basic",locked)==false then return false end
@@ -1779,6 +1781,9 @@ end
 local function discoverySnapshot(s)
     local cells=scan(s)
     local decision=progression and progression.inspect(s) or {}
+    if Config.Layout50 and select(2,scan(s))>=46 and starEggUses(s)>=2 then
+        decision.layoutEvents={Tabby=true,Gummy=true,Vicious=true,Festive=true,Puppy=true,Bear=Policy.count(cells,"Bear")>0}
+    end
     return MythicDiscovery.plan(s,cells,Types,decision),cells,decision
 end
 local function mythicDiscoveryStep(s,p)

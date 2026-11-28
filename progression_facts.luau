@@ -205,8 +205,9 @@ return function(deps)
                 facts.questRetired={Shy=retired.Shy==true,Ninja=retired.Ninja==true}
             end
         end
+        facts.layout50=type(deps.Layout50)=="function"and deps.Layout50()==true
         local cells=0
-        local beeCounts={Baby=0,Music=0,Shy=0}
+        local beeCounts={Baby=0,Music=0,Shy=0};local giftedBeeCounts={Baby=0,Music=0,Shy=0}
         if type(s.Honeycomb)=="table" then
             local valid=true
             for _,col in pairs(s.Honeycomb) do
@@ -214,10 +215,10 @@ return function(deps)
                 for _,bee in pairs(col) do
                     if type(bee)~="table" or type(bee.Type)~="string" then valid=false;break end
                     cells+=1
-                    if beeCounts[bee.Type]~=nil then beeCounts[bee.Type]+=1 end
+                    if beeCounts[bee.Type]~=nil then beeCounts[bee.Type]+=1;if table.find(bee.Traits or{},"Gifted")then giftedBeeCounts[bee.Type]+=1 end end
                 end
             end
-            if valid then facts.occupied=cells;facts.beeCounts=beeCounts end
+            if valid then facts.occupied=cells;facts.beeCounts=beeCounts;facts.giftedBeeCounts=giftedBeeCounts end
         end
         if integer(s.UnlockedCells) and s.UnlockedCells>=25 and s.UnlockedCells<=50 then facts.capacity=s.UnlockedCells end
         local index,shops=catalogShops()

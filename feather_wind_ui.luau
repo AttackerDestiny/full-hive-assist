@@ -148,6 +148,8 @@ function UI.describeQueues(report)
 end
 
 local jellyObjectives={
+    ["layout50-targets"]="Building the 50-slot blue layout",
+    ["layout50-surplus"]="Replacing a surplus Baby or Music",
     ["Replacing normal Basic Bee"]="Replacing normal Basic bees",
     ["collector"]="Building the collector lineup",
     ["gifted-collector"]="Looking for gifted collectors",

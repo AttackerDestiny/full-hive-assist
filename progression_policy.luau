@@ -49,7 +49,9 @@ function P.gearPrerequisite(facts,id)
         local capacity=facts.capacity
         local retired=(facts.questRetired or {}).Shy==true and type(capacity)=="number"
             and capacity%1==0 and capacity>=48 and capacity<=50
-        local requirements=retired and {Baby=4,Music=4}or bees
+        local reduced=facts.layout50==true and type(capacity)=="number"and capacity%1==0 and capacity>=45 and capacity<=50
+        if reduced and ((facts.giftedBeeCounts or{}).Shy or 0)<1 then return false,"Requires one gifted Shy from slot45"end
+        local requirements=(reduced or retired)and {Baby=4,Music=4}or bees
         for _,name in ipairs({"Baby","Music","Shy"})do
             local needed=requirements[name]
             if needed then

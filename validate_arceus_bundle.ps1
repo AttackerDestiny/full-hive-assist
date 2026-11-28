@@ -40,7 +40,7 @@ $required = @(
     'if not jellyBatchReady(s) then return false end'
     'env.FullHiveJellyReady(stats)'
     'env.FullHiveJellySpent(remaining)'
-    'function P.starJellyMissing(cells)'
+    'function P.starJellyMissing(cells,plan)'
     'local item=Policy.rollItem(cells,s.Eggs,p,rollTask)'
     'Roll settings changed before Star Jelly spending'
     'local StarState = (function()'

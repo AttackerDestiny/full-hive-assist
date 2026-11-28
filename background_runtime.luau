@@ -136,6 +136,11 @@ return function(H)
         if not retired.Ninja or not retired.Shy then
             retired,evidence=Q.hiveRetirements(questFacts(s,Q.hiveRules),completed,capacity)
         end
+        if (H.Config or{}).Layout50==true and type(capacity)=="number"and capacity%1==0 and capacity>=45 and capacity<=50 then
+            local questEvidence=evidence.Shy
+            retired.Shy=true
+            evidence.Shy={reason="stage-force-reduction",capacity=capacity,keptGifted=1,QuestEvidence=questEvidence}
+        end
         report.QuestHiveRetirements={Retired=retired,Evidence=evidence}
         return retired
     end

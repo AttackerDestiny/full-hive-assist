@@ -367,5 +367,15 @@ return function(factory,Policy)
         deps.Packages.PlayerHasEquipped=function()error("unavailable")end
         check(factory(deps)(s).equippedGear["Cobalt Guard"]==nil,"Failed Cobalt equipment cannot qualify")
     end
+    do
+        local deps,s=fixture();deps.Layout50=function()return true end;s.UnlockedCells=45;s.Honeycomb={x1={}}
+        for i,name in ipairs({"Baby","Baby","Baby","Baby","Music","Music","Music","Music","Shy"})do s.Honeycomb.x1['y'..i]={Type=name,Traits=name=='Shy'and{'Gifted'}or{}}end
+        local f=factory(deps)(s)
+        check(f.layout50 and f.giftedBeeCounts.Shy==1 and Policy.gearPrerequisite(f,'Cobalt Guard'),"Fresh host opt-in and gifted Shy admit the45-slot force rule")
+        s.Honeycomb.x1.y9.Traits={};f=factory(deps)(s)
+        check(f.giftedBeeCounts.Shy==0 and not Policy.gearPrerequisite(f,'Cobalt Guard'),"Normal Shy cannot impersonate the gifted force")
+        s.Honeycomb.x1.y9=false;f=factory(deps)(s)
+        check(f.giftedBeeCounts==nil,"Malformed hive never creates gifted force evidence")
+    end
     return {passed=passed}
 end

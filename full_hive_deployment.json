@@ -3289,110 +3289,133 @@
     }
   },
   "latestDeployment": {
-    "version": "1.8.140",
+    "version": "1.8.141",
     "bundle": "core.luau",
-    "sha256": "dbabb97a0edf77fee54d27443abf62a150d4cc5f9c6ba895240b804c789c9eba",
-    "deployedNormalizedUTF8Sha256": "ebc50aacdd5048adcc048dfb70410997484d7c8dd920c67da56cca02f7b5079d",
+    "sha256": "11422a9faf4d3ab28e586ad7917dd9efe2a9f82cded166b2eb63e5728d099d73",
+    "deployedNormalizedUTF8Sha256": "44cf2ec139af86540fd634e8b8d52f8338638e6c69a4f2b467753767a540c654",
     "accounts": [
       {
-        "account": "xd_Glen09",
-        "jobId": "36c58970-9fe4-433c-a68c-6a76a4ae1d93",
-        "executor": "Arceus X",
-        "version": "1.8.140",
-        "startedAt": 1795832124,
-        "running": true,
-        "paused": false,
-        "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
-      },
-      {
         "account": "SpidermanXD56",
-        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
         "executor": "Arceus X",
-        "version": "1.8.140",
-        "startedAt": 1795832125,
+        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
+        "version": "1.8.141",
+        "startedAt": 1795833264,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
       },
-      {
-        "account": "QuackTest03",
-        "jobId": "97097a2d-929f-4d10-abe8-71188b130c54",
-        "executor": "Delta",
-        "version": "1.8.140",
-        "startedAt": 1795832198,
-        "running": true,
-        "paused": false,
-        "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
-      }
-    ],
-    "incompleteTargets": [
       {
         "account": "QuackAltear1",
-        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
-        "reason": "Initial probe timed out; later absent from discovery; application not dispatched"
+        "executor": "Delta",
+        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
+        "version": "1.8.141",
+        "startedAt": 1795833367,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+      },
+      {
+        "account": "QuackAltear5",
+        "executor": "Delta",
+        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
+        "version": "1.8.141",
+        "startedAt": 1795833365,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+      },
+      {
+        "account": "QuackAltear06",
+        "executor": "Delta",
+        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
+        "version": "1.8.141",
+        "startedAt": 1795833313,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
       },
       {
         "account": "QuackTest03",
-        "jobId": "aabfea9d-2086-42e9-ba9c-f0a6611f7368",
-        "reason": "Initial probe timed out; later absent; distinct session not substituted or deployed"
+        "executor": "Delta",
+        "jobId": "99bf1333-7b12-43ea-aa6b-8999c25ddaa4",
+        "version": "1.8.141",
+        "startedAt": 1795833535,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
       }
     ],
-    "allConnectedEligibleAccountsReexecuted": false,
+    "offlineChecks": 8768,
+    "connectedMainChecksPerAccount": 8768,
+    "connectedSupplementalEventChecksPerAccount": 21,
+    "connectedChecksPerAccount": 8789,
+    "newLayoutChecks": 263,
+    "factsChecks": 232,
+    "compatibilityMarkers": 42,
+    "allCurrentlyReachableEligibleSessionsReexecuted": true,
+    "incompleteTargets": [
+      {
+        "account": "xd_Glen09",
+        "reason": "Not discovered/connected during141 rollout;historical140 deployment not relabelled141"
+      }
+    ],
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "notDiscoveredHistoricalAccounts": [
-      "QuackAltear5",
-      "QuackAltear06"
-    ],
-    "offlineChecks": 8502,
-    "connectedChecksPerAccount": 8523,
-    "progressionChecks": 700,
-    "factsChecks": 229,
-    "compatibilityMarkers": 42,
-    "bubbleMaskPrerequisites": [
-      "Porcelain Dipper",
-      "Porcelain Port-O-Hive",
-      "Beekeeper's Mask",
-      "Beekeeper's Boots",
-      "Mondo Belt Bag"
-    ],
-    "naturalBubblePurchaseObserved": false,
-    "porcelainPortCapacityRequired": 35,
-    "naturalBelow35ExclusionObserved": true,
-    "allCurrentlyReachableEligibleSessionsReexecuted": true,
-    "diamondMaskCapacityRequired": 40,
-    "naturalBelow41ExclusionObserved": true,
-    "characterChecks": 538,
-    "hiveLandingClearanceMinimum": 3.5,
-    "hiveFinalTolerance": 0.75,
-    "collisionRestorationBeforeHoldRemoval": true,
-    "naturalHiveArrivalAfterFixObserved": false,
-    "intermittentUnderMapFallReproduced": false,
-    "diamondMaskRequiresDrenchersOwnedAndEquipped": true,
-    "separateMaterialFarmChecks": 51,
-    "materialFarmChecks": 51,
-    "coconutFieldRoute": {
-      "item": "Coconut",
-      "field": "Coconut Field",
-      "gate": "35 Bee Gate"
+    "layoutAt50": {
+      "Baby": 4,
+      "Music": 4,
+      "GiftedShy": 1,
+      "GiftedBasic": 1,
+      "GiftedBumble": 1,
+      "GiftedCool": 1,
+      "GiftedLooker": 1,
+      "GiftedCommander": 1,
+      "GiftedBucko": 1,
+      "GiftedBubble": 1,
+      "GiftedDiamondWithoutBear": 4,
+      "GiftedDiamondWithBear": 3,
+      "Tadpole": 10,
+      "Buoyant": 15,
+      "Events": [
+        "Tabby",
+        "Gummy",
+        "Vicious",
+        "Festive",
+        "Puppy"
+      ],
+      "Bear": "protected when present",
+      "GiftedFrosty": "temporary safe"
     },
-    "naturalCoconutFieldSwitchObserved": false,
-    "crimsonRequiresCobaltOwnedAndEquipped": true,
-    "naturalCrimsonExclusionObserved": true,
-    "connectedMainChecksPerAccount": 8502,
-    "connectedSupplementalEventChecksPerAccount": 21,
-    "cobaltAutoBuy": false,
-    "cobaltAutoGift": false,
-    "cobaltGiftFallback": false,
-    "ownedCobaltEggHatchPreserved": true,
-    "eventFirstMythicGateIgnoresCobalt": true
+    "naturalLive": {
+      "account": "SpidermanXD56",
+      "capacity": 46,
+      "bear": true,
+      "minimumBefore": 66,
+      "minimumAfter": 48,
+      "safeSlotsBefore": 0,
+      "safeSlotsFirstAfter": 16,
+      "TadpoleBefore": 3,
+      "TadpoleLater": 4,
+      "BuoyantBefore": 4,
+      "BuoyantLater": 6,
+      "Baby": 4,
+      "Music": 4,
+      "GiftedShy": 1,
+      "originalSpicyRolled": true,
+      "CobaltReplacedNaturally": true
+    },
+    "actual50HiveCompleteObserved": false
   },
   "previousVerifiedDeployment": {
     "version": "1.8.110",
@@ -4114,110 +4137,133 @@
     "noFlagsManuallyCleared": true
   },
   "latestCandidate": {
-    "version": "1.8.140",
+    "version": "1.8.141",
     "bundle": "core.luau",
-    "sha256": "dbabb97a0edf77fee54d27443abf62a150d4cc5f9c6ba895240b804c789c9eba",
-    "deployedNormalizedUTF8Sha256": "ebc50aacdd5048adcc048dfb70410997484d7c8dd920c67da56cca02f7b5079d",
+    "sha256": "11422a9faf4d3ab28e586ad7917dd9efe2a9f82cded166b2eb63e5728d099d73",
+    "deployedNormalizedUTF8Sha256": "44cf2ec139af86540fd634e8b8d52f8338638e6c69a4f2b467753767a540c654",
     "accounts": [
       {
-        "account": "xd_Glen09",
-        "jobId": "36c58970-9fe4-433c-a68c-6a76a4ae1d93",
-        "executor": "Arceus X",
-        "version": "1.8.140",
-        "startedAt": 1795832124,
-        "running": true,
-        "paused": false,
-        "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
-      },
-      {
         "account": "SpidermanXD56",
-        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
         "executor": "Arceus X",
-        "version": "1.8.140",
-        "startedAt": 1795832125,
+        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
+        "version": "1.8.141",
+        "startedAt": 1795833264,
         "running": true,
         "paused": false,
         "runtimeReportVerified": true,
         "uiVerified": true,
-        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
       },
-      {
-        "account": "QuackTest03",
-        "jobId": "97097a2d-929f-4d10-abe8-71188b130c54",
-        "executor": "Delta",
-        "version": "1.8.140",
-        "startedAt": 1795832198,
-        "running": true,
-        "paused": false,
-        "runtimeReportVerified": true,
-        "uiVerified": true,
-        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
-      }
-    ],
-    "incompleteTargets": [
       {
         "account": "QuackAltear1",
-        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
-        "reason": "Initial probe timed out; later absent from discovery; application not dispatched"
+        "executor": "Delta",
+        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
+        "version": "1.8.141",
+        "startedAt": 1795833367,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+      },
+      {
+        "account": "QuackAltear5",
+        "executor": "Delta",
+        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
+        "version": "1.8.141",
+        "startedAt": 1795833365,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
+      },
+      {
+        "account": "QuackAltear06",
+        "executor": "Delta",
+        "jobId": "9522fc8e-9221-4083-b941-68ca63bf2c74",
+        "version": "1.8.141",
+        "startedAt": 1795833313,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
       },
       {
         "account": "QuackTest03",
-        "jobId": "aabfea9d-2086-42e9-ba9c-f0a6611f7368",
-        "reason": "Initial probe timed out; later absent; distinct session not substituted or deployed"
+        "executor": "Delta",
+        "jobId": "99bf1333-7b12-43ea-aa6b-8999c25ddaa4",
+        "version": "1.8.141",
+        "startedAt": 1795833535,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.141-layout50-bear-final"
       }
     ],
-    "allConnectedEligibleAccountsReexecuted": false,
+    "offlineChecks": 8768,
+    "connectedMainChecksPerAccount": 8768,
+    "connectedSupplementalEventChecksPerAccount": 21,
+    "connectedChecksPerAccount": 8789,
+    "newLayoutChecks": 263,
+    "factsChecks": 232,
+    "compatibilityMarkers": 42,
+    "allCurrentlyReachableEligibleSessionsReexecuted": true,
+    "incompleteTargets": [
+      {
+        "account": "xd_Glen09",
+        "reason": "Not discovered/connected during141 rollout;historical140 deployment not relabelled141"
+      }
+    ],
     "excludedAccounts": [
       "QuackTest02"
     ],
-    "notDiscoveredHistoricalAccounts": [
-      "QuackAltear5",
-      "QuackAltear06"
-    ],
-    "offlineChecks": 8502,
-    "connectedChecksPerAccount": 8523,
-    "progressionChecks": 700,
-    "factsChecks": 229,
-    "compatibilityMarkers": 42,
-    "bubbleMaskPrerequisites": [
-      "Porcelain Dipper",
-      "Porcelain Port-O-Hive",
-      "Beekeeper's Mask",
-      "Beekeeper's Boots",
-      "Mondo Belt Bag"
-    ],
-    "naturalBubblePurchaseObserved": false,
-    "porcelainPortCapacityRequired": 35,
-    "naturalBelow35ExclusionObserved": true,
-    "allCurrentlyReachableEligibleSessionsReexecuted": true,
-    "diamondMaskCapacityRequired": 40,
-    "naturalBelow41ExclusionObserved": true,
-    "characterChecks": 538,
-    "hiveLandingClearanceMinimum": 3.5,
-    "hiveFinalTolerance": 0.75,
-    "collisionRestorationBeforeHoldRemoval": true,
-    "naturalHiveArrivalAfterFixObserved": false,
-    "intermittentUnderMapFallReproduced": false,
-    "diamondMaskRequiresDrenchersOwnedAndEquipped": true,
-    "separateMaterialFarmChecks": 51,
-    "materialFarmChecks": 51,
-    "coconutFieldRoute": {
-      "item": "Coconut",
-      "field": "Coconut Field",
-      "gate": "35 Bee Gate"
+    "layoutAt50": {
+      "Baby": 4,
+      "Music": 4,
+      "GiftedShy": 1,
+      "GiftedBasic": 1,
+      "GiftedBumble": 1,
+      "GiftedCool": 1,
+      "GiftedLooker": 1,
+      "GiftedCommander": 1,
+      "GiftedBucko": 1,
+      "GiftedBubble": 1,
+      "GiftedDiamondWithoutBear": 4,
+      "GiftedDiamondWithBear": 3,
+      "Tadpole": 10,
+      "Buoyant": 15,
+      "Events": [
+        "Tabby",
+        "Gummy",
+        "Vicious",
+        "Festive",
+        "Puppy"
+      ],
+      "Bear": "protected when present",
+      "GiftedFrosty": "temporary safe"
     },
-    "naturalCoconutFieldSwitchObserved": false,
-    "crimsonRequiresCobaltOwnedAndEquipped": true,
-    "naturalCrimsonExclusionObserved": true,
-    "connectedMainChecksPerAccount": 8502,
-    "connectedSupplementalEventChecksPerAccount": 21,
-    "cobaltAutoBuy": false,
-    "cobaltAutoGift": false,
-    "cobaltGiftFallback": false,
-    "ownedCobaltEggHatchPreserved": true,
-    "eventFirstMythicGateIgnoresCobalt": true
+    "naturalLive": {
+      "account": "SpidermanXD56",
+      "capacity": 46,
+      "bear": true,
+      "minimumBefore": 66,
+      "minimumAfter": 48,
+      "safeSlotsBefore": 0,
+      "safeSlotsFirstAfter": 16,
+      "TadpoleBefore": 3,
+      "TadpoleLater": 4,
+      "BuoyantBefore": 4,
+      "BuoyantLater": 6,
+      "Baby": 4,
+      "Music": 4,
+      "GiftedShy": 1,
+      "originalSpicyRolled": true,
+      "CobaltReplacedNaturally": true
+    },
+    "actual50HiveCompleteObserved": false
   },
   "deploymentV1_8_126": {
     "version": "1.8.126",
@@ -5740,5 +5786,111 @@
     "naturalCoconutFieldSwitchObserved": false,
     "crimsonRequiresCobaltOwnedAndEquipped": true,
     "naturalCrimsonExclusionObserved": true
+  },
+  "deploymentBeforeBlueLayout141": {
+    "version": "1.8.140",
+    "bundle": "core.luau",
+    "sha256": "dbabb97a0edf77fee54d27443abf62a150d4cc5f9c6ba895240b804c789c9eba",
+    "deployedNormalizedUTF8Sha256": "ebc50aacdd5048adcc048dfb70410997484d7c8dd920c67da56cca02f7b5079d",
+    "accounts": [
+      {
+        "account": "xd_Glen09",
+        "jobId": "36c58970-9fe4-433c-a68c-6a76a4ae1d93",
+        "executor": "Arceus X",
+        "version": "1.8.140",
+        "startedAt": 1795832124,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
+      },
+      {
+        "account": "SpidermanXD56",
+        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
+        "executor": "Arceus X",
+        "version": "1.8.140",
+        "startedAt": 1795832125,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
+      },
+      {
+        "account": "QuackTest03",
+        "jobId": "97097a2d-929f-4d10-abe8-71188b130c54",
+        "executor": "Delta",
+        "version": "1.8.140",
+        "startedAt": 1795832198,
+        "running": true,
+        "paused": false,
+        "runtimeReportVerified": true,
+        "uiVerified": true,
+        "connectedFinalMarker": "1.8.140-no-cobalt-events-final"
+      }
+    ],
+    "incompleteTargets": [
+      {
+        "account": "QuackAltear1",
+        "jobId": "fabdb125-9f74-415a-9561-ea4eb6c1793e",
+        "reason": "Initial probe timed out; later absent from discovery; application not dispatched"
+      },
+      {
+        "account": "QuackTest03",
+        "jobId": "aabfea9d-2086-42e9-ba9c-f0a6611f7368",
+        "reason": "Initial probe timed out; later absent; distinct session not substituted or deployed"
+      }
+    ],
+    "allConnectedEligibleAccountsReexecuted": false,
+    "excludedAccounts": [
+      "QuackTest02"
+    ],
+    "notDiscoveredHistoricalAccounts": [
+      "QuackAltear5",
+      "QuackAltear06"
+    ],
+    "offlineChecks": 8502,
+    "connectedChecksPerAccount": 8523,
+    "progressionChecks": 700,
+    "factsChecks": 229,
+    "compatibilityMarkers": 42,
+    "bubbleMaskPrerequisites": [
+      "Porcelain Dipper",
+      "Porcelain Port-O-Hive",
+      "Beekeeper's Mask",
+      "Beekeeper's Boots",
+      "Mondo Belt Bag"
+    ],
+    "naturalBubblePurchaseObserved": false,
+    "porcelainPortCapacityRequired": 35,
+    "naturalBelow35ExclusionObserved": true,
+    "allCurrentlyReachableEligibleSessionsReexecuted": true,
+    "diamondMaskCapacityRequired": 40,
+    "naturalBelow41ExclusionObserved": true,
+    "characterChecks": 538,
+    "hiveLandingClearanceMinimum": 3.5,
+    "hiveFinalTolerance": 0.75,
+    "collisionRestorationBeforeHoldRemoval": true,
+    "naturalHiveArrivalAfterFixObserved": false,
+    "intermittentUnderMapFallReproduced": false,
+    "diamondMaskRequiresDrenchersOwnedAndEquipped": true,
+    "separateMaterialFarmChecks": 51,
+    "materialFarmChecks": 51,
+    "coconutFieldRoute": {
+      "item": "Coconut",
+      "field": "Coconut Field",
+      "gate": "35 Bee Gate"
+    },
+    "naturalCoconutFieldSwitchObserved": false,
+    "crimsonRequiresCobaltOwnedAndEquipped": true,
+    "naturalCrimsonExclusionObserved": true,
+    "connectedMainChecksPerAccount": 8502,
+    "connectedSupplementalEventChecksPerAccount": 21,
+    "cobaltAutoBuy": false,
+    "cobaltAutoGift": false,
+    "cobaltGiftFallback": false,
+    "ownedCobaltEggHatchPreserved": true,
+    "eventFirstMythicGateIgnoresCobalt": true
   }
 }
